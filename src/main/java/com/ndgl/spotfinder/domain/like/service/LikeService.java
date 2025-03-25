@@ -1,6 +1,6 @@
 package com.ndgl.spotfinder.domain.like.service;
 
-import static com.ndgl.spotfinder.domain.like.entity.Like.*;
+import static com.ndgl.spotfinder.domain.like.entity.Likes.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -8,7 +8,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ndgl.spotfinder.domain.like.entity.Like;
+import com.ndgl.spotfinder.domain.like.entity.Likes;
 import com.ndgl.spotfinder.domain.like.repository.LikeRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -40,7 +40,7 @@ public class LikeService {
 	public List<Long> getLikedTargetIds(long userId, TargetType targetType) {
 		return likeRepository.findByUserIdAndTargetType(userId, targetType)
 			.stream()
-			.map(Like::getTargetId)
+			.map(Likes::getTargetId)
 			.toList();
 	}
 
@@ -55,17 +55,17 @@ public class LikeService {
 		}
 
 		// 타입에 따라 적절한 Like 객체 생성
-		Like like;
+		Likes likes;
 		if (targetType == TargetType.POST) {
-			like = Like.createPostLike(userId, targetId);
+			likes = Likes.createPostLike(userId, targetId);
 		} else if (targetType == TargetType.COMMENT) {
-			like = Like.createCommentLike(userId, targetId);
+			likes = Likes.createCommentLike(userId, targetId);
 		} else {
 			throw new IllegalArgumentException("지원하지 않는 좋아요 타입입니다: " + targetType);
 		}
 
 		// 좋아요 저장
-		likeRepository.save(like);
+		likeRepository.save(likes);
 	}
 
 	/**
@@ -90,7 +90,7 @@ public class LikeService {
 	@Transactional
 	public void deleteLike(long userId, long targetId, TargetType targetType) {
 		// 좋아요 조회
-		Optional<Like> likeOpt = likeRepository.findByUserIdAndTargetIdAndTargetType(
+		Optional<Likes> likeOpt = likeRepository.findByUserIdAndTargetIdAndTargetType(
 			userId, targetId, targetType
 		);
 
