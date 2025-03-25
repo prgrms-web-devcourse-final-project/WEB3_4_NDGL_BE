@@ -9,7 +9,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,8 +21,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(name = "`Like`")
-public class Like extends BaseTime {
+public class Likes extends BaseTime {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,7 +42,7 @@ public class Like extends BaseTime {
 		COMMENT,   // 댓글
 	}
 
-	public static Like createPostLike(Long userId, Long postId) {
+	public static Likes createPostLike(Long userId, Long postId) {
 		return builder()
 			.userId(userId)
 			.targetId(postId)
@@ -52,7 +50,7 @@ public class Like extends BaseTime {
 			.build();
 	}
 
-	public static Like createCommentLike(Long userId, Long commentId) {
+	public static Likes createCommentLike(Long userId, Long commentId) {
 		return builder()
 			.userId(userId)
 			.targetId(commentId)
