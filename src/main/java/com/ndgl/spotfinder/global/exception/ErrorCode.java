@@ -10,7 +10,9 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 @Slf4j
 public enum ErrorCode {
-	UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다.");
+	UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다."),
+
+	NOT_FOUND(HttpStatus.NOT_FOUND, "Not Found");
 
 	private final HttpStatus httpStatus;
 	private final String message;
