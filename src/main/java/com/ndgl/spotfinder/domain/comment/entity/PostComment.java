@@ -20,6 +20,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
@@ -33,6 +34,7 @@ public class PostComment extends BaseTime {
 	private Long id;
 
 	@Column(columnDefinition = "TEXT", nullable = false)
+	@Setter
 	private String content;
 
 	@LastModifiedDate
