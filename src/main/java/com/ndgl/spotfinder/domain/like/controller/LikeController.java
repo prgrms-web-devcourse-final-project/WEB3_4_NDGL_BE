@@ -28,9 +28,13 @@ public class LikeController {
 	 * 댓글 좋아요 추가
 	 */
 	@PostMapping("/comments/{commentId}")
-	public RsData<Void> addCommentLike(@PathVariable Long commentId) {
+	public RsData<Void> addCommentLike(
+		// @AuthenticationPrincipal UserDetails userDetails,
+		@PathVariable Long commentId
+	) {
+		// long userId = Long.parseLong(userDetails.getUsername());
 		long userId = getCurrentUserId();
-		likeService.addCommentLike(userId, commentId);
+		boolean isAdded = likeService.toggleCommentLike(userId, commentId);
 		return RsData.success(HttpStatus.OK, null);
 	}
 
@@ -40,7 +44,7 @@ public class LikeController {
 	@DeleteMapping("/comments/{commentId}")
 	public RsData<Void> removeCommentLike(@PathVariable Long commentId) {
 		long userId = getCurrentUserId();
-		likeService.deleteCommentLike(userId, commentId);
+		boolean isDeleted = likeService.toggleCommentLike(userId, commentId);
 		return RsData.success(HttpStatus.OK, null);
 	}
 
@@ -50,7 +54,7 @@ public class LikeController {
 	@PostMapping("/posts/{postId}")
 	public RsData<Void> addPostLike(@PathVariable Long postId) {
 		long userId = getCurrentUserId();
-		likeService.addPostLike(userId, postId);
+		boolean isAdded = likeService.togglePostLike(userId, postId);
 		return RsData.success(HttpStatus.OK, null);
 	}
 
@@ -58,9 +62,10 @@ public class LikeController {
 	 * 포스트 좋아요 취소
 	 */
 	@DeleteMapping("/posts/{postId}")
-	public RsData<Void> removePostLike(@PathVariable Long postId) {
+	public RsData<Void> removePostLike(
+		@PathVariable Long postId) {
 		long userId = getCurrentUserId();
-		likeService.deletePostLike(userId, postId);
+		boolean isDeleted = likeService.togglePostLike(userId, postId);
 		return RsData.success(HttpStatus.OK, null);
 	}
 

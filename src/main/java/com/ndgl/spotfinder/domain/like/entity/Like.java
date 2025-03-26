@@ -9,6 +9,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,14 +23,24 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Likes extends BaseTime {
+@Table(name = "`Like`",
+	uniqueConstraints = @UniqueConstraint(
+		columnNames = {"user_id", "target_id", "target_type"},
+		name = "uk_like_user_target"
+	))
+public class Like extends BaseTime {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
+	// TODO : 유저 관계 추후 추가
 	@Column(name = "user_id", nullable = false)
 	private Long userId;
+
+	// @ManyToOne(fetch = FetchType.LAZY)
+	// @JoinColumn(name = "user_id", nullable = false)
+	// private User user;
 
 	@Column(name = "target_id", nullable = false)
 	private Long targetId;
@@ -42,7 +54,7 @@ public class Likes extends BaseTime {
 		COMMENT,   // 댓글
 	}
 
-	public static Likes createPostLike(Long userId, Long postId) {
+	public static Like createPostLike(Long userId, Long postId) {
 		return builder()
 			.userId(userId)
 			.targetId(postId)
@@ -50,20 +62,12 @@ public class Likes extends BaseTime {
 			.build();
 	}
 
-	public static Likes createCommentLike(Long userId, Long commentId) {
+	public static Like createCommentLike(Long userId, Long commentId) {
 		return builder()
 			.userId(userId)
 			.targetId(commentId)
 			.targetType(TargetType.COMMENT)
 			.build();
-	}
-
-	public boolean isPostLike() {
-		return TargetType.POST.equals(targetType);
-	}
-
-	public boolean isCommentLike() {
-		return TargetType.COMMENT.equals(targetType);
 	}
 
 }
