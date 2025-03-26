@@ -92,8 +92,16 @@ public class LikeService {
 		return new LikeStatus(hasLiked, count);
 	}
 
+	public void deleteAllLikesForPost(Long postId) {
+		deleteAllLikes(postId, TargetType.POST);
+	}
+
+	public void deleteAllLikesForComment(Long commentId) {
+		deleteAllLikes(commentId, TargetType.COMMENT);
+	}
+
 	/**
-	 * 특정 대상의 모든 좋아요 삭제
+	 * 대상의 모든 좋아요 삭제
 	 */
 	@Transactional
 	public void deleteAllLikes(long targetId, TargetType targetType) {
