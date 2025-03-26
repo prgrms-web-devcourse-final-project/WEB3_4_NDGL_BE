@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
  * @author 한상훈
  */
 @RestController
-@RequestMapping("/api/v1/likes")
+@RequestMapping("/api/v1/like")
 @RequiredArgsConstructor
 public class LikeController {
 
@@ -38,7 +38,7 @@ public class LikeController {
 		// long userId = Long.parseLong(userDetails.getUsername());
 		long userId = getCurrentUserId();
 		boolean isAdded = likeService.toggleCommentLike(userId, commentId);
-		return RsData.success(HttpStatus.OK, null);
+		return RsData.success(HttpStatus.OK);
 	}
 
 	/**
@@ -48,7 +48,7 @@ public class LikeController {
 	public RsData<Void> removeCommentLike(@PathVariable Long commentId) {
 		long userId = getCurrentUserId();
 		boolean isDeleted = likeService.toggleCommentLike(userId, commentId);
-		return RsData.success(HttpStatus.OK, null);
+		return RsData.success(HttpStatus.OK);
 	}
 
 	/**
@@ -58,7 +58,7 @@ public class LikeController {
 	public RsData<Void> addPostLike(@PathVariable Long postId) {
 		long userId = getCurrentUserId();
 		boolean isAdded = likeService.togglePostLike(userId, postId);
-		return RsData.success(HttpStatus.OK, null);
+		return RsData.success(HttpStatus.OK);
 	}
 
 	/**
@@ -69,7 +69,7 @@ public class LikeController {
 		@PathVariable Long postId) {
 		long userId = getCurrentUserId();
 		boolean isDeleted = likeService.togglePostLike(userId, postId);
-		return RsData.success(HttpStatus.OK, null);
+		return RsData.success(HttpStatus.OK);
 	}
 
 }
