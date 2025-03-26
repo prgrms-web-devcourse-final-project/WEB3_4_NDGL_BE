@@ -44,7 +44,7 @@ public class ResponseAspect {
 		Object proceed = joinPoint.proceed();
 
 		if (proceed instanceof RsData<?> rsData) {
-			response.setStatus(rsData.getCode().value());
+			response.setStatus(rsData.getCode());
 		}
 
 		return proceed;
