@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Optional;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -20,7 +19,7 @@ import com.ndgl.spotfinder.domain.like.entity.Like;
 import com.ndgl.spotfinder.domain.like.repository.LikeRepository;
 
 /**
- * TODO 연관관계 설정 시 userId 수정 필요
+ * TODO like, user 연관관계 설정 시 userId 수정 필요 검토
  *
  * @see LikeService
  */
@@ -38,11 +37,6 @@ class LikeServiceTest {
 	private final Long userId = 1L;
 	private final Long postId = 100L;
 	private final Long commentId = 100L;
-
-	@BeforeEach
-	void setUp() {
-		likeRepository.deleteAll();
-	}
 
 	@Nested
 	@DisplayName("포스트 좋아요 관련 테스트")
@@ -272,7 +266,6 @@ class LikeServiceTest {
 			assertThat(status.hasLiked()).isFalse();
 			assertEquals(0, status.likeCount());
 		}
-
 
 		@Test
 		@DisplayName("댓글 관련 좋아요 모두 삭제 테스트")
