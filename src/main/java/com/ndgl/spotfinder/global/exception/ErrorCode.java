@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public enum ErrorCode {
 	UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다."),
-
+	ACCESS_DENIED(HttpStatus.FORBIDDEN, "권한이 없습니다."),
 	CONFLICTED_NICKNAME(HttpStatus.CONFLICT, "이미 사용중인 닉네임 입니다."),
 	CONFLICTED_BLOG_NAME(HttpStatus.CONFLICT, "이미 사용중인 블로그 명 입니다."),
 	USER_NOT_FOUND(HttpStatus.NOT_FOUND, "대상 유저가 없습니다."),
