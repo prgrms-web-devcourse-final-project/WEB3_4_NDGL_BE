@@ -43,9 +43,15 @@ public class SecurityConfig {
 					"/api/v1/users/google/login",
 					"/api/v1/users/google/login/google/callback",
 					"/api/v1/users/google/login/process",
-					"/h2-console/**"
+					"/h2-console/**",
+					"/api/v1/posts/**"
 				).permitAll() // 로그인 경로는 모두 허용
 				.anyRequest().authenticated()
+			)
+			.headers(headers ->
+				headers.frameOptions(frameOptions ->
+					frameOptions.sameOrigin()
+				)
 			)
 			.addFilterBefore(new JwtFilter(tokenProvider),
 				org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
