@@ -1,15 +1,20 @@
 package com.ndgl.spotfinder.domain.comment.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ndgl.spotfinder.domain.comment.dto.PostCommentDto;
 import com.ndgl.spotfinder.domain.comment.entity.PostComment;
 import com.ndgl.spotfinder.domain.comment.repository.PostCommentRepository;
+import com.ndgl.spotfinder.global.common.dto.SliceResponse;
+import com.ndgl.spotfinder.global.exception.ServiceException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -19,39 +24,52 @@ public class PostCommentService {
 	private final PostCommentRepository postCommentRepository;
 
 	@Transactional(readOnly = true)
-	public Slice<PostCommentDto> getComments(Long postId) {
-		Pageable pageable = PageRequest.of(0, 10, Sort.by("id").descending());
-		Slice<PostComment> comments = postCommentRepository.findByIdLessThanOrderByIdDesc(postId, pageable);
+	public SliceResponse<PostCommentDto> getComments(Long postId, int page, int size) {
+		Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
 
-		return comments.map(PostCommentDto::new);
+		List<PostComment> comments = postCommentRepository.findByPostIdOrderByIdDesc(postId, pageable);
+		boolean hasNext = comments.size() == size;
+
+		return new SliceResponse<>(
+			comments.stream()
+				.map(PostCommentDto::new)
+				.collect(Collectors.toList()),
+			hasNext
+		);
+	}
+
+	private PostComment findCommentAndVerifyPost(Long commentId, Long postId) {
+		PostComment comment = postCommentRepository.findById(commentId)
+			.orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND, "Not found"));
+		comment.isCommentOfPost(postId);
+		return comment;
 	}
 
 	@Transactional(readOnly = true)
-	public PostCommentDto getComment(Long commentId) {
-		PostComment comment = postCommentRepository.findById(commentId).orElseThrow();
+	public PostCommentDto getComment(Long postId, Long commentId) {
+		PostComment comment = findCommentAndVerifyPost(commentId, postId);
 		return new PostCommentDto(comment);
 	}
 
 	@Transactional
-	public PostCommentDto write(Long postId, String content) {
+	public void write(Long postId, String content) {
 		PostComment comment = PostComment.builder()
+			.userId(1L) // 임시
+			.postId(postId)
 			.content(content)
 			.build();
 		postCommentRepository.save(comment);
-
-		return new PostCommentDto(comment);
 	}
 
 	@Transactional
-	public void delete(Long commentId) {
-		postCommentRepository.deleteById(commentId);
+	public void delete(Long id, Long commentId) {
+		PostComment comment = findCommentAndVerifyPost(commentId, id);
+		postCommentRepository.delete(comment);
 	}
 
 	@Transactional
-	public void modify(Long commentId, String content) {
-		PostComment comment = postCommentRepository.findById(commentId).orElseThrow();
+	public void modify(Long postId, Long commentId, String content) {
+		PostComment comment = findCommentAndVerifyPost(commentId, postId);
 		comment.setContent(content);
-
-		postCommentRepository.save(comment);
 	}
 }

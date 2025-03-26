@@ -9,7 +9,7 @@ public class PostCommentDto {
 	private final Long id;
 	private final String content;
 	// private final String authorName;
-	// private final Long postId;
+	private final Long postId;
 	private final String createdAt;
 	private final String modifiedAt;
 
@@ -17,7 +17,7 @@ public class PostCommentDto {
 		this.id = comment.getId();
 		this.content = comment.getContent();
 		// this.authorName = comment.getAuthor().getName();
-		// this.postId = comment.getPost().getId();
+		this.postId = comment.getPostId(); // 임시
 		this.createdAt = comment.getCreatedAt().toString();
 		this.modifiedAt = comment.getModifiedAt().toString();
 	}

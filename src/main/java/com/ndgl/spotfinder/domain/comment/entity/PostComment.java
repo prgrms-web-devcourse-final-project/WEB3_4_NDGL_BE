@@ -4,8 +4,10 @@ import java.time.LocalDateTime;
 
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.http.HttpStatus;
 
 import com.ndgl.spotfinder.global.base.BaseTime;
+import com.ndgl.spotfinder.global.exception.ServiceException;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -40,12 +42,22 @@ public class PostComment extends BaseTime {
 	@LastModifiedDate
 	private LocalDateTime modifiedAt;
 
-	// 포스트 id
+	// 포스트 -> id로 대체(임시)
+	@Column(nullable = false)
+	private Long postId;
 
-	// 작성자 id
+	// 작성자
+	@Column(nullable = false)
+	private Long userId;
 
 	// 부모 댓글 id(nullable)
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "parent_id")
 	private PostComment parentComment;
+
+	public void isCommentOfPost(Long postId) {
+		if (!this.postId.equals(postId)) {
+			throw new ServiceException(HttpStatus.NOT_FOUND, "Not Found In Post");
+		}
+	}
 }
