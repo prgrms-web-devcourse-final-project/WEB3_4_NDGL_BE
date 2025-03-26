@@ -12,6 +12,9 @@ import com.ndgl.spotfinder.global.rsdata.RsData;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * @author 한상훈
+ */
 @RestController
 @RequestMapping("/api/v1/likes")
 @RequiredArgsConstructor
