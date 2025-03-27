@@ -57,7 +57,9 @@ class LikeControllerTest {
 		resultActions
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.message").value("OK"))
-			.andExpect(jsonPath("$.code").value(HttpStatus.OK.value()));
+			.andExpect(jsonPath("$.code").value(HttpStatus.OK.value()))
+			.andExpect(jsonPath("$.data").value(true));
+
 	}
 
 	@Test
@@ -81,14 +83,15 @@ class LikeControllerTest {
 	void cancelPostLikeTest() throws Exception {
 		ResultActions resultActions = mvc
 			.perform(
-				delete("/api/v1/like/posts/" + postId)
+				post("/api/v1/like/posts/" + postId)
 			)
 			.andDo(print());
 
 		resultActions
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.message").value("OK"))
-			.andExpect(jsonPath("$.code").value(HttpStatus.OK.value()));
+			.andExpect(jsonPath("$.code").value(HttpStatus.OK.value()))
+			.andExpect(jsonPath("$.data").value(false));
 	}
 
 	@Test
@@ -103,7 +106,8 @@ class LikeControllerTest {
 		resultActions
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.message").value("OK"))
-			.andExpect(jsonPath("$.code").value(HttpStatus.OK.value()));
+			.andExpect(jsonPath("$.code").value(HttpStatus.OK.value()))
+			.andExpect(jsonPath("$.data").value(true));
 	}
 
 	@Test
@@ -111,14 +115,15 @@ class LikeControllerTest {
 	void cancelCommentLikeTest() throws Exception {
 		ResultActions resultActions = mvc
 			.perform(
-				delete("/api/v1/like/comments/" + commentId)
+				post("/api/v1/like/comments/" + commentId)
 			)
 			.andDo(print());
 
 		resultActions
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.message").value("OK"))
-			.andExpect(jsonPath("$.code").value(HttpStatus.OK.value()));
+			.andExpect(jsonPath("$.code").value(HttpStatus.OK.value()))
+			.andExpect(jsonPath("$.data").value(false));
 	}
 
 }
