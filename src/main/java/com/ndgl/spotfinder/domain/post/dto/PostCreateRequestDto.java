@@ -31,14 +31,14 @@ public record PostCreateRequestDto(
 	List<LocationDto> locations
 ) {
 	public Post toPost() {
-		List<Location> locationEntities = this.locations
-			.stream()
-			.map(LocationDto::toLocation)
-			.toList();
-
-		List<Hashtag> hashtagEntities = this.hashtags
+		List<Hashtag> hashtagEntities = hashtags
 			.stream()
 			.map(HashtagDto::toHashtag)
+			.toList();
+
+		List<Location> locationEntities = locations
+			.stream()
+			.map(LocationDto::toLocation)
 			.toList();
 
 		Post post = Post.builder()
@@ -48,8 +48,8 @@ public record PostCreateRequestDto(
 			.likeCount(0L)
 			.build();
 
-		locationEntities.forEach(post::addLocation);
-		hashtagEntities.forEach(post::addHashtag);
+		post.addHashtags(hashtagEntities);
+		post.addLocations(locationEntities);
 
 		return post;
 	}
