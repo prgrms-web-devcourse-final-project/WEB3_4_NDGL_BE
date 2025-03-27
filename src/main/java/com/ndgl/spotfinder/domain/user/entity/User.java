@@ -38,10 +38,6 @@ public class User extends BaseTime {
 	public String email;
 
 	@Setter
-	@NotNull(message = "userName 값이 필요합니다.")
-	public String userName;
-
-	@Setter
 	@NotNull(message = "nickName 값이 필요합니다.")
 	public String nickName;
 

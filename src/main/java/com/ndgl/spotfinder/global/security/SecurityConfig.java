@@ -27,15 +27,16 @@ public class SecurityConfig {
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http
 			.cors(withDefaults())
-			.securityMatcher("/api/v1/user/**")
+			.securityMatcher("/api/v1/users/**")
 			.csrf(csrf -> csrf.disable())
 			.sessionManagement(session ->
 				session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers(
-					"/api/v1/user/google/login",
-					"/api/v1/user/google/login/google/callback",
-					"/api/v1/user/google/login/process",
+					"/api/v1/users/join",
+					"/api/v1/users/google/login",
+					"/api/v1/users/google/login/google/callback",
+					"/api/v1/users/google/login/process",
 					"/h2-console/**"
 				).permitAll() // 로그인 경로는 모두 허용
 				.anyRequest().authenticated()
