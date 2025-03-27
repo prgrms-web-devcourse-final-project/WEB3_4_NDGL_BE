@@ -3,17 +3,18 @@ package com.ndgl.spotfinder.domain.comment.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ndgl.spotfinder.domain.comment.dto.PostCommentDto;
 import com.ndgl.spotfinder.domain.comment.dto.PostCommentReqDto;
 import com.ndgl.spotfinder.domain.comment.service.PostCommentService;
+import com.ndgl.spotfinder.global.common.dto.SliceRequest;
 import com.ndgl.spotfinder.global.common.dto.SliceResponse;
 import com.ndgl.spotfinder.global.rsdata.RsData;
 
@@ -33,10 +34,9 @@ public class PostCommentController {
 	@Operation(summary = "댓글 목록 조회", description = "포스트의 댓글 목록을 조회합니다.")
 	public RsData<SliceResponse<PostCommentDto>> getComments(
 		@PathVariable Long id,
-		@RequestParam(required = false) Long lastId,
-		@RequestParam(defaultValue = "10") int size
+		@ModelAttribute SliceRequest request
 	) {
-		return RsData.success(HttpStatus.OK, postCommentService.getComments(id, lastId, size));
+		return RsData.success(HttpStatus.OK, postCommentService.getComments(id, request.lastId(), request.size()));
 	}
 
 	@GetMapping("/{commentId}")
