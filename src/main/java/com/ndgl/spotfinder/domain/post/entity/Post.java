@@ -6,6 +6,9 @@ import java.util.List;
 
 import org.springframework.data.annotation.LastModifiedDate;
 
+import com.ndgl.spotfinder.domain.post.dto.HashtagDto;
+import com.ndgl.spotfinder.domain.post.dto.LocationDto;
+import com.ndgl.spotfinder.domain.post.dto.PostUpdateRequestDto;
 import com.ndgl.spotfinder.global.base.BaseTime;
 
 import jakarta.persistence.CascadeType;
@@ -53,13 +56,60 @@ public class Post extends BaseTime {
 	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Location> locations = new ArrayList<>();
 
+	public void addHashtag(Hashtag hashtag) {
+		hashtags.add(hashtag);
+		hashtag.setPost(this);
+	}
+
+	public void addHashtags(List<Hashtag> hashtags) {
+		hashtags.forEach(this::addHashtag);
+	}
+
 	public void addLocation(Location location) {
 		locations.add(location);
 		location.setPost(this);
 	}
 
-	public void addHashtag(Hashtag hashtag) {
-		hashtags.add(hashtag);
-		hashtag.setPost(this);
+	public void addLocations(List<Location> locations) {
+		locations.forEach(this::addLocation);
+	}
+
+	public Post updatePost(PostUpdateRequestDto requestDto) {
+		title = requestDto.title();
+		content = requestDto.content();
+
+		List<Hashtag> newHashtags = requestDto.hashtags()
+			.stream()
+			.map(HashtagDto::toHashtag)
+			.toList();
+		updateHashtags(newHashtags);
+
+		List<Location> newLocations = requestDto.locations()
+			.stream()
+			.map(LocationDto::toLocation)
+			.toList();
+		updateLocations(newLocations);
+
+		return this;
+	}
+
+	public void updateHashtags(List<Hashtag> newHashtags) {
+		removeAllHashtags();
+		hashtags.addAll(newHashtags);
+		newHashtags.forEach(hashtag -> hashtag.setPost(this));
+	}
+
+	public void updateLocations(List<Location> newLocations) {
+		removeAllLocations();
+		locations.addAll(newLocations);
+		newLocations.forEach(location -> location.setPost(this));
+	}
+
+	public void removeAllHashtags() {
+		hashtags.clear();
+	}
+
+	public void removeAllLocations() {
+		locations.clear();
 	}
 }
