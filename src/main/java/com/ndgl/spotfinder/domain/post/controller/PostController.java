@@ -10,6 +10,7 @@ import com.ndgl.spotfinder.domain.post.dto.PostCreateRequestDto;
 import com.ndgl.spotfinder.domain.post.service.PostService;
 import com.ndgl.spotfinder.global.rsdata.RsData;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -19,7 +20,7 @@ public class PostController {
 	private final PostService postService;
 
 	@PostMapping
-	public RsData<String> createPost(@RequestBody PostCreateRequestDto postCreateRequestDto) {
+	public RsData<String> createPost(@RequestBody @Valid PostCreateRequestDto postCreateRequestDto) {
 		postService.createPost(postCreateRequestDto);
 
 		return RsData.success(HttpStatus.OK);
