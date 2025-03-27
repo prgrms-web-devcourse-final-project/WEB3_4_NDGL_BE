@@ -6,11 +6,15 @@ spring:
     driver-class-name: org.h2.Driver
     hikari:
       auto-commit: false
+  servlet:
+    multipart:
+      max-file-size: 10MB # 단일 파일 최대 크기
+      max-request-size: 50MB # 요청당 최대 크기
 
   cloud:
     aws:
-#      s3:
-#        bucket: test-bucket
+      s3:
+        bucket: ${BUCKET_NAME}
       credentials:
         access-key: ${ACCESS_KEY}
         secret-key: ${SECRET_ACCESS_KEY}
