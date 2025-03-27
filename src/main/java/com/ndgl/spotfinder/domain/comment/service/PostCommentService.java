@@ -21,11 +21,12 @@ public class PostCommentService {
 
 	@Transactional(readOnly = true)
 	public SliceResponse<PostCommentDto> getComments(Long postId, Long lastId, int size) {
-		List<PostComment> comments = postCommentRepository.findByPostIdAndIdLessThanOrderByIdDesc(postId, lastId);
-		boolean hasNext = comments.size() > size;
+		List<PostComment> comments =
+			postCommentRepository.findByPostIdAndParentCommentIsNullAndIdLessThanOrderByIdDesc(postId, lastId);
 
+		boolean hasNext = comments.size() > size;
 		if (hasNext) {
-			comments = comments.subList(0, size); // `size`개만 반환
+			comments = comments.subList(0, size);
 		}
 
 		return new SliceResponse<>(
@@ -34,29 +35,6 @@ public class PostCommentService {
 				.toList(),
 			hasNext
 		);
-
-		// List<PostComment> comments;
-		//
-		// if (lastId == null) {
-		// 	// 처음 요청일 경우, 최신 댓글부터 가져옴
-		// 	comments = postCommentRepository.findTop4ByPostIdOrderByIdDesc(postId);
-		// } else {
-		// 	// 마지막 ID보다 작은 ID들을 가져옴
-		// 	comments = postCommentRepository.findByPostIdAndIdLessThanOrderByIdDesc(postId, lastId, size + 1);
-		// }
-		//
-		// // `size + 1` 개의 데이터를 가져왔으므로, 마지막 데이터가 다음 페이지 여부 판단
-		// boolean hasNext = comments.size() > size;
-		// // size 개의 데이터만 반환하고, 나머지는 버림
-		// if (hasNext) {
-		// 	comments = comments.subList(0, size);
-		// }
-		//
-		// // DTO로 변환하여 반환
-		// return new SliceResponse<>(
-		// 	comments.stream().map(PostCommentDto::new).toList(),
-		// 	hasNext
-		// );
 	}
 
 	private PostComment findCommentAndVerifyPost(Long commentId, Long postId) {

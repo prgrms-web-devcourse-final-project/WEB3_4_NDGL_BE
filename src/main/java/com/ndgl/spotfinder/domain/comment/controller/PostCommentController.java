@@ -33,7 +33,7 @@ public class PostCommentController {
 	@Operation(summary = "댓글 목록 조회", description = "포스트의 댓글 목록을 조회합니다.")
 	public RsData<SliceResponse<PostCommentDto>> getComments(
 		@PathVariable Long id,
-		@RequestParam(defaultValue = "null") Long lastId,
+		@RequestParam(required = false) Long lastId,
 		@RequestParam(defaultValue = "10") int size
 	) {
 		return RsData.success(HttpStatus.OK, postCommentService.getComments(id, lastId, size));

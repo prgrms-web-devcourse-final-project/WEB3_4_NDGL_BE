@@ -1,5 +1,8 @@
 package com.ndgl.spotfinder.domain.comment.dto;
 
+import java.util.Comparator;
+import java.util.List;
+
 import com.ndgl.spotfinder.domain.comment.entity.PostComment;
 
 import lombok.Getter;
@@ -14,6 +17,7 @@ public class PostCommentDto {
 	private final Long likeCount;
 	private final String createdAt;
 	private final String modifiedAt;
+	private final List<PostCommentDto> replies;
 
 	public PostCommentDto(PostComment comment) {
 		this.id = comment.getId();
@@ -24,5 +28,9 @@ public class PostCommentDto {
 		this.likeCount = comment.getLikeCount();
 		this.createdAt = comment.getCreatedAt().toString();
 		this.modifiedAt = comment.getModifiedAt().toString();
+		this.replies = comment.getChildrenComments().stream()
+			.sorted(Comparator.comparing(PostComment::getId).reversed())
+			.map(PostCommentDto::new)
+			.toList();
 	}
 }
