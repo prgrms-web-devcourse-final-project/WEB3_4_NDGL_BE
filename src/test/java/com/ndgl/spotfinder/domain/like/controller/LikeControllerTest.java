@@ -35,9 +35,9 @@ class LikeControllerTest {
 	@Autowired
 	private LikeService likeService;
 
-	private final long userId = 1L;
-	private final long postId = 100L;
-	private final long commentId = 200L;
+	private final Integer userId = 1;
+	private final Integer postId = 100;
+	private final Integer commentId = 200;
 
 	@BeforeEach
 	void setUp() {
@@ -61,7 +61,7 @@ class LikeControllerTest {
 	}
 
 	@Test
-	@DisplayName("포스트 좋아요 추가에 음수 입력시")
+	@DisplayName("좋아요 추가에 음수 입력시")
 	void addPostLikeTest2() throws Exception {
 		ResultActions resultActions = mvc
 			.perform(
