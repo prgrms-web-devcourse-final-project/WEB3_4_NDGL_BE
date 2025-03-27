@@ -17,11 +17,12 @@ import jakarta.persistence.ManyToOne;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
 @NoArgsConstructor
-public class CommentReport extends BaseTime {
+public class PostCommentReport extends BaseTime {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -47,10 +48,11 @@ public class CommentReport extends BaseTime {
 
 	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
+	@Setter
 	private ReportStatus reportStatus;
 
 	@Builder
-	private CommentReport(
+	private PostCommentReport(
 		User reporter,
 		User reportedUser,
 		String reason,

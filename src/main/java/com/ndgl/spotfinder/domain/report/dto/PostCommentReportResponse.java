@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import com.ndgl.spotfinder.domain.report.entity.ReportStatus;
 import com.ndgl.spotfinder.domain.report.entity.ReportType;
 
-public record CommentReportResponse(
+public record PostCommentReportResponse(
 	String postCommentContent,
 	long reporterId,
 	long reportedUserId,
