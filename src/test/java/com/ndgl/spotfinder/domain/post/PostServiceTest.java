@@ -162,4 +162,24 @@ public class PostServiceTest {
 		ServiceException exception = assertThrows(ServiceException.class, () -> postService.updatePost(1L, requestDto));
 		assertEquals(HttpStatus.NOT_FOUND, exception.getCode());
 	}
+
+	@Test
+	public void deletePost_success() {
+		// when
+		when(postRepository.findById(1L)).thenReturn(Optional.of(samplePost));
+		postService.deletePost(1L);
+
+		// then
+		verify(postRepository, times(1)).delete(samplePost);
+	}
+
+	@Test
+	public void deletePost_notFound() {
+		// when
+		when(postRepository.findById(1L)).thenReturn(Optional.empty());
+
+		// then
+		ServiceException exception = assertThrows(ServiceException.class, () -> postService.deletePost(1L));
+		assertEquals(HttpStatus.NOT_FOUND, exception.getCode());
+	}
 }
