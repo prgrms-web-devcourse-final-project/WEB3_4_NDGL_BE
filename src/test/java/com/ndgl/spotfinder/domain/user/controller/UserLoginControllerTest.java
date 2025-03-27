@@ -22,7 +22,7 @@ public class UserLoginControllerTest {
 	@Test
 	@DisplayName("Google 로그인 요청 시 302 리다이렉트 요청 확인")
 	void loginRedirectsToGoogle() throws Exception {
-		mockMvc.perform(get("/api/v1/user/login"))
+		mockMvc.perform(get("/api/v1/user/google/login"))
 			.andExpect(status().isFound()) // 302
 			.andExpect(header().string("Location",
 				org.hamcrest.Matchers.containsString("https://accounts.google.com/o/oauth2/auth")));
