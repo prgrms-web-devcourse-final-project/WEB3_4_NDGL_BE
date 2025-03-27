@@ -21,8 +21,13 @@ public class PostCommentService {
 
 	@Transactional(readOnly = true)
 	public SliceResponse<PostCommentDto> getComments(Long postId, Long lastId, int size) {
-		List<PostComment> comments =
-			postCommentRepository.findByPostIdAndParentCommentIsNullAndIdLessThanOrderByIdDesc(postId, lastId);
+		List<PostComment> comments;
+		if (lastId == null) {
+			comments = postCommentRepository.findByPostIdAndParentCommentIsNullOrderByIdDesc(postId);
+		} else {
+			comments = postCommentRepository.findByPostIdAndParentCommentIsNullAndIdLessThanOrderByIdDesc(postId, lastId);
+		}
+
 
 		boolean hasNext = comments.size() > size;
 		if (hasNext) {
