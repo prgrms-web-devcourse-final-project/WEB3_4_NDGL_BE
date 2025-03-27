@@ -33,10 +33,10 @@ public class PostCommentController {
 	@Operation(summary = "댓글 목록 조회", description = "포스트의 댓글 목록을 조회합니다.")
 	public RsData<SliceResponse<PostCommentDto>> getComments(
 		@PathVariable Long id,
-		@RequestParam(defaultValue = "0") int page,
-		@RequestParam(defaultValue = "10") int pageSize
+		@RequestParam(defaultValue = "null") Long lastId,
+		@RequestParam(defaultValue = "10") int size
 	) {
-		return RsData.success(HttpStatus.OK, postCommentService.getComments(id, page, pageSize));
+		return RsData.success(HttpStatus.OK, postCommentService.getComments(id, lastId, size));
 	}
 
 	@GetMapping("/{commentId}")
@@ -48,7 +48,7 @@ public class PostCommentController {
 	@PostMapping
 	@Operation(summary = "댓글 작성", description = "댓글을 작성합니다.")
 	public RsData<Void> write(@PathVariable Long id, @RequestBody @Valid PostCommentReqDto reqBody) {
-		postCommentService.write(id, reqBody.getContent());
+		postCommentService.write(id, reqBody.getContent(), reqBody.getParentId());
 		return RsData.success(HttpStatus.OK);
 	}
 

@@ -6,6 +6,8 @@ import lombok.Getter;
 
 @Getter
 public class PostCommentReqDto {
-	@NotNull @Size(min = 2)
+	@NotNull @Size(min = 2, max = 100)
 	private String content;
+
+	private Long parentId;
 }
