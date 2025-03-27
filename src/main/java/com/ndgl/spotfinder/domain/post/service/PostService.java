@@ -23,7 +23,8 @@ public class PostService {
 
 	@Transactional
 	public void updatePost(Long id, PostUpdateRequestDto requestDto) {
-		Post post = postRepository.findById(id).orElseThrow(ErrorCode.POST_NOT_FOUND::throwServiceException);
+		Post post = postRepository.findById(id)
+			.orElseThrow(ErrorCode.POST_NOT_FOUND::throwServiceException);
 
 		postRepository.save(post.updatePost(requestDto));
 	}
