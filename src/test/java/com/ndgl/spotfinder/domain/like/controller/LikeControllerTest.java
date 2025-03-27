@@ -61,6 +61,22 @@ class LikeControllerTest {
 	}
 
 	@Test
+	@DisplayName("포스트 좋아요 추가에 음수 입력시")
+	void addPostLikeTest2() throws Exception {
+		ResultActions resultActions = mvc
+			.perform(
+				post("/api/v1/like/posts/" + -20)
+			)
+			.andDo(print());
+
+		resultActions
+			.andExpect(status().isNotFound())
+			.andExpect(jsonPath("$.message").value("Not Found"))
+			.andExpect(jsonPath("$.code").value(HttpStatus.NOT_FOUND.value()));
+
+	}
+
+	@Test
 	@DisplayName("포스트 좋아요 취소")
 	void cancelPostLikeTest() throws Exception {
 		ResultActions resultActions = mvc
