@@ -4,7 +4,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,12 +37,6 @@ class LikeControllerTest {
 	private final Integer userId = 1;
 	private final Integer postId = 100;
 	private final Integer commentId = 200;
-
-	@BeforeEach
-	void setUp() {
-		likeService.togglePostLike(userId, postId);
-		likeService.toggleCommentLike(userId, commentId);
-	}
 
 	@Test
 	@DisplayName("포스트 좋아요 추가")
@@ -81,6 +74,13 @@ class LikeControllerTest {
 	@Test
 	@DisplayName("포스트 좋아요 취소")
 	void cancelPostLikeTest() throws Exception {
+		// 추가
+		mvc
+			.perform(
+				post("/api/v1/like/posts/" + postId)
+			)
+			.andDo(print());
+
 		ResultActions resultActions = mvc
 			.perform(
 				post("/api/v1/like/posts/" + postId)
@@ -113,6 +113,13 @@ class LikeControllerTest {
 	@Test
 	@DisplayName("댓글 좋아요 취소")
 	void cancelCommentLikeTest() throws Exception {
+		// 추가
+		mvc
+			.perform(
+				post("/api/v1/like/comments/" + commentId)
+			)
+			.andDo(print());
+
 		ResultActions resultActions = mvc
 			.perform(
 				post("/api/v1/like/comments/" + commentId)
