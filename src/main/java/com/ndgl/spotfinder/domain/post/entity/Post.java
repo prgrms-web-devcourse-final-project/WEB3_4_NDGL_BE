@@ -95,14 +95,12 @@ public class Post extends BaseTime {
 
 	public void updateHashtags(List<Hashtag> newHashtags) {
 		removeAllHashtags();
-		hashtags.addAll(newHashtags);
-		newHashtags.forEach(hashtag -> hashtag.setPost(this));
+		addHashtags(newHashtags);
 	}
 
 	public void updateLocations(List<Location> newLocations) {
 		removeAllLocations();
-		locations.addAll(newLocations);
-		newLocations.forEach(location -> location.setPost(this));
+		addLocations(newLocations);
 	}
 
 	public void removeAllHashtags() {
