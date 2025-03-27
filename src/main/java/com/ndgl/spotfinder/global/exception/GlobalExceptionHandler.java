@@ -1,11 +1,11 @@
 package com.ndgl.spotfinder.global.exception;
 
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.ndgl.spotfinder.global.rsdata.RsData;
 
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 	@ExceptionHandler(ServiceException.class)
 	public RsData<Void> handleServiceException(ServiceException e) {
