@@ -38,7 +38,7 @@ public class ResponseAspect {
 		||
 		@annotation(org.springframework.web.bind.annotation.ResponseBody)
 		||
-		within(@org.springframework.web.bind.annotation.ControllerAdvice *)
+		within(@org.springframework.web.bind.annotation.RestControllerAdvice *)
 		""")
 	public Object handleResponse(ProceedingJoinPoint joinPoint) throws Throwable {
 		Object proceed = joinPoint.proceed();
