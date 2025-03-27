@@ -1,11 +1,17 @@
 package com.ndgl.spotfinder.domain.image.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.ndgl.spotfinder.domain.image.dto.PresignedImageResponse;
+import com.ndgl.spotfinder.domain.image.dto.PresignedImagesResponse;
 import com.ndgl.spotfinder.domain.image.entity.Image;
 import com.ndgl.spotfinder.domain.image.repository.ImageRepository;
+import com.ndgl.spotfinder.global.aws.s3.S3Service;
 
 import lombok.RequiredArgsConstructor;
 
@@ -13,22 +19,56 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ImageService {
 	private final ImageRepository imageRepository;
+	private final S3Service s3Service;
 
-	// TODO
+	/**
+	 * 특정 게시글의 모든 이미지를 조회하고 Presigned 반환
+	 * @param postId 게시글 ID
+	 * @return 값이 담긴 DTO 반환
+	 */
+	@Transactional(readOnly = true)
+	public List<PresignedImageResponse> findImagesWithPresignedUrls(long postId) {
+		List<Image> images = imageRepository.findByPostId(postId);
 
-	public void saveImages(long id, List<String> imageUrls) {
-
+		return images.stream()
+			.map(image -> {
+				String presignedUrl = s3Service.generatePresignedGetUrl(image.getUrl());
+				return PresignedImageResponse.of(image.getId(), presignedUrl);
+			})
+			.collect(Collectors.toList());
 	}
 
-	public void deleteImagesByIdAndUrls(long id, List<String> urls) {
+	/**
+	 * 이미지 파일을 S3에 업로드하고 URL을 DB에 저장합니다
+	 * @param postId 게시글 ID
+	 * @param files 업로드할 이미지 파일들
+	 * @return 업로드된 이미지 정보가 담긴 상자
+	 */
+	@Transactional
+	public void uploadAndSaveImages(long postId, List<MultipartFile> files) {
+		List<String> imageUrls = s3Service.uploadFiles(postId, files);
 
+		saveImages(postId, imageUrls);
 	}
 
-	public long deleteImages(long id) {
-		return 0;
-	}
+	/**
+	 * 이미지 URL 목록을 받아서 DB에 저장합니다
+	 * @param postId 게시글 ID
+	 * @param imageUrls 이미지 URL 목록
+	 */
+	@Transactional
+	public void saveImages(long postId, List<String> imageUrls) {
+		if (imageUrls == null || imageUrls.isEmpty()) {
+			return;
+		}
 
-	public List<Image> findImagesById(long id) {
-		return null;
+		List<Image> images = imageUrls.stream()
+			.map(url -> Image.builder()
+				.postId(postId)
+				.url(url)
+				.build())
+			.collect(Collectors.toList());
+
+		imageRepository.saveAll(images);
 	}
 }
