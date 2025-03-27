@@ -106,4 +106,26 @@ public class ReportController {
 		reportService.banUserDueToPostComment(reportId, userId, duration);
 		return RsData.success(HttpStatus.OK);
 	}
+
+	@PostMapping("/{reportId}/post/reject")
+	@Operation(summary = "포스트 신고 기각")
+	public RsData<Void> rejectPostReport(
+		@PathVariable long reportId
+	){
+		// Admin 계정 체크
+
+		reportService.rejectPostReport(reportId);
+		return RsData.success(HttpStatus.OK);
+	}
+
+	@PostMapping("/{reportId}/comment/reject")
+	@Operation(summary = "댓글 신고 기각")
+	public RsData<Void> rejectPostCommentReport(
+		@PathVariable long reportId
+	){
+		// Admin 계정 체크
+
+		reportService.rejectPostCommentReport(reportId);
+		return RsData.success(HttpStatus.OK);
+	}
 }

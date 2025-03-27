@@ -169,4 +169,19 @@ public class ReportService {
 
 		banRepository.save(ban);
 	}
+
+	// 포스트 신고 기각
+	public void rejectPostReport(long reportId) {
+		PostReport postReport = postReportRepository.findById(reportId).orElseThrow(
+			() -> new ServiceException(HttpStatus.NOT_FOUND, "존재하지 않는 댓글 신고입니다."));
+		postReport.setReportStatus(ReportStatus.REJECTED);
+	}
+
+	// 댓글 신고 기각
+	public void rejectPostCommentReport(long reportId) {
+		PostCommentReport postCommentReport = postCommentReportRepository.findById(reportId).orElseThrow(
+			() -> new ServiceException(HttpStatus.NOT_FOUND, "존재하지 않는 포스트 신고입니다."));
+
+		postCommentReport.setReportStatus(ReportStatus.REJECTED);
+	}
 }
