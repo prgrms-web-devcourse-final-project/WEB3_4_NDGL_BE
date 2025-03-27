@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ndgl.spotfinder.domain.like.service.LikeService;
 import com.ndgl.spotfinder.global.rsdata.RsData;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -18,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/v1/like")
 @RequiredArgsConstructor
+@Tag(name = "BookingController", description = "좋아요 관련 API")
 public class LikeController {
 
 	private final LikeService likeService;
@@ -31,9 +34,10 @@ public class LikeController {
 	 * 댓글 좋아요 추가
 	 */
 	@PostMapping("/comments/{commentId}")
+	@Operation(summary = "댓글 좋아요 추가", description = "누른 댓글의 좋아요를 추가합니다.")
 	public RsData<Void> addCommentLike(
 		// @AuthenticationPrincipal UserDetails userDetails,
-		@PathVariable Long commentId
+		@PathVariable Integer commentId
 	) {
 		// long userId = Long.parseLong(userDetails.getUsername());
 		long userId = getCurrentUserId();
@@ -45,7 +49,10 @@ public class LikeController {
 	 * 댓글 좋아요 취소
 	 */
 	@DeleteMapping("/comments/{commentId}")
-	public RsData<Void> removeCommentLike(@PathVariable Long commentId) {
+	@Operation(summary = "댓글 좋아요 취소", description = "누른 댓글의 좋아요를 취소합니다.")
+	public RsData<Void> removeCommentLike(
+		@PathVariable Integer commentId
+	) {
 		long userId = getCurrentUserId();
 		boolean isDeleted = likeService.toggleCommentLike(userId, commentId);
 		return RsData.success(HttpStatus.OK);
@@ -55,7 +62,9 @@ public class LikeController {
 	 * 포스트 좋아요 추가
 	 */
 	@PostMapping("/posts/{postId}")
-	public RsData<Void> addPostLike(@PathVariable Long postId) {
+	@Operation(summary = "포스트 좋아요 추가", description = "누른 포스트의 좋아요를 추가합니다.")
+	public RsData<Void> addPostLike(@PathVariable Integer postId
+	) {
 		long userId = getCurrentUserId();
 		boolean isAdded = likeService.togglePostLike(userId, postId);
 		return RsData.success(HttpStatus.OK);
@@ -65,8 +74,10 @@ public class LikeController {
 	 * 포스트 좋아요 취소
 	 */
 	@DeleteMapping("/posts/{postId}")
+	@Operation(summary = "포스트 좋아요 취소", description = "누른 포스트의 좋아요를 취소합니다.")
 	public RsData<Void> removePostLike(
-		@PathVariable Long postId) {
+		@PathVariable Integer postId
+	) {
 		long userId = getCurrentUserId();
 		boolean isDeleted = likeService.togglePostLike(userId, postId);
 		return RsData.success(HttpStatus.OK);
