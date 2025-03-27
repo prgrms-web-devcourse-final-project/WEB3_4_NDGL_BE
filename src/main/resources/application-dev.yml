@@ -6,3 +6,13 @@ spring:
     driver-class-name: org.h2.Driver
     hikari:
       auto-commit: false
+
+  cloud:
+    aws:
+#      s3:
+#        bucket: test-bucket
+      credentials:
+        access-key: ${ACCESS_KEY}
+        secret-key: ${SECRET_ACCESS_KEY}
+      region:
+        static: ap-northeast-2
