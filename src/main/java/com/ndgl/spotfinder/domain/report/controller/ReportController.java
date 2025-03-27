@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ndgl.spotfinder.domain.report.dto.CommentReportResponse;
+import com.ndgl.spotfinder.domain.report.dto.PostCommentReportResponse;
 import com.ndgl.spotfinder.domain.report.dto.PostReportResponse;
 import com.ndgl.spotfinder.domain.report.dto.ReportCreateRequest;
 import com.ndgl.spotfinder.domain.report.service.ReportService;
@@ -50,12 +50,12 @@ public class ReportController {
 		// SpringSecurity Context 에서 User 획득
 		long reporterId = 1;
 
-		reportService.createCommentReport(reportCreateRequest, reporterId, id);
+		reportService.createPostCommentReport(reportCreateRequest, reporterId, id);
 
 		return RsData.success(HttpStatus.OK);
 	}
 
-	@GetMapping("/comments/posts")
+	@GetMapping("/posts")
 	@Operation(summary = "포스트 신고 목록 조회")
 	public RsData<SliceResponse<PostReportResponse>> getPostReportList(
 		@RequestParam @Valid SliceRequest sliceRequest
@@ -68,17 +68,42 @@ public class ReportController {
 		return RsData.success(HttpStatus.OK, postReportSlice);
 	}
 
-	@GetMapping("/comments/posts")
+	@GetMapping("/comments")
 	@Operation(summary = "댓글 신고 목록 조회")
-	public RsData<SliceResponse<CommentReportResponse>> getCommentReportList(
+	public RsData<SliceResponse<PostCommentReportResponse>> getCommentReportList(
 		@RequestParam @Valid SliceRequest sliceRequest
 	){
 		// Admin 계정 체크
 
-		SliceResponse<CommentReportResponse> commentReportSlice
+		SliceResponse<PostCommentReportResponse> commentReportSlice
 			= reportService.getCommentReportSlice(sliceRequest.lastId(), sliceRequest.size());
 
 		return RsData.success(HttpStatus.OK, commentReportSlice);
 	}
 
+	@PostMapping("/{reportId}/post/ban/{userId}")
+	@Operation(summary = "포스트로 인한 유저 제재")
+	public RsData<Void> banUserDueToPost(
+		@PathVariable long reportId,
+		@PathVariable long userId,
+		@RequestParam String duration
+	){
+		// Admin 계정 체크
+
+		reportService.banUserDueToPost(reportId, userId, duration);
+		return RsData.success(HttpStatus.OK);
+	}
+
+	@PostMapping("/{reportId}/comment/ban/{userId}")
+	@Operation(summary = "댓글로 인한 유저 제재")
+	public RsData<Void> banUserDueToPostComment(
+		@PathVariable long reportId,
+		@PathVariable long userId,
+		@RequestParam String duration
+	){
+		// Admin 계정 체크
+
+		reportService.banUserDueToPostComment(reportId, userId, duration);
+		return RsData.success(HttpStatus.OK);
+	}
 }
