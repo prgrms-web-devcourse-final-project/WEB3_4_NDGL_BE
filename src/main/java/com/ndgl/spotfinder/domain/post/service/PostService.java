@@ -28,4 +28,12 @@ public class PostService {
 
 		postRepository.save(post.updatePost(requestDto));
 	}
+
+	@Transactional
+	public void deletePost(Long id) {
+		Post post = postRepository.findById(id)
+			.orElseThrow(ErrorCode.POST_NOT_FOUND::throwServiceException);
+
+		postRepository.delete(post);
+	}
 }

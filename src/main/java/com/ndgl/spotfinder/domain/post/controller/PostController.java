@@ -1,6 +1,7 @@
 package com.ndgl.spotfinder.domain.post.controller;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -35,6 +36,13 @@ public class PostController {
 		@RequestBody @Valid PostUpdateRequestDto postUpdateRequestDto
 	) {
 		postService.updatePost(id, postUpdateRequestDto);
+
+		return RsData.success(HttpStatus.OK);
+	}
+
+	@DeleteMapping("/{id}")
+	public RsData<String> deletePost(@PathVariable Long id) {
+		postService.deletePost(id);
 
 		return RsData.success(HttpStatus.OK);
 	}
