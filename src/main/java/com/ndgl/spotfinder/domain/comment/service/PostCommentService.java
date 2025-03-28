@@ -10,6 +10,7 @@ import com.ndgl.spotfinder.domain.comment.dto.PostCommentDto;
 import com.ndgl.spotfinder.domain.comment.entity.PostComment;
 import com.ndgl.spotfinder.domain.comment.repository.PostCommentRepository;
 import com.ndgl.spotfinder.global.common.dto.SliceResponse;
+import com.ndgl.spotfinder.global.exception.ErrorCode;
 import com.ndgl.spotfinder.global.exception.ServiceException;
 
 import lombok.RequiredArgsConstructor;
@@ -39,7 +40,7 @@ public class PostCommentService {
 
 	private PostComment findCommentAndVerifyPost(Long commentId, Long postId) {
 		PostComment comment = postCommentRepository.findById(commentId)
-			.orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND, "Not found"));
+			.orElseThrow(ErrorCode.COMMENT_NOT_FOUND::throwServiceException);
 		comment.isCommentOfPost(postId);
 		return comment;
 	}

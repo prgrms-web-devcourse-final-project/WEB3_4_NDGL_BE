@@ -6,10 +6,9 @@ import java.util.List;
 
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import org.springframework.http.HttpStatus;
 
 import com.ndgl.spotfinder.global.base.BaseTime;
-import com.ndgl.spotfinder.global.exception.ServiceException;
+import com.ndgl.spotfinder.global.exception.ErrorCode;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -67,7 +66,7 @@ public class PostComment extends BaseTime {
 
 	public void isCommentOfPost(Long postId) {
 		if (!this.postId.equals(postId)) {
-			throw new ServiceException(HttpStatus.BAD_REQUEST, "Not Found In Post");
+			ErrorCode.COMMENT_NOT_FOUND.throwServiceException();
 		}
 	}
 

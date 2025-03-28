@@ -48,7 +48,7 @@ public class PostCommentController {
 	@PostMapping
 	@Operation(summary = "댓글 작성", description = "댓글을 작성합니다.")
 	public RsData<Void> write(@PathVariable Long id, @RequestBody @Valid PostCommentReqDto reqBody) {
-		postCommentService.write(id, reqBody.getContent(), reqBody.getParentId());
+		postCommentService.write(id, reqBody.content(), reqBody.parentId());
 		return RsData.success(HttpStatus.OK);
 	}
 
@@ -59,7 +59,7 @@ public class PostCommentController {
 		@PathVariable Long commentId,
 		@RequestBody @Valid PostCommentReqDto reqBody
 	) {
-		postCommentService.modify(id, commentId, reqBody.getContent());
+		postCommentService.modify(id, commentId, reqBody.content());
 		return RsData.success(HttpStatus.OK);
 	}
 
