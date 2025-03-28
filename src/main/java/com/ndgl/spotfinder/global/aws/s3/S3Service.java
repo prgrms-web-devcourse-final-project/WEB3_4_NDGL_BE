@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,11 +31,11 @@ import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignReques
 
 @Service
 @RequiredArgsConstructor
+@Profile("!test")
 public class S3Service {
 
 	private final S3Presigner s3Presigner;
 	private final S3Client s3Client;
-	private final Environment environment;
 
 	@Value("${spring.cloud.aws.s3.bucket}")
 	String bucketName;
@@ -71,7 +72,7 @@ public class S3Service {
 	 */
 	private String uploadFile(long id, MultipartFile file, ImageType type) {
 		try {
-			String key = S3Util.buildS3Key(id, file, type, environment);
+			String key = S3Util.buildS3Key(id, file, type);
 
 			s3Client.putObject(
 				PutObjectRequest.builder()
@@ -111,17 +112,6 @@ public class S3Service {
 	}
 
 	/**
-	 * postId에 해당하는 폴더의 모든 객체 조회
-	 *
-	 * @param postId 게시글 ID
-	 * @return S3 객체 목록
-	 */
-	public List<S3Object> listObjectsByPostId(long postId) {
-		String folderPath = postId + "/";
-		return listAllObjectsInFolder(folderPath);
-	}
-
-	/**
 	 * 단일 S3 객체 삭제
 	 *
 	 * @param imageUrl 삭제할 이미지 URL
@@ -146,7 +136,7 @@ public class S3Service {
 	 *
 	 * @param postId 게시글 ID
 	 */
-	public void deleteAllObjectsByPostId(long postId) {
+	public void deleteAllObjectByPostId(long postId) {
 		String folderPath = postId + "/";
 
 		try {
@@ -163,7 +153,7 @@ public class S3Service {
 				.map(obj -> ObjectIdentifier.builder().key(obj.key()).build())
 				.toList();
 
-			// 객체 삭제 요청 (한 번에 최대 1000개 객체 삭제 가능)
+			// 객체 삭제 요청
 			DeleteObjectsRequest deleteRequest = DeleteObjectsRequest.builder()
 				.bucket(bucketName)
 				.delete(delete -> delete.objects(objectIdentifiers))

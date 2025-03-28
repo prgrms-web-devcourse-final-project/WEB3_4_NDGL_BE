@@ -2,6 +2,7 @@ package com.ndgl.spotfinder.domain.image.controller;
 
 import java.util.List;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,10 +23,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 // TODO
-// 이 파일은 절대로 기능 구현이 아니며, File의 작동 참고를 위한 예시 컨트롤러다. 추후 삭제할 것!
+// 이 파일은 절대로 기능 구현이 아니며, Image 작동 참고를 위한 예시 컨트롤러다. 추후 삭제할 것!
 @Controller
 @RequestMapping("/temp")
 @RequiredArgsConstructor
+@Profile("!test")
 @Slf4j
 public class _ImageExampleController {
 

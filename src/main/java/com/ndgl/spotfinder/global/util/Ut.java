@@ -12,12 +12,4 @@ public class Ut {
 		}
 	}
 
-	public static boolean isTestMode(Environment environment) {
-		for (String profile : environment.getActiveProfiles()) {
-			if ("test".equals(profile)) {
-				return true;
-			}
-		}
-		return false;
-	}
 }

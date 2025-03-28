@@ -3,6 +3,7 @@ package com.ndgl.spotfinder.domain.image.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Profile("!test")
 public class ImageService {
 	private final PostRepository postRepository;
 	private final ImageRepository imageRepository;
@@ -82,9 +84,14 @@ public class ImageService {
 		imageRepository.saveAll(images);
 	}
 
+	/**
+	 * 이미지 삭제
+	 * @param imageId 이미지 ID
+	 */
 	public void deleteImage(Long imageId) {
 		String url = imageRepository.findById(imageId).get().getUrl();
 		s3Service.deleteFile(url);
 		imageRepository.deleteById(imageId);
 	}
+
 }
