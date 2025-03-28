@@ -214,7 +214,7 @@
                         <p>ID: <span th:text="${image.id()}">1</span></p>
                     </div>
                     <div class="image-actions">
-                        <button type="button" class="delete-btn" th:onclick="'deleteImage(' + ${image.id()} + ', ' + ${postId} + ')'">삭제</button>
+                        <button type="button" class="delete-btn" th:onclick="'deleteImage(' + ${image.id()} + ')'">삭제</button>
                     </div>
                 </div>
             </div>
@@ -225,7 +225,7 @@
         function deleteImage(imageId, postId) {
             if (confirm('정말로 이 이미지를 삭제하시겠습니까?')) {
                 
-                fetch(`/temp/${postId}/images/${imageId}`, {
+                fetch(`/temp/images/${imageId}`, {
                     method: 'DELETE'
                 })
                 .then(response => {
