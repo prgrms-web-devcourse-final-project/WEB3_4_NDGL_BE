@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.ndgl.spotfinder.domain.image.dto.PresignedImageResponse;
 import com.ndgl.spotfinder.domain.image.service.ImageService;
+import com.ndgl.spotfinder.domain.image.type.ImageType;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,13 +46,13 @@ public class _ImageExampleController {
 		@PathVariable long postId,
 		@RequestParam("files") List<MultipartFile> files) {
 
-		imageService.uploadAndSaveImages(postId, files);
+		imageService.uploadAndSaveImages(postId, files, ImageType.POST);
 		return "redirect:/temp/" + postId + "/upload";
 	}
 
-	@DeleteMapping("/{postId}/images/{imageId}")
+	@DeleteMapping("images/{imageId}")
 	@ResponseBody
-	public ResponseEntity<Void> deleteImage(@PathVariable Long postId, @PathVariable Long imageId) {
+	public ResponseEntity<Void> deleteImage(@PathVariable Long imageId) {
 		imageService.deleteImage(imageId);
 		return ResponseEntity.ok().build();
 	}

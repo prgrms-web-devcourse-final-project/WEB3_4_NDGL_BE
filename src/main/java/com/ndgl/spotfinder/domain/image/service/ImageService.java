@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.ndgl.spotfinder.domain.image.dto.PresignedImageResponse;
 import com.ndgl.spotfinder.domain.image.entity.Image;
 import com.ndgl.spotfinder.domain.image.repository.ImageRepository;
+import com.ndgl.spotfinder.domain.image.type.ImageType;
 import com.ndgl.spotfinder.domain.post.entity.Post;
 import com.ndgl.spotfinder.domain.post.repository.PostRepository;
 import com.ndgl.spotfinder.global.aws.s3.S3Service;
@@ -50,8 +51,8 @@ public class ImageService {
 	 * @param files  업로드할 이미지 파일들
 	 */
 	@Transactional
-	public void uploadAndSaveImages(long postId, List<MultipartFile> files) {
-		List<String> imageUrls = s3Service.uploadFiles(postId, files);
+	public void uploadAndSaveImages(long postId, List<MultipartFile> files, ImageType type) {
+		List<String> imageUrls = s3Service.uploadFiles(postId, files, type);
 
 		saveImages(postId, imageUrls);
 	}

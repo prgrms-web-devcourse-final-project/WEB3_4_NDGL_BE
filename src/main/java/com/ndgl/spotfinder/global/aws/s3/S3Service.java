@@ -6,9 +6,11 @@ import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.ndgl.spotfinder.domain.image.type.ImageType;
 import com.ndgl.spotfinder.global.exception.ErrorCode;
 import com.ndgl.spotfinder.global.util.Ut;
 
@@ -32,6 +34,7 @@ public class S3Service {
 
 	private final S3Presigner s3Presigner;
 	private final S3Client s3Client;
+	private final Environment environment;
 
 	@Value("${spring.cloud.aws.s3.bucket}")
 	String bucketName;
@@ -48,13 +51,13 @@ public class S3Service {
 	 * @param files 업로드할 파일들
 	 * @return 업로드된 파일들의 URL 목록
 	 */
-	public List<String> uploadFiles(long id, List<MultipartFile> files) {
+	public List<String> uploadFiles(long id, List<MultipartFile> files, ImageType type) {
 		if (!Ut.list.hasValue(files))
 			return Collections.emptyList();
 
 		return files.stream()
 			.filter(file -> !file.isEmpty())
-			.map(file -> uploadFile(id, file))
+			.map(file -> uploadFile(id, file, type))
 			.toList();
 	}
 
@@ -63,11 +66,12 @@ public class S3Service {
 	 *
 	 * @param id   폴더 ID
 	 * @param file 파일
+	 * @param type 타입
 	 * @return URL
 	 */
-	private String uploadFile(long id, MultipartFile file) {
+	private String uploadFile(long id, MultipartFile file, ImageType type) {
 		try {
-			String key = S3Util.buildS3Key(id, file);
+			String key = S3Util.buildS3Key(id, file, type, environment);
 
 			s3Client.putObject(
 				PutObjectRequest.builder()
