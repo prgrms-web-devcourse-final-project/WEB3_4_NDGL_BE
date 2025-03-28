@@ -10,7 +10,10 @@ import org.springframework.web.multipart.MultipartFile;
 import com.ndgl.spotfinder.domain.image.dto.PresignedImageResponse;
 import com.ndgl.spotfinder.domain.image.entity.Image;
 import com.ndgl.spotfinder.domain.image.repository.ImageRepository;
+import com.ndgl.spotfinder.domain.post.entity.Post;
+import com.ndgl.spotfinder.domain.post.repository.PostRepository;
 import com.ndgl.spotfinder.global.aws.s3.S3Service;
+import com.ndgl.spotfinder.global.exception.ErrorCode;
 import com.ndgl.spotfinder.global.util.Ut;
 
 import lombok.RequiredArgsConstructor;
@@ -18,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class ImageService {
+	private final PostRepository postRepository;
 	private final ImageRepository imageRepository;
 	private final S3Service s3Service;
 
@@ -64,9 +68,12 @@ public class ImageService {
 			return;
 		}
 
+		Post post = postRepository.findById(postId)
+			.orElseThrow(ErrorCode.POST_NOT_FOUND::throwServiceException);
+
 		List<Image> images = imageUrls.stream()
 			.map(url -> Image.builder()
-				.postId(postId)
+				.post(post)
 				.url(url)
 				.build())
 			.collect(Collectors.toList());
