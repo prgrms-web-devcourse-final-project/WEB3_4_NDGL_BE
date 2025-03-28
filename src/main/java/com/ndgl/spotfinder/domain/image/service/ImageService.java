@@ -8,10 +8,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.ndgl.spotfinder.domain.image.dto.PresignedImageResponse;
-import com.ndgl.spotfinder.domain.image.dto.PresignedImagesResponse;
 import com.ndgl.spotfinder.domain.image.entity.Image;
 import com.ndgl.spotfinder.domain.image.repository.ImageRepository;
 import com.ndgl.spotfinder.global.aws.s3.S3Service;
+import com.ndgl.spotfinder.global.util.Ut;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,6 +23,7 @@ public class ImageService {
 
 	/**
 	 * 특정 게시글의 모든 이미지를 조회하고 Presigned 반환
+	 *
 	 * @param postId 게시글 ID
 	 * @return 값이 담긴 DTO 반환
 	 */
@@ -39,10 +40,10 @@ public class ImageService {
 	}
 
 	/**
-	 * 이미지 파일을 S3에 업로드하고 URL을 DB에 저장합니다
+	 * 이미지 파일을 S3에 업로드하고 URL을 DB에 저장
+	 *
 	 * @param postId 게시글 ID
-	 * @param files 업로드할 이미지 파일들
-	 * @return 업로드된 이미지 정보가 담긴 상자
+	 * @param files  업로드할 이미지 파일들
 	 */
 	@Transactional
 	public void uploadAndSaveImages(long postId, List<MultipartFile> files) {
@@ -52,13 +53,14 @@ public class ImageService {
 	}
 
 	/**
-	 * 이미지 URL 목록을 받아서 DB에 저장합니다
-	 * @param postId 게시글 ID
+	 * 이미지 URL 목록을 받아서 DB에 저장
+	 *
+	 * @param postId    게시글 ID
 	 * @param imageUrls 이미지 URL 목록
 	 */
 	@Transactional
 	public void saveImages(long postId, List<String> imageUrls) {
-		if (imageUrls == null || imageUrls.isEmpty()) {
+		if (!Ut.list.hasValue(imageUrls)) {
 			return;
 		}
 
@@ -70,5 +72,11 @@ public class ImageService {
 			.collect(Collectors.toList());
 
 		imageRepository.saveAll(images);
+	}
+
+	public void deleteImage(Long imageId, Long postId) {
+
+
+		imageRepository.deleteById(imageId);
 	}
 }
