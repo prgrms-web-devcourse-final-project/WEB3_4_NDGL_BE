@@ -12,8 +12,7 @@ import software.amazon.awssdk.services.s3.model.S3Exception;
 @Slf4j
 public enum ErrorCode {
 	UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다."),
-	POST_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 포스트입니다.");
-	UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다."),
+	POST_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 포스트입니다."),
 
 	// S3
 	S3_PRESIGNED_GENERATION_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "Presigned URL 생성 실패"),
