@@ -4,20 +4,25 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.ndgl.spotfinder.domain.image.entity.Image;
 import com.ndgl.spotfinder.global.exception.ErrorCode;
+import com.ndgl.spotfinder.global.util.Ut;
 
 import lombok.RequiredArgsConstructor;
 import software.amazon.awssdk.core.exception.SdkException;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
+import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Object;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 
@@ -34,98 +39,176 @@ public class S3Service {
 	@Value("${spring.cloud.aws.region.static}")
 	String region;
 
+	private static final int EXPIRATION_MINUTES = 3; // 3분
+
 	/**
-	 * 파일을 직접 S3에 업로드하고 URL을 반환합니다
+	 * 다중 파일 S3 업로드 및 URL 반환
 	 *
-	 * @param postId 게시글 ID
-	 * @param files  업로드할 파일들
+	 * @param id    ID
+	 * @param files 업로드할 파일들
 	 * @return 업로드된 파일들의 URL 목록
 	 */
-	public List<String> uploadFiles(long postId, List<MultipartFile> files) {
-		if (files == null || files.isEmpty()) {
+	public List<String> uploadFiles(long id, List<MultipartFile> files) {
+		if (!Ut.list.hasValue(files))
 			return Collections.emptyList();
-		}
 
-		List<String> uploadedUrls = new ArrayList<>();
-
-		for (MultipartFile file : files) {
-			if (file.isEmpty())
-				continue;
-
-			try {
-				// 파일 이름과 확장자 추출
-				String originalFilename = file.getOriginalFilename();
-				String extension = getExtension(originalFilename);
-
-				// 고유한 파일명 생성 (postId/UUID.확장자)
-				String objectKey = postId + "/" + UUID.randomUUID() + "." + extension;
-
-				// ContentType 설정
-				String contentType = file.getContentType();
-				if (contentType == null) {
-					contentType = "application/octet-stream";
-				}
-
-				// S3에 업로드
-				PutObjectRequest putRequest = PutObjectRequest.builder()
-					.bucket(bucketName)
-					.key(objectKey)
-					.contentType(contentType)
-					.build();
-
-				s3Client.putObject(putRequest, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
-
-				// 업로드된 파일의 URL 생성
-				String uploadedUrl = String.format("https://%s.s3.%s.amazonaws.com/%s",
-					bucketName, region, objectKey);
-				uploadedUrls.add(uploadedUrl);
-
-			} catch (Exception e) {
-				throw ErrorCode.S3_OBJECT_UPLOAD_FAIL.throwS3Exception(e);
-			}
-		}
-
-		return uploadedUrls;
+		return files.stream()
+			.filter(file -> !file.isEmpty())
+			.map(file -> uploadFile(id, file))
+			.toList();
 	}
 
 	/**
-	 * 파일 확장자를 추출합니다
+	 * 단일 파일 S3 업로드
+	 *
+	 * @param postId 폴더 ID
+	 * @param file   파일
+	 * @return URL
 	 */
-	private String getExtension(String filename) {
-		if (filename == null) {
-			return "";
+	private String uploadFile(long postId, MultipartFile file) {
+		try {
+			String key = S3Util.buildS3Key(postId, file);
+
+			s3Client.putObject(
+				PutObjectRequest.builder()
+					.bucket(bucketName)
+					.key(key)
+					.build(),
+				RequestBody.fromInputStream(file.getInputStream(), file.getSize())
+			);
+
+			return S3Util.generateS3Url(bucketName, region, key);
+		} catch (Exception e) {
+			throw ErrorCode.S3_OBJECT_UPLOAD_FAIL.throwS3Exception(e);
 		}
-		int lastDotIndex = filename.lastIndexOf('.');
-		if (lastDotIndex < 0) {
-			return "";
-		}
-		return filename.substring(lastDotIndex + 1);
 	}
 
 	/**
-	 * 이미지 조회를 위한 서명된 URL 생성 (10분 유효)
+	 * 서명된 URL 생성
 	 *
 	 * @param imageUrl 원본 S3 이미지 URL
-	 * @return 10분간 유효한 서명된 URL
+	 * @return 지정된 시간 동안 유효한 서명된 URL
 	 */
 	public String generatePresignedGetUrl(String imageUrl) {
-		// URL에서 키 추출
-		String objectKey = S3Util.extractObjectKeyFromUrl(imageUrl);
-		if (objectKey == null) {
-			throw ErrorCode.S3_INVALID_URL.throwServiceException();
-		}
-
 		try {
-			GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
-				.getObjectRequest(getObjectRequest -> getObjectRequest
-					.bucket(bucketName)
-					.key(objectKey))
-				.signatureDuration(Duration.ofMinutes(10))
-				.build();
+			String objectKey = S3Util.extractKeyFromUrl(imageUrl);
 
-			return s3Presigner.presignGetObject(presignRequest).url().toString();
+			return s3Presigner.presignGetObject(
+				GetObjectPresignRequest.builder()
+					.getObjectRequest(getObjectRequest -> getObjectRequest
+						.bucket(bucketName)
+						.key(objectKey))
+					.signatureDuration(Duration.ofMinutes(EXPIRATION_MINUTES))
+					.build()
+			).url().toString();
 		} catch (SdkException e) {
 			throw ErrorCode.S3_PRESIGNED_GENERATION_FAIL.throwS3Exception(e);
 		}
 	}
+
+	/**
+	 * postId에 해당하는 폴더의 모든 객체 조회
+	 *
+	 * @param postId 게시글 ID
+	 * @return S3 객체 목록
+	 */
+	// public List<S3Object> listObjectsByPostId(long postId) {
+	// 	String folderPath = postId + "/";
+	// 	return listAllObjectsInFolder(folderPath);
+	// }
+	//
+	// /**
+	//  * 단일 S3 객체 삭제
+	//  *
+	//  * @param imageUrl 삭제할 이미지 URL
+	//  */
+	// public void deleteFile(String imageUrl) {
+	// 	String objectKey = S3Util.extractKeyFromUrl(imageUrl);
+	// 	if (objectKey == null) {
+	// 		throw ErrorCode.S3_INVALID_URL.throwServiceException();
+	// 	}
+	//
+	// 	try {
+	// 		DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
+	// 			.bucket(bucketName)
+	// 			.key(objectKey)
+	// 			.build();
+	//
+	// 		s3Client.deleteObject(deleteRequest);
+	// 	} catch (SdkException e) {
+	// 		throw ErrorCode.S3_OBJECT_DELETE_FAIL.throwS3Exception(e);
+	// 	}
+	// }
+	//
+	// /**
+	//  * postId에 해당하는 폴더의 모든 객체 삭제
+	//  *
+	//  * @param postId 게시글 ID
+	//  */
+	// public void deleteAllObjectsByPostId(long postId) {
+	// 	String folderPath = postId + "/";
+	//
+	// 	try {
+	// 		// 폴더 내 모든 객체 목록 조회
+	// 		List<S3Object> objects = listAllObjectsInFolder(folderPath);
+	//
+	// 		// 객체가 없으면 종료
+	// 		if (objects.isEmpty()) {
+	// 			return;
+	// 		}
+	//
+	// 		// 삭제할 객체 키 목록 생성
+	// 		List<ObjectIdentifier> objectIdentifiers = objects.stream()
+	// 			.map(obj -> ObjectIdentifier.builder().key(obj.key()).build())
+	// 			.toList();
+	//
+	// 		// 객체 삭제 요청 (한 번에 최대 1000개 객체 삭제 가능)
+	// 		DeleteObjectsRequest deleteRequest = DeleteObjectsRequest.builder()
+	// 			.bucket(bucketName)
+	// 			.delete(delete -> delete.objects(objectIdentifiers))
+	// 			.build();
+	//
+	// 		// S3 객체 삭제 요청
+	// 		s3Client.deleteObjects(deleteRequest);
+	//
+	// 	} catch (SdkException e) {
+	// 		throw ErrorCode.S3_OBJECT_DELETE_FAIL.throwS3Exception(e);
+	// 	}
+	// }
+	//
+	// /**
+	//  * 폴더의 모든 Object 조회
+	//  *
+	//  * @param folderPath 폴더 경로
+	//  * @return S3 객체 목록
+	//  */
+	// private List<S3Object> listAllObjectsInFolder(String folderPath) {
+	// 	List<S3Object> objects = new ArrayList<>();
+	//
+	// 	try {
+	// 		ListObjectsV2Request listRequest = ListObjectsV2Request.builder()
+	// 			.bucket(bucketName)
+	// 			.prefix(folderPath)
+	// 			.build();
+	//
+	// 		ListObjectsV2Response listResponse;
+	// 		do {
+	// 			listResponse = s3Client.listObjectsV2(listRequest);
+	// 			objects.addAll(listResponse.contents());
+	//
+	// 			// 결과가 더 있는 경우 다음 페이지 요청
+	// 			if (Boolean.TRUE.equals(listResponse.isTruncated())) {
+	// 				listRequest = ListObjectsV2Request.builder()
+	// 					.bucket(bucketName)
+	// 					.prefix(folderPath)
+	// 					.continuationToken(listResponse.nextContinuationToken())
+	// 					.build();
+	// 			}
+	// 		} while (Boolean.TRUE.equals(listResponse.isTruncated()));
+	// 	} catch (SdkException e) {
+	// 		throw ErrorCode.S3_OBJECT_ACCESS_FAIL.throwS3Exception(e);
+	// 	}
+	//
+	// 	return objects;
+	// }
 }
