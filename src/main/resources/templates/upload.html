@@ -1,3 +1,4 @@
+<!-- 이 파일은 절대로 기능 구현이 아니며, File의 작동 참고를 위한 예시 파일이다. 추후 삭제할 것!-->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -223,19 +224,22 @@
     <script>
         function deleteImage(imageId, postId) {
             if (confirm('정말로 이 이미지를 삭제하시겠습니까?')) {
-                // CSRF 토큰 가져오기 (Spring Security 사용 시)
-                const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
-                const csrfToken = document.querySelector('meta[name="_csrf"]')?.content;
-                
-                const headers = new Headers();
-                if (csrfHeader && csrfToken) {
-                    headers.append(csrfHeader, csrfToken);
-                }
                 
                 fetch(`/temp/${postId}/images/${imageId}`, {
-                    method: 'DELETE',
-                    headers: headers
+                    method: 'DELETE'
                 })
+                .then(response => {
+                    if (response.ok) {
+                        alert("이미지가 삭제되었습니다.");
+                        window.location.reload();
+                    } else {
+                        alert('이미지 삭제 중 오류가 발생했습니다.');
+                    }
+                })
+                .catch(error => {
+                    console.error('삭제 요청 중 오류:', error);
+                    alert('삭제 요청 중 오류가 발생했습니다.');
+                });
             }
         }
     </script>
