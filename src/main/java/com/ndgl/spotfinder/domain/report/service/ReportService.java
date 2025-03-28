@@ -22,6 +22,8 @@ import com.ndgl.spotfinder.domain.report.repository.PostCommentReportRepository;
 import com.ndgl.spotfinder.domain.report.repository.PostReportRepository;
 import com.ndgl.spotfinder.domain.report.test.Post;
 import com.ndgl.spotfinder.domain.report.test.PostComment;
+import com.ndgl.spotfinder.domain.report.test.PostCommentRepository;
+import com.ndgl.spotfinder.domain.report.test.PostRepository;
 import com.ndgl.spotfinder.domain.report.test.User;
 import com.ndgl.spotfinder.domain.report.test.UserRepository;
 import com.ndgl.spotfinder.global.common.dto.SliceResponse;
@@ -39,8 +41,12 @@ public class ReportService {
 	private final PostReportRepository postReportRepository;
 	private final PostCommentReportRepository postCommentReportRepository;
 	private final EntityManager entityManager;
-	private final UserRepository userRepository;
 	private final BanRepository banRepository;
+
+	// TODO: 이후 Service 로 변경 필요
+	private final UserRepository userRepository;
+	private final PostRepository postRepository;
+	private final PostCommentRepository postCommentRepository;
 
 	// 포스트 신고 생성
 	public void createPostReport(
@@ -48,13 +54,13 @@ public class ReportService {
 		Long reporterId,
 		Long postId) {
 
-		if(reporterId < 0) {
-			throw new ServiceException(HttpStatus.NOT_FOUND, "예외 발생");
-		}
-
-		User reporter = entityManager.getReference(User.class, reporterId);
-		User reportedUser = entityManager.getReference(User.class, reportCreateRequest.reportedUserId());
-		Post post = entityManager.getReference(Post.class, postId);
+		// 레포지토리를 통해 엔티티 조회 및 검증
+		User reporter = userRepository.findById(reporterId)
+			.orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND, "reporterId에 해당하는 사용자가 없습니다."));
+		User reportedUser = userRepository.findById(reportCreateRequest.reportedUserId())
+			.orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND, "reportedUserId에 해당하는 사용자가 없습니다."));
+		Post post = postRepository.findById(postId)
+			.orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND, "postId에 해당하는 포스트가 없습니다."));
 
 		PostReport report = PostReport.builder()
 			.reporter(reporter)
@@ -71,15 +77,15 @@ public class ReportService {
 	public void createPostCommentReport(
 		ReportCreateRequest reportCreateRequest,
 		Long reporterId,
-		Long commentId) {
+		Long postCommentId) {
 
-		if(reporterId < 0) {
-			throw new ServiceException(HttpStatus.NOT_FOUND, "예외 발생");
-		}
-
-		User reporter = entityManager.getReference(User.class, reporterId);
-		User reportedUser = entityManager.getReference(User.class, reportCreateRequest.reportedUserId());
-		PostComment postComment = entityManager.getReference(PostComment.class, commentId);
+		// 레포지토리를 통해 엔티티 조회 및 검증
+		User reporter = userRepository.findById(reporterId)
+			.orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND, "reporterId에 해당하는 사용자가 없습니다."));
+		User reportedUser = userRepository.findById(reportCreateRequest.reportedUserId())
+			.orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND, "reportedUserId에 해당하는 사용자가 없습니다."));
+		PostComment postComment = postCommentRepository.findById(postCommentId)
+			.orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND, "postCommentId에 해당하는 댓글이 없습니다."));
 
 		PostCommentReport report = PostCommentReport.builder()
 			.reporter(reporter)
@@ -129,13 +135,13 @@ public class ReportService {
 		// 제재 기간 검증
 		BanDuration banDuration = BanDuration.fromString(duration);
 
-		User user = userRepository.findById(userId).orElseThrow(
-			() -> new ServiceException(HttpStatus.NOT_FOUND, "제재할 대상이 존재하지 않습니다."));
-		user.setBanned(true);
-
 		PostReport postReport = postReportRepository.findById(reportId).orElseThrow(
 			() -> new ServiceException(HttpStatus.NOT_FOUND, "존재하지 않는 신고입니다."));
 		postReport.setReportStatus(ReportStatus.RESOLVED);
+
+		User user = userRepository.findById(userId).orElseThrow(
+			() -> new ServiceException(HttpStatus.NOT_FOUND, "제재할 대상이 존재하지 않습니다."));
+		user.setBanned(true);
 
 		Ban ban = Ban.builder()
 			.user(user)
@@ -151,12 +157,12 @@ public class ReportService {
 	public void banUserDueToPostComment(long reportId, long userId, String duration) {
 		BanDuration banDuration = BanDuration.fromString(duration);
 
+		PostCommentReport postCommentReport = postCommentReportRepository.findById(reportId).orElseThrow(
+			() -> new ServiceException(HttpStatus.NOT_FOUND, "존재하지 않는 신고입니다."));
+
 		User user = userRepository.findById(userId).orElseThrow(
 			() -> new ServiceException(HttpStatus.NOT_FOUND, "제재할 대상이 존재하지 않습니다."));
 		user.setBanned(true);
-
-		PostCommentReport postCommentReport = postCommentReportRepository.findById(reportId).orElseThrow(
-			() -> new ServiceException(HttpStatus.NOT_FOUND, "존재하지 않는 신고입니다."));
 
 		postCommentReport.setReportStatus(ReportStatus.RESOLVED);
 
@@ -173,14 +179,14 @@ public class ReportService {
 	// 포스트 신고 기각
 	public void rejectPostReport(long reportId) {
 		PostReport postReport = postReportRepository.findById(reportId).orElseThrow(
-			() -> new ServiceException(HttpStatus.NOT_FOUND, "존재하지 않는 댓글 신고입니다."));
+			() -> new ServiceException(HttpStatus.NOT_FOUND, "존재하지 않는 포스트 신고입니다."));
 		postReport.setReportStatus(ReportStatus.REJECTED);
 	}
 
 	// 댓글 신고 기각
 	public void rejectPostCommentReport(long reportId) {
 		PostCommentReport postCommentReport = postCommentReportRepository.findById(reportId).orElseThrow(
-			() -> new ServiceException(HttpStatus.NOT_FOUND, "존재하지 않는 포스트 신고입니다."));
+			() -> new ServiceException(HttpStatus.NOT_FOUND, "존재하지 않는 댓글 신고입니다."));
 
 		postCommentReport.setReportStatus(ReportStatus.REJECTED);
 	}

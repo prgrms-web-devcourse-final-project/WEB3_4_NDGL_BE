@@ -17,6 +17,7 @@ import jakarta.persistence.ManyToOne;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
@@ -47,6 +48,7 @@ public class PostReport extends BaseTime {
 
 	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
+	@Setter
 	private ReportStatus reportStatus;
 
 	@Builder
