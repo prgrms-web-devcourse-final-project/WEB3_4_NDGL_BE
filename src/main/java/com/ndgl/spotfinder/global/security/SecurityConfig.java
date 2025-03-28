@@ -14,12 +14,18 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.ndgl.spotfinder.global.security.jwt.JwtFilter;
+import com.ndgl.spotfinder.global.security.jwt.TokenProvider;
+
 import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableAspectJAutoProxy
 @RequiredArgsConstructor
 public class SecurityConfig {
+
+	private final TokenProvider tokenProvider;
+
 	/*
 	 * 일반 유저용 SecurityFilterChain
 	 * */
@@ -40,7 +46,9 @@ public class SecurityConfig {
 					"/h2-console/**"
 				).permitAll() // 로그인 경로는 모두 허용
 				.anyRequest().authenticated()
-			);
+			)
+			.addFilterBefore(new JwtFilter(tokenProvider),
+				org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
 	}

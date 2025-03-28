@@ -12,6 +12,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -24,7 +26,10 @@ import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.domain.user.repository.OauthLoginRepository;
 import com.ndgl.spotfinder.domain.user.repository.UserLoginRepository;
 import com.ndgl.spotfinder.global.exception.ServiceException;
+import com.ndgl.spotfinder.global.security.jwt.CustomUserDetails;
+import com.ndgl.spotfinder.global.security.jwt.TokenProvider;
 
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 @Service
@@ -40,10 +45,14 @@ public class UserLoginService {
 
 	private final OauthLoginRepository oauthRepository;
 	private final UserLoginRepository userLoginRepository;
+	private final TokenProvider tokenProvider;
 
-	public UserLoginService(OauthLoginRepository oauthRepository, UserLoginRepository userLoginRepository) {
+	public UserLoginService(OauthLoginRepository oauthRepository,
+		UserLoginRepository userLoginRepository,
+		TokenProvider tokenProvider) {
 		this.oauthRepository = oauthRepository;
 		this.userLoginRepository = userLoginRepository;
+		this.tokenProvider = tokenProvider;
 	}
 
 	public String createGoogleLoginUrl(HttpSession session) {
@@ -58,17 +67,33 @@ public class UserLoginService {
 			+ "&state=" + state;
 	}
 
-	public UserLoginResponse processGoogleLogin(Oauth.Provider provider, String code) {
+	public UserLoginResponse processGoogleLogin(Oauth.Provider provider, String code, HttpServletResponse response) {
 		try {
 			// 1. 토큰 발급 : 구글
 			String googleAccessToken = getAccessToken(provider, code);
-			System.out.println(googleAccessToken);
 
 			UserLoginResponse googleUserInfo = getGoogleUserInfo(googleAccessToken);
-			System.out.println(googleUserInfo);
 
 			UserLoginResponse googleUser = saveOrUpdateGoogleUser(googleUserInfo);
-			System.out.println(googleUser);
+
+			if (googleUser.getCode() == HttpStatus.CREATED.value()) {
+				// 회원가입 폼으로 이동할 유저이므로, 토큰 발급 X
+				return googleUser;
+			}
+
+			//  유저 객체 생성
+			User user = userLoginRepository.findByEmail(googleUser.getEmail())
+				.orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND, "NOT_FOUND"));
+
+			CustomUserDetails customUserDetails = new CustomUserDetails(user);
+
+			//  인증 객체 생성
+			Authentication authentication = new UsernamePasswordAuthenticationToken(
+				customUserDetails, null, customUserDetails.getAuthorities()
+			);
+
+			// accessToken, refreshToken 생성 + 쿠키에 저장
+			tokenProvider.createTokenAndSetCookies(authentication, response);
 
 			return googleUser;
 		} catch (Exception e) {
@@ -78,6 +103,7 @@ public class UserLoginService {
 	}
 
 	private String getAccessToken(Oauth.Provider provider, String code) {
+		System.out.println(1);
 		String tokenRequestUrl;
 		if (provider == Oauth.Provider.GOOGLE) {
 			tokenRequestUrl = "https://oauth2.googleapis.com/token";
@@ -110,6 +136,7 @@ public class UserLoginService {
 	}
 
 	private UserLoginResponse getGoogleUserInfo(String accessToken) {
+		System.out.println(2);
 		String userInfoUrl = "https://www.googleapis.com/oauth2/v2/userinfo";
 
 		HttpHeaders headers = new HttpHeaders();
@@ -154,6 +181,7 @@ public class UserLoginService {
 	}
 
 	private UserLoginResponse saveOrUpdateGoogleUser(UserLoginResponse userInfo) {
+		System.out.println(3);
 		String googleId = userInfo.getIdentify();
 		String email = userInfo.getEmail();
 
@@ -166,7 +194,7 @@ public class UserLoginService {
 			return UserLoginResponse.builder()
 				.message("OK")
 				.code(HttpStatus.OK.value())
-				.provide(Oauth.Provider.GOOGLE.name())
+				.provider(Oauth.Provider.GOOGLE.name())
 				.identify(googleId)
 				.email(email)
 				.build();
@@ -192,7 +220,7 @@ public class UserLoginService {
 			return UserLoginResponse.builder()
 				.message("OK")
 				.code(HttpStatus.OK.value())
-				.provide(Oauth.Provider.GOOGLE.name())
+				.provider(Oauth.Provider.GOOGLE.name())
 				.identify(googleId)
 				.email(email)
 				.build();
@@ -200,7 +228,7 @@ public class UserLoginService {
 			return UserLoginResponse.builder()
 				.message("OK")
 				.code(HttpStatus.CREATED.value())
-				.provide(Oauth.Provider.GOOGLE.name())
+				.provider(Oauth.Provider.GOOGLE.name())
 				.identify(googleId)
 				.email(email)
 				.build();

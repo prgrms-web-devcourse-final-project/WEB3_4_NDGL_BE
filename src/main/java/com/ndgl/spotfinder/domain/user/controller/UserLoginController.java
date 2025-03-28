@@ -61,7 +61,7 @@ public class UserLoginController {
 	) {
 		try {
 			//  구글 로그인 처리
-			UserLoginResponse responseDto = userLoginService.processGoogleLogin(Oauth.Provider.GOOGLE, code);
+			UserLoginResponse responseDto = userLoginService.processGoogleLogin(Oauth.Provider.GOOGLE, code, response);
 
 			return ResponseEntity.ok(new RsData<>(responseDto.getCode(), responseDto.getMessage(), responseDto));
 		} catch (Exception e) {

@@ -51,20 +51,22 @@ spring:
       org.springframework.data.redis: INFO
       root: INFO
 
-  jwt:
-    secret:
-      key: ${JWT_SECRET_KEY}
-    expiration:
-      time: ${JWT_VALIDATION_TIME}
-    refresh-token:
-      expiration-time: ${JWT_REFRESH_VALIDATION_TIME}
+jwt:
+  secret:
+    key: ${JWT_SECRET_KEY}
 
-    auth:
-      key: ${AUTHORIZATION_KEY}
+  expiration:
+    time: ${JWT_VALIDATION_TIME}
 
-    aes:
-      secret:
-        key: ${AES_SECRET_KEY}
+  refresh-token:
+    expiration-time: ${JWT_REFRESH_VALIDATION_TIME}
+
+  auth:
+    key: ${AUTHORIZATION_KEY}
+
+aes:
+  secret:
+    key: ${AES_SECRET_KEY}
 
 springdoc:
   default-produces-media-type: application/json;charset=UTF-8

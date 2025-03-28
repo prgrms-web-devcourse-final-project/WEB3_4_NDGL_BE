@@ -8,7 +8,7 @@ import lombok.Getter;
 public class UserLoginResponse {
 	private final String message;
 	private final Integer code;
-	private final String provide;
+	private final String provider;
 	private final String identify;
 	private final String email;
 }
