@@ -31,11 +31,11 @@ public class ReportController {
 
 	@PostMapping("/posts/{id}")
 	@Operation(summary = "포스트 신고 요청")
-	public RsData<Void> reportPost(
+	public RsData<Void> createPostReport(
 		@PathVariable Long id,
 		@RequestBody @Valid ReportCreateRequest reportCreateRequest) {
 		// SpringSecurity Context 에서 User 획득
-		long reporterId = -1;
+		long reporterId = 1;
 
 		reportService.createPostReport(reportCreateRequest, reporterId, id);
 
@@ -44,7 +44,7 @@ public class ReportController {
 
 	@PostMapping("/comments/{id}")
 	@Operation(summary = "댓글 신고 요청")
-	public RsData<Void> reportComment(
+	public RsData<Void> createPostCommentReport(
 		@PathVariable Long id,
 		@RequestBody @Valid ReportCreateRequest reportCreateRequest) {
 		// SpringSecurity Context 에서 User 획득
@@ -76,7 +76,7 @@ public class ReportController {
 		// Admin 계정 체크
 
 		SliceResponse<PostCommentReportResponse> commentReportSlice
-			= reportService.getCommentReportSlice(sliceRequest.lastId(), sliceRequest.size());
+			= reportService.getPostCommentReportSlice(sliceRequest.lastId(), sliceRequest.size());
 
 		return RsData.success(HttpStatus.OK, commentReportSlice);
 	}

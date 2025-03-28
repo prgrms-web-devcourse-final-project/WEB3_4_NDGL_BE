@@ -109,13 +109,13 @@ public class ReportService {
 	}
 
 	// 댓글 신고 목록 조회
-	public SliceResponse<PostCommentReportResponse> getCommentReportSlice(long lastId, int size) {
+	public SliceResponse<PostCommentReportResponse> getPostCommentReportSlice(long lastId, int size) {
 		if(lastId < 0) {
 			throw new ServiceException(HttpStatus.BAD_REQUEST, "lastId 값은 음수일 수 없습니다.");
 		}
 
 		Pageable pageable = PageRequest.of(0, size, Sort.by(Sort.Direction.DESC, "id"));
-		Slice<PostCommentReportResponse> postCommentReportSlice = postCommentReportRepository.findCommentReports(pageable);
+		Slice<PostCommentReportResponse> postCommentReportSlice = postCommentReportRepository.findPostCommentReports(pageable);
 
 		if(postCommentReportSlice.isEmpty()) {
 			throw new ServiceException(HttpStatus.NOT_FOUND, "댓글 신고 데이터를 찾지 못했습니다.");

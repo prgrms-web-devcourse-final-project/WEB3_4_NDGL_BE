@@ -21,6 +21,6 @@ public interface PostCommentReportRepository extends JpaRepository<PostCommentRe
 		"cr.createdAt) " +
 		"FROM PostCommentReport cr " +
 		"JOIN cr.postComment cmt")
-	Slice<PostCommentReportResponse> findCommentReports(Pageable pageable);
+	Slice<PostCommentReportResponse> findPostCommentReports(Pageable pageable);
 
 }
