@@ -70,6 +70,9 @@ dependencies {
 
     //elasticSearch
     implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch:3.0.0'
+
+    // TODO 지우기
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 }
 
 tasks.named('test') {

@@ -3,75 +3,241 @@
 <head>
     <meta charset="UTF-8">
     <title>이미지 업로드</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
+            font-family: 'Noto Sans KR', sans-serif;
+            margin: 0;
             padding: 20px;
+            background-color: #f8f9fa;
+            color: #333;
         }
-        .form-container {
-            border: 1px solid #ddd;
-            padding: 20px;
-            border-radius: 5px;
-            margin-bottom: 30px;
-        }
-        .image-container {
+        
+        .container {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
         }
-        .image-box {
-            width: 200px;
-            border: 1px solid #eee;
-            padding: 10px;
-            border-radius: 5px;
+        
+        .left-column {
+            flex: 1;
+            min-width: 300px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        .image-box img {
+        
+        .right-column {
+            flex: 2;
+            min-width: 300px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .form-container {
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        input, textarea {
             width: 100%;
-            height: 150px;
-            object-fit: cover;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
         }
-        .upload-btn {
-            background-color: #4CAF50;
-            color: white;
+        
+        .upload-btn, .delete-btn, .submit-btn {
             padding: 10px 15px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.2s;
         }
-        h1, h2 {
+        
+        .upload-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .upload-btn:hover {
+            background-color: #45a049;
+        }
+        
+        .delete-btn {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        .delete-btn:hover {
+            background-color: #d32f2f;
+        }
+        
+        .submit-btn {
+            background-color: #2196F3;
+            color: white;
+            margin-top: 10px;
+        }
+        
+        .submit-btn:hover {
+            background-color: #0b7dda;
+        }
+        
+        h1, h2, h3 {
             color: #333;
+        }
+        
+        .image-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .image-box {
+            border: 1px solid #eee;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: white;
+            position: relative;
+        }
+        
+        .image-box img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        
+        .image-info {
+            margin-top: 8px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .image-actions {
+            margin-top: 8px;
+            display: flex;
+            gap: 5px;
+        }
+        
+        .no-images {
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .left-column, .right-column {
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>이미지 업로드 페이지</h1>
-    <p>게시글 ID: <span th:text="${postId}">123</span></p>
-    
-    <!-- 업로드 폼 -->
-    <div class="form-container">
-        <h2>새 이미지 업로드</h2>
-        <form th:action="@{/posts/upload/__${postId}__}" method="post" enctype="multipart/form-data">
-            <div>
-                <input type="file" name="files" multiple accept="image/*">
+    <div class="container">
+        <!-- 왼쪽 컬럼: 입력 폼 -->
+        <div class="left-column">
+            <h1>포스트 정보</h1>
+            <p>게시글 ID: <span th:text="${postId}">123</span></p>
+            
+            <!-- 가짜 입력 폼 (실제로 전송되지 않음) -->
+            <div class="form-container">
+                <h2>게시글 정보 입력</h2>
+                <div class="form-group">
+                    <label for="title">제목</label>
+                    <input type="text" id="title" name="title" placeholder="실제로는 전송되지 않습니다.">
+                </div>
+                
+                <div class="form-group">
+                    <label for="place">장소</label>
+                    <input type="text" id="place" name="place" placeholder="실제로는 전송되지 않습니다.">
+                </div>
+                
+                <div class="form-group">
+                    <label for="description">설명</label>
+                    <textarea id="description" name="description" rows="3" placeholder="실제로는 전송되지 않습니다."></textarea>
+                </div>
+                
+                <button type="button" class="submit-btn" onclick="alert('현재는 사진 관리만 가능합니다.')">저장하기</button>
             </div>
-            <div style="margin-top: 10px;">
-                <button type="submit" class="upload-btn">업로드</button>
+            
+            <!-- 이미지 업로드 폼 (실제로 동작함) -->
+            <div class="form-container">
+                <h2>새 이미지 업로드</h2>
+                <form th:action="@{/temp/upload/__${postId}__}" method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="files">이미지 선택</label>
+                        <input type="file" id="files" name="files" multiple accept="image/*">
+                    </div>
+                    <button type="submit" class="upload-btn">업로드</button>
+                </form>
             </div>
-        </form>
-    </div>
-    
-    <!-- 이미지 목록 -->
-    <h2>업로드된 이미지</h2>
-    <div th:if="${images == null || #lists.isEmpty(images)}">
-        <p>아직 업로드된 이미지가 없습니다.</p>
-    </div>
-
-    <div class="image-container" th:unless="${images == null || #lists.isEmpty(images)}">
-        <div class="image-box" th:each="image : ${images}">
-            <img th:src="${image.presignedUrl()}" th:alt="'이미지 ' + ${image.id()}">
+        </div>
+        
+        <!-- 오른쪽 컬럼: 이미지 갤러리 -->
+        <div class="right-column">
+            <h2>업로드된 이미지</h2>
+            
+            <!-- 이미지가 없을 때 -->
+            <div class="no-images" th:if="${images == null || #lists.isEmpty(images)}">
+                <p>아직 업로드된 이미지가 없습니다.</p>
+                <p>왼쪽 폼에서 이미지를 업로드해주세요.</p>
+            </div>
+            
+            <!-- 이미지 목록 -->
+            <div class="image-container" th:unless="${images == null || #lists.isEmpty(images)}">
+                <div class="image-box" th:each="image : ${images}">
+                    <img th:src="${image.presignedUrl()}" th:alt="'이미지 ' + ${image.id()}">
+                    <div class="image-info">
+                        <p>ID: <span th:text="${image.id()}">1</span></p>
+                    </div>
+                    <div class="image-actions">
+                        <button type="button" class="delete-btn" th:onclick="'deleteImage(' + ${image.id()} + ', ' + ${postId} + ')'">삭제</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+     
+    <script>
+        function deleteImage(imageId, postId) {
+            if (confirm('정말로 이 이미지를 삭제하시겠습니까?')) {
+                // CSRF 토큰 가져오기 (Spring Security 사용 시)
+                const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
+                const csrfToken = document.querySelector('meta[name="_csrf"]')?.content;
+                
+                const headers = new Headers();
+                if (csrfHeader && csrfToken) {
+                    headers.append(csrfHeader, csrfToken);
+                }
+                
+                fetch(`/temp/${postId}/images/${imageId}`, {
+                    method: 'DELETE',
+                    headers: headers
+                })
+            }
+        }
+    </script>
 </body>
 </html> 
