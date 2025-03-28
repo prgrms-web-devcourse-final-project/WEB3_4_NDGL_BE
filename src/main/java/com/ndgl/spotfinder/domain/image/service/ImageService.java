@@ -74,9 +74,9 @@ public class ImageService {
 		imageRepository.saveAll(images);
 	}
 
-	public void deleteImage(Long imageId, Long postId) {
-
-
+	public void deleteImage(Long imageId) {
+		String url = imageRepository.findById(imageId).get().getUrl();
+		s3Service.deleteFile(url);
 		imageRepository.deleteById(imageId);
 	}
 }
