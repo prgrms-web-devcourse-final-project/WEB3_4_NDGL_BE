@@ -24,17 +24,19 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/users")
-public class UserLoginController {
+public class UserController {
 
 	private final UserLoginService userLoginService;
 	private final UserJoinService userJoinService;
 
-	public UserLoginController(UserLoginService userLoginService, UserJoinService userJoinService) {
+	public UserController(UserLoginService userLoginService, UserJoinService userJoinService) {
 		this.userLoginService = userLoginService;
 		this.userJoinService = userJoinService;
 	}
 
 	@PostMapping("/join")
+	//  Void 로 바꿀수 없는 이유 >> nickname 및 blogname 입력 시 중복 체크 있음
+	//  추가로 request측 입력 체크 때문에 RsData<Void> >> void 변경 시  체크처리 안함.
 	public RsData<Void> join(
 		@Valid @RequestBody UserJoinRequest userJoinRequest) {
 
@@ -75,13 +77,10 @@ public class UserLoginController {
 		@RequestParam("code") String code,
 		HttpServletResponse response
 	) {
-		try {
-			//  구글 로그인 처리
-			UserLoginResponse responseDto = userLoginService.processGoogleLogin(Oauth.Provider.GOOGLE, code, response);
+		//  구글 로그인 처리
+		UserLoginResponse responseDto = userLoginService.processGoogleLogin(Oauth.Provider.GOOGLE, code, response);
 
-			return ResponseEntity.ok(new RsData<>(responseDto.getCode(), responseDto.getMessage(), responseDto));
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		return ResponseEntity.ok(new RsData<>(responseDto.getCode(), responseDto.getMessage(), responseDto));
+
 	}
 }

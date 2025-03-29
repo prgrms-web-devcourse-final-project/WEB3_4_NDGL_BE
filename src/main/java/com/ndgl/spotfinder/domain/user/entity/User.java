@@ -13,8 +13,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,7 +26,7 @@ import lombok.Setter;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "userss",
+@Table(name = "users",
 	uniqueConstraints = {@UniqueConstraint(columnNames = "nickName")})
 public class User extends BaseTime {
 	@Id
@@ -40,22 +38,10 @@ public class User extends BaseTime {
 	public String email;
 
 	@Setter
-	@NotNull(message = "닉네임 값이 필요합니다.")
-	@Size(min = 2, max = 15, message = "닉네임은 2자 이상 15자 이하로 입력해주세요.")
-	@Pattern(
-		regexp = "^[가-힣a-zA-Z0-9]+$",
-		message = "닉네임은 영어, 한글, 숫자만 입력할 수 있습니다."
-	)
-	@Column(unique = true, length = 45)
+	@Column(unique = true, length = 45, nullable = false)
 	public String nickName;
 
 	@Setter
-	@Column(unique = true, length = 60)
-	@Size(min = 2, max = 20, message = "블로그 명은 2자 이상 20자 이하로 입력해주세요.")
-	@Pattern(
-		regexp = "^[가-힣a-zA-Z0-9]+$",
-		message = "블로그 명은 영어, 한글, 숫자만 입력할 수 있습니다."
-	)
-	@NotNull(message = "블로그 명 값이 필요합니다.")
+	@Column(unique = true, length = 60, nullable = false)
 	public String blogName;
 }

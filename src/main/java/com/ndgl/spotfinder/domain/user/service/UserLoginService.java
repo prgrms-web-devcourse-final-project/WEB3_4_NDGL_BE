@@ -43,11 +43,6 @@ public class UserLoginService {
 	@Value("${spring.security.oauth2.client.registration.google.redirect-uri}")
 	private String googleRedirectUri;
 
-/*
-	private final OauthLoginRepository oauthRepository;
-	private final UserLoginRepository userLoginRepository;
-*/
-
 	private final OauthRepository oauthRepository;
 	private final UserRepository userRepository;
 	private final TokenProvider tokenProvider;
@@ -108,7 +103,6 @@ public class UserLoginService {
 	}
 
 	private String getAccessToken(Oauth.Provider provider, String code) {
-		System.out.println(1);
 		String tokenRequestUrl;
 		if (provider == Oauth.Provider.GOOGLE) {
 			tokenRequestUrl = "https://oauth2.googleapis.com/token";
@@ -141,7 +135,6 @@ public class UserLoginService {
 	}
 
 	private UserLoginResponse getGoogleUserInfo(String accessToken) {
-		System.out.println(2);
 		String userInfoUrl = "https://www.googleapis.com/oauth2/v2/userinfo";
 
 		HttpHeaders headers = new HttpHeaders();
@@ -186,7 +179,6 @@ public class UserLoginService {
 	}
 
 	private UserLoginResponse saveOrUpdateGoogleUser(UserLoginResponse userInfo) {
-		System.out.println(3);
 		String googleId = userInfo.getIdentify();
 		String email = userInfo.getEmail();
 

@@ -19,7 +19,7 @@ import com.ndgl.spotfinder.domain.user.entity.Oauth;
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-public class UserJoinControllerTest {
+public class UserControllerTest {
 
 	@Autowired
 	private MockMvc mockMvc;
@@ -28,7 +28,16 @@ public class UserJoinControllerTest {
 	private ObjectMapper objectMapper;
 
 	@Test
-	@DisplayName("")
+	@DisplayName("Google 로그인 요청 시 302 리다이렉트 요청 확인")
+	void loginRedirectsToGoogle() throws Exception {
+		mockMvc.perform(get("/api/v1/users/google/login"))
+			.andExpect(status().isFound()) // 302
+			.andExpect(header().string("Location",
+				org.hamcrest.Matchers.containsString("https://accounts.google.com/o/oauth2/auth")));
+	}
+
+	@Test
+	@DisplayName("회원가입 테스트")
 	void join_success() throws Exception {
 		UserJoinRequest request = UserJoinRequest.builder()
 			.provider(Oauth.Provider.GOOGLE)
