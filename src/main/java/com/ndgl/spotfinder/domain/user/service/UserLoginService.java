@@ -25,6 +25,7 @@ import com.ndgl.spotfinder.domain.user.entity.Oauth;
 import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.domain.user.repository.OauthRepository;
 import com.ndgl.spotfinder.domain.user.repository.UserRepository;
+import com.ndgl.spotfinder.global.exception.ErrorCode;
 import com.ndgl.spotfinder.global.exception.ServiceException;
 import com.ndgl.spotfinder.global.security.jwt.CustomUserDetails;
 import com.ndgl.spotfinder.global.security.jwt.TokenProvider;
@@ -68,38 +69,34 @@ public class UserLoginService {
 	}
 
 	public UserLoginResponse processGoogleLogin(Oauth.Provider provider, String code, HttpServletResponse response) {
-		try {
-			// 1. 토큰 발급 : 구글
-			String googleAccessToken = getAccessToken(provider, code);
+		// 1. 토큰 발급 : 구글
+		String googleAccessToken = getAccessToken(provider, code);
 
-			UserLoginResponse googleUserInfo = getGoogleUserInfo(googleAccessToken);
+		UserLoginResponse googleUserInfo = getGoogleUserInfo(googleAccessToken);
 
-			UserLoginResponse googleUser = saveOrUpdateGoogleUser(googleUserInfo);
+		UserLoginResponse googleUser = saveOrUpdateGoogleUser(googleUserInfo);
 
-			if (googleUser.getCode() == HttpStatus.CREATED.value()) {
-				// 회원가입 폼으로 이동할 유저이므로, 토큰 발급 X
-				return googleUser;
-			}
-
-			//  유저 객체 생성
-			User user = userRepository.findByEmail(googleUser.getEmail())
-				.orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND, "NOT_FOUND"));
-
-			CustomUserDetails customUserDetails = new CustomUserDetails(user);
-
-			//  인증 객체 생성
-			Authentication authentication = new UsernamePasswordAuthenticationToken(
-				customUserDetails, null, customUserDetails.getAuthorities()
-			);
-
-			// accessToken, refreshToken 생성 + 쿠키에 저장
-			tokenProvider.createTokenAndSetCookies(authentication, response);
-
+		if (googleUser.getCode() == HttpStatus.CREATED.value()) {
+			// 회원가입 폼으로 이동할 유저이므로, 토큰 발급 X
 			return googleUser;
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new ServiceException(HttpStatus.BAD_REQUEST, "BAD_REQUEST");
 		}
+
+		//  유저 객체 생성
+		User user = userRepository.findByEmail(googleUser.getEmail())
+			.orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND, "NOT_FOUND"));
+
+		CustomUserDetails customUserDetails = new CustomUserDetails(user);
+
+		//  인증 객체 생성
+		Authentication authentication = new UsernamePasswordAuthenticationToken(
+			customUserDetails, null, customUserDetails.getAuthorities()
+		);
+
+		// accessToken, refreshToken 생성 + 쿠키에 저장
+		tokenProvider.createTokenAndSetCookies(authentication, response);
+
+		return googleUser;
+
 	}
 
 	private String getAccessToken(Oauth.Provider provider, String code) {
@@ -125,12 +122,13 @@ public class UserLoginService {
 			);
 
 			if (tokenResponse.getStatusCode() != HttpStatus.OK || tokenResponse.getBody() == null) {
-				throw new ServiceException(HttpStatus.UNAUTHORIZED, "UNAUTHORIZED");
+				ErrorCode.UNAUTHORIZED.throwServiceException();
 			}
 
 			return tokenResponse.getBody().getAccessToken();
 		} else {
-			throw new ServiceException(HttpStatus.BAD_REQUEST, "BAD_REQUEST");
+			ErrorCode.NO_APPLIED_SOCIAL_PLATFORM.throwServiceException();
+			return null;
 		}
 	}
 

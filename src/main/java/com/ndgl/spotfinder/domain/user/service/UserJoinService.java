@@ -76,11 +76,11 @@ public class UserJoinService {
 
 	public void dupCheck(Optional<User> dupNickName, Optional<User> dupBlogName) {
 		if (!dupNickName.isEmpty()) {
-			throw ErrorCode.CONFLICTED_NICKNAME.throwServiceException();
+			ErrorCode.CONFLICTED_NICKNAME.throwServiceException();
 		}
 
 		if (!dupBlogName.isEmpty()) {
-			throw ErrorCode.CONFLICTED_BLOG_NAME.throwServiceException();
+			ErrorCode.CONFLICTED_BLOG_NAME.throwServiceException();
 		}
 	}
 }

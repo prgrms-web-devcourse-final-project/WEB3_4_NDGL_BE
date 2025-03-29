@@ -13,7 +13,8 @@ public enum ErrorCode {
 	UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다."),
 	CONFLICTED_NICKNAME(HttpStatus.CONFLICT, "이미 사용중인 닉네임 입니다."),
 	CONFLICTED_BLOG_NAME(HttpStatus.CONFLICT, "이미 사용중인 블로그 명 입니다."),
-	USER_NOT_FOUND(HttpStatus.NOT_FOUND, "대상 유저가 없습니다.");
+	USER_NOT_FOUND(HttpStatus.NOT_FOUND, "대상 유저가 없습니다."),
+	NO_APPLIED_SOCIAL_PLATFORM(HttpStatus.BAD_REQUEST, "지원하지 않는 소셜 플랫폼입니다");
 
 	private final HttpStatus httpStatus;
 	private final String message;
