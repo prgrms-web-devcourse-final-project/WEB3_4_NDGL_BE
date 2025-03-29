@@ -1,3 +1,73 @@
 spring:
   datasource:
     url: jdbc:h2:mem:db_test;MODE=MySQL
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+
+  h2:
+    console:
+      enabled: true
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${SPRING_SECURITY_GOOGLE_CLIENT_ID}
+            client_secret: ${SPRING_SECURITY_GOOGLE_CLIENT_SECRET}
+            redirect-uri: ${SPRING_SECURITY_GOOGLE_REDIRECT_URI}
+            authorization-grant-type: authorization_code
+            scope: email
+            client-name: Google
+            provider: google
+        provider:
+          google:
+            authorization-uri: https://accounts.google.com/o/oauth2/auth
+            token-uri: https://oauth2.googleapis.com/token
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+            user-name-attribute: sub
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+    profiles:
+      active: oauth
+
+  logging:
+    level:
+      org.hibernate.SQL: ERROR
+      org.hibernate.orm.jdbc.bind: ERROR
+      org.hibernate.orm.jdbc.extract: ERROR
+      org.springframework.data.redis: INFO
+      root: INFO
+
+jwt:
+  secret:
+    key: ${JWT_SECRET_KEY}
+
+  expiration:
+    time: ${JWT_VALIDATION_TIME}
+
+  refresh-token:
+    expiration-time: ${JWT_REFRESH_VALIDATION_TIME}
+
+  auth:
+    key: ${AUTHORIZATION_KEY}
+
+aes:
+  secret:
+    key: ${AES_SECRET_KEY}
+
+springdoc:
+  default-produces-media-type: application/json;charset=UTF-8
+

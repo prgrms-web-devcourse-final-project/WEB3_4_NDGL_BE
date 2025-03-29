@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @EnableJpaAuditing
 public class SpotfinderApplication {
 	public static void main(String[] args) {
-		SpringApplication.run(SpotfinderApplication.class, args);
+		SpringApplication app = new SpringApplication(SpotfinderApplication.class);
+		//app.setAdditionalProfiles("test"); // ✅ 여기에 프로필 명시
+		app.run(args);
 	}
 }
