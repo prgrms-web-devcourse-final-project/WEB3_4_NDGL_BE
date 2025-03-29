@@ -21,7 +21,7 @@ public record PostCreateRequestDto(
 	String content,
 
 	@NotNull
-	@Size(max = 10)
+	@Size(min = 1, max = 10)
 	@Valid
 	List<HashtagDto> hashtags,
 
