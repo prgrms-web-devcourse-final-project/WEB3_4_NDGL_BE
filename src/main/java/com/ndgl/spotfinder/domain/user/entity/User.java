@@ -28,7 +28,7 @@ import lombok.Setter;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "users",
+@Table(name = "userss",
 	uniqueConstraints = {@UniqueConstraint(columnNames = "nickName")})
 public class User extends BaseTime {
 	@Id

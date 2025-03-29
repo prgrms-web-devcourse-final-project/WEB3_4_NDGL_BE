@@ -23,8 +23,8 @@ import com.ndgl.spotfinder.domain.user.dto.GoogleTokenResponse;
 import com.ndgl.spotfinder.domain.user.dto.UserLoginResponse;
 import com.ndgl.spotfinder.domain.user.entity.Oauth;
 import com.ndgl.spotfinder.domain.user.entity.User;
-import com.ndgl.spotfinder.domain.user.repository.OauthLoginRepository;
-import com.ndgl.spotfinder.domain.user.repository.UserLoginRepository;
+import com.ndgl.spotfinder.domain.user.repository.OauthRepository;
+import com.ndgl.spotfinder.domain.user.repository.UserRepository;
 import com.ndgl.spotfinder.global.exception.ServiceException;
 import com.ndgl.spotfinder.global.security.jwt.CustomUserDetails;
 import com.ndgl.spotfinder.global.security.jwt.TokenProvider;
@@ -43,15 +43,20 @@ public class UserLoginService {
 	@Value("${spring.security.oauth2.client.registration.google.redirect-uri}")
 	private String googleRedirectUri;
 
+/*
 	private final OauthLoginRepository oauthRepository;
 	private final UserLoginRepository userLoginRepository;
+*/
+
+	private final OauthRepository oauthRepository;
+	private final UserRepository userRepository;
 	private final TokenProvider tokenProvider;
 
-	public UserLoginService(OauthLoginRepository oauthRepository,
-		UserLoginRepository userLoginRepository,
+	public UserLoginService(OauthRepository oauthRepository,
+		UserRepository userRepository,
 		TokenProvider tokenProvider) {
 		this.oauthRepository = oauthRepository;
-		this.userLoginRepository = userLoginRepository;
+		this.userRepository = userRepository;
 		this.tokenProvider = tokenProvider;
 	}
 
@@ -82,7 +87,7 @@ public class UserLoginService {
 			}
 
 			//  유저 객체 생성
-			User user = userLoginRepository.findByEmail(googleUser.getEmail())
+			User user = userRepository.findByEmail(googleUser.getEmail())
 				.orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND, "NOT_FOUND"));
 
 			CustomUserDetails customUserDetails = new CustomUserDetails(user);
@@ -200,7 +205,7 @@ public class UserLoginService {
 				.build();
 		}
 
-		Optional<User> existingUser = userLoginRepository.findByEmail(email);
+		Optional<User> existingUser = userRepository.findByEmail(email);
 
 		if (existingUser.isPresent()) {
 			User nowUser = existingUser.get();

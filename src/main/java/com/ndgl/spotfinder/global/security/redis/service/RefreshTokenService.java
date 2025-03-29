@@ -1,11 +1,11 @@
-package com.ndgl.spotfinder.global.security.reids.service;
+package com.ndgl.spotfinder.global.security.redis.service;
 
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import com.ndgl.spotfinder.global.security.reids.entity.RefreshToken;
-import com.ndgl.spotfinder.global.security.reids.repository.RefreshTokenRepository;
+import com.ndgl.spotfinder.global.security.redis.entity.RefreshToken;
+import com.ndgl.spotfinder.global.security.redis.repository.RefreshTokenRepository;
 
 import lombok.RequiredArgsConstructor;
 

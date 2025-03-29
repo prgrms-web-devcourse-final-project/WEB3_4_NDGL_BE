@@ -18,11 +18,11 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import com.ndgl.spotfinder.domain.user.repository.UserRepository;
 import com.ndgl.spotfinder.global.exception.ServiceException;
 import com.ndgl.spotfinder.global.security.cookie.TokenCookieUtil;
-import com.ndgl.spotfinder.global.security.jwt.repository.UserReadOnlyRepository;
 import com.ndgl.spotfinder.global.security.jwt.service.CustomUserDetailsService;
-import com.ndgl.spotfinder.global.security.reids.service.RefreshTokenService;
+import com.ndgl.spotfinder.global.security.redis.service.RefreshTokenService;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -54,7 +54,7 @@ public class TokenProvider {
 	private SecretKey key;
 	//	private final AdminDetailsService adminDetailsService;
 	private final CustomUserDetailsService customUserDetailsService;
-	private final UserReadOnlyRepository userRepository;
+	private final UserRepository userRepository;
 	private final TokenCookieUtil tokenCookieUtil;
 	private final RefreshTokenService refreshTokenService;
 
