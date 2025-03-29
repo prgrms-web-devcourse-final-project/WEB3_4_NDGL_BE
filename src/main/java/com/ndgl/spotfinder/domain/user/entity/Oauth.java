@@ -15,7 +15,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -40,10 +39,8 @@ public class Oauth extends BaseTime {
 	private User user;
 
 	@Enumerated(EnumType.STRING)
-	@NotNull(message = "provider 값이 없습니다. ")
 	private Provider provider;
 
-	@NotNull(message = "identify 값이 필요합니다.")
 	private String identify;
 
 	@Getter
