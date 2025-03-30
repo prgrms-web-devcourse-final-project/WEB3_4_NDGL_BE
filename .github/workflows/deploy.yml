@@ -8,7 +8,7 @@ on:
       - "settings.gradle.kts"
       - "Dockerfile"
     branches:
-      - test/merge
+      - dev
 jobs:
   makeTagAndRelease:
     runs-on: ubuntu-latest
