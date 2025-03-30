@@ -2,7 +2,7 @@ name: test.yml
 on:
   push:
     branches:
-      - test/merge
+      - dev
   pull_request:
 
 jobs:
