@@ -18,7 +18,7 @@ import com.ndgl.spotfinder.domain.user.entity.Oauth;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@ActiveProfiles("test")
+@ActiveProfiles("secret")
 public class UserControllerTest {
 
 	@Autowired

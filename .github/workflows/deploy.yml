@@ -38,7 +38,7 @@ jobs:
     needs: makeTagAndRelease
     runs-on: ubuntu-latest
     env:
-      DOCKER_IMAGE_NAME: app20250318
+      DOCKER_IMAGE_NAME: app20250330
     outputs:
       DOCKER_IMAGE_NAME: ${{ env.DOCKER_IMAGE_NAME }}
       OWNER_LC: ${{ env.OWNER_LC }}
@@ -50,7 +50,8 @@ jobs:
         run: echo "$APPLICATION_SECRET" > src/main/resources/application-secret.yml
 
       - name: Gradle 빌드 (jar 생성)
-        run: ./gradlew build --exclude-task test --no-daemon
+        #run: ./gradlew build --exclude-task test --no-daemon
+        run: ./gradlew build --no-daemon
 
       - name: Docker Buildx 설치
         uses: docker/setup-buildx-action@v2
