@@ -1,73 +1,31 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:db_test;MODE=MySQL
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;MODE=MySQL
     driver-class-name: org.h2.Driver
     username: sa
     password:
 
   jpa:
     hibernate:
-      ddl-auto: update
-    show-sql: false
-    properties:
-      hibernate:
-        format_sql: false
-
-  h2:
-    console:
-      enabled: true
+      ddl-auto: create-drop
 
   security:
     oauth2:
       client:
         registration:
           google:
-            client-id: ${SPRING_SECURITY_GOOGLE_CLIENT_ID}
-            client_secret: ${SPRING_SECURITY_GOOGLE_CLIENT_SECRET}
-            redirect-uri: ${SPRING_SECURITY_GOOGLE_REDIRECT_URI}
-            authorization-grant-type: authorization_code
-            scope: email
-            client-name: Google
-            provider: google
-        provider:
-          google:
-            authorization-uri: https://accounts.google.com/o/oauth2/auth
-            token-uri: https://oauth2.googleapis.com/token
-            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
-            user-name-attribute: sub
-  data:
-    redis:
-      host: localhost
-      port: 6379
-
-    profiles:
-      active: oauth
-
-  logging:
-    level:
-      org.hibernate.SQL: ERROR
-      org.hibernate.orm.jdbc.bind: ERROR
-      org.hibernate.orm.jdbc.extract: ERROR
-      org.springframework.data.redis: INFO
-      root: INFO
+            client-id: test-client-id
+            client-secret: test-client-secret
+            redirect-uri: http://localhost:8080/api/v1/users/google/login/google/callback
 
 jwt:
   secret:
-    key: ${JWT_SECRET_KEY}
-
+    key: dGVzdC1zZWNyZXQta2V5
   expiration:
-    time: ${JWT_VALIDATION_TIME}
-
+    time: 60000
   refresh-token:
-    expiration-time: ${JWT_REFRESH_VALIDATION_TIME}
-
-  auth:
-    key: ${AUTHORIZATION_KEY}
+    expiration-time: 7200000
 
 aes:
   secret:
-    key: ${AES_SECRET_KEY}
-
-springdoc:
-  default-produces-media-type: application/json;charset=UTF-8
-
+    key: dGVzdC1hdXRoLWtleQ==
