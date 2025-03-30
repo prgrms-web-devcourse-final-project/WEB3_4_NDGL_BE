@@ -9,6 +9,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import com.ndgl.spotfinder.domain.post.dto.HashtagDto;
 import com.ndgl.spotfinder.domain.post.dto.LocationDto;
 import com.ndgl.spotfinder.domain.post.dto.PostUpdateRequestDto;
+import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.global.base.BaseTime;
 
 import jakarta.persistence.CascadeType;
@@ -17,6 +18,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -41,6 +44,10 @@ public class Post extends BaseTime {
 
 	@LastModifiedDate
 	private LocalDateTime updatedAt;
+
+	@ManyToOne
+	@JoinColumn(name = "user_id")
+	private User user;
 
 	@Builder.Default
 	private Long viewCount = 0L;

@@ -10,6 +10,8 @@ import com.ndgl.spotfinder.domain.post.dto.PostResponseDto;
 import com.ndgl.spotfinder.domain.post.dto.PostUpdateRequestDto;
 import com.ndgl.spotfinder.domain.post.entity.Post;
 import com.ndgl.spotfinder.domain.post.repository.PostRepository;
+import com.ndgl.spotfinder.domain.user.entity.User;
+import com.ndgl.spotfinder.domain.user.repository.UserRepository;
 import com.ndgl.spotfinder.global.common.dto.SliceRequest;
 import com.ndgl.spotfinder.global.common.dto.SliceResponse;
 import com.ndgl.spotfinder.global.exception.ErrorCode;
@@ -19,27 +21,37 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class PostService {
+	private final UserRepository userRepository;
 	private final PostRepository postRepository;
 
 	@Transactional
-	public void createPost(PostCreateRequestDto requestDto) {
-		postRepository.save(requestDto.toPost());
+	public void createPost(PostCreateRequestDto requestDto, String email) {
+		User user = userRepository.findByEmail(email)
+			.orElseThrow(ErrorCode.USER_NOT_FOUND::throwServiceException);
+
+		postRepository.save(requestDto.toPost(user));
 	}
 
 	@Transactional
-	public void updatePost(Long id, PostUpdateRequestDto requestDto) {
-		Post post = postRepository.findById(id)
-			.orElseThrow(ErrorCode.POST_NOT_FOUND::throwServiceException);
+	public void updatePost(Long id, PostUpdateRequestDto requestDto, String email) {
+		Post post = findPostById(id);
 
-		postRepository.save(post.updatePost(requestDto));
+		if (post.getUser().getEmail().equals(email)) {
+			postRepository.save(post.updatePost(requestDto));
+		} else {
+			ErrorCode.ACCESS_DENIED.throwServiceException();
+		}
 	}
 
 	@Transactional
-	public void deletePost(Long id) {
-		Post post = postRepository.findById(id)
-			.orElseThrow(ErrorCode.POST_NOT_FOUND::throwServiceException);
+	public void deletePost(Long id, String email) {
+		Post post = findPostById(id);
 
-		postRepository.delete(post);
+		if (post.getUser().getEmail().equals(email)) {
+			postRepository.delete(post);
+		} else {
+			ErrorCode.ACCESS_DENIED.throwServiceException();
+		}
 	}
 
 	@Transactional(readOnly = true)
@@ -51,5 +63,10 @@ public class PostService {
 			results.map(PostResponseDto::new).toList(),
 			results.hasNext()
 		);
+	}
+
+	private Post findPostById(Long id) {
+		return postRepository.findById(id)
+			.orElseThrow(ErrorCode.POST_NOT_FOUND::throwServiceException);
 	}
 }

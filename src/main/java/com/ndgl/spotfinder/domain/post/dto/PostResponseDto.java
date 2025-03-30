@@ -19,7 +19,7 @@ public record PostResponseDto(
 			post.getId(),
 			post.getTitle(),
 			post.getContent(),
-			"",
+			post.getUser().getNickName(),
 			"",
 			post.getLikeCount(),
 			0L,

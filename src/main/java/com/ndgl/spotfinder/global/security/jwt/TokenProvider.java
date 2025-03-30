@@ -142,14 +142,14 @@ public class TokenProvider {
 	//  토큰에서 권한 추출
 	public Authentication getAuthentication(String token) {
 		Claims claims = parseData(token); // 유효성 검증 후 claim 추출
-		String nickName = claims.getSubject(); // subject에 있는 이메일 값 추출
+		String email = claims.getSubject(); // subject에 있는 이메일 값 추출
 		List<SimpleGrantedAuthority> authorities = Arrays.stream(
 				claims.get("auth", String.class).split(","))
 			.map(SimpleGrantedAuthority::new)
 			.collect(Collectors.toList()
 			);
 
-		UserDetails userDetails = customUserDetailsService.loadUserByUsername(nickName);
+		UserDetails userDetails = customUserDetailsService.loadUserByUsername(email);
 
 		return new UsernamePasswordAuthenticationToken(userDetails, "", authorities);
 	}

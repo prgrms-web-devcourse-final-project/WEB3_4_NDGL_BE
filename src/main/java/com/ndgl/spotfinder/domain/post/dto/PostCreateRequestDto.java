@@ -5,6 +5,7 @@ import java.util.List;
 import com.ndgl.spotfinder.domain.post.entity.Hashtag;
 import com.ndgl.spotfinder.domain.post.entity.Location;
 import com.ndgl.spotfinder.domain.post.entity.Post;
+import com.ndgl.spotfinder.domain.user.entity.User;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -30,7 +31,7 @@ public record PostCreateRequestDto(
 	@Valid
 	List<LocationDto> locations
 ) {
-	public Post toPost() {
+	public Post toPost(User user) {
 		List<Hashtag> hashtagEntities = hashtags
 			.stream()
 			.map(HashtagDto::toHashtag)
@@ -44,6 +45,7 @@ public record PostCreateRequestDto(
 		Post post = Post.builder()
 			.title(title)
 			.content(content)
+			.user(user)
 			.viewCount(0L)
 			.likeCount(0L)
 			.build();
