@@ -80,14 +80,14 @@ public class TokenProvider {
 		String accessToken = Jwts.builder()
 			.setSubject(subject)
 			.setExpiration(new Date(now + validationTime))
-			.claim(authorizationKey, authorities)
+			.claim("auth", authorities)
 			.signWith(this.key, SignatureAlgorithm.HS512)
 			.compact();
 
 		String refreshToken = Jwts.builder()
 			.setSubject(subject)
 			.setExpiration(new Date(now + refreshValidationTime))
-			.claim(authorizationKey, authorities)
+			.claim("auth", authorities)
 			.signWith(this.key, SignatureAlgorithm.HS512)
 			.compact();
 
@@ -142,14 +142,14 @@ public class TokenProvider {
 	//  토큰에서 권한 추출
 	public Authentication getAuthentication(String token) {
 		Claims claims = parseData(token); // 유효성 검증 후 claim 추출
-		String email = claims.getSubject(); // subject에 있는 이메일 값 추출
+		String nickName = claims.getSubject(); // subject에 있는 이메일 값 추출
 		List<SimpleGrantedAuthority> authorities = Arrays.stream(
 				claims.get("auth", String.class).split(","))
 			.map(SimpleGrantedAuthority::new)
 			.collect(Collectors.toList()
 			);
 
-		UserDetails userDetails = customUserDetailsService.loadUserByUsername(email);
+		UserDetails userDetails = customUserDetailsService.loadUserByUsername(nickName);
 
 		return new UsernamePasswordAuthenticationToken(userDetails, "", authorities);
 	}
