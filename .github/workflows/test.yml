@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
+      SPRING_PROFILES_ACTIVE: test
       JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
       JWT_VALIDATION_TIME: ${{ secrets.JWT_VALIDATION_TIME }}
       JWT_REFRESH_VALIDATION_TIME: ${{ secrets.JWT_REFRESH_VALIDATION_TIME }}
