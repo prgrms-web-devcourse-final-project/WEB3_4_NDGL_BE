@@ -8,6 +8,6 @@ public record SliceRequest(
 	long lastId,
 
 	@Positive(message = "요청 Slice 사이즈는 양수여야 합니다.")
-	long size
+	int size
 ) {
 }
