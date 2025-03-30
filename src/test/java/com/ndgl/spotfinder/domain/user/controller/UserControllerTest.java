@@ -10,7 +10,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,20 +19,6 @@ import com.ndgl.spotfinder.domain.user.entity.Oauth;
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-@TestPropertySource(properties = {
-	"jwt.secret.key=dGVzdC1zZWNyZXQta2V5",
-	"jwt.expiration.time=60000",
-	"jwt.refresh-token.expiration-time=7200000",
-	"aes.secret.key=dGVzdC1hdXRoLWtleQ==",
-	"spring.security.oauth2.client.registration.google.client-id=test-client-id",
-	"spring.security.oauth2.client.registration.google.client_secret=test-client-secret",
-	"spring.security.oauth2.client.registration.google.redirect-uri=http://localhost/login/oauth2/code/google",
-	"spring.datasource.url=jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;MODE=MySQL",
-	"spring.datasource.driver-class-name=org.h2.Driver",
-	"spring.datasource.username=sa",
-	"spring.datasource.password=",
-	"spring.jpa.hibernate.ddl-auto=create-drop"
-})
 public class UserControllerTest {
 
 	@Autowired
