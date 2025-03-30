@@ -2,7 +2,6 @@ package com.ndgl.spotfinder.domain.comment.service;
 
 import java.util.List;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,7 +10,6 @@ import com.ndgl.spotfinder.domain.comment.entity.PostComment;
 import com.ndgl.spotfinder.domain.comment.repository.PostCommentRepository;
 import com.ndgl.spotfinder.global.common.dto.SliceResponse;
 import com.ndgl.spotfinder.global.exception.ErrorCode;
-import com.ndgl.spotfinder.global.exception.ServiceException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -61,7 +59,7 @@ public class PostCommentService {
 
 		if (parentId != null) { // 대댓글 여부
 			PostComment parentComment = postCommentRepository.findById(parentId)
-				.orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND, "Not found"));
+				.orElseThrow(ErrorCode.COMMENT_NOT_FOUND::throwServiceException);
 			commentBuilder.parentComment(parentComment);
 		}
 

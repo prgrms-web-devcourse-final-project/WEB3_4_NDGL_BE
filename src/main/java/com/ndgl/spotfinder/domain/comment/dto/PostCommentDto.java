@@ -1,5 +1,7 @@
 package com.ndgl.spotfinder.domain.comment.dto;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.ndgl.spotfinder.domain.comment.entity.PostComment;
@@ -14,8 +16,8 @@ public class PostCommentDto {
 	private final Long postId;
 	private final Long parentId;
 	private final Long likeCount;
-	private final String createdAt;
-	private final String modifiedAt;
+	private final LocalDateTime createdAt;
+	private final LocalDateTime modifiedAt;
 	private final List<PostCommentDto> replies;
 
 	public PostCommentDto(PostComment comment) {
@@ -25,9 +27,10 @@ public class PostCommentDto {
 		this.postId = comment.getPostId(); // 임시
 		this.parentId = (comment.getParentComment() != null) ? comment.getParentComment().getId() : null;
 		this.likeCount = comment.getLikeCount();
-		this.createdAt = comment.getCreatedAt().toString();
-		this.modifiedAt = comment.getModifiedAt().toString();
-		this.replies = comment.getChildrenComments().stream()
+		this.createdAt = comment.getCreatedAt();
+		this.modifiedAt = comment.getModifiedAt();
+		this.replies = comment.getChildrenComments() == null ? new ArrayList<>()
+			: comment.getChildrenComments().stream()
 			.map(PostCommentDto::new)
 			.toList();
 	}
