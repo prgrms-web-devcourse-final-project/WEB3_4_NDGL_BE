@@ -1,24 +1,21 @@
-server:
-  port: 8080
 spring:
   datasource:
+    url: ${DB_URL}
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/ndgl?serverTimezone=Asia/Seoul
-    username: root
-    password: '0000'
-
-  config:
-    import: optional:file:.env[.properties]
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
 
   jpa:
-    show-sql: true
     hibernate:
       ddl-auto: update
+    show-sql: false
     properties:
       hibernate:
-        default_batch_fetch_size: 100
-        format_sql: true
-        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: false
+
+  h2:
+    console:
+      enabled: true
 
   security:
     oauth2:
@@ -54,20 +51,23 @@ spring:
       org.springframework.data.redis: INFO
       root: INFO
 
-  jwt:
-    secret:
-      key: ${JWT_SECRET_KEY}
-    expiration:
-      time: ${JWT_VALIDATION_TIME}
-    refresh-token:
-      expiration-time: ${JWT_REFRESH_VALIDATION_TIME}
+jwt:
+  secret:
+    key: ${JWT_SECRET_KEY}
 
-    auth:
-      key: ${AUTHORIZATION_KEY}
+  expiration:
+    time: ${JWT_VALIDATION_TIME}
 
-    aes:
-      secret:
-        key: ${AES_SECRET_KEY}
+  refresh-token:
+    expiration-time: ${JWT_REFRESH_VALIDATION_TIME}
+
+  auth:
+    key: ${AUTHORIZATION_KEY}
+
+aes:
+  secret:
+    key: ${AES_SECRET_KEY}
 
 springdoc:
   default-produces-media-type: application/json;charset=UTF-8
+
