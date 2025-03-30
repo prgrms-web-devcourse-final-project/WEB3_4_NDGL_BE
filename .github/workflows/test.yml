@@ -1,0 +1,37 @@
+name: test.yml
+on:
+  push:
+    branches:
+      - test/merge
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    env:
+      JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+      JWT_VALIDATION_TIME: ${{ secrets.JWT_VALIDATION_TIME }}
+      JWT_REFRESH_VALIDATION_TIME: ${{ secrets.JWT_REFRESH_VALIDATION_TIME }}
+      AUTHORIZATION_KEY: ${{ secrets.AUTHORIZATION_KEY }}
+      AES_SECRET_KEY: ${{ secrets.AES_SECRET_KEY }}
+
+      SPRING_SECURITY_GOOGLE_CLIENT_ID: ${{ secrets.SPRING_SECURITY_GOOGLE_CLIENT_ID }}
+      SPRING_SECURITY_GOOGLE_CLIENT_SECRET: ${{ secrets.SPRING_SECURITY_GOOGLE_CLIENT_SECRET }}
+      SPRING_SECURITY_GOOGLE_REDIRECT_URI: ${{ secrets.SPRING_SECURITY_GOOGLE_REDIRECT_URI }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build and run tests
+        run: ./gradlew test
