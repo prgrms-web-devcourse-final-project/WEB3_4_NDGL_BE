@@ -27,7 +27,12 @@ import com.ndgl.spotfinder.domain.user.entity.Oauth;
 	"aes.secret.key=dGVzdC1hdXRoLWtleQ==",
 	"spring.security.oauth2.client.registration.google.client-id=test-client-id",
 	"spring.security.oauth2.client.registration.google.client_secret=test-client-secret",
-	"spring.security.oauth2.client.registration.google.redirect-uri=http://localhost/login/oauth2/code/google"
+	"spring.security.oauth2.client.registration.google.redirect-uri=http://localhost/login/oauth2/code/google",
+	"spring.datasource.url=jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;MODE=MySQL",
+	"spring.datasource.driver-class-name=org.h2.Driver",
+	"spring.datasource.username=sa",
+	"spring.datasource.password=",
+	"spring.jpa.hibernate.ddl-auto=create-drop"
 })
 public class UserControllerTest {
 
