@@ -76,6 +76,12 @@ public class PostComment extends BaseTime {
 		}
 	}
 
+	public void checkAuthorCanDelete(User author) {
+		if (!this.user.equals(author)) {
+			ErrorCode.UNAUTHORIZED.throwServiceException();
+		}
+	}
+
 	public boolean hasParent() {
 		return parentComment != null;
 	}

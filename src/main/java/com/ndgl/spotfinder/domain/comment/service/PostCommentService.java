@@ -83,8 +83,12 @@ public class PostCommentService {
 	}
 
 	@Transactional
-	public void delete(Long id, Long commentId) {
+	public void delete(Long id, Long commentId, String email) {
+		User author = userRepository.findByEmail(email)
+			.orElseThrow(ErrorCode.USER_NOT_FOUND::throwServiceException);
+
 		PostComment comment = findCommentAndVerifyPost(commentId, id);
+		comment.checkAuthorCanDelete(author);
 		postCommentRepository.delete(comment);
 	}
 

@@ -147,7 +147,8 @@ public class PostCommentServiceTest {
 
 		// When
 		when(postCommentRepository.findById(commentId)).thenReturn(java.util.Optional.ofNullable(comment));
-		postCommentService.delete(postId, commentId);
+		when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
+		postCommentService.delete(postId, commentId, user.getEmail());
 
 		// Then
 		verify(postCommentRepository, times(1)).findById(commentId);
@@ -164,7 +165,7 @@ public class PostCommentServiceTest {
 		when(postCommentRepository.findById(commentId)).thenReturn(Optional.empty());
 
 		ServiceException exception = assertThrows(ServiceException.class,
-			() -> postCommentService.delete(postId, commentId)
+			() -> postCommentService.delete(postId, commentId, user.getEmail())
 		);
 		assertEquals(HttpStatus.NOT_FOUND, exception.getCode());
 	}

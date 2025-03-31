@@ -72,8 +72,12 @@ public class PostCommentController {
 
 	@DeleteMapping("/{commentId}")
 	@Operation(summary = "댓글 삭제", description = "댓글 삭제, 작성자 이외 불가능")
-	public RsData<Void> delete(@PathVariable Long id, @PathVariable Long commentId) {
-		postCommentService.delete(id, commentId);
+	public RsData<Void> delete(
+		@PathVariable Long id,
+		@PathVariable Long commentId,
+		Principal principal
+	) {
+		postCommentService.delete(id, commentId, principal.getName());
 		return RsData.success(HttpStatus.OK);
 	}
 }
