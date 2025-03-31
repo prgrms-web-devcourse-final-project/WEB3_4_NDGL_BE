@@ -2,10 +2,9 @@ package com.ndgl.spotfinder.domain.image.service;
 
 import java.net.URL;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -23,15 +22,16 @@ import com.ndgl.spotfinder.global.exception.ErrorCode;
 import com.ndgl.spotfinder.global.util.Ut;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
 @Profile("!test")
+@Slf4j
 public class ImageService {
 	private final PostRepository postRepository;
 	private final ImageRepository imageRepository;
 	private final S3Service s3Service;
-	private static final Logger log = LoggerFactory.getLogger(ImageService.class);
 
 	/**
 	 * 이미지 업로드를 위한 Presigned URL 목록 생성
@@ -41,7 +41,7 @@ public class ImageService {
 	 */
 	public PresignedUrlsResponse createImage(ImageRequest imageRequest) {
 		try {
-			Post post = postRepository.findById(1L)
+			Post post = postRepository.findById(imageRequest.id())
 				.orElseThrow(ErrorCode.POST_NOT_FOUND::throwServiceException);
 			return createPresignedUrls(post.getId(), imageRequest.imageExtensions());
 		} catch (DataIntegrityViolationException e) {
@@ -68,7 +68,7 @@ public class ImageService {
 					return null;
 				}
 			})
-			.filter(url -> url != null)
+			.filter(Objects::nonNull)
 			.collect(Collectors.toList());
 
 		return new PresignedUrlsResponse(postId, presignedUrls);
@@ -146,16 +146,9 @@ public class ImageService {
 		Post post = postRepository.findById(postId)
 			.orElseThrow(() -> new IllegalArgumentException("게시물을 찾을 수 없습니다. ID: " + postId));
 
-		// 1. S3에서 이미지 객체들 삭제
 		s3Service.deleteAllObjectsById(ImageType.POST, postId);
-		log.info("게시물 ID {}의, S3 객체 삭제 완료", postId);
-
-		// 2. 이미지 엔티티들 삭제
 		imageRepository.deleteAllByPostId(postId);
-
-		// 3. 마지막으로 게시물 삭제
 		postRepository.delete(post);
-		log.info("게시물 ID {} 삭제 완료", postId);
 	}
 
 	/**

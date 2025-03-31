@@ -129,7 +129,11 @@ public class S3Service {
 		}
 	}
 
-	// URL 리스트를 받아 Object 모두 삭제
+ㄱ	/**
+	 * URL 리스트를 받아 Object 모두 삭제
+	 *
+	 * @param urls url 리스트
+	 */
 	public void deleteObjectsByUrls(List<String> urls) {
 		if (!Ut.list.hasValue(urls))
 			return;
@@ -153,7 +157,12 @@ public class S3Service {
 		}
 	}
 
-	// S3의 폴더의 모든 Object 들 삭제
+	/**
+	 * S3의 폴더의 모든 Object 들 삭제
+	 *
+	 * @param imageType 타입
+	 * @param id        ID
+	 */
 	public void deleteAllObjectsById(ImageType imageType, long id) {
 		// folderPath 로 변환
 		String folderPath = S3Util.getFolderPath(imageType, id);
@@ -191,7 +200,12 @@ public class S3Service {
 		}
 	}
 
-	// 폴더의 모든 Object 조회
+	/**
+	 * 폴더의 모든 Object 조회
+	 *
+	 * @param folderPath 폴더 경로
+	 * @return Object
+	 */
 	private List<S3Object> listAllObjectsInFolder(String folderPath) {
 		List<S3Object> objects = new ArrayList<>();
 
