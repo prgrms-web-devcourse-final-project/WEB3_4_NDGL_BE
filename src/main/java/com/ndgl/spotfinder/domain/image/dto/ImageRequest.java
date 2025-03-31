@@ -4,10 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public record PostRequest(
+public record ImageRequest(
+	long id,
 	List<String> imageExtensions
 ) {
-	public PostRequest {
+	public ImageRequest {
 		imageExtensions = Objects.requireNonNullElse(imageExtensions, new ArrayList<>());
 	}
 }

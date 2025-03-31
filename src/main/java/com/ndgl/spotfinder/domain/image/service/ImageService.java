@@ -9,7 +9,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ndgl.spotfinder.domain.image.dto.PostRequest;
+import com.ndgl.spotfinder.domain.image.dto.ImageRequest;
 import com.ndgl.spotfinder.domain.image.dto.PresignedImageResponse;
 import com.ndgl.spotfinder.domain.image.dto.PresignedUrlsResponse;
 import com.ndgl.spotfinder.domain.image.entity.Image;
@@ -32,23 +32,26 @@ public class ImageService {
 	private final S3Service s3Service;
 
 	/**
-	 * 이미지 생성 URL 반환
+	 * 이미지 업로드를 위한 Presigned URL 목록 생성
+	 *
+	 * @param imageRequest 이미지 확장자 정보를 포함한 요청 객체
+	 * @return 생성된 Presigned URL 목록과 게시글 ID를 포함한 응답 객체
 	 */
-	public PresignedUrlsResponse createImage(PostRequest postRequest) {
+	public PresignedUrlsResponse createImage(ImageRequest imageRequest) {
 		try {
-			Post post = postRepository.findById(1L)
+			Post post = postRepository.findById(1L) // TODO 하드코딩 된 ID 변경
 				.orElseThrow(ErrorCode.POST_NOT_FOUND::throwServiceException);
-			return saveImagesToS3(post.getId(), postRequest.imageExtensions());
+			return createPresignedUrls(post.getId(), imageRequest.imageExtensions());
 		} catch (DataIntegrityViolationException e) {
 			throw ErrorCode.S3_OBJECT_UPLOAD_FAIL.throwServiceException();
 		}
 	}
 
 	/**
-	 * 특정 게시글의 모든 이미지를 조회하고 Presigned 반환
+	 * 특정 게시글의 모든 이미지를 조회하고 Presigned URL을 생성하여 반환
 	 *
 	 * @param postId 게시글 ID
-	 * @return 값이 담긴 DTO 반환
+	 * @return 이미지 ID와 Presigned URL이 포함된 응답 객체 목록
 	 */
 	@Transactional(readOnly = true)
 	public List<PresignedImageResponse> findImagesWithPresignedUrls(long postId) {
@@ -98,9 +101,16 @@ public class ImageService {
 		imageRepository.deleteById(imageId);
 	}
 
-	private PresignedUrlsResponse saveImagesToS3(long postId, List<String> extensions) {
-		List<URL> urls = this.s3Service.generatePresignedUrls(ImageType.POST, postId, extensions);
-		return new PresignedUrlsResponse(postId, urls);
+	/**
+	 * ID와 확장자 기반으로 S3 Presigned URL 목록 생성
+	 *
+	 * @param id         ID
+	 * @param extensions 파일 확장자 목록
+	 * @return 생성된 Presigned URL 목록과 게시글 ID를 포함한 응답 객체
+	 */
+	private PresignedUrlsResponse createPresignedUrls(long id, List<String> extensions) {
+		List<URL> urls = s3Service.generatePresignedUrls(ImageType.POST, id, extensions);
+		return new PresignedUrlsResponse(id, urls);
 	}
 
 }
