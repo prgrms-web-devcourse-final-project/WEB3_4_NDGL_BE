@@ -118,11 +118,9 @@ public class ImageService {
 	 */
 	@Transactional
 	public void deleteAllImages(long postId) {
-		// 게시물 존재 확인
 		postRepository.findById(postId)
 			.orElseThrow(() -> new IllegalArgumentException("게시물을 찾을 수 없습니다. ID: " + postId));
 
-		// 1. 게시물에 연결된 이미지 엔티티들 찾기
 		List<Image> images = imageRepository.findAllByPostId(postId);
 
 		if (images.isEmpty()) {
@@ -130,7 +128,6 @@ public class ImageService {
 			return;
 		}
 
-		// 2. 이미지 엔티티 삭제
 		imageRepository.deleteAllByPostId(postId);
 		log.info("게시물 ID {}의 이미지 엔티티 {}개 삭제 완료", postId, images.size());
 	}
@@ -142,7 +139,6 @@ public class ImageService {
 	 */
 	@Transactional
 	public void deletePostWithAllImages(long postId) {
-		// 게시물 조회
 		Post post = postRepository.findById(postId)
 			.orElseThrow(() -> new IllegalArgumentException("게시물을 찾을 수 없습니다. ID: " + postId));
 

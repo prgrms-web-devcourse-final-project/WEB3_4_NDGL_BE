@@ -129,7 +129,7 @@ public class S3Service {
 		}
 	}
 
-ㄱ	/**
+	/**
 	 * URL 리스트를 받아 Object 모두 삭제
 	 *
 	 * @param urls url 리스트
