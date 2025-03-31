@@ -80,7 +80,6 @@ public class S3Service {
 					.key(key))
 				.signatureDuration(Duration.ofMinutes(EXPIRATION_MINUTES)));
 
-			log.debug("[S3Service] generatePresignedUrl: {}", presignedRequest.url().toString());
 			return presignedRequest.url();
 		} catch (SdkException e) {
 			throw ErrorCode.S3_PRESIGNED_GENERATION_FAIL.throwS3Exception(e);
@@ -93,7 +92,7 @@ public class S3Service {
 	 * @param imageUrl 원본 S3 이미지 URL
 	 * @return 지정된 시간 동안 유효한 조회용 서명된 URL
 	 */
-	public String generatePresignedGetUrl(String imageUrl) {
+	public URL generatePresignedGetUrl(String imageUrl) {
 		try {
 			String objectKey = S3Util.extractObjectKeyFromUrl(imageUrl);
 
@@ -104,7 +103,7 @@ public class S3Service {
 				.signatureDuration(Duration.ofMinutes(EXPIRATION_MINUTES))
 				.build();
 
-			return s3Presigner.presignGetObject(presignRequest).url().toString();
+			return s3Presigner.presignGetObject(presignRequest).url();
 		} catch (SdkException e) {
 			throw ErrorCode.S3_PRESIGNED_GENERATION_FAIL.throwS3Exception(e);
 		}
@@ -218,5 +217,4 @@ public class S3Service {
 
 		return objects;
 	}
-
 }
