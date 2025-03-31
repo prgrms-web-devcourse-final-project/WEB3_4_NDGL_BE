@@ -140,6 +140,21 @@
         .upload-link a:hover {
             background-color: #228be6;
         }
+        
+        .delete-post {
+            margin-left: 10px;
+            background-color: #e03131;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .delete-post:hover {
+            background-color: #c92a2a;
+        }
     </style>
 </head>
 <body>
@@ -157,6 +172,7 @@
         
         <div class="upload-link">
             <a href="/example/images/upload">새 이미지 업로드하기</a>
+            <button class="delete-post" onclick="deletePost()">게시물과 모든 이미지 삭제</button>
         </div>
         
         <div class="image-grid" th:if="${!images.isEmpty()}">
@@ -203,6 +219,34 @@
             } catch (error) {
                 console.error('삭제 오류:', error);
                 alert('이미지 삭제 중 오류가 발생했습니다.');
+            }
+        }
+        
+        // 게시물 삭제 함수
+        async function deletePost() {
+            const postId = [[${postId}]];
+            
+            if (!confirm('이 게시물과 모든 이미지를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/example/images/delete-post/${postId}`, {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+                
+                // RsData 응답 구조에 맞게 처리
+                if (response.ok) {
+                    alert(result.msg || '게시물과 모든 이미지가 삭제되었습니다.');
+                    window.location.href = '/'; // 홈으로 리다이렉트
+                } else {
+                    alert(result.msg || '게시물 삭제에 실패했습니다.');
+                }
+            } catch (error) {
+                console.error('삭제 오류:', error);
+                alert('게시물 삭제 중 오류가 발생했습니다.');
             }
         }
     </script>

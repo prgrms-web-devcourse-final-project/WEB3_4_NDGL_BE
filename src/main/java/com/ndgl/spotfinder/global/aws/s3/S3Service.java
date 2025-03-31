@@ -95,7 +95,7 @@ public class S3Service {
 	 */
 	public String generatePresignedGetUrl(String imageUrl) {
 		try {
-			String objectKey = S3Util.extractKeyFromUrl(imageUrl);
+			String objectKey = S3Util.extractObjectKeyFromUrl(imageUrl);
 
 			GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
 				.getObjectRequest(getObjectRequest -> getObjectRequest
@@ -117,7 +117,7 @@ public class S3Service {
 	 */
 	public void deleteFile(String imageUrl) {
 		try {
-			String key = S3Util.extractKeyFromUrl(imageUrl);
+			String key = S3Util.extractObjectKeyFromUrl(imageUrl);
 
 			DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
 				.bucket(bucketName)
@@ -130,13 +130,34 @@ public class S3Service {
 		}
 	}
 
-	/**
-	 * postId에 해당하는 폴더의 모든 객체 삭제
-	 *
-	 * @param postId 게시글 ID
-	 */
-	public void deleteAllObjectByPostId(long postId) {
-		String folderPath = postId + "/";
+	// URL 리스트를 받아 Object 모두 삭제
+	public void deleteObjectsByUrls(List<String> urls) {
+		if (!Ut.list.hasValue(urls))
+			return;
+
+		try {
+			List<ObjectIdentifier> objectIdentifiers = urls.stream()
+				.map(S3Util::extractObjectKeyFromUrl)
+				.map(key -> ObjectIdentifier.builder().key(key).build())
+				.toList();
+
+			DeleteObjectsRequest deleteRequest = DeleteObjectsRequest.builder()
+				.bucket(bucketName)
+				.delete(delete -> delete.objects(objectIdentifiers))
+				.build();
+
+			// S3 객체 삭제 요청
+			s3Client.deleteObjects(deleteRequest);
+
+		} catch (SdkException e) {
+			ErrorCode.S3_OBJECT_DELETE_FAIL.throwS3Exception(e);
+		}
+	}
+
+	// S3의 폴더의 모든 Object 들 삭제
+	public void deleteAllObjectsById(ImageType imageType, long id) {
+		// folderPath 로 변환
+		String folderPath = S3Util.getFolderPath(imageType, id);
 
 		try {
 			// 폴더 내 모든 객체 목록 조회
@@ -148,11 +169,16 @@ public class S3Service {
 			}
 
 			// 삭제할 객체 키 목록 생성
-			List<ObjectIdentifier> objectIdentifiers = objects.stream()
-				.map(obj -> ObjectIdentifier.builder().key(obj.key()).build())
-				.toList();
+			List<ObjectIdentifier> objectIdentifiers = new ArrayList<>();
+			for (S3Object object : objects) {
+				objectIdentifiers.add(
+					ObjectIdentifier.builder()
+						.key(object.key())
+						.build()
+				);
+			}
 
-			// 객체 삭제 요청
+			// 객체 삭제 요청 (한 번에 최대 1000개 객체 삭제 가능)
 			DeleteObjectsRequest deleteRequest = DeleteObjectsRequest.builder()
 				.bucket(bucketName)
 				.delete(delete -> delete.objects(objectIdentifiers))
@@ -162,16 +188,11 @@ public class S3Service {
 			s3Client.deleteObjects(deleteRequest);
 
 		} catch (SdkException e) {
-			throw ErrorCode.S3_OBJECT_DELETE_FAIL.throwS3Exception(e);
+			ErrorCode.S3_OBJECT_DELETE_FAIL.throwS3Exception(e);
 		}
 	}
 
-	/**
-	 * 폴더의 모든 Object 조회
-	 *
-	 * @param folderPath 폴더 경로
-	 * @return S3 객체 목록
-	 */
+	// 폴더의 모든 Object 조회
 	private List<S3Object> listAllObjectsInFolder(String folderPath) {
 		List<S3Object> objects = new ArrayList<>();
 
@@ -185,20 +206,17 @@ public class S3Service {
 			do {
 				listResponse = s3Client.listObjectsV2(listRequest);
 				objects.addAll(listResponse.contents());
-
-				// 결과가 더 있는 경우 다음 페이지 요청
-				if (Boolean.TRUE.equals(listResponse.isTruncated())) {
-					listRequest = ListObjectsV2Request.builder()
-						.bucket(bucketName)
-						.prefix(folderPath)
-						.continuationToken(listResponse.nextContinuationToken())
-						.build();
-				}
+				listRequest = ListObjectsV2Request.builder()
+					.bucket(bucketName)
+					.prefix(folderPath)
+					.continuationToken(listResponse.nextContinuationToken())
+					.build();
 			} while (Boolean.TRUE.equals(listResponse.isTruncated()));
 		} catch (SdkException e) {
-			throw ErrorCode.S3_OBJECT_ACCESS_FAIL.throwS3Exception(e);
+			ErrorCode.S3_OBJECT_ACCESS_FAIL.throwS3Exception(e);
 		}
 
 		return objects;
 	}
+
 }
