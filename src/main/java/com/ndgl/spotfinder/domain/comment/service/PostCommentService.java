@@ -10,7 +10,8 @@ import com.ndgl.spotfinder.domain.comment.entity.PostComment;
 import com.ndgl.spotfinder.domain.comment.repository.PostCommentRepository;
 import com.ndgl.spotfinder.domain.post.entity.Post;
 import com.ndgl.spotfinder.domain.post.repository.PostRepository;
-import com.ndgl.spotfinder.domain.post.service.PostService;
+import com.ndgl.spotfinder.domain.user.entity.User;
+import com.ndgl.spotfinder.domain.user.repository.UserRepository;
 import com.ndgl.spotfinder.global.common.dto.SliceResponse;
 import com.ndgl.spotfinder.global.exception.ErrorCode;
 
@@ -20,8 +21,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PostCommentService {
 	private final PostCommentRepository postCommentRepository;
-	private final PostService postService;
 	private final PostRepository postRepository;
+	private final UserRepository userRepository;
 
 	@Transactional(readOnly = true)
 	public SliceResponse<PostCommentDto> getComments(Long postId, long lastId, int size) {
@@ -59,8 +60,11 @@ public class PostCommentService {
 		Post post = postRepository.findById(postId)
 			.orElseThrow(ErrorCode.POST_NOT_FOUND::throwServiceException);
 
+		User user = userRepository.findByEmail("")
+			.orElseThrow(ErrorCode.USER_NOT_FOUND::throwServiceException);
+
 		PostComment.PostCommentBuilder commentBuilder = PostComment.builder()
-			.userId(1L) // 임시
+			.user(user)
 			.post(post)
 			.content(content)
 			.likeCount(0L);
