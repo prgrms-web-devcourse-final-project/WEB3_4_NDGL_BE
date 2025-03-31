@@ -37,7 +37,7 @@ spring:
             user-name-attribute: sub
   data:
     redis:
-      host: localhost
+      host: redis_1
       port: 6379
 
     profiles:
