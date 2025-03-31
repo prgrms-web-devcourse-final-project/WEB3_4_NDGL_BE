@@ -8,6 +8,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.ndgl.spotfinder.domain.comment.dto.PostCommentDto;
 import com.ndgl.spotfinder.domain.comment.entity.PostComment;
 import com.ndgl.spotfinder.domain.comment.repository.PostCommentRepository;
+import com.ndgl.spotfinder.domain.post.entity.Post;
+import com.ndgl.spotfinder.domain.post.repository.PostRepository;
+import com.ndgl.spotfinder.domain.post.service.PostService;
 import com.ndgl.spotfinder.global.common.dto.SliceResponse;
 import com.ndgl.spotfinder.global.exception.ErrorCode;
 
@@ -17,6 +20,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PostCommentService {
 	private final PostCommentRepository postCommentRepository;
+	private final PostService postService;
+	private final PostRepository postRepository;
 
 	@Transactional(readOnly = true)
 	public SliceResponse<PostCommentDto> getComments(Long postId, long lastId, int size) {
@@ -51,9 +56,12 @@ public class PostCommentService {
 
 	@Transactional
 	public void write(Long postId, String content, Long parentId) {
+		Post post = postRepository.findById(postId)
+			.orElseThrow(ErrorCode.POST_NOT_FOUND::throwServiceException);
+
 		PostComment.PostCommentBuilder commentBuilder = PostComment.builder()
 			.userId(1L) // 임시
-			.postId(postId)
+			.post(post)
 			.content(content)
 			.likeCount(0L);
 

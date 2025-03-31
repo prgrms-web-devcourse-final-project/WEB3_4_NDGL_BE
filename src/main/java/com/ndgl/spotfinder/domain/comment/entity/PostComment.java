@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import com.ndgl.spotfinder.domain.post.entity.Post;
 import com.ndgl.spotfinder.global.base.BaseTime;
 import com.ndgl.spotfinder.global.exception.ErrorCode;
 
@@ -45,9 +46,8 @@ public class PostComment extends BaseTime {
 	@LastModifiedDate
 	private LocalDateTime modifiedAt;
 
-	// 포스트 -> id로 대체(임시)
-	@Column(nullable = false)
-	private Long postId;
+	@ManyToOne(fetch = FetchType.LAZY)
+	private Post post;
 
 	// 작성자(임시)
 	@Column(nullable = false)
@@ -65,7 +65,7 @@ public class PostComment extends BaseTime {
 	private List<PostComment> childrenComments = new ArrayList<>();
 
 	public void isCommentOfPost(Long postId) {
-		if (!this.postId.equals(postId)) {
+		if (!this.post.getId().equals(postId)) {
 			ErrorCode.COMMENT_NOT_FOUND.throwServiceException();
 		}
 	}

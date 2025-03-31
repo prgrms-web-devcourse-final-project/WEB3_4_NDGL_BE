@@ -24,7 +24,7 @@ public class PostCommentDto {
 		this.id = comment.getId();
 		this.content = comment.getContent();
 		// this.authorName = comment.getAuthor().getName();
-		this.postId = comment.getPostId(); // 임시
+		this.postId = comment.getPost().getId();
 		this.parentId = (comment.getParentComment() != null) ? comment.getParentComment().getId() : null;
 		this.likeCount = comment.getLikeCount();
 		this.createdAt = comment.getCreatedAt();
