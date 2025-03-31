@@ -10,6 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.ndgl.spotfinder.domain.like.dto.LikeStatus;
 import com.ndgl.spotfinder.domain.like.entity.Like;
 import com.ndgl.spotfinder.domain.like.repository.LikeRepository;
+import com.ndgl.spotfinder.domain.user.entity.User;
+import com.ndgl.spotfinder.domain.user.repository.UserRepository;
 import com.ndgl.spotfinder.global.exception.ErrorCode;
 
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 public class LikeService {
 
 	private final LikeRepository likeRepository;
+	private final UserRepository userRepository;
 
 	/**
 	 * 좋아요 추가 또는 삭제
@@ -37,15 +40,17 @@ public class LikeService {
 			userId, targetId, targetType
 		);
 
-		if (existingLike.isPresent()) { // 좋아요 취소
+		if (existingLike.isPresent()) { // 이미 있다면, 좋아요 취소
 			likeRepository.delete(existingLike.get());
 			return false;
-		} else { // 좋아요 추가
+		} else { // 없다면, 좋아요 추가
 			Like like = new Like();
+			User user = userRepository.findById(userId)
+				.orElseThrow(ErrorCode.USER_NOT_FOUND::throwServiceException);
 
 			switch (targetType) {
-				case POST -> like = createPostLike(userId, targetId);
-				case COMMENT -> like = createCommentLike(userId, targetId);
+				case POST -> like = createPostLike(user, targetId);
+				case COMMENT -> like = createCommentLike(user, targetId);
 				default -> ErrorCode.UNSUPPORTED_TARGET_TYPE.throwServiceException();
 			}
 

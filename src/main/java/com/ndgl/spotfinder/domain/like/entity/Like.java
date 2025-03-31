@@ -1,14 +1,18 @@
 package com.ndgl.spotfinder.domain.like.entity;
 
+import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.global.base.BaseTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
@@ -34,13 +38,9 @@ public class Like extends BaseTime {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	// TODO : 유저 관계 추후 추가
-	@Column(name = "user_id", nullable = false)
-	private Long userId;
-
-	// @ManyToOne(fetch = FetchType.LAZY)
-	// @JoinColumn(name = "user_id", nullable = false)
-	// private User user;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_id", nullable = false)
+	private User user;
 
 	@Column(name = "target_id", nullable = false)
 	private Long targetId;
@@ -54,17 +54,17 @@ public class Like extends BaseTime {
 		COMMENT,   // 댓글
 	}
 
-	public static Like createPostLike(Long userId, Long postId) {
+	public static Like createPostLike(User user, Long postId) {
 		return builder()
-			.userId(userId)
+			.user(user)
 			.targetId(postId)
 			.targetType(TargetType.POST)
 			.build();
 	}
 
-	public static Like createCommentLike(Long userId, Long commentId) {
+	public static Like createCommentLike(User user, Long commentId) {
 		return builder()
-			.userId(userId)
+			.user(user)
 			.targetId(commentId)
 			.targetType(TargetType.COMMENT)
 			.build();
