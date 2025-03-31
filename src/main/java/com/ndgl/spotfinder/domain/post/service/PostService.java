@@ -59,6 +59,12 @@ public class PostService {
 		);
 	}
 
+	public PostResponseDto getPost(Long id) {
+		Post post = findPostById(id);
+
+		return new PostResponseDto(post);
+	}
+
 	private Post findPostById(Long id) {
 		return postRepository.findById(id)
 			.orElseThrow(ErrorCode.POST_NOT_FOUND::throwServiceException);
