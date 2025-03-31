@@ -68,4 +68,11 @@ public class PostController {
 
 		return RsData.success(HttpStatus.OK, results);
 	}
+
+	@GetMapping("/{id}")
+	public RsData<PostResponseDto> getPost(@PathVariable Long id) {
+		PostResponseDto result = postService.getPost(id);
+
+		return RsData.success(HttpStatus.OK, result);
+	}
 }
