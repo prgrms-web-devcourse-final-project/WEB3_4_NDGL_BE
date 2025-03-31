@@ -1,5 +1,8 @@
 package com.ndgl.spotfinder.global.exception;
 
+import java.util.stream.Collectors;
+
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -16,6 +19,12 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	public RsData<Void> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-		return new RsData<>(HttpStatus.BAD_REQUEST.value(), "잘못된 입력 값입니다.", null);
+		String errors = e.getBindingResult()
+			.getAllErrors()
+			.stream()
+			.map(DefaultMessageSourceResolvable::getDefaultMessage)
+			.collect(Collectors.joining("\n"));
+
+		return new RsData<>(HttpStatus.BAD_REQUEST.value(), errors, null);
 	}
 }

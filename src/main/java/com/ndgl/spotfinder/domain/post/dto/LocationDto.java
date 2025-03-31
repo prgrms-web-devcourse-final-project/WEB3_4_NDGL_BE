@@ -9,22 +9,22 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 
 public record LocationDto(
-	@NotBlank
+	@NotBlank(message = "장소 이름은 필수입니다.")
 	String name,
 
-	@NotBlank
+	@NotBlank(message = "장소 주소는 필수입니다.")
 	String address,
 
-	@DecimalMin("-90.0")
-	@DecimalMax("90.0")
+	@DecimalMin(value = "-90.0", message = "위도는 -90 이상입니다.")
+	@DecimalMax(value = "90.0", message = "위도는 90 이하입니다.")
 	Double latitude,
 
-	@DecimalMin("-180.0")
-	@DecimalMax("180.0")
+	@DecimalMin(value = "-180.0", message = "경도는 -180 이상입니다.")
+	@DecimalMax(value = "180.0", message = "경도는 180 이하입니다.")
 	Double longitude,
 
-	@Min(1)
-	@Max(20)
+	@Min(value = 1, message = "순서는 1 이상입니다.")
+	@Max(value = 20, message = "순서는 20 이하입니다.")
 	Integer sequence
 ) {
 	public Location toLocation() {
