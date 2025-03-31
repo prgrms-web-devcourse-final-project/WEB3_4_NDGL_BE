@@ -61,6 +61,21 @@ public class PostService {
 		);
 	}
 
+	@Transactional(readOnly = true)
+	public SliceResponse<PostResponseDto> getPostsByUser(SliceRequest sliceRequest, Long userId) {
+		PageRequest pageRequest = PageRequest.of(0, sliceRequest.size());
+		Long lastId = getLastPostId(sliceRequest);
+		User user = userRepository.findById(userId)
+			.orElseThrow(ErrorCode.USER_NOT_FOUND::throwServiceException);
+
+		Slice<Post> results = postRepository.findByUserAndIdLessThanOrderByCreatedAtDesc(user, lastId, pageRequest);
+
+		return new SliceResponse<>(
+			results.map(PostResponseDto::new).toList(),
+			results.hasNext()
+		);
+	}
+
 	public PostResponseDto getPost(Long id) {
 		Post post = findPostById(id);
 
