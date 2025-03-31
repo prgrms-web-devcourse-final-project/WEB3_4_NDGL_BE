@@ -36,22 +36,16 @@ public class PostService {
 	public void updatePost(Long id, PostUpdateRequestDto requestDto, String email) {
 		Post post = findPostById(id);
 
-		if (post.getUser().getEmail().equals(email)) {
-			postRepository.save(post.updatePost(requestDto));
-		} else {
-			ErrorCode.ACCESS_DENIED.throwServiceException();
-		}
+		checkUserPermission(post, email);
+		postRepository.save(post.updatePost(requestDto));
 	}
 
 	@Transactional
 	public void deletePost(Long id, String email) {
 		Post post = findPostById(id);
 
-		if (post.getUser().getEmail().equals(email)) {
-			postRepository.delete(post);
-		} else {
-			ErrorCode.ACCESS_DENIED.throwServiceException();
-		}
+		checkUserPermission(post, email);
+		postRepository.delete(post);
 	}
 
 	@Transactional(readOnly = true)
@@ -68,5 +62,11 @@ public class PostService {
 	private Post findPostById(Long id) {
 		return postRepository.findById(id)
 			.orElseThrow(ErrorCode.POST_NOT_FOUND::throwServiceException);
+	}
+
+	private void checkUserPermission(Post post, String email) {
+		if (!post.getUser().getEmail().equals(email)) {
+			ErrorCode.ACCESS_DENIED.throwServiceException();
+		}
 	}
 }
