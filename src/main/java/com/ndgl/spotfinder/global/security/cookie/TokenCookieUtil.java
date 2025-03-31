@@ -17,7 +17,7 @@ public class TokenCookieUtil {
 
 	public void setTokenCookies(HttpServletResponse response, String accessToken) {
 		//  accessToken을 쿠키에 넣자!
-		Cookie accessCookie = new Cookie("accessCookie", accessToken);
+		Cookie accessCookie = new Cookie("accessToken", accessToken);
 		accessCookie.setHttpOnly(true);
 		accessCookie.setSecure(false);
 		accessCookie.setPath("/");

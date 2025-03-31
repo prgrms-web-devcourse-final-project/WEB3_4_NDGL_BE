@@ -8,6 +8,8 @@ spring:
     driver-class-name: org.h2.Driver
     username: sa
     password:
+    hikari:
+      auto-commit: false
 
   jpa:
     hibernate:
@@ -74,4 +76,3 @@ aes:
 
 springdoc:
   default-produces-media-type: application/json;charset=UTF-8
-
