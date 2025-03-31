@@ -5,9 +5,9 @@ import jakarta.validation.constraints.PositiveOrZero;
 
 public record SliceRequest(
 	@PositiveOrZero(message = "요청하는 lastId는 0 이상이어야 합니다.")
-	long lastId,
+	Long lastId,
 
 	@Positive(message = "요청 Slice 사이즈는 양수여야 합니다.")
-	int size
+	Integer size
 ) {
 }

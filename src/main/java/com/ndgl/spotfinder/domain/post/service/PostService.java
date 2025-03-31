@@ -51,7 +51,9 @@ public class PostService {
 	@Transactional(readOnly = true)
 	public SliceResponse<PostResponseDto> getPosts(SliceRequest sliceRequest) {
 		PageRequest pageRequest = PageRequest.of(0, sliceRequest.size());
-		Slice<Post> results = postRepository.findByIdGreaterThan(sliceRequest.lastId(), pageRequest);
+		Long lastId = getLastPostId(sliceRequest);
+
+		Slice<Post> results = postRepository.findByIdLessThanOrderByCreatedAtDesc(lastId, pageRequest);
 
 		return new SliceResponse<>(
 			results.map(PostResponseDto::new).toList(),
@@ -73,6 +75,16 @@ public class PostService {
 	private void checkUserPermission(Post post, String email) {
 		if (!post.getUser().getEmail().equals(email)) {
 			ErrorCode.ACCESS_DENIED.throwServiceException();
+		}
+	}
+
+	private Long getLastPostId(SliceRequest sliceRequest) {
+		if (sliceRequest.lastId() == null) {
+			return postRepository.findTopByOrderByIdDesc()
+				.map(post -> post.getId() + 1)
+				.orElse(0L);
+		} else {
+			return sliceRequest.lastId();
 		}
 	}
 }
