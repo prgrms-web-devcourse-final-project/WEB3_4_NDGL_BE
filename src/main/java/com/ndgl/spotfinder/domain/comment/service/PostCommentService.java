@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ndgl.spotfinder.domain.comment.dto.PostCommentDto;
+import com.ndgl.spotfinder.domain.comment.dto.PostCommentReqDto;
 import com.ndgl.spotfinder.domain.comment.entity.PostComment;
 import com.ndgl.spotfinder.domain.comment.repository.PostCommentRepository;
 import com.ndgl.spotfinder.domain.post.entity.Post;
@@ -56,11 +57,14 @@ public class PostCommentService {
 	}
 
 	@Transactional
-	public void write(Long postId, String content, Long parentId) {
+	public void write(Long postId, PostCommentReqDto reqBody, String email) {
+		String content = reqBody.content();
+		Long parentId = reqBody.parentId();
+
 		Post post = postRepository.findById(postId)
 			.orElseThrow(ErrorCode.POST_NOT_FOUND::throwServiceException);
 
-		User user = userRepository.findByEmail("")
+		User user = userRepository.findByEmail(email)
 			.orElseThrow(ErrorCode.USER_NOT_FOUND::throwServiceException);
 
 		PostComment.PostCommentBuilder commentBuilder = PostComment.builder()
@@ -86,6 +90,7 @@ public class PostCommentService {
 
 	@Transactional
 	public void modify(Long postId, Long commentId, String content) {
+		// 유저 권한 확인
 		PostComment comment = findCommentAndVerifyPost(commentId, postId);
 		comment.setContent(content);
 	}

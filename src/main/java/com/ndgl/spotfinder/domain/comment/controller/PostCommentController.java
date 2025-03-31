@@ -1,5 +1,7 @@
 package com.ndgl.spotfinder.domain.comment.controller;
 
+import java.security.Principal;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,8 +49,12 @@ public class PostCommentController {
 
 	@PostMapping
 	@Operation(summary = "댓글 작성", description = "댓글을 작성합니다.")
-	public RsData<Void> write(@PathVariable Long id, @RequestBody @Valid PostCommentReqDto reqBody) {
-		postCommentService.write(id, reqBody.content(), reqBody.parentId());
+	public RsData<Void> write(
+		@PathVariable Long id,
+		@RequestBody @Valid PostCommentReqDto reqBody,
+		Principal principal
+	) {
+		postCommentService.write(id, reqBody, principal.getName());
 		return RsData.success(HttpStatus.OK);
 	}
 

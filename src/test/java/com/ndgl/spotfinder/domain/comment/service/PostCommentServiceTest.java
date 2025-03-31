@@ -17,8 +17,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 
 import com.ndgl.spotfinder.domain.comment.dto.PostCommentDto;
+import com.ndgl.spotfinder.domain.comment.dto.PostCommentReqDto;
 import com.ndgl.spotfinder.domain.comment.entity.PostComment;
 import com.ndgl.spotfinder.domain.comment.repository.PostCommentRepository;
+import com.ndgl.spotfinder.domain.post.entity.Post;
+import com.ndgl.spotfinder.domain.post.repository.PostRepository;
+import com.ndgl.spotfinder.domain.user.entity.User;
+import com.ndgl.spotfinder.domain.user.repository.UserRepository;
 import com.ndgl.spotfinder.global.common.dto.SliceResponse;
 import com.ndgl.spotfinder.global.exception.ServiceException;
 
@@ -29,19 +34,41 @@ public class PostCommentServiceTest {
 	private PostCommentService postCommentService;
 
 	@Mock
+	private PostRepository postRepository;
+
+	@Mock
 	private PostCommentRepository postCommentRepository;
+
+	@Mock
+	private UserRepository userRepository;
+
+	private final User user = User.builder()
+		.id(1L)
+		.email("test1@test.com")
+		.nickName("testUser1")
+		.blogName("blog1")
+		.build();
+
+	private final Post post = Post.builder()
+		.id(1L)
+		.title("제목1")
+		.content("내용1")
+		.user(user)
+		.build();
 
 	private final PostComment comment = PostComment.builder()
 		.id(1L)
 		.content("댓글 1")
-		.postId(1L)
+		.user(user)
+		.post(post)
 		.likeCount(0L)
 		.build();
 
 	private final PostComment comment2 = PostComment.builder()
 		.id(2L)
 		.content("댓글 2")
-		.postId(1L)
+		.user(user)
+		.post(post)
 		.likeCount(0L)
 		.build();
 
@@ -51,20 +78,24 @@ public class PostCommentServiceTest {
 		// Given
 		Long postId = 1L;
 		String content = "댓글 3";
+		PostCommentReqDto reqBody = new PostCommentReqDto(content, null);
+
+		when(postRepository.findById(postId)).thenReturn(Optional.of(post));
+		when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
 
 		ArgumentCaptor<PostComment> captor = ArgumentCaptor.forClass(PostComment.class);
 		doAnswer(invocation -> invocation.getArgument(0))
 			.when(postCommentRepository).save(any(PostComment.class));
 
 		// When
-		postCommentService.write(postId, content, null);
+		postCommentService.write(postId, reqBody, "test1@test.com");
 
 		// Then
 		verify(postCommentRepository, times(1)).save(captor.capture());
 		PostComment savedComment = captor.getValue();
 
 		assertEquals("댓글 3", savedComment.getContent());
-		assertEquals(postId, savedComment.getPostId());
+		assertEquals(postId, savedComment.getPost().getId());
 		assertEquals(0L, savedComment.getLikeCount());
 		assertNull(savedComment.getParentComment()); // 대댓글이 아닌 경우
 	}
@@ -86,7 +117,7 @@ public class PostCommentServiceTest {
 		verify(postCommentRepository, times(1)).findById(commentId);
 		assert comment != null;
 		assertEquals(content, comment.getContent());
-		assertEquals(postId, comment.getPostId());
+		assertEquals(postId, comment.getPost().getId());
 		assertEquals(commentId, comment.getId());
 		assertEquals(0L, comment.getLikeCount());
 	}
@@ -187,9 +218,9 @@ public class PostCommentServiceTest {
 		long lastId = 0L;
 		int size = 2;
 
-		PostComment comment3 = PostComment.builder().id(3L).content("댓글 3").postId(1L).likeCount(0L).build();
-		PostComment comment4 = PostComment.builder().id(4L).content("댓글 4").postId(1L).likeCount(0L).build();
-		PostComment comment5 = PostComment.builder().id(5L).content("댓글 5").postId(1L).likeCount(0L).build();
+		PostComment comment3 = PostComment.builder().id(3L).content("댓글 3").post(post).likeCount(0L).build();
+		PostComment comment4 = PostComment.builder().id(4L).content("댓글 4").post(post).likeCount(0L).build();
+		PostComment comment5 = PostComment.builder().id(5L).content("댓글 5").post(post).likeCount(0L).build();
 
 		List<PostComment> comments = List.of(comment, comment2, comment3, comment4, comment5);
 
