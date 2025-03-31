@@ -22,10 +22,12 @@ import com.ndgl.spotfinder.global.exception.ErrorCode;
 import com.ndgl.spotfinder.global.util.Ut;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
 @Profile("!test")
+@Slf4j
 public class ImageService {
 	private final PostRepository postRepository;
 	private final ImageRepository imageRepository;
@@ -39,7 +41,7 @@ public class ImageService {
 	 */
 	public PresignedUrlsResponse createImage(ImageRequest imageRequest) {
 		try {
-			Post post = postRepository.findById(1L) // TODO 하드코딩 된 ID 변경
+			Post post = postRepository.findById(1L)
 				.orElseThrow(ErrorCode.POST_NOT_FOUND::throwServiceException);
 			return createPresignedUrls(post.getId(), imageRequest.imageExtensions());
 		} catch (DataIntegrityViolationException e) {
@@ -102,15 +104,57 @@ public class ImageService {
 	}
 
 	/**
+	 * 게시물의 모든 이미지 삭제 (DB + S3)
+	 * 단, 게시물 자체는 삭제하지 않음
+	 *
+	 * @param postId 게시물 ID
+	 */
+	@Transactional
+	public void deleteAllImages(long postId) {
+		// 게시물 존재 확인
+		postRepository.findById(postId)
+			.orElseThrow(() -> new IllegalArgumentException("게시물을 찾을 수 없습니다. ID: " + postId));
+
+		List<Image> images = imageRepository.findAllByPostId(postId);
+
+		if (images.isEmpty()) {
+			log.info("게시물 ID {}에 연결된 이미지가 없습니다.", postId);
+			return;
+		}
+
+		imageRepository.deleteAllByPostId(postId);
+		log.info("게시물 ID {}의 이미지 엔티티 {}개 삭제 완료", postId, images.size());
+	}
+
+	/**
+	 * 게시물과 연관된 모든 것 삭제 (이미지 엔티티, S3 객체, 게시물 엔티티)
+	 *
+	 * @param postId 게시물 ID
+	 */
+	@Transactional
+	public void deletePostWithAllImages(long postId) {
+		// 게시물 조회
+		Post post = postRepository.findById(postId)
+			.orElseThrow(() -> new IllegalArgumentException("게시물을 찾을 수 없습니다. ID: " + postId));
+
+		s3Service.deleteAllObjectsById(ImageType.POST, postId);;
+		log.info("게시물 ID {}의, S3 객체 삭제 완료", postId);
+
+		imageRepository.deleteAllByPostId(postId); // 이미지 엔티티 삭제
+		postRepository.delete(post); // 게시물 삭제
+		log.info("게시물 ID {} 삭제 완료", postId);
+	}
+
+	/**
 	 * ID와 확장자 기반으로 S3 Presigned URL 목록 생성
 	 *
-	 * @param id         ID
+	 * @param postId     포스트 ID
 	 * @param extensions 파일 확장자 목록
 	 * @return 생성된 Presigned URL 목록과 게시글 ID를 포함한 응답 객체
 	 */
-	private PresignedUrlsResponse createPresignedUrls(long id, List<String> extensions) {
-		List<URL> urls = s3Service.generatePresignedUrls(ImageType.POST, id, extensions);
-		return new PresignedUrlsResponse(id, urls);
+	private PresignedUrlsResponse createPresignedUrls(long postId, List<String> extensions) {
+		List<URL> urls = s3Service.generatePresignedUrls(ImageType.POST, postId, extensions);
+		return new PresignedUrlsResponse(postId, urls);
 	}
 
 }
