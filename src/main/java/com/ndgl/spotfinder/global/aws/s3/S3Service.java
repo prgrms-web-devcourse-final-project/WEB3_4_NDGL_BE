@@ -1,37 +1,36 @@
 package com.ndgl.spotfinder.global.aws.s3;
 
+import java.net.URL;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.ndgl.spotfinder.domain.image.type.ImageType;
 import com.ndgl.spotfinder.global.exception.ErrorCode;
 import com.ndgl.spotfinder.global.util.Ut;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.core.exception.SdkException;
-import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Object;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 
 @Service
 @RequiredArgsConstructor
 @Profile("!test")
+@Slf4j
 public class S3Service {
 
 	private final S3Presigner s3Presigner;
@@ -43,53 +42,42 @@ public class S3Service {
 	@Value("${spring.cloud.aws.region.static}")
 	String region;
 
-	private static final int EXPIRATION_MINUTES = 3; // 3분
+	private static final int EXPIRATION_MINUTES = 2; // 2분
 
-	/**
-	 * 다중 파일 S3 업로드 및 URL 반환
-	 *
-	 * @param id    ID
-	 * @param files 업로드할 파일들
-	 * @return 업로드된 파일들의 URL 목록
-	 */
-	public List<String> uploadFiles(long id, List<MultipartFile> files, ImageType type) {
-		if (!Ut.list.hasValue(files))
-			return Collections.emptyList();
+	public List<URL> generatePresignedUrls(ImageType imageType, long id, List<String> fileTypes) {
+		if (!Ut.list.hasValue(fileTypes))
+			return List.of();
 
-		return files.stream()
-			.filter(file -> !file.isEmpty())
-			.map(file -> uploadFile(id, file, type))
-			.toList();
+		try {
+			log.debug("[S3Service] generatePresignedUrls");
+			return fileTypes.stream()
+				.map(fileType -> createPresignedUrlResponse(imageType, id, fileType))
+				.toList();
+		} catch (SdkException e) {
+			throw ErrorCode.S3_PRESIGNED_GENERATION_FAIL.throwS3Exception(e);
+		}
 	}
 
-	/**
-	 * 단일 파일 S3 업로드
-	 *
-	 * @param id   폴더 ID
-	 * @param file 파일
-	 * @param type 타입
-	 * @return URL
-	 */
-	private String uploadFile(long id, MultipartFile file, ImageType type) {
+	// 생성 URL 생성
+	public URL createPresignedUrlResponse(ImageType imageType, long id, String fileType) {
+		String key = S3Util.buildS3Key(imageType, id, fileType);
+
 		try {
-			String key = S3Util.buildS3Key(id, file, type);
-
-			s3Client.putObject(
-				PutObjectRequest.builder()
+			PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(builder -> builder
+				.putObjectRequest(putObject -> putObject
 					.bucket(bucketName)
-					.key(key)
-					.build(),
-				RequestBody.fromInputStream(file.getInputStream(), file.getSize())
-			);
+					.key(key))
+				.signatureDuration(Duration.ofMinutes(EXPIRATION_MINUTES)));
 
-			return S3Util.generateS3Url(bucketName, region, key);
-		} catch (Exception e) {
-			throw ErrorCode.S3_OBJECT_UPLOAD_FAIL.throwS3Exception(e);
+			log.debug("[S3Service] createPresignedUrlResponse: {}", presignedRequest.url().toString());
+			return presignedRequest.url();
+		} catch (SdkException e) {
+			throw ErrorCode.S3_PRESIGNED_GENERATION_FAIL.throwS3Exception(e);
 		}
 	}
 
 	/**
-	 * 서명된 URL 생성
+	 * 조회 서명 URL 생성
 	 *
 	 * @param imageUrl 원본 S3 이미지 URL
 	 * @return 지정된 시간 동안 유효한 서명된 URL
