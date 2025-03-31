@@ -1,0 +1,210 @@
+<!--TODO-->
+<!--이 파일은 절대로 기능 구현이 아니며, Image 작동 참고를 위한 예시  파일이다. 추후 삭제할 것!-->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>이미지 조회 예시</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            color: #212529;
+            line-height: 1.5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        
+        h1 {
+            color: #343a40;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+        }
+        
+        .info-box {
+            background-color: #e7f5ff;
+            border: 1px solid #4dabf7;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        
+        .info-box h3 {
+            margin-top: 0;
+            color: #1971c2;
+        }
+        
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .image-card {
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+        
+        .image-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .image-container {
+            height: 200px;
+            overflow: hidden;
+        }
+        
+        .image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+        
+        .image-card:hover .image-container img {
+            transform: scale(1.05);
+        }
+        
+        .image-info {
+            padding: 15px;
+            background-color: white;
+        }
+        
+        .image-id {
+            font-weight: bold;
+            color: #1971c2;
+            margin-bottom: 5px;
+        }
+        
+        .actions {
+            margin-top: 10px;
+            display: flex;
+            justify-content: flex-end;
+        }
+        
+        button {
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .delete {
+            background-color: #fa5252;
+            color: white;
+        }
+        
+        .delete:hover {
+            background-color: #e03131;
+        }
+        
+        .no-images {
+            text-align: center;
+            padding: 40px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            color: #6c757d;
+        }
+        
+        .upload-link {
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .upload-link a {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #339af0;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        .upload-link a:hover {
+            background-color: #228be6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>이미지 조회 예시</h1>
+        
+        <div class="info-box">
+            <h3>이 예시 페이지는:</h3>
+            <ul>
+                <li>PostId <span th:text="${postId}"></span>에 업로드된 이미지 조회</li>
+                <li><code>ImageService.findImagesWithPresignedUrls()</code> 메서드 사용</li>
+                <li>Presigned URL을 통한 안전한, 만료 시간이 있는 이미지 URL 제공</li>
+            </ul>
+        </div>
+        
+        <div class="upload-link">
+            <a href="/example/images/upload">새 이미지 업로드하기</a>
+        </div>
+        
+        <div class="image-grid" th:if="${!images.isEmpty()}">
+            <div class="image-card" th:each="image : ${images}">
+                <div class="image-container">
+                    <img th:src="${image.presignedUrl}" alt="이미지">
+                </div>
+                <div class="image-info">
+                    <div class="image-id">이미지 ID: <span th:text="${image.id}"></span></div>
+                    <div class="actions">
+                        <button class="delete" th:onclick="'deleteImage(' + ${image.id} + ')'">삭제</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="no-images" th:if="${images.isEmpty()}">
+            <h2>등록된 이미지가 없습니다</h2>
+            <p>새 이미지를 업로드해주세요.</p>
+        </div>
+    </div>
+    
+    <script th:inline="javascript">
+        // 이미지 삭제 함수
+        async function deleteImage(imageId) {
+            if (!confirm('이 이미지를 삭제하시겠습니까?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/example/images/delete/${imageId}`, {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+                
+                // RsData 응답 구조에 맞게 처리
+                if (response.ok) {
+                    alert(result.msg || '이미지가 삭제되었습니다.');
+                    window.location.reload();
+                } else {
+                    alert(result.msg || '이미지 삭제에 실패했습니다.');
+                }
+            } catch (error) {
+                console.error('삭제 오류:', error);
+                alert('이미지 삭제 중 오류가 발생했습니다.');
+            }
+        }
+    </script>
+</body>
+</html> 

@@ -1,0 +1,422 @@
+
+<!--TODO-->
+<!--이 파일은 절대로 기능 구현이 아니며, Image 작동 참고를 위한 예시 파일이다. 추후 삭제할 것!-->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>이미지 업로드 예시</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            color: #212529;
+            line-height: 1.5;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        
+        h1 {
+            color: #343a40;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+        }
+        
+        .upload-area {
+            border: 2px dashed #adb5bd;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .upload-area:hover {
+            background-color: #f1f3f5;
+        }
+        
+        .upload-area p {
+            margin: 0;
+            color: #6c757d;
+        }
+        
+        .preview-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .preview-item {
+            position: relative;
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .preview-item img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .remove-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .remove-btn:hover {
+            background-color: white;
+        }
+        
+        .progress-container {
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .progress-bar {
+            height: 10px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background-color: #4dabf7;
+            width: 0;
+            transition: width 0.3s;
+        }
+        
+        .status {
+            margin-top: 5px;
+            font-size: 14px;
+            color: #6c757d;
+        }
+        
+        button {
+            background-color: #339af0;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 15px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        
+        button:hover {
+            background-color: #228be6;
+        }
+        
+        button:disabled {
+            background-color: #adb5bd;
+            cursor: not-allowed;
+        }
+        
+        .complete-message {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #d3f9d8;
+            border-radius: 4px;
+            color: #2b8a3e;
+            display: none;
+        }
+        
+        .info-box {
+            background-color: #e7f5ff;
+            border: 1px solid #4dabf7;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        
+        .info-box h3 {
+            margin-top: 0;
+            color: #1971c2;
+        }
+        
+        code {
+            background-color: #f1f3f5;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Presigned URL 이미지 업로드 예시</h1>
+        
+        <div class="info-box">
+            <h3>이 예시 페이지는:</h3>
+            <ul>
+                <li><code>ImageService.createImage()</code> 메서드를 활용한 Presigned URL 발급</li>
+                <li>클라이언트에서 직접 S3에 이미지 업로드</li>
+                <li>업로드 완료 후 서버에 이미지 정보 저장</li>
+            </ul>
+            <p>기본적으로 PostId는 1로 설정되어 있습니다 (데모 목적).</p>
+        </div>
+        
+        <div class="upload-area" id="uploadArea">
+            <p>이미지를 여기에 끌어다 놓거나 클릭하여 선택하세요</p>
+            <input type="file" id="fileInput" multiple accept="image/*" style="display: none;">
+        </div>
+        
+        <div class="preview-container" id="previewContainer"></div>
+        
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar">
+                <div class="progress" id="progressBar"></div>
+            </div>
+            <div class="status" id="status">준비 중...</div>
+        </div>
+        
+        <button id="uploadBtn" disabled>이미지 업로드</button>
+        
+        <div class="complete-message" id="completeMessage">
+            업로드가 완료되었습니다! <a href="/example/images/view/1">여기</a>를 클릭하여 업로드된 이미지를 확인하세요.
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('fileInput');
+            const previewContainer = document.getElementById('previewContainer');
+            const uploadBtn = document.getElementById('uploadBtn');
+            const progressContainer = document.getElementById('progressContainer');
+            const progressBar = document.getElementById('progressBar');
+            const statusText = document.getElementById('status');
+            const completeMessage = document.getElementById('completeMessage');
+            
+            const selectedFiles = [];
+            
+            // 이벤트 리스너 추가
+            uploadArea.addEventListener('click', () => fileInput.click());
+            uploadArea.addEventListener('dragover', handleDragOver);
+            uploadArea.addEventListener('dragleave', handleDragLeave);
+            uploadArea.addEventListener('drop', handleFileDrop);
+            fileInput.addEventListener('change', handleFileSelect);
+            uploadBtn.addEventListener('click', uploadImages);
+            
+            // 드래그 이벤트 처리
+            function handleDragOver(e) {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#339af0';
+                uploadArea.style.backgroundColor = '#e7f5ff';
+            }
+            
+            function handleDragLeave(e) {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#adb5bd';
+                uploadArea.style.backgroundColor = '';
+            }
+            
+            function handleFileDrop(e) {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#adb5bd';
+                uploadArea.style.backgroundColor = '';
+                
+                const files = e.dataTransfer.files;
+                addFiles(files);
+            }
+            
+            function handleFileSelect(e) {
+                const files = e.target.files;
+                addFiles(files);
+                fileInput.value = ''; // 입력 초기화 (같은 파일 다시 선택 가능하도록)
+            }
+            
+            // 파일 추가 및 미리보기 생성
+            function addFiles(files) {
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    
+                    if (!file.type.startsWith('image/')) {
+                        alert('이미지 파일만 업로드 가능합니다.');
+                        continue;
+                    }
+                    
+                    selectedFiles.push(file);
+                    createPreview(file);
+                }
+                
+                updateUploadButton();
+            }
+            
+            // 이미지 미리보기 생성
+            function createPreview(file) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    const preview = document.createElement('div');
+                    preview.className = 'preview-item';
+                    preview.innerHTML = `
+                        <img src="${e.target.result}" alt="${file.name}">
+                        <button class="remove-btn">×</button>
+                    `;
+                    
+                    const removeBtn = preview.querySelector('.remove-btn');
+                    removeBtn.addEventListener('click', function() {
+                        const index = selectedFiles.indexOf(file);
+                        if (index !== -1) {
+                            selectedFiles.splice(index, 1);
+                            preview.remove();
+                            updateUploadButton();
+                        }
+                    });
+                    
+                    previewContainer.appendChild(preview);
+                };
+                
+                reader.readAsDataURL(file);
+            }
+            
+            // 업로드 버튼 상태 업데이트
+            function updateUploadButton() {
+                uploadBtn.disabled = selectedFiles.length === 0;
+            }
+            
+            // 이미지 업로드 처리
+            async function uploadImages() {
+                if (selectedFiles.length === 0) return;
+                
+                progressContainer.style.display = 'block';
+                uploadBtn.disabled = true;
+                
+                try {
+                    // 1. 각 파일의 확장자 추출
+                    const extensions = selectedFiles.map(file => {
+                        const name = file.name;
+                        return name.substring(name.lastIndexOf('.') + 1).toLowerCase();
+                    });
+                    
+                    // 2. Presigned URL 발급 요청
+                    updateProgress(10, '서명된 URL 요청 중...');
+                    const presignedUrls = await requestPresignedUrls(extensions);
+                    
+                    // 3. S3에 직접 업로드
+                    updateProgress(30, 'S3에 업로드 중...');
+                    const imageUrls = await uploadToS3(presignedUrls);
+                    
+                    // 4. 서버에 업로드 완료 알림
+                    updateProgress(80, '업로드 완료 처리 중...');
+                    await notifyUploadComplete(imageUrls);
+                    
+                    // 5. 완료 처리
+                    updateProgress(100, '업로드 완료!');
+                    setTimeout(() => {
+                        completeMessage.style.display = 'block';
+                    }, 500);
+                    
+                } catch (error) {
+                    console.error('업로드 오류:', error);
+                    updateProgress(0, `오류 발생: ${error.message}`);
+                }
+            }
+            
+            // Presigned URL 요청
+            async function requestPresignedUrls(extensions) {
+                const response = await fetch('/example/images/presigned-urls', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        imageExtensions: extensions
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Presigned URL 발급에 실패했습니다.');
+                }
+                
+                const result = await response.json();
+                return result.data;
+            }
+            
+            // S3에 직접 업로드
+            async function uploadToS3(presignedData) {
+                const urls = presignedData.presignedUrls;
+                const postId = presignedData.reviewId; // reviewId로 받지만 postId 값임
+                const uploadedUrls = [];
+                
+                for (let i = 0; i < urls.length; i++) {
+                    const file = selectedFiles[i];
+                    const presignedUrl = urls[i];
+                    
+                    updateProgress(30 + (i / urls.length) * 50, `파일 ${i+1}/${urls.length} 업로드 중...`);
+                    
+                    // PUT 요청으로 S3에 직접 업로드
+                    const uploadResponse = await fetch(presignedUrl, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': file.type
+                        },
+                        body: file
+                    });
+                    
+                    if (!uploadResponse.ok) {
+                        throw new Error(`파일 ${i+1} 업로드에 실패했습니다.`);
+                    }
+                    
+                    // 업로드 성공 시 S3 URL 생성 (Presigned URL에서 쿼리스트링 제거)
+                    const s3Url = presignedUrl.split('?')[0];
+                    uploadedUrls.push(s3Url);
+                }
+                
+                return {postId, imageUrls: uploadedUrls};
+            }
+            
+            // 서버에 업로드 완료 알림
+            async function notifyUploadComplete(data) {
+                const response = await fetch('/example/images/upload-complete', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (!response.ok) {
+                    throw new Error('업로드 완료 처리에 실패했습니다.');
+                }
+                
+                return await response.json();
+            }
+            
+            // 진행률 업데이트
+            function updateProgress(percent, message) {
+                progressBar.style.width = `${percent}%`;
+                statusText.textContent = message;
+            }
+        });
+    </script>
+</body>
+</html> 
