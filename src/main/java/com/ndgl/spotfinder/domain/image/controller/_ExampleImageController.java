@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.ndgl.spotfinder.domain.image.dto.PostRequest;
+import com.ndgl.spotfinder.domain.image.dto.ImageRequest;
 import com.ndgl.spotfinder.domain.image.dto.PresignedImageResponse;
 import com.ndgl.spotfinder.domain.image.dto.PresignedUrlsResponse;
 import com.ndgl.spotfinder.domain.image.service.ImageService;
@@ -60,8 +60,8 @@ public class _ExampleImageController {
 	 */
 	@PostMapping("/presigned-urls")
 	@ResponseBody
-	public RsData<PresignedUrlsResponse> getPresignedUrls(@RequestBody PostRequest postRequest) {
-		PresignedUrlsResponse response = imageService.createImage(postRequest);
+	public RsData<PresignedUrlsResponse> getPresignedUrls(@RequestBody ImageRequest imageRequest) {
+		PresignedUrlsResponse response = imageService.createImage(imageRequest);
 		return RsData.success(HttpStatus.OK, response);
 	}
 

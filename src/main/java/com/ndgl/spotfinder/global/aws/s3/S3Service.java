@@ -39,28 +39,39 @@ public class S3Service {
 	@Value("${spring.cloud.aws.s3.bucket}")
 	String bucketName;
 
-	@Value("${spring.cloud.aws.region.static}")
-	String region;
+	private static final int EXPIRATION_MINUTES = 2; // 만료 2분
 
-	private static final int EXPIRATION_MINUTES = 2; // 2분
-
-	public List<URL> generatePresignedUrls(ImageType imageType, long id, List<String> fileTypes) {
-		if (!Ut.list.hasValue(fileTypes))
+	/**
+	 * 여러 파일에 대한 업로드용 Presigned URL 목록 생성
+	 *
+	 * @param imageType      이미지 유형
+	 * @param id             이미지와 연관된 객체 ID
+	 * @param fileExtensions 파일 확장자 목록 (jpg, png 등)
+	 * @return 생성된 Presigned URL 목록
+	 */
+	public List<URL> generatePresignedUrls(ImageType imageType, long id, List<String> fileExtensions) {
+		if (!Ut.list.hasValue(fileExtensions))
 			return List.of();
 
 		try {
-			log.debug("[S3Service] generatePresignedUrls");
-			return fileTypes.stream()
-				.map(fileType -> createPresignedUrlResponse(imageType, id, fileType))
+			return fileExtensions.stream()
+				.map(fileExtension -> generatePresignedUrl(imageType, id, fileExtension))
 				.toList();
 		} catch (SdkException e) {
 			throw ErrorCode.S3_PRESIGNED_GENERATION_FAIL.throwS3Exception(e);
 		}
 	}
 
-	// 생성 URL 생성
-	public URL createPresignedUrlResponse(ImageType imageType, long id, String fileType) {
-		String key = S3Util.buildS3Key(imageType, id, fileType);
+	/**
+	 * 단일 파일에 대한 업로드용 Presigned URL 생성
+	 *
+	 * @param imageType     이미지 유형 (POST, PROFILE 등)
+	 * @param id            이미지와 연관된 객체 ID (게시글 ID 등)
+	 * @param fileExtension 파일 확장자 (jpg, png 등)
+	 * @return 생성된 Presigned URL
+	 */
+	public URL generatePresignedUrl(ImageType imageType, long id, String fileExtension) {
+		String key = S3Util.buildS3Key(imageType, id, fileExtension);
 
 		try {
 			PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(builder -> builder
@@ -69,7 +80,7 @@ public class S3Service {
 					.key(key))
 				.signatureDuration(Duration.ofMinutes(EXPIRATION_MINUTES)));
 
-			log.debug("[S3Service] createPresignedUrlResponse: {}", presignedRequest.url().toString());
+			log.debug("[S3Service] generatePresignedUrl: {}", presignedRequest.url().toString());
 			return presignedRequest.url();
 		} catch (SdkException e) {
 			throw ErrorCode.S3_PRESIGNED_GENERATION_FAIL.throwS3Exception(e);
@@ -77,10 +88,10 @@ public class S3Service {
 	}
 
 	/**
-	 * 조회 서명 URL 생성
+	 * 조회용 Presigned URL 생성
 	 *
 	 * @param imageUrl 원본 S3 이미지 URL
-	 * @return 지정된 시간 동안 유효한 서명된 URL
+	 * @return 지정된 시간 동안 유효한 조회용 서명된 URL
 	 */
 	public String generatePresignedGetUrl(String imageUrl) {
 		try {

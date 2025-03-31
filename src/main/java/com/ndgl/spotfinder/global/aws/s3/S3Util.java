@@ -12,7 +12,7 @@ public class S3Util {
 	}
 
 	public static String buildS3Key(ImageType imageType, long id, String fileType) {
-		String fileName = UUID.randomUUID().toString() + "." + fileType;
+		String fileName = UUID.randomUUID() + "." + fileType;
 
 		return switch (imageType) {
 			case POST -> "posts/" + id + "/" + fileName;
