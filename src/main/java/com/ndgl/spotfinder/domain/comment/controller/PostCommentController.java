@@ -63,9 +63,10 @@ public class PostCommentController {
 	public RsData<Void> modify(
 		@PathVariable Long id,
 		@PathVariable Long commentId,
-		@RequestBody @Valid PostCommentReqDto reqBody
+		@RequestBody @Valid PostCommentReqDto reqBody,
+		Principal principal
 	) {
-		postCommentService.modify(id, commentId, reqBody.content());
+		postCommentService.modify(id, commentId, reqBody.content(), principal.getName());
 		return RsData.success(HttpStatus.OK);
 	}
 

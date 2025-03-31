@@ -89,9 +89,12 @@ public class PostCommentService {
 	}
 
 	@Transactional
-	public void modify(Long postId, Long commentId, String content) {
-		// 유저 권한 확인
+	public void modify(Long postId, Long commentId, String content, String email) {
+		User author = userRepository.findByEmail(email)
+			.orElseThrow(ErrorCode.USER_NOT_FOUND::throwServiceException);
+
 		PostComment comment = findCommentAndVerifyPost(commentId, postId);
+		comment.checkAuthorCanModify(author);
 		comment.setContent(content);
 	}
 }

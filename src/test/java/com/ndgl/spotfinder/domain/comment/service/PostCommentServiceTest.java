@@ -88,7 +88,7 @@ public class PostCommentServiceTest {
 			.when(postCommentRepository).save(any(PostComment.class));
 
 		// When
-		postCommentService.write(postId, reqBody, "test1@test.com");
+		postCommentService.write(postId, reqBody, user.getEmail());
 
 		// Then
 		verify(postCommentRepository, times(1)).save(captor.capture());
@@ -111,7 +111,8 @@ public class PostCommentServiceTest {
 
 		// When
 		when(postCommentRepository.findById(commentId)).thenReturn(java.util.Optional.ofNullable(comment));
-		postCommentService.modify(postId, commentId, content);
+		when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
+		postCommentService.modify(postId, commentId, content, user.getEmail());
 
 		// Then
 		verify(postCommentRepository, times(1)).findById(commentId);
@@ -132,7 +133,7 @@ public class PostCommentServiceTest {
 		when(postCommentRepository.findById(commentId)).thenReturn(Optional.empty());
 
 		ServiceException exception = assertThrows(ServiceException.class,
-			() -> postCommentService.modify(postId, commentId, content)
+			() -> postCommentService.modify(postId, commentId, content, user.getEmail())
 		);
 		assertEquals(HttpStatus.NOT_FOUND, exception.getCode());
 	}
