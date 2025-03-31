@@ -7,6 +7,8 @@ import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
@@ -33,7 +35,6 @@ public class SecurityConfig {
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http
 			.cors(withDefaults())
-			.securityMatcher("/api/v1/users/**")
 			.csrf(csrf -> csrf.disable())
 			.sessionManagement(session ->
 				session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -42,13 +43,29 @@ public class SecurityConfig {
 					"/api/v1/users/join",
 					"/api/v1/users/google/login",
 					"/api/v1/users/google/login/google/callback",
-					"/api/v1/users/google/login/process",
-					"/h2-console/**"
+					"/api/v1/users/google/login/process"
 				).permitAll() // 로그인 경로는 모두 허용
+				.requestMatchers(
+					"/h2-console/**",
+					"/error"
+				).permitAll()
+				.requestMatchers(HttpMethod.GET, "/api/v1/posts").permitAll()
 				.anyRequest().authenticated()
 			)
+			.headers(headers ->
+				headers.frameOptions(frameOptions ->
+					frameOptions.sameOrigin()
+				)
+			)
 			.addFilterBefore(new JwtFilter(tokenProvider),
-				org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
+				org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class)
+			.exceptionHandling(exceptionHandling -> {
+				exceptionHandling
+					.authenticationEntryPoint((request, response, authException) -> {
+						response.setStatus(HttpStatus.UNAUTHORIZED.value());
+						response.getWriter().write("로그인이 필요합니다.");
+					});
+			});
 
 		return http.build();
 	}

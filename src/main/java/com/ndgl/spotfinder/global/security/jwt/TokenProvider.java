@@ -80,14 +80,14 @@ public class TokenProvider {
 		String accessToken = Jwts.builder()
 			.setSubject(subject)
 			.setExpiration(new Date(now + validationTime))
-			.claim(authorizationKey, authorities)
+			.claim("auth", authorities)
 			.signWith(this.key, SignatureAlgorithm.HS512)
 			.compact();
 
 		String refreshToken = Jwts.builder()
 			.setSubject(subject)
 			.setExpiration(new Date(now + refreshValidationTime))
-			.claim(authorizationKey, authorities)
+			.claim("auth", authorities)
 			.signWith(this.key, SignatureAlgorithm.HS512)
 			.compact();
 

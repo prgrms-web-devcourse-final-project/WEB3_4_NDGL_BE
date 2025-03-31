@@ -70,4 +70,3 @@ aes:
 
 springdoc:
   default-produces-media-type: application/json;charset=UTF-8
-

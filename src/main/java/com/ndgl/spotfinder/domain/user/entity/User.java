@@ -35,13 +35,13 @@ public class User extends BaseTime {
 
 	@Column(unique = true)
 	@NotNull(message = "email 값이 필요합니다.")
-	public String email;
+	private String email;
 
 	@Setter
 	@Column(unique = true, length = 45, nullable = false)
-	public String nickName;
+	private String nickName;
 
 	@Setter
 	@Column(unique = true, length = 60, nullable = false)
-	public String blogName;
+	private String blogName;
 }
