@@ -1,14 +1,17 @@
 package com.ndgl.spotfinder.domain.image.service;
 
+import java.net.URL;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.context.annotation.Profile;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
+import com.ndgl.spotfinder.domain.image.dto.PostRequest;
 import com.ndgl.spotfinder.domain.image.dto.PresignedImageResponse;
+import com.ndgl.spotfinder.domain.image.dto.PresignedUrlsResponse;
 import com.ndgl.spotfinder.domain.image.entity.Image;
 import com.ndgl.spotfinder.domain.image.repository.ImageRepository;
 import com.ndgl.spotfinder.domain.image.type.ImageType;
@@ -29,6 +32,19 @@ public class ImageService {
 	private final S3Service s3Service;
 
 	/**
+	 * 이미지 생성 URL 반환
+	 */
+	public PresignedUrlsResponse createImage(PostRequest postRequest) {
+		try {
+			Post post = postRepository.findById(1L)
+				.orElseThrow(ErrorCode.POST_NOT_FOUND::throwServiceException);
+			return saveImagesToS3(post.getId(), postRequest.imageExtensions());
+		} catch (DataIntegrityViolationException e) {
+			throw ErrorCode.S3_OBJECT_UPLOAD_FAIL.throwServiceException();
+		}
+	}
+
+	/**
 	 * 특정 게시글의 모든 이미지를 조회하고 Presigned 반환
 	 *
 	 * @param postId 게시글 ID
@@ -44,19 +60,6 @@ public class ImageService {
 				return PresignedImageResponse.of(image.getId(), presignedUrl);
 			})
 			.collect(Collectors.toList());
-	}
-
-	/**
-	 * 이미지 파일을 S3에 업로드하고 URL을 DB에 저장
-	 *
-	 * @param postId 게시글 ID
-	 * @param files  업로드할 이미지 파일들
-	 */
-	@Transactional
-	public void uploadAndSaveImages(long postId, List<MultipartFile> files, ImageType type) {
-		List<String> imageUrls = s3Service.uploadFiles(postId, files, type);
-
-		saveImages(postId, imageUrls);
 	}
 
 	/**
@@ -86,12 +89,18 @@ public class ImageService {
 
 	/**
 	 * 이미지 삭제
+	 *
 	 * @param imageId 이미지 ID
 	 */
 	public void deleteImage(Long imageId) {
 		String url = imageRepository.findById(imageId).get().getUrl();
 		s3Service.deleteFile(url);
 		imageRepository.deleteById(imageId);
+	}
+
+	private PresignedUrlsResponse saveImagesToS3(long postId, List<String> extensions) {
+		List<URL> urls = this.s3Service.generatePresignedUrls(ImageType.POST, postId, extensions);
+		return new PresignedUrlsResponse(postId, urls);
 	}
 
 }
