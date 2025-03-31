@@ -41,8 +41,8 @@ public class SecurityConfig {
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers(
 					"/api/v1/users/join",
-					"/api/v1/users/google/login",
-					"/api/v1/users/google/login/google/callback",
+					"/login/callback",
+					"oauth2/**",
 					"/api/v1/users/google/login/process"
 				).permitAll() // 로그인 경로는 모두 허용
 				.requestMatchers(

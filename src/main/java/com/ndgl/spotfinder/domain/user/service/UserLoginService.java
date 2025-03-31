@@ -2,7 +2,6 @@ package com.ndgl.spotfinder.domain.user.service;
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -31,7 +30,6 @@ import com.ndgl.spotfinder.global.security.jwt.CustomUserDetails;
 import com.ndgl.spotfinder.global.security.jwt.TokenProvider;
 
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 
 @Service
 public class UserLoginService {
@@ -54,18 +52,6 @@ public class UserLoginService {
 		this.oauthRepository = oauthRepository;
 		this.userRepository = userRepository;
 		this.tokenProvider = tokenProvider;
-	}
-
-	public String createGoogleLoginUrl(HttpSession session) {
-		String state = UUID.randomUUID().toString();
-		session.setAttribute("google_state", state);
-
-		return "https://accounts.google.com/o/oauth2/auth?"
-			+ "response_type=code"
-			+ "&client_id=" + googleClientId
-			+ "&redirect_uri=" + googleRedirectUri
-			+ "&scope=email%20profile"
-			+ "&state=" + state;
 	}
 
 	public UserLoginResponse processGoogleLogin(Oauth.Provider provider, String code, HttpServletResponse response) {
