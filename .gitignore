@@ -35,3 +35,11 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Custom ###
+src/main/resources/application-secret.yml
+.env
+db_dev.mv.db
+db_dev.trace.db
+db_test.mv.db
+db_test.trace.db
