@@ -184,8 +184,6 @@ public class UserLoginService {
 			Oauth.Provider.GOOGLE);
 
 		if (existingOauthByIdentify.isPresent()) {
-			User existingUser = existingOauthByIdentify.get().getUser();
-
 			return UserLoginResponse.builder()
 				.message("OK")
 				.code(HttpStatus.OK.value())
