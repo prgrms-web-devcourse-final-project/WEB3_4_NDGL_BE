@@ -95,7 +95,8 @@ public class PostServiceTest {
 			"제목1",
 			"내용1",
 			List.of(hashtagDto),
-			List.of(locationDto)
+			List.of(locationDto),
+			""
 		);
 
 		// when
@@ -144,7 +145,8 @@ public class PostServiceTest {
 			"제목2",
 			"내용2",
 			List.of(hashtagDto),
-			List.of(locationDto)
+			List.of(locationDto),
+			""
 		);
 
 		// when

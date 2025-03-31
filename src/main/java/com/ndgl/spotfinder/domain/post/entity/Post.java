@@ -49,6 +49,8 @@ public class Post extends BaseTime {
 	@JoinColumn(name = "user_id")
 	private User user;
 
+	private String thumbnail;
+
 	@Builder.Default
 	private Long viewCount = 0L;
 
@@ -84,6 +86,7 @@ public class Post extends BaseTime {
 	public Post updatePost(PostUpdateRequestDto requestDto) {
 		title = requestDto.title();
 		content = requestDto.content();
+		thumbnail = requestDto.thumbnail();
 
 		List<Hashtag> newHashtags = requestDto.hashtags()
 			.stream()

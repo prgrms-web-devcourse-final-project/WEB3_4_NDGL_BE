@@ -24,6 +24,8 @@ public record PostUpdateRequestDto(
 	@NotNull
 	@Size(min = 1, max = 20)
 	@Valid
-	List<LocationDto> locations
+	List<LocationDto> locations,
+
+	String thumbnail
 ) {
 }

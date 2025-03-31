@@ -29,7 +29,9 @@ public record PostCreateRequestDto(
 	@NotNull
 	@Size(min = 1, max = 20)
 	@Valid
-	List<LocationDto> locations
+	List<LocationDto> locations,
+
+	String thumbnail
 ) {
 	public Post toPost(User user) {
 		List<Hashtag> hashtagEntities = hashtags
@@ -46,6 +48,7 @@ public record PostCreateRequestDto(
 			.title(title)
 			.content(content)
 			.user(user)
+			.thumbnail(thumbnail)
 			.viewCount(0L)
 			.likeCount(0L)
 			.build();
