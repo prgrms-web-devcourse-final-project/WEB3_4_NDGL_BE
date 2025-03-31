@@ -35,7 +35,6 @@ public class PostController {
 		@RequestBody @Valid PostCreateRequestDto postCreateRequestDto,
 		Principal principal
 	) {
-		System.out.println(principal.getName());
 		postService.createPost(postCreateRequestDto, principal.getName());
 
 		return RsData.success(HttpStatus.OK);
