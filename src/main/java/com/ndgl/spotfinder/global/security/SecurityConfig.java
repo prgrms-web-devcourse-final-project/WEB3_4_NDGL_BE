@@ -51,6 +51,7 @@ public class SecurityConfig {
 				).permitAll()
 				.requestMatchers(HttpMethod.GET, "/api/v1/posts/**").permitAll()
 				.requestMatchers(HttpMethod.GET, "/api/v1/posts/*/comments").permitAll()
+				.requestMatchers(HttpMethod.GET, "/api/v1/posts/*/comments/*").permitAll()
 				.anyRequest().authenticated()
 			)
 			.headers(headers ->
