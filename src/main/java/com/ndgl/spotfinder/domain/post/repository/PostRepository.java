@@ -28,4 +28,13 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 		PageRequest pageRequest);
 
 	Optional<Post> findTopByOrderByIdDesc();
+
+	Slice<Post> findByTitleContainingOrContentContainingAndIdGreaterThan(
+		String title, String content, Long lastId, PageRequest pageRequest);
+
+	Slice<Post> findByUser_NickNameContainingAndIdGreaterThan(
+		String nickname, Long lastId, PageRequest pageRequest);
+
+	Slice<Post> findByHashtags_NameContainingAndIdGreaterThan(
+		String hashtag, Long lastId, PageRequest pageRequest);
 }
