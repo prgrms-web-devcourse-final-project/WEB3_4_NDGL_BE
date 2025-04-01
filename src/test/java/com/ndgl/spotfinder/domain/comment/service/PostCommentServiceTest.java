@@ -13,6 +13,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -226,9 +229,12 @@ public class PostCommentServiceTest {
 
 		List<PostComment> comments = List.of(comment, comment2, comment3, comment4, comment5);
 
+		PageRequest pageRequest = PageRequest.of(0, size);
+		Slice<PostComment> commentSlice = new SliceImpl<>(comments.subList(0, size), pageRequest, true);
+
 		// Repository Stub 설정
-		when(postCommentRepository.findByPostIdAndParentCommentIsNullAndIdGreaterThanOrderByIdAsc(postId, lastId))
-			.thenReturn(comments);
+		when(postCommentRepository.findByPostIdAndParentCommentIsNullAndIdGreaterThanOrderByIdAsc(postId, lastId, pageRequest))
+			.thenReturn(commentSlice);
 
 		// When
 		SliceResponse<PostCommentDto> response = postCommentService.getComments(postId, lastId, size);
@@ -238,7 +244,7 @@ public class PostCommentServiceTest {
 		assertEquals(size, response.contents().size());
 		assertTrue(response.hasNext());
 		verify(postCommentRepository, times(1))
-			.findByPostIdAndParentCommentIsNullAndIdGreaterThanOrderByIdAsc(postId, lastId);
+			.findByPostIdAndParentCommentIsNullAndIdGreaterThanOrderByIdAsc(postId, lastId, pageRequest);
 	}
 
 	@Test
@@ -250,21 +256,26 @@ public class PostCommentServiceTest {
 		int size = 3;
 
 		List<PostComment> comments = List.of(comment2);
+		PageRequest pageRequest = PageRequest.of(0, size);
+
+		int toIndex = comments.size();
+		Slice<PostComment> commentSlice = new SliceImpl<>(comments.subList(0, toIndex), pageRequest, false);
 
 		// Repository Stub 설정
-		when(postCommentRepository.findByPostIdAndParentCommentIsNullAndIdGreaterThanOrderByIdAsc(postId, lastId))
-			.thenReturn(comments);
+		when(postCommentRepository.findByPostIdAndParentCommentIsNullAndIdGreaterThanOrderByIdAsc(postId, lastId, pageRequest))
+			.thenReturn(commentSlice);
 
 		// When
 		SliceResponse<PostCommentDto> response = postCommentService.getComments(postId, lastId, size);
 
 		// Then
 		assertNotNull(response);
-		assertEquals(comments.size(), response.contents().size());
+		assertEquals(toIndex, response.contents().size());
 		assertFalse(response.hasNext());
 		verify(postCommentRepository, times(1))
-			.findByPostIdAndParentCommentIsNullAndIdGreaterThanOrderByIdAsc(postId, lastId);
+			.findByPostIdAndParentCommentIsNullAndIdGreaterThanOrderByIdAsc(postId, lastId, pageRequest);
 	}
+
 
 	@Test
 	@DisplayName("댓글 목록 조회 - 빈 리스트 반환")
@@ -274,8 +285,11 @@ public class PostCommentServiceTest {
 		long lastId = 10L;
 		int size = 3;
 
-		when(postCommentRepository.findByPostIdAndParentCommentIsNullAndIdGreaterThanOrderByIdAsc(postId, lastId))
-			.thenReturn(Collections.emptyList());
+		PageRequest pageRequest = PageRequest.of(0, size);
+		Slice<PostComment> emptySlice = new SliceImpl<>(Collections.emptyList(), pageRequest, false);
+
+		when(postCommentRepository.findByPostIdAndParentCommentIsNullAndIdGreaterThanOrderByIdAsc(postId, lastId, pageRequest))
+			.thenReturn(emptySlice);
 
 		// When
 		SliceResponse<PostCommentDto> response = postCommentService.getComments(postId, lastId, size);
@@ -285,6 +299,6 @@ public class PostCommentServiceTest {
 		assertTrue(response.contents().isEmpty());
 		assertFalse(response.hasNext());
 		verify(postCommentRepository, times(1))
-			.findByPostIdAndParentCommentIsNullAndIdGreaterThanOrderByIdAsc(postId, lastId);
+			.findByPostIdAndParentCommentIsNullAndIdGreaterThanOrderByIdAsc(postId, lastId, pageRequest);
 	}
 }
