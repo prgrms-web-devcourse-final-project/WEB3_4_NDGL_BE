@@ -140,7 +140,7 @@ public class ReportService {
 		postReport.setReportStatus(ReportStatus.RESOLVED);
 
 		User user = userRepository.findById(userId).orElseThrow(
-			() -> new ServiceException(HttpStatus.NOT_FOUND, "제재할 대상이 존재하지 않습니다."));
+			() -> new ServiceException(HttpStatus.NOT_FOUND, "존재하지 않는 사용자입니다."));
 		user.setBanned(true);
 
 		Ban ban = Ban.builder()
@@ -161,7 +161,7 @@ public class ReportService {
 			() -> new ServiceException(HttpStatus.NOT_FOUND, "존재하지 않는 신고입니다."));
 
 		User user = userRepository.findById(userId).orElseThrow(
-			() -> new ServiceException(HttpStatus.NOT_FOUND, "제재할 대상이 존재하지 않습니다."));
+			() -> new ServiceException(HttpStatus.NOT_FOUND, "존재하지 않는 사용자입니다."));
 		user.setBanned(true);
 
 		postCommentReport.setReportStatus(ReportStatus.RESOLVED);
