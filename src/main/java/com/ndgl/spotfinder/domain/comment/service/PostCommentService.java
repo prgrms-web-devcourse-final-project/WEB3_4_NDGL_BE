@@ -1,7 +1,8 @@
 package com.ndgl.spotfinder.domain.comment.service;
 
-import java.util.List;
-
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,19 +28,15 @@ public class PostCommentService {
 
 	@Transactional(readOnly = true)
 	public SliceResponse<PostCommentDto> getComments(Long postId, long lastId, int size) {
-		List<PostComment> comments =
-			postCommentRepository.findByPostIdAndParentCommentIsNullAndIdGreaterThanOrderByIdAsc(postId, lastId);
-
-		boolean hasNext = comments.size() > size;
-		if (hasNext) {
-			comments = comments.subList(0, size);
-		}
+		Pageable pageable = PageRequest.of(0, size);
+		Slice<PostComment> comments = postCommentRepository
+			.findByPostIdAndParentCommentIsNullAndIdGreaterThanOrderByIdAsc(postId, lastId, pageable);
 
 		return new SliceResponse<>(
 			comments.stream()
 				.map(PostCommentDto::new)
 				.toList(),
-			hasNext
+			comments.hasNext()
 		);
 	}
 
