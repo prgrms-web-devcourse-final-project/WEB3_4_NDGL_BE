@@ -35,7 +35,6 @@ public class PostController {
 		@RequestBody @Valid PostCreateRequestDto postCreateRequestDto,
 		Principal principal
 	) {
-		System.out.println(principal.getName());
 		postService.createPost(postCreateRequestDto, principal.getName());
 
 		return RsData.success(HttpStatus.OK);
@@ -63,8 +62,25 @@ public class PostController {
 	}
 
 	@GetMapping
-	public RsData<SliceResponse<PostResponseDto>> getPosts(@ModelAttribute SliceRequest sliceRequest) {
+	public RsData<SliceResponse<PostResponseDto>> getPosts(@ModelAttribute @Valid SliceRequest sliceRequest) {
 		SliceResponse<PostResponseDto> results = postService.getPosts(sliceRequest);
+
+		return RsData.success(HttpStatus.OK, results);
+	}
+
+	@GetMapping("/{id}")
+	public RsData<PostResponseDto> getPost(@PathVariable Long id) {
+		PostResponseDto result = postService.getPost(id);
+
+		return RsData.success(HttpStatus.OK, result);
+	}
+
+	@GetMapping("/users/{userId}")
+	public RsData<SliceResponse<PostResponseDto>> getPostsByUserId(
+		@PathVariable Long userId,
+		@ModelAttribute @Valid SliceRequest sliceRequest
+	) {
+		SliceResponse<PostResponseDto> results = postService.getPostsByUser(sliceRequest, userId);
 
 		return RsData.success(HttpStatus.OK, results);
 	}
