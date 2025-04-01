@@ -2,6 +2,7 @@ package com.ndgl.spotfinder.domain.report.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,7 +36,7 @@ public class ReportController {
 		@PathVariable Long id,
 		@RequestBody @Valid ReportCreateRequest reportCreateRequest) {
 		// SpringSecurity Context 에서 User 획득
-		long reporterId = 1;
+		long reporterId = -1;
 
 		reportService.createPostReport(reportCreateRequest, reporterId, id);
 
@@ -58,7 +59,7 @@ public class ReportController {
 	@GetMapping("/posts")
 	@Operation(summary = "포스트 신고 목록 조회")
 	public RsData<SliceResponse<PostReportResponse>> getPostReportList(
-		@RequestParam @Valid SliceRequest sliceRequest
+		@ModelAttribute @Valid SliceRequest sliceRequest
 	){
 		// Admin 계정 체크
 
@@ -71,7 +72,7 @@ public class ReportController {
 	@GetMapping("/comments")
 	@Operation(summary = "댓글 신고 목록 조회")
 	public RsData<SliceResponse<PostCommentReportResponse>> getCommentReportList(
-		@RequestParam @Valid SliceRequest sliceRequest
+		@ModelAttribute @Valid SliceRequest sliceRequest
 	){
 		// Admin 계정 체크
 
