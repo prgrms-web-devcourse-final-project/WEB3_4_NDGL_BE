@@ -11,13 +11,17 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.ndgl.spotfinder.global.security.handler.CustomAuthenticationSuccessHandler;
 import com.ndgl.spotfinder.global.security.jwt.JwtFilter;
 import com.ndgl.spotfinder.global.security.jwt.TokenProvider;
+import com.ndgl.spotfinder.global.security.jwt.service.AdminUserDetailsService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -27,14 +31,24 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfig {
 
 	private final TokenProvider tokenProvider;
+	private final AdminUserDetailsService adminUserDetailsService;
+	private final CustomAuthenticationSuccessHandler successHandler;
+
 
 	/*
 	 * 일반 유저용 SecurityFilterChain
 	 * */
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
 		http
 			.cors(withDefaults())
+			.formLogin(
+				form -> form
+					.loginProcessingUrl("/api/*/admin/login")
+					.successHandler(successHandler)  // 성공 핸들러 설정  // 실패 핸들러 설정
+			)
+			.userDetailsService(adminUserDetailsService)
 			.csrf(csrf -> csrf.disable())
 			.sessionManagement(session ->
 				session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -43,7 +57,9 @@ public class SecurityConfig {
 					"/api/v1/users/join",
 					"/login/callback",
 					"oauth2/**",
-					"/api/v1/users/google/login/process"
+					"/api/v1/users/google/login/process",
+					"/api/*/admin/login",
+					"/api/*/admin/join"
 				).permitAll() // 로그인 경로는 모두 허용
 				.requestMatchers(
 					"/h2-console/**",
@@ -52,6 +68,14 @@ public class SecurityConfig {
 				.requestMatchers(HttpMethod.GET, "/api/v1/posts/**").permitAll()
 				.requestMatchers(HttpMethod.GET, "/api/v1/posts/*/comments").permitAll()
 				.requestMatchers(HttpMethod.GET, "/api/v1/posts/*/comments/*").permitAll()
+				// 관리자 권한 필요한 요청
+				.requestMatchers(HttpMethod.GET, "/api/*/admin/posts/statistics").hasAuthority("ROLE_ADMIN")
+				.requestMatchers(HttpMethod.GET, "/api/*/reports/posts").hasAuthority("ROLE_ADMIN")
+				.requestMatchers(HttpMethod.GET, "/api/*/reports/comments").hasAuthority("ROLE_ADMIN")
+				.requestMatchers(HttpMethod.POST, "/api/*/reports/{reportId}/post/ban/{userId}").hasAuthority("ROLE_ADMIN")
+				.requestMatchers(HttpMethod.POST, "/api/*/reports/{reportId}/comment/ban/{userId}").hasAuthority("ROLE_ADMIN")
+				.requestMatchers(HttpMethod.POST, "/api/*/reports/{reportId}/post/reject").hasAuthority("ROLE_ADMIN")
+				.requestMatchers(HttpMethod.POST, "/api/*/reports/{reportId}/comment/reject").hasAuthority("ROLE_ADMIN")
 				.anyRequest().authenticated()
 			)
 			.headers(headers ->
@@ -65,7 +89,12 @@ public class SecurityConfig {
 				exceptionHandling
 					.authenticationEntryPoint((request, response, authException) -> {
 						response.setStatus(HttpStatus.UNAUTHORIZED.value());
+						response.setContentType("text/plain; charset=UTF-8");
 						response.getWriter().write("로그인이 필요합니다.");
+					})
+					.accessDeniedHandler((request, response, accessDeniedException) -> {
+						response.setStatus(HttpStatus.FORBIDDEN.value());
+						response.getWriter().write("접근 권한이 없습니다.");
 					});
 			});
 
@@ -88,5 +117,10 @@ public class SecurityConfig {
 		source.registerCorsConfiguration("/**", configuration);
 
 		return source;
+	}
+
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
 	}
 }
