@@ -61,7 +61,7 @@ public class LikeService {
 
 	private void validateTargetId(long targetId) {
 		if (targetId <= 0) {
-			ErrorCode.TARGET_NOT_FOUND.throwServiceException();
+			ErrorCode.UNSUPPORTED_TARGET_TYPE.throwServiceException();
 		}
 	}
 
