@@ -153,4 +153,12 @@ public class TokenProvider {
 
 		return new UsernamePasswordAuthenticationToken(userDetails, "", authorities);
 	}
+
+	public SecretKey getKey() {
+		return this.key;
+	}
+
+	public long getValidationTime() {
+		return this.validationTime;
+	}
 }

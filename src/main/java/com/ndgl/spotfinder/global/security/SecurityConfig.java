@@ -43,11 +43,14 @@ public class SecurityConfig {
 					"/api/v1/users/join",
 					"/login/callback",
 					"oauth2/**",
-					"/api/v1/users/google/login/process"
+					"/api/v1/users/google/login/process",
+					"/api/v1/dev/**"
 				).permitAll() // 로그인 경로는 모두 허용
 				.requestMatchers(
 					"/h2-console/**",
-					"/error"
+					"/error",
+					"/swagger-ui/**",
+					"/v3/api-docs/**"
 				).permitAll()
 				.requestMatchers(HttpMethod.GET, "/api/v1/posts/**").permitAll()
 				.requestMatchers(HttpMethod.GET, "/api/v1/posts/*/comments").permitAll()
