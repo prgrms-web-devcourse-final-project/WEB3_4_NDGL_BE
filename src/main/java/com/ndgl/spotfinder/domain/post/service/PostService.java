@@ -89,7 +89,7 @@ public class PostService {
 
 	private void checkUserPermission(Post post, String email) {
 		if (!post.getUser().getEmail().equals(email)) {
-			ErrorCode.ACCESS_DENIED.throwServiceException();
+			ErrorCode.POST_ACCESS_DENIED.throwServiceException();
 		}
 	}
 
