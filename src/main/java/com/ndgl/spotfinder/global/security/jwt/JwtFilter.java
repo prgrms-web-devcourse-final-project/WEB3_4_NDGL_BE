@@ -7,6 +7,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.ndgl.spotfinder.global.app.AppConfig;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -25,8 +27,17 @@ public class JwtFilter extends OncePerRequestFilter {
 		HttpServletResponse response,
 		FilterChain filterChain
 	) throws ServletException, IOException {
-		//
-		String tokenValue = resolveTokenFromCookie(request);
+		String tokenValue = null;
+
+		// 개발 환경일 경우, Header 인증을 먼저 시도 (for swagger)
+		if (AppConfig.isDev()) {
+			tokenValue = resolveTokenFromHeader(request);
+		}
+
+		// 개발 환경에서 Header 인증이 실패했거나, 배포 환경인 경우 쿠키 인증 시도
+		if (tokenValue == null || tokenValue.isEmpty()) {
+			tokenValue = resolveTokenFromCookie(request);
+		}
 
 		if (StringUtils.hasText(tokenValue) && tokenProvider.validateToken(tokenValue)) {
 			Authentication auth = tokenProvider.getAuthentication(tokenValue);
@@ -35,6 +46,15 @@ public class JwtFilter extends OncePerRequestFilter {
 
 		filterChain.doFilter(request, response);
 	}
+
+	private String resolveTokenFromHeader(HttpServletRequest request) {
+		String bearerToken = request.getHeader("Authorization");
+		if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
+			return bearerToken.substring(7);
+		}
+		return null;
+	}
+
 
 	private String resolveTokenFromCookie(HttpServletRequest request) {
 		if (request.getCookies() == null)

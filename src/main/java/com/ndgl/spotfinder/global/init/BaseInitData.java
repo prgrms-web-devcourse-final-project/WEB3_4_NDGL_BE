@@ -27,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
-@Profile({"local", "dev"}) // 로컬, 개발 환경에서만 실행
+@Profile("dev") // 로컬, 개발 환경에서만 실행
 public class BaseInitData {
 
 	private final UserRepository userRepository;
