@@ -25,7 +25,7 @@ public class JwtFilter extends OncePerRequestFilter {
 		HttpServletResponse response,
 		FilterChain filterChain
 	) throws ServletException, IOException {
-		//
+
 		String tokenValue = resolveTokenFromCookie(request);
 
 		if (StringUtils.hasText(tokenValue) && tokenProvider.validateToken(tokenValue)) {

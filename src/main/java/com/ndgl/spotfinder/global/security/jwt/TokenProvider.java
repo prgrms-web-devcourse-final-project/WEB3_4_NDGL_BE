@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
 import com.ndgl.spotfinder.domain.user.repository.UserRepository;
 import com.ndgl.spotfinder.global.exception.ServiceException;
 import com.ndgl.spotfinder.global.security.cookie.TokenCookieUtil;
+import com.ndgl.spotfinder.global.security.jwt.service.AdminUserDetailsService;
 import com.ndgl.spotfinder.global.security.jwt.service.CustomUserDetailsService;
 import com.ndgl.spotfinder.global.security.redis.service.RefreshTokenService;
 
@@ -52,7 +53,7 @@ public class TokenProvider {
 	private String authorizationKey;
 
 	private SecretKey key;
-	//	private final AdminDetailsService adminDetailsService;
+	private final AdminUserDetailsService adminUserDetailsService;
 	private final CustomUserDetailsService customUserDetailsService;
 	private final UserRepository userRepository;
 	private final TokenCookieUtil tokenCookieUtil;
@@ -149,8 +150,13 @@ public class TokenProvider {
 			.collect(Collectors.toList()
 			);
 
-		UserDetails userDetails = customUserDetailsService.loadUserByUsername(email);
+		boolean hasRoleAdmin = authorities.stream()
+			.anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
 
-		return new UsernamePasswordAuthenticationToken(userDetails, "", authorities);
+		UserDetails userDetails = hasRoleAdmin
+			? adminUserDetailsService.loadUserByUsername(email)
+			: customUserDetailsService.loadUserByUsername(email);
+
+		return new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(), userDetails.getAuthorities());
 	}
 }
