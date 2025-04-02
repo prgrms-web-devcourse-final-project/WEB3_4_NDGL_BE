@@ -31,4 +31,9 @@ public class AdminService {
 
 		adminRepository.delete(admin);
 	}
+
+	public Admin getAdmin(String username) {
+		return adminRepository.findByUsername(username)
+			.orElseThrow(ErrorCode.ADMIN_NOT_FOUND::throwServiceException);
+	}
 }
