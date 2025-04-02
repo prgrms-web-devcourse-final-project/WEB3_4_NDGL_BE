@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ndgl.spotfinder.domain.post.dto.PostCreateRequestDto;
+import com.ndgl.spotfinder.domain.post.dto.PostDetailResponseDto;
 import com.ndgl.spotfinder.domain.post.dto.PostResponseDto;
 import com.ndgl.spotfinder.domain.post.dto.PostUpdateRequestDto;
 import com.ndgl.spotfinder.domain.post.service.PostService;
@@ -71,8 +72,8 @@ public class PostController implements PostApiSpecification {
 	}
 
 	@GetMapping("/{id}")
-	public RsData<PostResponseDto> getPost(@PathVariable Long id) {
-		PostResponseDto result = postService.getPost(id);
+	public RsData<PostDetailResponseDto> getPost(@PathVariable Long id) {
+		PostDetailResponseDto result = postService.getPost(id);
 
 		return RsData.success(HttpStatus.OK, result);
 	}

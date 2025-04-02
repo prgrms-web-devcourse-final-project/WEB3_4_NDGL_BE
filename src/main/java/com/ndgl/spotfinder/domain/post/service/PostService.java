@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ndgl.spotfinder.domain.post.dto.PostCreateRequestDto;
+import com.ndgl.spotfinder.domain.post.dto.PostDetailResponseDto;
 import com.ndgl.spotfinder.domain.post.dto.PostResponseDto;
 import com.ndgl.spotfinder.domain.post.dto.PostUpdateRequestDto;
 import com.ndgl.spotfinder.domain.post.entity.Post;
@@ -76,10 +77,10 @@ public class PostService {
 		);
 	}
 
-	public PostResponseDto getPost(Long id) {
+	public PostDetailResponseDto getPost(Long id) {
 		Post post = findPostById(id);
 
-		return new PostResponseDto(post);
+		return new PostDetailResponseDto(post);
 	}
 
 	private Post findPostById(Long id) {

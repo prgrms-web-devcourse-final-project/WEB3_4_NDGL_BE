@@ -3,6 +3,7 @@ package com.ndgl.spotfinder.domain.post.controller;
 import java.security.Principal;
 
 import com.ndgl.spotfinder.domain.post.dto.PostCreateRequestDto;
+import com.ndgl.spotfinder.domain.post.dto.PostDetailResponseDto;
 import com.ndgl.spotfinder.domain.post.dto.PostResponseDto;
 import com.ndgl.spotfinder.domain.post.dto.PostUpdateRequestDto;
 import com.ndgl.spotfinder.global.common.dto.SliceRequest;
@@ -68,7 +69,7 @@ public interface PostApiSpecification {
 	);
 
 	@Operation(summary = "포스트 1건 조회")
-	RsData<PostResponseDto> getPost(
+	RsData<PostDetailResponseDto> getPost(
 		@Parameter(description = "게시물의 ID") Long id
 	);
 
