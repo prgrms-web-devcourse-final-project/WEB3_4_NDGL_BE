@@ -78,21 +78,21 @@ public class ReportServiceTest {
 	void createPostReport_success() {
 		// given
 		ReportCreateRequest request = new ReportCreateRequest(2L, ReportType.SPAM, "SPAM");
-		long reporterId = 1L;
+		String reporterEmail = "exmaple1@example.com";
 		long postId = 3L;
 
 		User reporter = User.builder().build();
 		User reportedUser = User.builder().build();
 		Post post = Post.builder().build();
 
-		when(userService.findUserById(reporterId)).thenReturn(reporter);
+		when(userService.findUserByEmail(reporterEmail)).thenReturn(reporter);
 		when(userService.findUserById(request.reportedUserId())).thenReturn(reportedUser);
 		when(postService.findPostById(postId)).thenReturn(post);
 
 		ArgumentCaptor<PostReport> reportCaptor = ArgumentCaptor.forClass(PostReport.class);
 
 		// when
-		reportService.createPostReport(request, reporterId, postId);
+		reportService.createPostReport(request, reporterEmail, postId);
 
 		// then
 		verify(postReportRepository).save(reportCaptor.capture());
@@ -106,19 +106,19 @@ public class ReportServiceTest {
 	}
 
 	@Test
-	@DisplayName("포스트 신고 - 비정상 reporterId")
+	@DisplayName("포스트 신고 - 비정상 reporterEmail")
 	void createPostReportSlice_invalidReporterId() {
 		// given
-		long invalidReporterId = -1L;
+		String invalidReporterEmail = "exmaple1@example.com";long invalidReporterId = -1L;
 		long reportedUserId = 2L;
 		long postId = 3L;
 		ReportCreateRequest request = new ReportCreateRequest(reportedUserId, ReportType.SPAM, "SPAM");
 
-		when(userService.findUserById(invalidReporterId))
+		when(userService.findUserByEmail(invalidReporterEmail))
 			.thenThrow(new ServiceException(ErrorCode.REPORTER_NOT_FOUND.getHttpStatus(), ErrorCode.REPORTER_NOT_FOUND.getMessage()));
 
 		// When & Then
-		assertThatThrownBy(() -> reportService.createPostReport(request, invalidReporterId, postId))
+		assertThatThrownBy(() -> reportService.createPostReport(request, invalidReporterEmail, postId))
 			.isInstanceOf(ServiceException.class)
 			.satisfies(exception -> {
 				ServiceException serviceException = (ServiceException) exception;
@@ -131,18 +131,18 @@ public class ReportServiceTest {
 	@DisplayName("포스트 신고 - 비정상 reportedUserId")
 	void createPostReportSlice_invalidReportedUserId() {
 		// given
-		long reporterId = 1L;
+		String reporterEmail = "exmaple1@example.com";
 		long invalidReportedUserId = -1L;
 		long postId = 3L;
 		ReportCreateRequest request = new ReportCreateRequest(invalidReportedUserId, ReportType.SPAM, "SPAM");
 
 		User user = User.builder().build();
-		when(userService.findUserById(reporterId)).thenReturn(user);
+		when(userService.findUserByEmail(reporterEmail)).thenReturn(user);
 		when(userService.findUserById(invalidReportedUserId))
 			.thenThrow(new ServiceException(ErrorCode.REPORTED_USER_NOT_FOUND.getHttpStatus(), ErrorCode.REPORTED_USER_NOT_FOUND.getMessage()));
 
 		// When & Then
-		assertThatThrownBy(() -> reportService.createPostReport(request, reporterId, postId))
+		assertThatThrownBy(() -> reportService.createPostReport(request, reporterEmail, postId))
 			.isInstanceOf(ServiceException.class)
 			.satisfies(exception -> {
 				ServiceException serviceException = (ServiceException) exception;
@@ -155,20 +155,20 @@ public class ReportServiceTest {
 	@DisplayName("포스트 신고 - 비정상 postId")
 	void createPostReportSlice_invalidPostId() {
 		// given
-		long reporterId = 1L;
+		String reporterEmail = "exmaple1@example.com";
 		long reportedUserId = 2L;
 		long invalidPostId = -1L;
 		ReportCreateRequest request = new ReportCreateRequest(reportedUserId, ReportType.SPAM, "SPAM");
 
 		User reporter = User.builder().build();
 		User reportedUser = User.builder().build();
-		when(userService.findUserById(reporterId)).thenReturn(reporter);
+		when(userService.findUserByEmail(reporterEmail)).thenReturn(reporter);
 		when(userService.findUserById(reportedUserId)).thenReturn(reportedUser);
 		when(postService.findPostById(invalidPostId))
 			.thenThrow(new ServiceException(ErrorCode.REPORTED_POST_NOT_FOUND.getHttpStatus(), ErrorCode.REPORTED_POST_NOT_FOUND.getMessage()));
 
 		// When & Then
-		assertThatThrownBy(() -> reportService.createPostReport(request, reporterId, invalidPostId))
+		assertThatThrownBy(() -> reportService.createPostReport(request, reporterEmail, invalidPostId))
 			.isInstanceOf(ServiceException.class)
 			.satisfies(exception -> {
 				ServiceException serviceException = (ServiceException) exception;
@@ -182,21 +182,21 @@ public class ReportServiceTest {
 	void createPostCommentReport_success() {
 		// given
 		ReportCreateRequest request = new ReportCreateRequest(2L, ReportType.ADVERTISING, "광고 댓글입니다");
-		long reporterId = 1L;
+		String reporterEmail = "exmaple1@example.com";
 		long postCommentId = 3L;
 
 		User reporter = User.builder().build();
 		User reportedUser = User.builder().build();
 		PostComment postComment = PostComment.builder().build();
 
-		when(userService.findUserById(reporterId)).thenReturn(reporter);
+		when(userService.findUserByEmail(reporterEmail)).thenReturn(reporter);
 		when(userService.findUserById(request.reportedUserId())).thenReturn(reportedUser);
 		when(postCommentService.findCommentById(postCommentId)).thenReturn(postComment);
 
 		ArgumentCaptor<PostCommentReport> reportCaptor = ArgumentCaptor.forClass(PostCommentReport.class);
 
 		// when
-		reportService.createPostCommentReport(request, reporterId, postCommentId);
+		reportService.createPostCommentReport(request, reporterEmail, postCommentId);
 
 		// then
 		verify(postCommentReportRepository).save(reportCaptor.capture());
@@ -210,19 +210,19 @@ public class ReportServiceTest {
 	}
 
 	@Test
-	@DisplayName("댓글 신고 - 비정상 reporterId")
+	@DisplayName("댓글 신고 - 비정상 reporterEmail")
 	void createPostCommentReportSlice_invalidReporterId() {
 		// given
-		long invalidReporterId = -1L;
+		String invalidReporterEmail = "exmaple1@example.com";
 		long reportedUserId = 2L;
 		long postCommentId = 3L;
 		ReportCreateRequest request = new ReportCreateRequest(reportedUserId, ReportType.SPAM, "SPAM");
 
-		when(userService.findUserById(invalidReporterId))
+		when(userService.findUserByEmail(invalidReporterEmail))
 			.thenThrow(new ServiceException(ErrorCode.REPORTER_NOT_FOUND.getHttpStatus(), ErrorCode.REPORTER_NOT_FOUND.getMessage()));
 
 		// When & Then
-		assertThatThrownBy(() -> reportService.createPostCommentReport(request, invalidReporterId, postCommentId))
+		assertThatThrownBy(() -> reportService.createPostCommentReport(request, invalidReporterEmail, postCommentId))
 			.isInstanceOf(ServiceException.class)
 			.satisfies(exception -> {
 				ServiceException serviceException = (ServiceException) exception;
@@ -235,18 +235,18 @@ public class ReportServiceTest {
 	@DisplayName("포스트 신고 - 비정상 reportedUserId")
 	void createPostCommentReportSlice_invalidReportedUserId() {
 		// given
-		long reporterId = 1L;
+		String reporterEmail = "exmaple1@example.com";
 		long invalidReportedUserId = -1L;
 		long postCommentId = 3L;
 		ReportCreateRequest request = new ReportCreateRequest(invalidReportedUserId, ReportType.SPAM, "SPAM");
 
 		User user = User.builder().build();
-		when(userService.findUserById(reporterId)).thenReturn(user);
+		when(userService.findUserByEmail(reporterEmail)).thenReturn(user);
 		when(userService.findUserById(invalidReportedUserId))
 			.thenThrow(new ServiceException(ErrorCode.REPORTED_USER_NOT_FOUND.getHttpStatus(), ErrorCode.REPORTED_USER_NOT_FOUND.getMessage()));
 
 		// When & Then
-		assertThatThrownBy(() -> reportService.createPostCommentReport(request, reporterId, postCommentId))
+		assertThatThrownBy(() -> reportService.createPostCommentReport(request, reporterEmail, postCommentId))
 			.isInstanceOf(ServiceException.class)
 			.satisfies(exception -> {
 				ServiceException serviceException = (ServiceException) exception;
@@ -259,20 +259,20 @@ public class ReportServiceTest {
 	@DisplayName("포스트 신고 - 비정상 postId")
 	void createPostCommentReportSlice_invalidPostId() {
 		// given
-		long reporterId = 1L;
+		String reporterEmail = "exmaple1@example.com";
 		long reportedUserId = 2L;
 		long invalidPostCommentId = -1L;
 		ReportCreateRequest request = new ReportCreateRequest(reportedUserId, ReportType.SPAM, "SPAM");
 
 		User reporter = User.builder().build();
 		User reportedUser = User.builder().build();
-		when(userService.findUserById(reporterId)).thenReturn(reporter);
+		when(userService.findUserByEmail(reporterEmail)).thenReturn(reporter);
 		when(userService.findUserById(reportedUserId)).thenReturn(reportedUser);
 		when(postCommentService.findCommentById(invalidPostCommentId))
 			.thenThrow(new ServiceException(ErrorCode.REPORTED_COMMENT_NOT_FOUND.getHttpStatus(), ErrorCode.REPORTED_COMMENT_NOT_FOUND.getMessage()));
 
 		// When & Then
-		assertThatThrownBy(() -> reportService.createPostCommentReport(request, reporterId, invalidPostCommentId))
+		assertThatThrownBy(() -> reportService.createPostCommentReport(request, reporterEmail, invalidPostCommentId))
 			.isInstanceOf(ServiceException.class)
 			.satisfies(exception -> {
 				ServiceException serviceException = (ServiceException) exception;
