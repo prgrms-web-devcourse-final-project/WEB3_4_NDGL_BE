@@ -120,4 +120,8 @@ public class Post extends BaseTime {
 	public void removeAllLocations() {
 		locations.clear();
 	}
+
+	public void updateLikeCount(long num) {
+		this.likeCount += num;
+	}
 }

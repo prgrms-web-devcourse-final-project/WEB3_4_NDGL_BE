@@ -7,22 +7,26 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ndgl.spotfinder.domain.like.dto.LikeStatus;
+import com.ndgl.spotfinder.domain.comment.entity.PostComment;
+import com.ndgl.spotfinder.domain.comment.service.PostCommentService;
 import com.ndgl.spotfinder.domain.like.entity.Like;
 import com.ndgl.spotfinder.domain.like.repository.LikeRepository;
+import com.ndgl.spotfinder.domain.post.entity.Post;
+import com.ndgl.spotfinder.domain.post.service.PostService;
 import com.ndgl.spotfinder.domain.user.entity.User;
-import com.ndgl.spotfinder.domain.user.repository.UserRepository;
+import com.ndgl.spotfinder.domain.user.service.UserService;
 import com.ndgl.spotfinder.global.exception.ErrorCode;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class LikeService {
 
 	private final LikeRepository likeRepository;
-	private final UserRepository userRepository;
+	private final UserService userService;
+	private final PostService postService;
+	private final PostCommentService postCommentService;
 
 	/**
 	 * 좋아요 추가 또는 삭제
@@ -32,29 +36,18 @@ public class LikeService {
 	 * @param targetType 타겟 타입
 	 * @return 토글 결과 (true: 좋아요 추가, false : 좋아요 취소)
 	 */
-	@Transactional
-	public boolean toggleLike(long userId, long targetId, TargetType targetType) {
+	private boolean toggleLike(long userId, long targetId, TargetType targetType) {
 		validateTargetId(targetId);
 
 		Optional<Like> existingLike = likeRepository.findByUserIdAndTargetIdAndTargetType(
 			userId, targetId, targetType
 		);
 
-		if (existingLike.isPresent()) { // 이미 있다면, 좋아요 취소
-			likeRepository.delete(existingLike.get());
+		if (existingLike.isPresent()) {
+			deleteLike(existingLike.get(), targetId, targetType);
 			return false;
-		} else { // 없다면, 좋아요 추가
-			Like like = new Like();
-			User user = userRepository.findById(userId)
-				.orElseThrow(ErrorCode.USER_NOT_FOUND::throwServiceException);
-
-			switch (targetType) {
-				case POST -> like = createPostLike(user, targetId);
-				case COMMENT -> like = createCommentLike(user, targetId);
-				default -> ErrorCode.UNSUPPORTED_TARGET_TYPE.throwServiceException();
-			}
-
-			likeRepository.save(like);
+		} else {
+			createLike(userId, targetId, targetType);
 			return true;
 		}
 	}
@@ -82,49 +75,118 @@ public class LikeService {
 	}
 
 	/**
-	 * 포스트 좋아요 상태 조회
+	 * 포스트 좋아요 수 조회
 	 */
-	public LikeStatus getPostLikeStatus(long userId, long postId) {
+	@Transactional(readOnly = true)
+	public Long getPostLikeCount(long postId) {
+		return getLikeCount(postId, TargetType.POST);
+	}
+
+	/**
+	 * 댓글 좋아요 수 조회
+	 */
+	@Transactional(readOnly = true)
+	public Long getCommentLikeCount(long commentId) {
+		return getLikeCount(commentId, TargetType.COMMENT);
+	}
+
+	/**
+	 * 현재 사용자의 포스트 좋아요 상태 조회
+	 *
+	 * @return 좋아요 했다면 true, 아니면 false
+	 */
+	@Transactional(readOnly = true)
+	public Boolean getPostLikeStatus(long userId, long postId) {
 		return getLikeStatus(userId, postId, TargetType.POST);
 	}
 
 	/**
-	 * 댓글 좋아요 상태 조회
+	 * 현재 사용자의 댓글 좋아요 상태 조회
+	 *
+	 * @return 좋아요 했다면 true, 아니면 false
 	 */
-	public LikeStatus getCommentLikeStatus(long userId, long commentId) {
+	@Transactional(readOnly = true)
+	public Boolean getCommentLikeStatus(long userId, long commentId) {
 		return getLikeStatus(userId, commentId, TargetType.COMMENT);
 	}
 
 	/**
-	 * 대상의 좋아요 상태 조회
+	 * 포스트 좋아요 모두 삭제
 	 */
-	public LikeStatus getLikeStatus(long userId, long targetId, TargetType targetType) {
-		validateTargetId(targetId);
-		boolean hasLiked = likeRepository.existsByUserIdAndTargetIdAndTargetType(userId, targetId, targetType);
-		long count = likeRepository.countByTargetIdAndTargetType(targetId, targetType);
-
-		return new LikeStatus(hasLiked, count);
-	}
-
-	/**
-	 * 포스트 좋아요 삭제
-	 */
+	@Transactional
 	public void deleteAllLikesForPost(Long postId) {
 		deleteAllLikes(postId, TargetType.POST);
 	}
 
 	/**
-	 * 댓글 좋아요 삭제
+	 * 댓글 좋아요 모두 삭제
 	 */
+	@Transactional
 	public void deleteAllLikesForComment(Long commentId) {
 		deleteAllLikes(commentId, TargetType.COMMENT);
 	}
 
 	/**
+	 * 대상의 좋아요 수 조회
+	 */
+	private Long getLikeCount(long targetId, TargetType targetType) {
+		validateTargetId(targetId);
+		return likeRepository.countByTargetIdAndTargetType(targetId, targetType);
+	}
+
+	/**
+	 * 대상의 좋아요 상태 조회
+	 */
+	private Boolean getLikeStatus(long userId, long targetId, TargetType targetType) {
+		validateTargetId(targetId);
+		return likeRepository.existsByUserIdAndTargetIdAndTargetType(userId, targetId, targetType);
+	}
+
+	/**
 	 * 대상의 모든 좋아요 삭제
 	 */
-	@Transactional
-	public void deleteAllLikes(long targetId, TargetType targetType) {
+	private void deleteAllLikes(long targetId, TargetType targetType) {
 		likeRepository.deleteByTargetIdAndTargetType(targetId, targetType);
 	}
+
+	/**
+	 * 좋아요 삭제 및 대상 좋아요 카운트 감소
+	 */
+	private void deleteLike(Like like, long targetId, TargetType targetType) {
+		updateTargetLikeCount(targetId, targetType, -1);
+		likeRepository.delete(like);
+	}
+
+	/**
+	 * 좋아요 생성 및 대상 좋아요 카운트 증가
+	 */
+	private void createLike(long userId, long targetId, TargetType targetType) {
+		User user = userService.findUserById(userId);
+		Like like = builder()
+			.user(user)
+			.targetId(targetId)
+			.targetType(targetType)
+			.build();
+
+		updateTargetLikeCount(targetId, targetType, 1);
+		likeRepository.save(like);
+	}
+
+	/**
+	 * 대상(게시물/댓글)의 좋아요 수 업데이트
+	 */
+	private void updateTargetLikeCount(long targetId, TargetType targetType, int num) {
+		switch (targetType) {
+			case POST -> {
+				Post post = postService.findPostById(targetId);
+				post.updateLikeCount(post.getLikeCount() + num);
+			}
+			case COMMENT -> {
+				PostComment comment = postCommentService.findById(targetId);
+				comment.updateLikeCount(comment.getLikeCount() + num);
+			}
+			default -> ErrorCode.UNSUPPORTED_TARGET_TYPE.throwServiceException();
+		}
+	}
+
 }
