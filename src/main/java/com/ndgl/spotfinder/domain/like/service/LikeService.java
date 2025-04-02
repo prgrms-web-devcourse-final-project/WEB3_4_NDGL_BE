@@ -103,14 +103,18 @@ public class LikeService {
 	}
 
 	/**
-	 * 포스트 좋아요 수 조회
+	 * 현재 사용자의 포스트 좋아요 상태 조회
+	 *
+	 * @return 좋아요 했다면 true, 아니면 false
 	 */
 	public Boolean getPostLikeStatus(long userId, long postId) {
 		return getLikeStatus(userId, postId, TargetType.POST);
 	}
 
 	/**
-	 * 댓글 좋아요 수 조회
+	 *  현재 사용자의 댓글 좋아요 상태 조회
+	 *
+	 * @return 좋아요 했다면 true, 아니면 false
 	 */
 	public Boolean getCommentLikeStatus(long userId, long commentId) {
 		return getLikeStatus(userId, commentId, TargetType.COMMENT);
@@ -119,7 +123,7 @@ public class LikeService {
 	/**
 	 * 대상의 좋아요 상태 조회
 	 */
-	public Boolean getLikeStatus(long userId, long targetId, TargetType targetType) {
+	private Boolean getLikeStatus(long userId, long targetId, TargetType targetType) {
 		validateTargetId(targetId);
 		return likeRepository.existsByUserIdAndTargetIdAndTargetType(userId, targetId, targetType);
 	}

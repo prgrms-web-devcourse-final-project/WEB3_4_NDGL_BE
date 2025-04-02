@@ -163,19 +163,6 @@ public class LikeServiceTest {
     }
 
     @Test
-    @DisplayName("좋아요 상태 조회 - 존재하지 않는 ID")
-    public void getLikeStatus_invalidTargetId() {
-        // given
-        long userId = 1L;
-        long invalidTargetId = -1L;
-
-        // then
-        ServiceException exception = assertThrows(ServiceException.class,
-                () -> likeService.getLikeStatus(userId, invalidTargetId, TargetType.POST));
-        assertNotNull(exception);
-    }
-
-    @Test
     @DisplayName("포스트의 모든 좋아요 삭제 성공")
     public void deleteAllLikesForPost_success() {
         // given
@@ -214,4 +201,125 @@ public class LikeServiceTest {
         // then
         verify(likeRepository).deleteByTargetIdAndTargetType(targetId, targetType);
     }
+
+    @Test
+    @DisplayName("포스트 좋아요 수 조회 성공")
+    public void getPostLikeCount_success() {
+        // given
+        long postId = 10L;
+        long expectedCount = 5L;
+        
+        // when
+        when(likeRepository.countByTargetIdAndTargetType(postId, TargetType.POST))
+                .thenReturn(expectedCount);
+                
+        Long result = likeService.getPostLikeCount(postId);
+        
+        // then
+        assertEquals(expectedCount, result);
+        verify(likeRepository).countByTargetIdAndTargetType(postId, TargetType.POST);
+    }
+    
+    @Test
+    @DisplayName("댓글 좋아요 수 조회 성공")
+    public void getCommentLikeCount_success() {
+        // given
+        long commentId = 20L;
+        long expectedCount = 3L;
+        
+        // when
+        when(likeRepository.countByTargetIdAndTargetType(commentId, TargetType.COMMENT))
+                .thenReturn(expectedCount);
+                
+        Long result = likeService.getCommentLikeCount(commentId);
+        
+        // then
+        assertEquals(expectedCount, result);
+        verify(likeRepository).countByTargetIdAndTargetType(commentId, TargetType.COMMENT);
+    }
+    
+    @Test
+    @DisplayName("좋아요 수 조회 - 존재하지 않는 ID")
+    public void getLikeCount_invalidTargetId() {
+        // given
+        long invalidTargetId = -1L;
+        
+        // then
+        ServiceException exception = assertThrows(ServiceException.class,
+                () -> likeService.getPostLikeCount(invalidTargetId));
+        assertNotNull(exception);
+    }
+    
+    @Test
+    @DisplayName("포스트 좋아요 상태 조회 - 좋아요 있음")
+    public void getPostLikeStatus_exists() {
+        // given
+        long userId = 1L;
+        long postId = 10L;
+        
+        // when
+        when(likeRepository.existsByUserIdAndTargetIdAndTargetType(userId, postId, TargetType.POST))
+                .thenReturn(true);
+                
+        Boolean result = likeService.getPostLikeStatus(userId, postId);
+        
+        // then
+        assertTrue(result);
+        verify(likeRepository).existsByUserIdAndTargetIdAndTargetType(userId, postId, TargetType.POST);
+    }
+    
+    @Test
+    @DisplayName("포스트 좋아요 상태 조회 - 좋아요 없음")
+    public void getPostLikeStatus_notExists() {
+        // given
+        long userId = 1L;
+        long postId = 10L;
+        
+        // when
+        when(likeRepository.existsByUserIdAndTargetIdAndTargetType(userId, postId, TargetType.POST))
+                .thenReturn(false);
+                
+        Boolean result = likeService.getPostLikeStatus(userId, postId);
+        
+        // then
+        assertFalse(result);
+        verify(likeRepository).existsByUserIdAndTargetIdAndTargetType(userId, postId, TargetType.POST);
+    }
+    
+    @Test
+    @DisplayName("댓글 좋아요 상태 조회 - 좋아요 있음")
+    public void getCommentLikeStatus_exists() {
+        // given
+        long userId = 1L;
+        long commentId = 20L;
+        
+        // when
+        when(likeRepository.existsByUserIdAndTargetIdAndTargetType(userId, commentId, TargetType.COMMENT))
+                .thenReturn(true);
+                
+        Boolean result = likeService.getCommentLikeStatus(userId, commentId);
+        
+        // then
+        assertTrue(result);
+        verify(likeRepository).existsByUserIdAndTargetIdAndTargetType(userId, commentId, TargetType.COMMENT);
+    }
+    
+    @Test
+    @DisplayName("댓글 좋아요 상태 조회 - 좋아요 없음")
+    public void getCommentLikeStatus_notExists() {
+        // given
+        long userId = 1L;
+        long commentId = 20L;
+        
+        // when
+        when(likeRepository.existsByUserIdAndTargetIdAndTargetType(userId, commentId, TargetType.COMMENT))
+                .thenReturn(false);
+                
+        Boolean result = likeService.getCommentLikeStatus(userId, commentId);
+        
+        // then
+        assertFalse(result);
+        verify(likeRepository).existsByUserIdAndTargetIdAndTargetType(userId, commentId, TargetType.COMMENT);
+    }
+
 } 
