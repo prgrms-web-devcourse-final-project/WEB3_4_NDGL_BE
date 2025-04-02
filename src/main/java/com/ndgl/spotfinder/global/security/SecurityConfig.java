@@ -4,6 +4,9 @@ import static org.springframework.security.config.Customizer.*;
 
 import java.util.List;
 
+import org.apache.tomcat.util.http.Rfc6265CookieProcessor;
+import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
+import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
@@ -70,30 +73,48 @@ public class SecurityConfig {
 					"/login/callback",
 					"oauth2/**",
 					"/api/v1/users/google/login/process",
+					"/api/v1/auth/status",
+					"/api/v1/auth/token/refresh",
+					"/api/v1/users/google/login/process",
 					"/api/*/admin/login",
 					"/api/*/admin/join",
 					"/api/v1/dev/**"
-				).permitAll() // 로그인 경로는 모두 허용
+				)
+				.permitAll() // 로그인 경로는 모두 허용
 				.requestMatchers(
 					"/h2-console/**",
 					"/error",
 					"/swagger-ui/**",
 					"/v3/api-docs/**"
-				).permitAll()
-				.requestMatchers(HttpMethod.GET, "/api/v1/posts/**").permitAll()
-				.requestMatchers(HttpMethod.GET, "/api/v1/posts/*/comments").permitAll()
-				.requestMatchers(HttpMethod.GET, "/api/v1/posts/*/comments/*").permitAll()
+				)
+				.permitAll()
+				.requestMatchers(HttpMethod.GET, "/api/v1/posts/**")
+				.permitAll()
+				.requestMatchers(HttpMethod.GET, "/api/v1/posts/*/comments")
+				.permitAll()
+				.requestMatchers(HttpMethod.GET, "/api/v1/posts/*/comments/*")
+				.permitAll()
 				// 관리자 권한 필요한 요청
-				.requestMatchers(HttpMethod.GET, "/api/*/admin/logout").hasAuthority("ROLE_ADMIN")
-				.requestMatchers(HttpMethod.GET, "/api/*/admin/resign").hasAuthority("ROLE_ADMIN")
-				.requestMatchers(HttpMethod.GET, "/api/*/admin/posts/statistics").hasAuthority("ROLE_ADMIN")
-				.requestMatchers(HttpMethod.GET, "/api/*/reports/posts").hasAuthority("ROLE_ADMIN")
-				.requestMatchers(HttpMethod.GET, "/api/*/reports/comments").hasAuthority("ROLE_ADMIN")
-				.requestMatchers(HttpMethod.POST, "/api/*/reports/{reportId}/post/ban/{userId}").hasAuthority("ROLE_ADMIN")
-				.requestMatchers(HttpMethod.POST, "/api/*/reports/{reportId}/comment/ban/{userId}").hasAuthority("ROLE_ADMIN")
-				.requestMatchers(HttpMethod.POST, "/api/*/reports/{reportId}/post/reject").hasAuthority("ROLE_ADMIN")
-				.requestMatchers(HttpMethod.POST, "/api/*/reports/{reportId}/comment/reject").hasAuthority("ROLE_ADMIN")
-				.anyRequest().authenticated()
+				.requestMatchers(HttpMethod.GET, "/api/*/admin/logout")
+				.hasAuthority("ROLE_ADMIN")
+				.requestMatchers(HttpMethod.GET, "/api/*/admin/resign")
+				.hasAuthority("ROLE_ADMIN")
+				.requestMatchers(HttpMethod.GET, "/api/*/admin/posts/statistics")
+				.hasAuthority("ROLE_ADMIN")
+				.requestMatchers(HttpMethod.GET, "/api/*/reports/posts")
+				.hasAuthority("ROLE_ADMIN")
+				.requestMatchers(HttpMethod.GET, "/api/*/reports/comments")
+				.hasAuthority("ROLE_ADMIN")
+				.requestMatchers(HttpMethod.POST, "/api/*/reports/{reportId}/post/ban/{userId}")
+				.hasAuthority("ROLE_ADMIN")
+				.requestMatchers(HttpMethod.POST, "/api/*/reports/{reportId}/comment/ban/{userId}")
+				.hasAuthority("ROLE_ADMIN")
+				.requestMatchers(HttpMethod.POST, "/api/*/reports/{reportId}/post/reject")
+				.hasAuthority("ROLE_ADMIN")
+				.requestMatchers(HttpMethod.POST, "/api/*/reports/{reportId}/comment/reject")
+				.hasAuthority("ROLE_ADMIN")
+				.anyRequest()
+				.authenticated()
 			)
 			.headers(headers ->
 				headers.frameOptions(frameOptions ->
@@ -116,7 +137,8 @@ public class SecurityConfig {
 		CorsConfiguration configuration = new CorsConfiguration();
 		configuration.setAllowedOrigins(List.of(
 			"https://ndgl.vercel.app",
-			"http://localhost:3000")); // ✅ 프론트엔드 주소 허용
+			"http://localhost:3000",
+			"https://localhost:3000")); // ✅ 프론트엔드 주소 허용
 		configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
 		configuration.setAllowCredentials(true);
 		configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
@@ -129,4 +151,12 @@ public class SecurityConfig {
 		return source;
 	}
 
+	@Bean
+	public WebServerFactoryCustomizer<TomcatServletWebServerFactory> cookieProcessorCustomizer() {
+		return factory -> factory.addContextCustomizers(context -> {
+			final Rfc6265CookieProcessor cookieProcessor = new Rfc6265CookieProcessor();
+			cookieProcessor.setSameSiteCookies("None");
+			context.setCookieProcessor(cookieProcessor);
+		});
+	}
 }
