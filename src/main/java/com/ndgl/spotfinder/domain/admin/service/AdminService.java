@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import com.ndgl.spotfinder.domain.admin.dto.CreateAdminRequest;
 import com.ndgl.spotfinder.domain.admin.entity.Admin;
 import com.ndgl.spotfinder.domain.admin.repository.AdminRepository;
+import com.ndgl.spotfinder.global.exception.ErrorCode;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,5 +23,12 @@ public class AdminService {
 			.build();
 
 		adminRepository.save(admin);
+	}
+
+	public void resign(String username) {
+		Admin admin = adminRepository.findByUsername(username)
+			.orElseThrow(ErrorCode.ADMIN_NOT_FOUND::throwServiceException);
+
+		adminRepository.delete(admin);
 	}
 }
