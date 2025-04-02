@@ -1,6 +1,7 @@
 package com.ndgl.spotfinder.domain.post.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import com.ndgl.spotfinder.domain.post.entity.Post;
 
@@ -29,7 +30,10 @@ public record PostResponseDto(
 	Long commentCount,
 
 	@Schema(description = "작성 일자", example = "2025-03-23T14:30:00")
-	LocalDateTime createdAt
+	LocalDateTime createdAt,
+
+	@Schema(description = "해시태그 목록")
+	List<HashtagDto> hashtags
 ) {
 	public PostResponseDto(Post post) {
 		this(
@@ -40,7 +44,12 @@ public record PostResponseDto(
 			post.getThumbnail(),
 			post.getLikeCount(),
 			0L,
-			post.getCreatedAt()
+			post.getCreatedAt(),
+			post.getHashtags()
+				.stream()
+				.limit(3)
+				.map(HashtagDto::new)
+				.toList()
 		);
 	}
 }
