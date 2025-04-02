@@ -100,19 +100,11 @@ public class UserLoginService {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-			//String origin = request.getScheme() + "://" + request.getServerName();
-
-			System.out.println(redirectUri);
-
-			//String dynamicRedirectUri = origin + ":3000" + "/callback/google";
-			//System.out.println(dynamicRedirectUri);
-
 			MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>();
 			requestBody.add("grant_type", "authorization_code");
 			requestBody.add("client_id", googleClientId);
 			requestBody.add("client_secret", googleClientSecret);
 			requestBody.add("code", code);
-			//requestBody.add("redirect_uri", googleRedirectUri);
 			requestBody.add("redirect_uri", redirectUri);
 
 			System.out.println(requestBody);
@@ -120,13 +112,9 @@ public class UserLoginService {
 			HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(requestBody, headers);
 			RestTemplate restTemplate = new RestTemplate();
 
-			System.out.println("requestEntity: " + requestEntity);
-
 			ResponseEntity<GoogleTokenResponse> tokenResponse = restTemplate.postForEntity(
 				tokenRequestUrl, requestEntity, GoogleTokenResponse.class
 			);
-
-			System.out.println("tokenResponse: " + tokenResponse);
 
 			if (tokenResponse.getStatusCode() != HttpStatus.OK || tokenResponse.getBody() == null) {
 				ErrorCode.UNAUTHORIZED.throwServiceException();
