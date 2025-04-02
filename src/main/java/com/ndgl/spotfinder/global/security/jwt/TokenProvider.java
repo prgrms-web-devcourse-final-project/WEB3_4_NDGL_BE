@@ -10,7 +10,6 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -19,8 +18,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import com.ndgl.spotfinder.domain.user.repository.UserRepository;
-import com.ndgl.spotfinder.global.exception.ServiceException;
+import com.ndgl.spotfinder.global.exception.ErrorCode;
 import com.ndgl.spotfinder.global.security.cookie.TokenCookieUtil;
+import com.ndgl.spotfinder.global.security.jwt.service.AdminUserDetailsService;
 import com.ndgl.spotfinder.global.security.jwt.service.CustomUserDetailsService;
 import com.ndgl.spotfinder.global.security.redis.service.RefreshTokenService;
 
@@ -52,7 +52,7 @@ public class TokenProvider {
 	private String authorizationKey;
 
 	private SecretKey key;
-	//	private final AdminDetailsService adminDetailsService;
+	private final AdminUserDetailsService adminUserDetailsService;
 	private final CustomUserDetailsService customUserDetailsService;
 	private final UserRepository userRepository;
 	private final TokenCookieUtil tokenCookieUtil;
@@ -67,7 +67,7 @@ public class TokenProvider {
 	public void createTokenAndSetCookies(Authentication authentication, HttpServletResponse response) {
 		if (authentication == null || authentication.getName() == null) {
 			log.error("createToken: Authentication 또는 사용자 이름이 null입니다.");
-			throw new ServiceException(HttpStatus.UNAUTHORIZED, "UNAUTHORIZED");
+			ErrorCode.UNAUTHORIZED.throwServiceException();
 		}
 
 		long now = System.currentTimeMillis();
@@ -149,8 +149,21 @@ public class TokenProvider {
 			.collect(Collectors.toList()
 			);
 
-		UserDetails userDetails = customUserDetailsService.loadUserByUsername(email);
+		boolean hasRoleAdmin = authorities.stream()
+			.anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
 
-		return new UsernamePasswordAuthenticationToken(userDetails, "", authorities);
+		UserDetails userDetails = hasRoleAdmin
+			? adminUserDetailsService.loadUserByUsername(email)
+			: customUserDetailsService.loadUserByUsername(email);
+
+		return new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(), userDetails.getAuthorities());
+	}
+
+	public SecretKey getKey() {
+		return this.key;
+	}
+
+	public long getValidationTime() {
+		return this.validationTime;
 	}
 }

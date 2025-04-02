@@ -44,4 +44,8 @@ public class User extends BaseTime {
 	@Setter
 	@Column(unique = true, length = 60, nullable = false)
 	private String blogName;
+
+	@Column(nullable = false)
+	@Builder.Default
+	private boolean isBanned = false;
 }
