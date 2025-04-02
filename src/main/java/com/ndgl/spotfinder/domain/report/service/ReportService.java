@@ -49,11 +49,11 @@ public class ReportService {
 	// 포스트 신고 생성
 	public void createPostReport(
 		ReportCreateRequest reportCreateRequest,
-		Long reporterId,
+		String reporterEmail,
 		Long postId) {
 
 		// 레포지토리를 통해 엔티티 조회 및 검증
-		User reporter = findReporter(reporterId);
+		User reporter = findReporter(reporterEmail);
 		User reportedUser = findReportedUser(reportCreateRequest.reportedUserId());
 		Post post = findReportedPost(postId);
 
@@ -71,11 +71,11 @@ public class ReportService {
 	// 댓글 신고 생성
 	public void createPostCommentReport(
 		ReportCreateRequest reportCreateRequest,
-		Long reporterId,
+		String reporterEmail,
 		Long postCommentId) {
 
 		// 레포지토리를 통해 엔티티 조회 및 검증
-		User reporter = findReporter(reporterId);
+		User reporter = findReporter(reporterEmail);
 		User reportedUser = findReportedUser(reportCreateRequest.reportedUserId());
 		PostComment postComment = findReportedPostComment(postCommentId);
 
@@ -177,9 +177,9 @@ public class ReportService {
 	}
 
 	// 아래의 5개 메서드는 에러를 감싸서 다시 던지는 메서드
-	private User findReporter(Long reporterId) {
+	private User findReporter(String email) {
 		try {
-			return userService.findUserById(reporterId);
+			return userService.findUserByEmail(email);
 		} catch (Exception e) {
 			throw ErrorCode.REPORTER_NOT_FOUND.throwServiceException(e);
 		}

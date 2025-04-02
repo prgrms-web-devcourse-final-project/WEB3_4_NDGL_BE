@@ -1,5 +1,7 @@
 package com.ndgl.spotfinder.domain.report.controller;
 
+import java.security.Principal;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -34,11 +36,10 @@ public class ReportController {
 	@Operation(summary = "포스트 신고 요청")
 	public RsData<Void> createPostReport(
 		@PathVariable Long id,
-		@RequestBody @Valid ReportCreateRequest reportCreateRequest) {
-		// SpringSecurity Context 에서 User 획득
-		long reporterId = -1;
+		@RequestBody @Valid ReportCreateRequest reportCreateRequest,
+		Principal principal) {
 
-		reportService.createPostReport(reportCreateRequest, reporterId, id);
+		reportService.createPostReport(reportCreateRequest, principal.getName(), id);
 
 		return RsData.success(HttpStatus.OK);
 	}
@@ -47,11 +48,10 @@ public class ReportController {
 	@Operation(summary = "댓글 신고 요청")
 	public RsData<Void> createPostCommentReport(
 		@PathVariable Long id,
-		@RequestBody @Valid ReportCreateRequest reportCreateRequest) {
-		// SpringSecurity Context 에서 User 획득
-		long reporterId = 1;
+		@RequestBody @Valid ReportCreateRequest reportCreateRequest,
+		Principal principal) {
 
-		reportService.createPostCommentReport(reportCreateRequest, reporterId, id);
+		reportService.createPostCommentReport(reportCreateRequest, principal.getName(), id);
 
 		return RsData.success(HttpStatus.OK);
 	}
@@ -61,8 +61,6 @@ public class ReportController {
 	public RsData<SliceResponse<PostReportResponse>> getPostReportList(
 		@ModelAttribute @Valid SliceRequest sliceRequest
 	){
-		// Admin 계정 체크
-
 		SliceResponse<PostReportResponse> postReportSlice
 			= reportService.getPostReportSlice(sliceRequest.lastId(), sliceRequest.size());
 
@@ -74,8 +72,6 @@ public class ReportController {
 	public RsData<SliceResponse<PostCommentReportResponse>> getCommentReportList(
 		@ModelAttribute @Valid SliceRequest sliceRequest
 	){
-		// Admin 계정 체크
-
 		SliceResponse<PostCommentReportResponse> commentReportSlice
 			= reportService.getPostCommentReportSlice(sliceRequest.lastId(), sliceRequest.size());
 
@@ -89,9 +85,8 @@ public class ReportController {
 		@PathVariable long userId,
 		@RequestParam String duration
 	){
-		// Admin 계정 체크
-
 		reportService.banUserDueToPost(reportId, userId, duration);
+
 		return RsData.success(HttpStatus.OK);
 	}
 
@@ -102,9 +97,8 @@ public class ReportController {
 		@PathVariable long userId,
 		@RequestParam String duration
 	){
-		// Admin 계정 체크
-
 		reportService.banUserDueToPostComment(reportId, userId, duration);
+
 		return RsData.success(HttpStatus.OK);
 	}
 
@@ -113,9 +107,8 @@ public class ReportController {
 	public RsData<Void> rejectPostReport(
 		@PathVariable long reportId
 	){
-		// Admin 계정 체크
-
 		reportService.rejectPostReport(reportId);
+
 		return RsData.success(HttpStatus.OK);
 	}
 
@@ -124,9 +117,8 @@ public class ReportController {
 	public RsData<Void> rejectPostCommentReport(
 		@PathVariable long reportId
 	){
-		// Admin 계정 체크
-
 		reportService.rejectPostCommentReport(reportId);
+
 		return RsData.success(HttpStatus.OK);
 	}
 }
