@@ -12,12 +12,17 @@ import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
+import com.ndgl.spotfinder.domain.comment.service.PostCommentService;
 import com.ndgl.spotfinder.domain.like.entity.Like;
 import com.ndgl.spotfinder.domain.like.entity.Like.TargetType;
 import com.ndgl.spotfinder.domain.like.repository.LikeRepository;
+import com.ndgl.spotfinder.domain.post.service.PostService;
 import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.domain.user.repository.UserRepository;
+import com.ndgl.spotfinder.domain.user.service.UserService;
 import com.ndgl.spotfinder.global.exception.ServiceException;
+import com.ndgl.spotfinder.domain.post.entity.Post;
+import com.ndgl.spotfinder.domain.comment.entity.PostComment;
 
 /**
  * @see LikeService
@@ -30,6 +35,15 @@ public class LikeServiceTest {
 
     @Mock
     private LikeRepository likeRepository;
+
+    @Mock
+    private UserService userService;
+
+    @Mock
+    private PostService postService;
+
+    @Mock
+    private PostCommentService postCommentService;
 
     @Mock
     private UserRepository userRepository;
@@ -56,16 +70,19 @@ public class LikeServiceTest {
             .build();
 
     @Test
-    @DisplayName("포스트 종아요 추가 성공")
+    @DisplayName("포스트 좋아요 추가 성공")
     public void togglePostLike_add_success() {
         // given
         long userId = 1L;
         long postId = 10L;
+        Post post = mock(Post.class);
+        when(post.getLikeCount()).thenReturn(0L);
 
         // when
-        when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
+        when(userService.findUserById(userId)).thenReturn(testUser);
         when(likeRepository.findByUserIdAndTargetIdAndTargetType(userId, postId, TargetType.POST))
                 .thenReturn(Optional.empty());
+        when(postService.findPostById(postId)).thenReturn(post);
         when(likeRepository.save(any(Like.class))).thenReturn(postLike);
 
         boolean result = likeService.togglePostLike(userId, postId);
@@ -73,37 +90,45 @@ public class LikeServiceTest {
         // then
         assertTrue(result);
         verify(likeRepository).save(any(Like.class));
+        verify(post).updateLikeCount(1L);
     }
 
     @Test
-    @DisplayName("포스트 종아요 취소 성공")
+    @DisplayName("포스트 좋아요 취소 성공")
     public void togglePostLike_remove_success() {
         // given
         long userId = 1L;
         long postId = 10L;
+        Post post = mock(Post.class);
+        when(post.getLikeCount()).thenReturn(1L);
 
         // when
         when(likeRepository.findByUserIdAndTargetIdAndTargetType(userId, postId, TargetType.POST))
                 .thenReturn(Optional.of(postLike));
+        when(postService.findPostById(postId)).thenReturn(post);
 
         boolean result = likeService.togglePostLike(userId, postId);
 
         // then
         assertFalse(result);
         verify(likeRepository).delete(postLike);
+        verify(post).updateLikeCount(0L);
     }
 
     @Test
-    @DisplayName("댓글 종아요 추가 성공")
+    @DisplayName("댓글 좋아요 추가 성공")
     public void toggleCommentLike_add_success() {
         // given
         long userId = 1L;
         long commentId = 20L;
+        PostComment comment = mock(PostComment.class);
+        when(comment.getLikeCount()).thenReturn(0L);
 
         // when
-        when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
+        when(userService.findUserById(userId)).thenReturn(testUser);
         when(likeRepository.findByUserIdAndTargetIdAndTargetType(userId, commentId, TargetType.COMMENT))
                 .thenReturn(Optional.empty());
+        when(postCommentService.findById(commentId)).thenReturn(comment);
         when(likeRepository.save(any(Like.class))).thenReturn(commentLike);
 
         boolean result = likeService.toggleCommentLike(userId, commentId);
@@ -111,54 +136,41 @@ public class LikeServiceTest {
         // then
         assertTrue(result);
         verify(likeRepository).save(any(Like.class));
+        verify(comment).updateLikeCount(1L);
     }
 
     @Test
-    @DisplayName("댓글 종아요 취소 성공")
+    @DisplayName("댓글 좋아요 취소 성공")
     public void toggleCommentLike_remove_success() {
         // given
         long userId = 1L;
         long commentId = 20L;
+        PostComment comment = mock(PostComment.class);
+        when(comment.getLikeCount()).thenReturn(1L);
 
         // when
         when(likeRepository.findByUserIdAndTargetIdAndTargetType(userId, commentId, TargetType.COMMENT))
                 .thenReturn(Optional.of(commentLike));
+        when(postCommentService.findById(commentId)).thenReturn(comment);
 
         boolean result = likeService.toggleCommentLike(userId, commentId);
 
         // then
         assertFalse(result);
         verify(likeRepository).delete(commentLike);
+        verify(comment).updateLikeCount(0L);
     }
 
     @Test
-    @DisplayName("존재하지 않는 유저가 좋아요 사용시")
-    public void toggleLike_userNotFound() {
-        // given
-        long userId = 999L;
-        long targetId = 10L;
-
-        // when
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
-        when(likeRepository.findByUserIdAndTargetIdAndTargetType(userId, targetId, TargetType.POST))
-                .thenReturn(Optional.empty());
-
-        // then
-        ServiceException exception = assertThrows(ServiceException.class,
-                () -> likeService.toggleLike(userId, targetId, TargetType.POST));
-        assertNotNull(exception);
-    }
-
-    @Test
-    @DisplayName("존재하지 않는 객체를 좋아요 할 시")
+    @DisplayName("좋아요 추가 실패 - 잘못된 타겟 ID")
     public void toggleLike_invalidTargetId() {
         // given
         long userId = 1L;
         long invalidTargetId = -1L;
-
+        
         // then
         ServiceException exception = assertThrows(ServiceException.class,
-                () -> likeService.toggleLike(userId, invalidTargetId, TargetType.POST));
+                () -> likeService.togglePostLike(userId, invalidTargetId));
         assertNotNull(exception);
     }
 
@@ -186,20 +198,6 @@ public class LikeServiceTest {
 
         // then
         verify(likeRepository).deleteByTargetIdAndTargetType(commentId, TargetType.COMMENT);
-    }
-
-    @Test
-    @DisplayName("대상의 좋아요 삭제 성공")
-    public void deleteAllLikes_success() {
-        // given
-        long targetId = 10L;
-        TargetType targetType = TargetType.POST;
-
-        // when
-        likeService.deleteAllLikes(targetId, targetType);
-
-        // then
-        verify(likeRepository).deleteByTargetIdAndTargetType(targetId, targetType);
     }
 
     @Test
