@@ -70,9 +70,19 @@ jwt:
   auth:
     key: ${AUTHORIZATION_KEY}
 
-aes:
-  secret:
-    key: ${AES_SECRET_KEY}
+  aes:
+    secret:
+      key: ${AES_SECRET_KEY}
 
-springdoc:
-  default-produces-media-type: application/json;charset=UTF-8
+  springdoc:
+    default-produces-media-type: application/json;charset=UTF-8
+
+  cloud:
+    aws:
+      s3:
+        bucket: ${BUCKET_NAME}
+      credentials:
+        access-key: ${ACCESS_KEY}
+        secret-key: ${SECRET_ACCESS_KEY}
+      region:
+        static: ap-northeast-2
