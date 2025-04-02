@@ -1,25 +1,28 @@
 package com.ndgl.spotfinder.domain.image.entity;
 
-import com.ndgl.spotfinder.domain.post.entity.Post;
+import com.ndgl.spotfinder.domain.image.type.ImageType;
 import com.ndgl.spotfinder.global.base.BaseTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Table(indexes = @Index(name = "idx_reference", columnList = "referenceId, imageType"))
 @Getter
-@AllArgsConstructor
-@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 public class Image extends BaseTime {
 
@@ -27,9 +30,12 @@ public class Image extends BaseTime {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "post_id")
-	private Post post;
+	@Column(nullable = false)
+	@Enumerated(EnumType.STRING)
+	private ImageType imageType;
+
+	@Column(nullable = false)
+	private long referenceId;
 
 	@Column(nullable = false)
 	private String url;

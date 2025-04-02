@@ -6,12 +6,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.ndgl.spotfinder.domain.image.entity.Image;
+import com.ndgl.spotfinder.domain.image.type.ImageType;
 
 @Repository
 public interface ImageRepository extends JpaRepository<Image, Long> {
-	List<Image> findByPostId(long postId);
+	List<Image> findByImageTypeAndReferenceId(ImageType imageType, Long referenceId);
 
-	List<Image> findAllByPostId(Long postId);
-
-	void deleteAllByPostId(Long postId);
+	void deleteAllByImageTypeAndReferenceId(ImageType imageType, Long postId);
 }

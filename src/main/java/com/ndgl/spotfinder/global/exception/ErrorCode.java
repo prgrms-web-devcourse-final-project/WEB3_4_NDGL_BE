@@ -30,7 +30,7 @@ public enum ErrorCode {
 	NOT_FOUND_IN_POST(HttpStatus.BAD_REQUEST, "해당 포스트의 댓글이 아닙니다."),
 
 	// LIKE
-	UNSUPPORTED_TARGET_TYPE(HttpStatus.NOT_FOUND, "지원하지 않는 타겟 유형입니다"),
+	UNSUPPORTED_TARGET_TYPE(HttpStatus.NOT_FOUND, "지원하지 않는 타겟 유형입니다."),
 
 	// REPORT
 	REPORTER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 신고자입니다."),
@@ -47,7 +47,11 @@ public enum ErrorCode {
 	MISSING_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "Access Token 이 유효하지 않습니다."),
 	EXPIRED_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "Access Token 이 만료되었습니다."),
 
-	// S3
+	// IMAGE
+	UNSUPPORTED_IMAGE_TYPE(HttpStatus.NOT_FOUND, "지원하지 않는 이미지 유형입니다."),
+	IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 이미지가 존재하지 않습니다."),
+
+	// S3,
 	S3_PRESIGNED_GENERATION_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "Presigned URL 생성 실패"),
 	S3_OBJECT_DELETE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "S3 객체 삭제 실패"),
 	S3_OBJECT_ACCESS_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "S3 객체 조회 실패"),
