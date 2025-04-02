@@ -26,13 +26,12 @@ public class AdminService {
 	}
 
 	public void resign(String username) {
-		Admin admin = adminRepository.findByUsername(username)
-			.orElseThrow(ErrorCode.ADMIN_NOT_FOUND::throwServiceException);
+		Admin admin = findAdminByUsername(username);
 
 		adminRepository.delete(admin);
 	}
 
-	public Admin getAdmin(String username) {
+	public Admin findAdminByUsername(String username) {
 		return adminRepository.findByUsername(username)
 			.orElseThrow(ErrorCode.ADMIN_NOT_FOUND::throwServiceException);
 	}

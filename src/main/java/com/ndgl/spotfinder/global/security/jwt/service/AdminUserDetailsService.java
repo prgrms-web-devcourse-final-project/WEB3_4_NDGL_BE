@@ -18,7 +18,7 @@ public class AdminUserDetailsService implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		Admin admin = adminService.getAdmin(username);
+		Admin admin = adminService.findAdminByUsername(username);
 
 		return new AdminUserDetails(admin);
 	}
