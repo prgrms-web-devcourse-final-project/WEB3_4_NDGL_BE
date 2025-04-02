@@ -27,7 +27,18 @@ public enum ErrorCode {
 	NOT_FOUND_IN_POST(HttpStatus.BAD_REQUEST, "해당 포스트의 댓글이 아닙니다."),
 
 	// LIKE
-	UNSUPPORTED_TARGET_TYPE(HttpStatus.NOT_FOUND, "지원하지 않는 타겟 유형입니다");
+	UNSUPPORTED_TARGET_TYPE(HttpStatus.NOT_FOUND, "지원하지 않는 타겟 유형입니다"),
+
+	REPORTER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 신고자입니다."),
+	REPORTED_USER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 신고 대상자입니다."),
+	BAN_USER_NOT_FOUND(HttpStatus.NOT_FOUND, "제재할 사용자가 존재하지 않습니다."),
+	REPORTED_POST_NOT_FOUND(HttpStatus.NOT_FOUND, "신고한 글이 존재하지 않습니다."),
+	REPORTED_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "신고한 댓글이 존재하지 않습니다."),
+	POST_REPORT_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 포스트 신고입니다."),
+	COMMENT_REPORT_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 댓글 신고입니다."),
+	EMPTY_POST_REPORT_SLICE(HttpStatus.NOT_FOUND, "조회된 포스트 신고 데이터가 없습니다."),
+	EMPTY_COMMENT_REPORT_SLICE(HttpStatus.NOT_FOUND, "조회된 댓글 신고 데이터가 없습니다."),
+	INVALID_BAN_DURATION(HttpStatus.BAD_REQUEST, "유효하지 않은 제재 일자 옵션입니다.");
 
 	private final HttpStatus httpStatus;
 	private final String message;

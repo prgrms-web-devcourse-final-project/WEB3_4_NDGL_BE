@@ -6,9 +6,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import com.ndgl.spotfinder.domain.comment.entity.PostComment;
+import com.ndgl.spotfinder.domain.comment.service.PostCommentService;
+import com.ndgl.spotfinder.domain.post.entity.Post;
+import com.ndgl.spotfinder.domain.post.service.PostService;
 import com.ndgl.spotfinder.domain.report.dto.PostCommentReportResponse;
 import com.ndgl.spotfinder.domain.report.dto.PostReportResponse;
 import com.ndgl.spotfinder.domain.report.dto.ReportCreateRequest;
@@ -20,14 +23,10 @@ import com.ndgl.spotfinder.domain.report.entity.ReportStatus;
 import com.ndgl.spotfinder.domain.report.repository.BanRepository;
 import com.ndgl.spotfinder.domain.report.repository.PostCommentReportRepository;
 import com.ndgl.spotfinder.domain.report.repository.PostReportRepository;
-import com.ndgl.spotfinder.domain.report.test.Post;
-import com.ndgl.spotfinder.domain.report.test.PostComment;
-import com.ndgl.spotfinder.domain.report.test.PostCommentRepository;
-import com.ndgl.spotfinder.domain.report.test.PostRepository;
-import com.ndgl.spotfinder.domain.report.test.User;
-import com.ndgl.spotfinder.domain.report.test.UserRepository;
+import com.ndgl.spotfinder.domain.user.entity.User;
+import com.ndgl.spotfinder.domain.user.service.UserService;
 import com.ndgl.spotfinder.global.common.dto.SliceResponse;
-import com.ndgl.spotfinder.global.exception.ServiceException;
+import com.ndgl.spotfinder.global.exception.ErrorCode;
 
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
@@ -43,10 +42,9 @@ public class ReportService {
 	private final EntityManager entityManager;
 	private final BanRepository banRepository;
 
-	// TODO: 이후 Service 로 변경 필요
-	private final UserRepository userRepository;
-	private final PostRepository postRepository;
-	private final PostCommentRepository postCommentRepository;
+	private final UserService userService;
+	private final PostService postService;
+	private final PostCommentService postCommentService;
 
 	// 포스트 신고 생성
 	public void createPostReport(
@@ -55,12 +53,9 @@ public class ReportService {
 		Long postId) {
 
 		// 레포지토리를 통해 엔티티 조회 및 검증
-		User reporter = userRepository.findById(reporterId)
-			.orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND, "reporterId에 해당하는 사용자가 없습니다."));
-		User reportedUser = userRepository.findById(reportCreateRequest.reportedUserId())
-			.orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND, "reportedUserId에 해당하는 사용자가 없습니다."));
-		Post post = postRepository.findById(postId)
-			.orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND, "postId에 해당하는 포스트가 없습니다."));
+		User reporter = findReporter(reporterId);
+		User reportedUser = findReportedUser(reportCreateRequest.reportedUserId());
+		Post post = findReportedPost(postId);
 
 		PostReport report = PostReport.builder()
 			.reporter(reporter)
@@ -80,12 +75,9 @@ public class ReportService {
 		Long postCommentId) {
 
 		// 레포지토리를 통해 엔티티 조회 및 검증
-		User reporter = userRepository.findById(reporterId)
-			.orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND, "reporterId에 해당하는 사용자가 없습니다."));
-		User reportedUser = userRepository.findById(reportCreateRequest.reportedUserId())
-			.orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND, "reportedUserId에 해당하는 사용자가 없습니다."));
-		PostComment postComment = postCommentRepository.findById(postCommentId)
-			.orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND, "postCommentId에 해당하는 댓글이 없습니다."));
+		User reporter = findReporter(reporterId);
+		User reportedUser = findReportedUser(reportCreateRequest.reportedUserId());
+		PostComment postComment = findReportedPostComment(postCommentId);
 
 		PostCommentReport report = PostCommentReport.builder()
 			.reporter(reporter)
@@ -100,15 +92,12 @@ public class ReportService {
 
 	// 포스트 신고 목록 조회
 	public SliceResponse<PostReportResponse> getPostReportSlice(long lastId, int size) {
-		if(lastId < 0) {
-			throw new ServiceException(HttpStatus.BAD_REQUEST, "lastId 값은 음수일 수 없습니다.");
-		}
 
 		Pageable pageable = PageRequest.of(0, size, Sort.by(Sort.Direction.DESC, "id"));
-		Slice<PostReportResponse> postReportSlice = postReportRepository.findPostReports(pageable);
+		Slice<PostReportResponse> postReportSlice = postReportRepository.findPostReports(lastId, pageable);
 
 		if(postReportSlice.isEmpty()) {
-			throw new ServiceException(HttpStatus.NOT_FOUND, "포스트 신고 데이터를 찾지 못했습니다.");
+			ErrorCode.EMPTY_POST_REPORT_SLICE.throwServiceException();
 		}
 
 		return new SliceResponse<>(postReportSlice.getContent(), postReportSlice.hasNext());
@@ -116,15 +105,12 @@ public class ReportService {
 
 	// 댓글 신고 목록 조회
 	public SliceResponse<PostCommentReportResponse> getPostCommentReportSlice(long lastId, int size) {
-		if(lastId < 0) {
-			throw new ServiceException(HttpStatus.BAD_REQUEST, "lastId 값은 음수일 수 없습니다.");
-		}
 
 		Pageable pageable = PageRequest.of(0, size, Sort.by(Sort.Direction.DESC, "id"));
-		Slice<PostCommentReportResponse> postCommentReportSlice = postCommentReportRepository.findPostCommentReports(pageable);
+		Slice<PostCommentReportResponse> postCommentReportSlice = postCommentReportRepository.findPostCommentReports(lastId, pageable);
 
 		if(postCommentReportSlice.isEmpty()) {
-			throw new ServiceException(HttpStatus.NOT_FOUND, "댓글 신고 데이터를 찾지 못했습니다.");
+			ErrorCode.EMPTY_COMMENT_REPORT_SLICE.throwServiceException();
 		}
 
 		return new SliceResponse<>(postCommentReportSlice.getContent(), postCommentReportSlice.hasNext());
@@ -135,12 +121,12 @@ public class ReportService {
 		// 제재 기간 검증
 		BanDuration banDuration = BanDuration.fromString(duration);
 
-		PostReport postReport = postReportRepository.findById(reportId).orElseThrow(
-			() -> new ServiceException(HttpStatus.NOT_FOUND, "존재하지 않는 신고입니다."));
+		PostReport postReport = postReportRepository.findById(reportId)
+			.orElseThrow(ErrorCode.POST_REPORT_NOT_FOUND::throwServiceException);
+
 		postReport.setReportStatus(ReportStatus.RESOLVED);
 
-		User user = userRepository.findById(userId).orElseThrow(
-			() -> new ServiceException(HttpStatus.NOT_FOUND, "존재하지 않는 사용자입니다."));
+		User user = findUserToBan(userId);
 		user.setBanned(true);
 
 		Ban ban = Ban.builder()
@@ -157,14 +143,13 @@ public class ReportService {
 	public void banUserDueToPostComment(long reportId, long userId, String duration) {
 		BanDuration banDuration = BanDuration.fromString(duration);
 
-		PostCommentReport postCommentReport = postCommentReportRepository.findById(reportId).orElseThrow(
-			() -> new ServiceException(HttpStatus.NOT_FOUND, "존재하지 않는 신고입니다."));
-
-		User user = userRepository.findById(userId).orElseThrow(
-			() -> new ServiceException(HttpStatus.NOT_FOUND, "존재하지 않는 사용자입니다."));
-		user.setBanned(true);
+		PostCommentReport postCommentReport = postCommentReportRepository.findById(reportId)
+			.orElseThrow(ErrorCode.COMMENT_REPORT_NOT_FOUND::throwServiceException);
 
 		postCommentReport.setReportStatus(ReportStatus.RESOLVED);
+
+		User user = findUserToBan(userId);
+		user.setBanned(true);
 
 		Ban ban = Ban.builder()
 			.user(user)
@@ -178,16 +163,58 @@ public class ReportService {
 
 	// 포스트 신고 기각
 	public void rejectPostReport(long reportId) {
-		PostReport postReport = postReportRepository.findById(reportId).orElseThrow(
-			() -> new ServiceException(HttpStatus.NOT_FOUND, "존재하지 않는 포스트 신고입니다."));
+		PostReport postReport = postReportRepository.findById(reportId)
+			.orElseThrow(ErrorCode.POST_REPORT_NOT_FOUND::throwServiceException);
 		postReport.setReportStatus(ReportStatus.REJECTED);
 	}
 
 	// 댓글 신고 기각
 	public void rejectPostCommentReport(long reportId) {
-		PostCommentReport postCommentReport = postCommentReportRepository.findById(reportId).orElseThrow(
-			() -> new ServiceException(HttpStatus.NOT_FOUND, "존재하지 않는 댓글 신고입니다."));
+		PostCommentReport postCommentReport = postCommentReportRepository.findById(reportId)
+			.orElseThrow(ErrorCode.COMMENT_REPORT_NOT_FOUND::throwServiceException);
 
 		postCommentReport.setReportStatus(ReportStatus.REJECTED);
 	}
+
+	// 아래의 5개 메서드는 에러를 감싸서 다시 던지는 메서드
+	private User findReporter(Long reporterId) {
+		try {
+			return userService.findUserById(reporterId);
+		} catch (Exception e) {
+			throw ErrorCode.REPORTER_NOT_FOUND.throwServiceException(e);
+		}
+	}
+
+	private User findReportedUser(Long reportedUserId) {
+		try {
+			return userService.findUserById(reportedUserId);
+		} catch (Exception e) {
+			throw ErrorCode.REPORTED_USER_NOT_FOUND.throwServiceException(e);
+		}
+	}
+
+	private User findUserToBan(Long userId) {
+		try {
+			return userService.findUserById(userId);
+		} catch (Exception e) {
+			throw ErrorCode.BAN_USER_NOT_FOUND.throwServiceException(e);
+		}
+	}
+
+	private Post findReportedPost(Long postId) {
+		try {
+			return postService.findPostById(postId);
+		} catch (Exception e) {
+			throw ErrorCode.REPORTED_POST_NOT_FOUND.throwServiceException(e);
+		}
+	}
+
+	private PostComment findReportedPostComment(Long postCommentId) {
+		try {
+			return postCommentService.findCommentById(postCommentId);
+		} catch (Exception e) {
+			throw ErrorCode.REPORTED_COMMENT_NOT_FOUND.throwServiceException(e);
+		}
+	}
+
 }
