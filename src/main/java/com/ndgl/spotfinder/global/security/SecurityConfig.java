@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
@@ -16,8 +15,15 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ndgl.spotfinder.global.security.handler.CustomAccessDeniedHandler;
+import com.ndgl.spotfinder.global.security.handler.CustomAuthenticationEntryPoint;
+import com.ndgl.spotfinder.global.security.handler.CustomAuthenticationSuccessHandler;
+import com.ndgl.spotfinder.global.security.handler.CustomLogoutHandler;
+import com.ndgl.spotfinder.global.security.handler.CustomLogoutSuccessHandler;
 import com.ndgl.spotfinder.global.security.jwt.JwtFilter;
 import com.ndgl.spotfinder.global.security.jwt.TokenProvider;
+import com.ndgl.spotfinder.global.security.jwt.service.AdminUserDetailsService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -26,15 +32,35 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+	private final ObjectMapper objectMapper;
 	private final TokenProvider tokenProvider;
+	private final AdminUserDetailsService adminUserDetailsService;
+	private final CustomAuthenticationSuccessHandler successHandler;
+	private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
+	private final CustomLogoutHandler customLogoutHandler;
+	private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+	private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
 	/*
 	 * 일반 유저용 SecurityFilterChain
 	 * */
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
 		http
 			.cors(withDefaults())
+			.formLogin(
+				form -> form
+					.loginProcessingUrl("/api/*/admin/login")
+					.successHandler(successHandler)
+			)
+			.logout(logout -> logout
+				.logoutUrl("/api/*/admin/logout")
+				.addLogoutHandler(customLogoutHandler)
+				.logoutSuccessHandler(customLogoutSuccessHandler)
+				.clearAuthentication(true)
+			)
+			.userDetailsService(adminUserDetailsService)
 			.csrf(csrf -> csrf.disable())
 			.sessionManagement(session ->
 				session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -44,6 +70,8 @@ public class SecurityConfig {
 					"/login/callback",
 					"oauth2/**",
 					"/api/v1/users/google/login/process",
+					"/api/*/admin/login",
+					"/api/*/admin/join",
 					"/api/v1/dev/**"
 				).permitAll() // 로그인 경로는 모두 허용
 				.requestMatchers(
@@ -55,6 +83,16 @@ public class SecurityConfig {
 				.requestMatchers(HttpMethod.GET, "/api/v1/posts/**").permitAll()
 				.requestMatchers(HttpMethod.GET, "/api/v1/posts/*/comments").permitAll()
 				.requestMatchers(HttpMethod.GET, "/api/v1/posts/*/comments/*").permitAll()
+				// 관리자 권한 필요한 요청
+				.requestMatchers(HttpMethod.GET, "/api/*/admin/logout").hasAuthority("ROLE_ADMIN")
+				.requestMatchers(HttpMethod.GET, "/api/*/admin/resign").hasAuthority("ROLE_ADMIN")
+				.requestMatchers(HttpMethod.GET, "/api/*/admin/posts/statistics").hasAuthority("ROLE_ADMIN")
+				.requestMatchers(HttpMethod.GET, "/api/*/reports/posts").hasAuthority("ROLE_ADMIN")
+				.requestMatchers(HttpMethod.GET, "/api/*/reports/comments").hasAuthority("ROLE_ADMIN")
+				.requestMatchers(HttpMethod.POST, "/api/*/reports/{reportId}/post/ban/{userId}").hasAuthority("ROLE_ADMIN")
+				.requestMatchers(HttpMethod.POST, "/api/*/reports/{reportId}/comment/ban/{userId}").hasAuthority("ROLE_ADMIN")
+				.requestMatchers(HttpMethod.POST, "/api/*/reports/{reportId}/post/reject").hasAuthority("ROLE_ADMIN")
+				.requestMatchers(HttpMethod.POST, "/api/*/reports/{reportId}/comment/reject").hasAuthority("ROLE_ADMIN")
 				.anyRequest().authenticated()
 			)
 			.headers(headers ->
@@ -66,10 +104,8 @@ public class SecurityConfig {
 				org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class)
 			.exceptionHandling(exceptionHandling -> {
 				exceptionHandling
-					.authenticationEntryPoint((request, response, authException) -> {
-						response.setStatus(HttpStatus.UNAUTHORIZED.value());
-						response.getWriter().write("로그인이 필요합니다.");
-					});
+					.authenticationEntryPoint(customAuthenticationEntryPoint) // 401 에러
+					.accessDeniedHandler(customAccessDeniedHandler); // 403 에러
 			});
 
 		return http.build();
@@ -92,4 +128,5 @@ public class SecurityConfig {
 
 		return source;
 	}
+
 }

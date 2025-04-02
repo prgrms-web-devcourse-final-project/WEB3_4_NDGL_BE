@@ -27,6 +27,7 @@ public class JwtFilter extends OncePerRequestFilter {
 		HttpServletResponse response,
 		FilterChain filterChain
 	) throws ServletException, IOException {
+
 		String tokenValue = null;
 
 		// 개발 환경일 경우, Header 인증을 먼저 시도 (for swagger)
