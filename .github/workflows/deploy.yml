@@ -51,6 +51,10 @@ jobs:
           APPLICATION_SECRET: ${{ secrets.APPLICATION_SECRET_YML }}
         run: echo "$APPLICATION_SECRET" > src/main/resources/application-secret.yml
 
+      - name: keystore.p12 복원
+        env:
+          KEYSTORE_B64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: echo "$KEYSTORE_B64" | base64 -d > src/main/resources/keystore.p12
 
       - name: Gradle 빌드 (jar 생성)
         run: ./gradlew build --exclude-task test --no-daemon
@@ -116,5 +120,5 @@ jobs:
             docker pull ghcr.io/${{ env.OWNER_LC }}/${{ env.DOCKER_IMAGE_NAME }}:latest
             docker stop app1 2>/dev/null
             docker rm app1 2>/dev/null
-            docker run -d -v /gen:/gen --name app1 --restart unless-stopped --network common --env-file .env -p 8080:8080 ghcr.io/${{ env.OWNER_LC }}/${{ env.DOCKER_IMAGE_NAME }}:latest
+            docker run -d -v /gen:/gen --name app1 --restart unless-stopped --network common --env-file /root/.env -p 443:443 ghcr.io/${{ env.OWNER_LC }}/${{ env.DOCKER_IMAGE_NAME }}:latest
             docker rmi $(docker images -f "dangling=true" -q)

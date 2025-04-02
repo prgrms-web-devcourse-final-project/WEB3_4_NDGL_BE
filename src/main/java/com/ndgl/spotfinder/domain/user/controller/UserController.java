@@ -44,10 +44,12 @@ public class UserController {
 	@GetMapping("/google/login/process")
 	public RsData<?> processGoogleLogin(
 		@RequestParam("code") String code,
+		@RequestParam("redirect_uri") String redirectUri,
 		HttpServletResponse response
 	) {
 		//  구글 로그인 처리
-		UserLoginResponse responseDto = userLoginService.processGoogleLogin(Oauth.Provider.GOOGLE, code, response);
+		UserLoginResponse responseDto = userLoginService.processGoogleLogin(Oauth.Provider.GOOGLE, code, redirectUri,
+			response);
 
 		return new RsData<>(responseDto.getCode(), responseDto.getMessage(), responseDto);
 

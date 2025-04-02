@@ -98,4 +98,10 @@ public class PostCommentService {
 		comment.checkAuthorCanModify(author);
 		comment.setContent(content);
 	}
+
+	@Transactional(readOnly = true)
+	public PostComment findById(long targetId) {
+		return postCommentRepository.findById(targetId)
+			.orElseThrow(ErrorCode.COMMENT_NOT_FOUND::throwServiceException);
+	}
 }

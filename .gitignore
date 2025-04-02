@@ -43,3 +43,4 @@ db_dev.trace.db
 db_test.mv.db
 db_test.trace.db
 .env
+src/main/resources/keystore.p12
