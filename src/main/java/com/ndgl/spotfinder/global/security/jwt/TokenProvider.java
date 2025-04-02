@@ -158,4 +158,12 @@ public class TokenProvider {
 
 		return new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(), userDetails.getAuthorities());
 	}
+
+	public SecretKey getKey() {
+		return this.key;
+	}
+
+	public long getValidationTime() {
+		return this.validationTime;
+	}
 }

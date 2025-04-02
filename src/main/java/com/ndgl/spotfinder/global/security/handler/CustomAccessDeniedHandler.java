@@ -27,7 +27,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 	public void handle(HttpServletRequest request, HttpServletResponse response,
 		AccessDeniedException accessDeniedException) throws IOException {
 
-		RsData<Void> rsData = RsData.error(HttpStatus.FORBIDDEN, ErrorCode.ADMIN_FORBIDDEN.getMessage());
+		RsData<Void> rsData = RsData.error(HttpStatus.FORBIDDEN, ErrorCode.ACCESS_DENIED.getMessage());
 		response.setStatus(HttpStatus.FORBIDDEN.value());
 		response.setContentType("application/json; charset=UTF-8");
 		objectMapper.writeValue(response.getWriter(), rsData);
