@@ -1,8 +1,6 @@
 package com.ndgl.spotfinder.domain.report.entity;
 
-import org.springframework.http.HttpStatus;
-
-import com.ndgl.spotfinder.global.exception.ServiceException;
+import com.ndgl.spotfinder.global.exception.ErrorCode;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,7 +22,7 @@ public enum BanDuration {
 				return banDuration;
 			}
 		}
-		throw new ServiceException(HttpStatus.BAD_REQUEST, "유효하지 않은 제재 일자 옵션입니다.");
+		throw ErrorCode.INVALID_BAN_DURATION.throwServiceException();
 	}
 
 }
