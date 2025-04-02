@@ -3,7 +3,7 @@ spring:
     port: 443
     ssl:
       enabled: true
-      key-store: classpath:keystore.p12
+      key-store: file:/app/keystore.p12
       key-store-type: PKCS12
       key-alias: springboot-ssl
       key-store-password: code1zero!9037
