@@ -17,8 +17,11 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.domain.user.repository.UserRepository;
 import com.ndgl.spotfinder.global.exception.ErrorCode;
+import com.ndgl.spotfinder.global.exception.ErrorCode;
+import com.ndgl.spotfinder.global.exception.ServiceException;
 import com.ndgl.spotfinder.global.security.cookie.TokenCookieUtil;
 import com.ndgl.spotfinder.global.security.jwt.service.AdminUserDetailsService;
 import com.ndgl.spotfinder.global.security.jwt.service.CustomUserDetailsService;
@@ -47,9 +50,6 @@ public class TokenProvider {
 
 	@Value("${jwt.refresh-token.expiration-time}")
 	private long refreshValidationTime;
-
-	@Value("${aes.secret.key}")
-	private String authorizationKey;
 
 	private SecretKey key;
 	private final AdminUserDetailsService adminUserDetailsService;
@@ -100,6 +100,7 @@ public class TokenProvider {
 	//  JWT 토큰 유효성 검증
 	public boolean validateToken(String token) {
 		try {
+			token = token.trim();
 			Jwts.parserBuilder()
 				.setSigningKey(key)
 				.setAllowedClockSkewSeconds(10)
@@ -157,6 +158,28 @@ public class TokenProvider {
 			: customUserDetailsService.loadUserByUsername(email);
 
 		return new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(), userDetails.getAuthorities());
+	}
+
+	public String getEmail(String token) {
+		return Jwts.parserBuilder()
+			.setSigningKey(this.key)
+			.build()
+			.parseClaimsJws(token)
+			.getBody()
+			.getSubject();
+	}
+
+	public void createTokenAndSetCookiesByEmail(String email, HttpServletResponse response) {
+		User user = userRepository.findByEmail(email)
+			.orElseThrow(ErrorCode.USER_NOT_FOUND::throwServiceException);
+
+		CustomUserDetails customUserDetails = new CustomUserDetails(user);
+
+		Authentication authentication = new UsernamePasswordAuthenticationToken(
+			customUserDetails, null, customUserDetails.getAuthorities()
+		);
+
+		createTokenAndSetCookies(authentication, response);
 	}
 
 	public SecretKey getKey() {
