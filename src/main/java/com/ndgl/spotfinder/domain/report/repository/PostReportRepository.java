@@ -18,6 +18,7 @@ public interface PostReportRepository extends JpaRepository<PostReport, Long> {
 		"pr.reportType, " +
 		"pr.reportStatus, " +
 		"pr.createdAt) " +
-		"FROM PostReport pr ")
-	Slice<PostReportResponse> findPostReports(Pageable pageable);
+		"FROM PostReport pr " +
+		"WHERE pr.id < :lastId")
+	Slice<PostReportResponse> findPostReports(Long lastId, Pageable pageable);
 }

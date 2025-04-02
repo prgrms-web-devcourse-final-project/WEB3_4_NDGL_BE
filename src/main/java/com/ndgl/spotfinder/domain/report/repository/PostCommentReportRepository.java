@@ -20,7 +20,8 @@ public interface PostCommentReportRepository extends JpaRepository<PostCommentRe
 		"cr.reportStatus, " +
 		"cr.createdAt) " +
 		"FROM PostCommentReport cr " +
-		"JOIN cr.postComment cmt")
-	Slice<PostCommentReportResponse> findPostCommentReports(Pageable pageable);
+		"JOIN cr.postComment cmt " +
+		"WHERE cr.id < :lastId")
+	Slice<PostCommentReportResponse> findPostCommentReports(long lastId, Pageable pageable);
 
 }
