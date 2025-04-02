@@ -87,4 +87,14 @@ public class PostController implements PostApiSpecification {
 
 		return RsData.success(HttpStatus.OK, results);
 	}
+
+	@GetMapping("/like")
+	public RsData<SliceResponse<PostResponseDto>> getPostsByLike(
+		@ModelAttribute @Valid SliceRequest sliceRequest,
+		Principal principal
+	) {
+		SliceResponse<PostResponseDto> results = postService.getPostsByLike(sliceRequest, principal.getName());
+
+		return RsData.success(HttpStatus.OK, results);
+	}
 }

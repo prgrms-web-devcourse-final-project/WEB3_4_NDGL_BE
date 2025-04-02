@@ -49,20 +49,15 @@ public class PostService {
 		postRepository.delete(post);
 	}
 
-	@Transactional(readOnly = true)
 	public SliceResponse<PostResponseDto> getPosts(SliceRequest sliceRequest) {
 		PageRequest pageRequest = PageRequest.of(0, sliceRequest.size());
 		Long lastId = getLastPostId(sliceRequest);
 
 		Slice<Post> results = postRepository.findByIdLessThanOrderByCreatedAtDesc(lastId, pageRequest);
 
-		return new SliceResponse<>(
-			results.map(PostResponseDto::new).toList(),
-			results.hasNext()
-		);
+		return convertToSliceResponse(results);
 	}
 
-	@Transactional(readOnly = true)
 	public SliceResponse<PostResponseDto> getPostsByUser(SliceRequest sliceRequest, Long userId) {
 		PageRequest pageRequest = PageRequest.of(0, sliceRequest.size());
 		Long lastId = getLastPostId(sliceRequest);
@@ -71,10 +66,7 @@ public class PostService {
 
 		Slice<Post> results = postRepository.findByUserAndIdLessThanOrderByCreatedAtDesc(user, lastId, pageRequest);
 
-		return new SliceResponse<>(
-			results.map(PostResponseDto::new).toList(),
-			results.hasNext()
-		);
+		return convertToSliceResponse(results);
 	}
 
 	public PostDetailResponseDto getPost(Long id) {
@@ -83,7 +75,18 @@ public class PostService {
 		return new PostDetailResponseDto(post);
 	}
 
-	private Post findPostById(Long id) {
+	public SliceResponse<PostResponseDto> getPostsByLike(SliceRequest sliceRequest, String email) {
+		PageRequest pageRequest = PageRequest.of(0, sliceRequest.size());
+		Long lastId = getLastPostId(sliceRequest);
+		User user = userRepository.findByEmail(email)
+			.orElseThrow(ErrorCode.USER_NOT_FOUND::throwServiceException);
+
+		Slice<Post> results = postRepository.findLikedPostsByUser(user.getId(), lastId, pageRequest);
+
+		return convertToSliceResponse(results);
+	}
+
+	public Post findPostById(Long id) {
 		return postRepository.findById(id)
 			.orElseThrow(ErrorCode.POST_NOT_FOUND::throwServiceException);
 	}
@@ -102,5 +105,12 @@ public class PostService {
 		} else {
 			return sliceRequest.lastId();
 		}
+	}
+
+	private SliceResponse<PostResponseDto> convertToSliceResponse(Slice<Post> results) {
+		return new SliceResponse<>(
+			results.map(PostResponseDto::new).toList(),
+			results.hasNext()
+		);
 	}
 }
