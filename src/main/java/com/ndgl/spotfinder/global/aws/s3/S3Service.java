@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import com.ndgl.spotfinder.domain.image.type.ImageType;
@@ -29,7 +28,6 @@ import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequ
 
 @Service
 @RequiredArgsConstructor
-@Profile("!test")
 @Slf4j
 public class S3Service {
 

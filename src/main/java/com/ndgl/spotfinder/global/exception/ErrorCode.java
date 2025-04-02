@@ -50,6 +50,10 @@ public enum ErrorCode {
 	S3_OBJECT_UPLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "S3 업로드 실패"),
 	S3_INVALID_URL(HttpStatus.INTERNAL_SERVER_ERROR, "옳지 않은 URL"),
 
+	// IMAGE
+	UNSUPPORTED_IMAGE_TYPE(HttpStatus.NOT_FOUND, "지원하지 않는 이미지 유형입니다."),
+	IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 이미지가 존재하지 않습니다."),
+
 	MISSING_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "Refresh Token 이 유효하지 않습니다."),
 	EXPIRED_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "Refresh Token 이 만료되었습니다."),
 	MISSING_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "Access Token 이 유효하지 않습니다."),

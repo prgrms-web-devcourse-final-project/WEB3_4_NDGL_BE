@@ -18,15 +18,12 @@ public class S3Util {
 		String fileName = UUID.randomUUID() + "." + fileType;
 
 		return switch (imageType) {
-			case POST -> "posts/" + id + "/" + fileName;
+			case POST -> imageType.name() + "/" + id + "/" + fileName;
 		};
 	}
 
 	public static String getFolderPath(ImageType imageType, long id) {
-		String type = switch(imageType) {
-			case POST -> "posts";
-		};
-
+		String type = imageType.name();
 		return type + "/" + id + "/";
 	}
 
