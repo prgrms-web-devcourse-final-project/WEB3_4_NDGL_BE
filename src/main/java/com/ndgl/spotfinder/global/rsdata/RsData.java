@@ -26,4 +26,8 @@ public class RsData<T> {
 	public static <T> RsData<T> success(HttpStatus resultCode) {
 		return new RsData<>(resultCode.value(), "OK", null);
 	}
+
+	public static <T> RsData<T> error(HttpStatus resultCode, String message) {
+		return new RsData<>(resultCode.value(), message, null);
+	}
 }
