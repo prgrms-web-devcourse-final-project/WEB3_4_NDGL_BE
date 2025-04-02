@@ -7,7 +7,6 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ndgl.spotfinder.domain.like.dto.LikeStatus;
 import com.ndgl.spotfinder.domain.like.entity.Like;
 import com.ndgl.spotfinder.domain.like.repository.LikeRepository;
 import com.ndgl.spotfinder.domain.user.entity.User;
@@ -82,28 +81,47 @@ public class LikeService {
 	}
 
 	/**
-	 * 포스트 좋아요 상태 조회
+	 * 포스트 좋아요 수 조회
 	 */
-	public LikeStatus getPostLikeStatus(long userId, long postId) {
+	public Long getPostLikeCount(long postId) {
+		return getLikeCount(postId, TargetType.POST);
+	}
+
+	/**
+	 * 댓글 좋아요 수 조회
+	 */
+	public Long getCommentLikeCount(long commentId) {
+		return getLikeCount(commentId, TargetType.COMMENT);
+	}
+
+	/**
+	 * 대상의 좋아요 수 조회
+	 */
+	private Long getLikeCount(long targetId, TargetType targetType) {
+		validateTargetId(targetId);
+		return likeRepository.countByTargetIdAndTargetType(targetId, targetType);
+	}
+
+	/**
+	 * 포스트 좋아요 수 조회
+	 */
+	public Boolean getPostLikeStatus(long userId, long postId) {
 		return getLikeStatus(userId, postId, TargetType.POST);
 	}
 
 	/**
-	 * 댓글 좋아요 상태 조회
+	 * 댓글 좋아요 수 조회
 	 */
-	public LikeStatus getCommentLikeStatus(long userId, long commentId) {
+	public Boolean getCommentLikeStatus(long userId, long commentId) {
 		return getLikeStatus(userId, commentId, TargetType.COMMENT);
 	}
 
 	/**
 	 * 대상의 좋아요 상태 조회
 	 */
-	public LikeStatus getLikeStatus(long userId, long targetId, TargetType targetType) {
+	public Boolean getLikeStatus(long userId, long targetId, TargetType targetType) {
 		validateTargetId(targetId);
-		boolean hasLiked = likeRepository.existsByUserIdAndTargetIdAndTargetType(userId, targetId, targetType);
-		long count = likeRepository.countByTargetIdAndTargetType(targetId, targetType);
-
-		return new LikeStatus(hasLiked, count);
+		return likeRepository.existsByUserIdAndTargetIdAndTargetType(userId, targetId, targetType);
 	}
 
 	/**

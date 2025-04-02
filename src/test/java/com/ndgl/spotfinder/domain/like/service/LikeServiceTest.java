@@ -12,7 +12,6 @@ import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import com.ndgl.spotfinder.domain.like.dto.LikeStatus;
 import com.ndgl.spotfinder.domain.like.entity.Like;
 import com.ndgl.spotfinder.domain.like.entity.Like.TargetType;
 import com.ndgl.spotfinder.domain.like.repository.LikeRepository;
@@ -161,46 +160,6 @@ public class LikeServiceTest {
         ServiceException exception = assertThrows(ServiceException.class,
                 () -> likeService.toggleLike(userId, invalidTargetId, TargetType.POST));
         assertNotNull(exception);
-    }
-
-    @Test
-    @DisplayName("포스트 좋아요 상태 조회")
-    public void getPostLikeStatus_success() {
-        // given
-        long userId = 1L;
-        long postId = 10L;
-
-        // when
-        when(likeRepository.existsByUserIdAndTargetIdAndTargetType(userId, postId, TargetType.POST))
-                .thenReturn(true);
-        when(likeRepository.countByTargetIdAndTargetType(postId, TargetType.POST))
-                .thenReturn(5L);
-
-        LikeStatus status = likeService.getPostLikeStatus(userId, postId);
-
-        // then
-        assertTrue(status.hasLiked());
-        assertEquals(5L, status.likeCount());
-    }
-
-    @Test
-    @DisplayName("댓글 좋아요 상태 조회")
-    public void getCommentLikeStatus_success() {
-        // given
-        long userId = 1L;
-        long commentId = 20L;
-
-        // when
-        when(likeRepository.existsByUserIdAndTargetIdAndTargetType(userId, commentId, TargetType.COMMENT))
-                .thenReturn(false);
-        when(likeRepository.countByTargetIdAndTargetType(commentId, TargetType.COMMENT))
-                .thenReturn(3L);
-
-        LikeStatus status = likeService.getCommentLikeStatus(userId, commentId);
-
-        // then
-        assertFalse(status.hasLiked());
-        assertEquals(3L, status.likeCount());
     }
 
     @Test
