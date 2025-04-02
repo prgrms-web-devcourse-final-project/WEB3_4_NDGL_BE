@@ -2,7 +2,7 @@ package com.ndgl.spotfinder.domain.report.entity;
 
 import java.time.LocalDate;
 
-import com.ndgl.spotfinder.domain.report.test.User;
+import com.ndgl.spotfinder.domain.user.entity.User;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

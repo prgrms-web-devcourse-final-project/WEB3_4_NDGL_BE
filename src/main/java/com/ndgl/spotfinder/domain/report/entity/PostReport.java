@@ -1,7 +1,7 @@
 package com.ndgl.spotfinder.domain.report.entity;
 
-import com.ndgl.spotfinder.domain.report.test.Post;
-import com.ndgl.spotfinder.domain.report.test.User;
+import com.ndgl.spotfinder.domain.post.entity.Post;
+import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.global.base.BaseTime;
 
 import jakarta.persistence.Column;
