@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -18,7 +17,12 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ndgl.spotfinder.global.security.handler.CustomAccessDeniedHandler;
+import com.ndgl.spotfinder.global.security.handler.CustomAuthenticationEntryPoint;
 import com.ndgl.spotfinder.global.security.handler.CustomAuthenticationSuccessHandler;
+import com.ndgl.spotfinder.global.security.handler.CustomLogoutHandler;
+import com.ndgl.spotfinder.global.security.handler.CustomLogoutSuccessHandler;
 import com.ndgl.spotfinder.global.security.jwt.JwtFilter;
 import com.ndgl.spotfinder.global.security.jwt.TokenProvider;
 import com.ndgl.spotfinder.global.security.jwt.service.AdminUserDetailsService;
@@ -30,10 +34,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+	private final ObjectMapper objectMapper;
 	private final TokenProvider tokenProvider;
 	private final AdminUserDetailsService adminUserDetailsService;
 	private final CustomAuthenticationSuccessHandler successHandler;
-
+	private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
+	private final CustomLogoutHandler customLogoutHandler;
+	private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+	private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
 	/*
 	 * 일반 유저용 SecurityFilterChain
@@ -46,7 +54,13 @@ public class SecurityConfig {
 			.formLogin(
 				form -> form
 					.loginProcessingUrl("/api/*/admin/login")
-					.successHandler(successHandler)  // 성공 핸들러 설정  // 실패 핸들러 설정
+					.successHandler(successHandler)
+			)
+			.logout(logout -> logout
+				.logoutUrl("/api/*/admin/logout")
+				.addLogoutHandler(customLogoutHandler)
+				.logoutSuccessHandler(customLogoutSuccessHandler)
+				.clearAuthentication(true)
 			)
 			.userDetailsService(adminUserDetailsService)
 			.csrf(csrf -> csrf.disable())
@@ -87,15 +101,8 @@ public class SecurityConfig {
 				org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class)
 			.exceptionHandling(exceptionHandling -> {
 				exceptionHandling
-					.authenticationEntryPoint((request, response, authException) -> {
-						response.setStatus(HttpStatus.UNAUTHORIZED.value());
-						response.setContentType("text/plain; charset=UTF-8");
-						response.getWriter().write("로그인이 필요합니다.");
-					})
-					.accessDeniedHandler((request, response, accessDeniedException) -> {
-						response.setStatus(HttpStatus.FORBIDDEN.value());
-						response.getWriter().write("접근 권한이 없습니다.");
-					});
+					.authenticationEntryPoint(customAuthenticationEntryPoint) // 401 에러
+					.accessDeniedHandler(customAccessDeniedHandler); // 403 에러
 			});
 
 		return http.build();
@@ -123,4 +130,5 @@ public class SecurityConfig {
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
+
 }
