@@ -27,6 +27,16 @@ public record LocationDto(
 	@Max(value = 20, message = "순서는 20 이하입니다.")
 	Integer sequence
 ) {
+	public LocationDto(Location location) {
+		this(
+			location.getName(),
+			location.getAddress(),
+			location.getLatitude(),
+			location.getLongitude(),
+			location.getSequence()
+		);
+	}
+	
 	public Location toLocation() {
 		return Location.builder()
 			.name(name)

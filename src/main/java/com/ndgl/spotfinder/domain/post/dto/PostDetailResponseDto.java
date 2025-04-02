@@ -7,7 +7,7 @@ import com.ndgl.spotfinder.domain.post.entity.Post;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-public record PostResponseDto(
+public record PostDetailResponseDto(
 	@Schema(description = "ID", example = "1")
 	Long id,
 
@@ -33,9 +33,12 @@ public record PostResponseDto(
 	LocalDateTime createdAt,
 
 	@Schema(description = "해시태그 목록")
-	List<HashtagDto> hashtags
+	List<HashtagDto> hashtags,
+
+	@Schema(description = "장소 목록")
+	List<LocationDto> locations
 ) {
-	public PostResponseDto(Post post) {
+	public PostDetailResponseDto(Post post) {
 		this(
 			post.getId(),
 			post.getTitle(),
@@ -47,8 +50,11 @@ public record PostResponseDto(
 			post.getCreatedAt(),
 			post.getHashtags()
 				.stream()
-				.limit(3)
 				.map(HashtagDto::new)
+				.toList(),
+			post.getLocations()
+				.stream()
+				.map(LocationDto::new)
 				.toList()
 		);
 	}

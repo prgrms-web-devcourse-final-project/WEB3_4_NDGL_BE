@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ndgl.spotfinder.domain.post.dto.PostCreateRequestDto;
+import com.ndgl.spotfinder.domain.post.dto.PostDetailResponseDto;
 import com.ndgl.spotfinder.domain.post.dto.PostResponseDto;
 import com.ndgl.spotfinder.domain.post.dto.PostUpdateRequestDto;
 import com.ndgl.spotfinder.domain.post.service.PostService;
@@ -21,13 +22,15 @@ import com.ndgl.spotfinder.global.common.dto.SliceRequest;
 import com.ndgl.spotfinder.global.common.dto.SliceResponse;
 import com.ndgl.spotfinder.global.rsdata.RsData;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+@Tag(name = "포스트")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/posts")
-public class PostController {
+public class PostController implements PostApiSpecification {
 	private final PostService postService;
 
 	@PostMapping
@@ -69,8 +72,8 @@ public class PostController {
 	}
 
 	@GetMapping("/{id}")
-	public RsData<PostResponseDto> getPost(@PathVariable Long id) {
-		PostResponseDto result = postService.getPost(id);
+	public RsData<PostDetailResponseDto> getPost(@PathVariable Long id) {
+		PostDetailResponseDto result = postService.getPost(id);
 
 		return RsData.success(HttpStatus.OK, result);
 	}
@@ -81,6 +84,16 @@ public class PostController {
 		@ModelAttribute @Valid SliceRequest sliceRequest
 	) {
 		SliceResponse<PostResponseDto> results = postService.getPostsByUser(sliceRequest, userId);
+
+		return RsData.success(HttpStatus.OK, results);
+	}
+
+	@GetMapping("/like")
+	public RsData<SliceResponse<PostResponseDto>> getPostsByLike(
+		@ModelAttribute @Valid SliceRequest sliceRequest,
+		Principal principal
+	) {
+		SliceResponse<PostResponseDto> results = postService.getPostsByLike(sliceRequest, principal.getName());
 
 		return RsData.success(HttpStatus.OK, results);
 	}
