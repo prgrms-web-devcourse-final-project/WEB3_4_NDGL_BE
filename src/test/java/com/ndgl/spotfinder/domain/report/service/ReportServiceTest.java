@@ -22,6 +22,10 @@ import org.springframework.data.domain.SliceImpl;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 
+import com.ndgl.spotfinder.domain.comment.entity.PostComment;
+import com.ndgl.spotfinder.domain.comment.service.PostCommentService;
+import com.ndgl.spotfinder.domain.post.entity.Post;
+import com.ndgl.spotfinder.domain.post.service.PostService;
 import com.ndgl.spotfinder.domain.report.dto.PostCommentReportResponse;
 import com.ndgl.spotfinder.domain.report.dto.PostReportResponse;
 import com.ndgl.spotfinder.domain.report.dto.ReportCreateRequest;
@@ -34,13 +38,10 @@ import com.ndgl.spotfinder.domain.report.entity.ReportType;
 import com.ndgl.spotfinder.domain.report.repository.BanRepository;
 import com.ndgl.spotfinder.domain.report.repository.PostCommentReportRepository;
 import com.ndgl.spotfinder.domain.report.repository.PostReportRepository;
-import com.ndgl.spotfinder.domain.report.test.Post;
-import com.ndgl.spotfinder.domain.report.test.PostComment;
-import com.ndgl.spotfinder.domain.report.test.PostCommentRepository;
-import com.ndgl.spotfinder.domain.report.test.PostRepository;
-import com.ndgl.spotfinder.domain.report.test.User;
-import com.ndgl.spotfinder.domain.report.test.UserRepository;
+import com.ndgl.spotfinder.domain.user.entity.User;
+import com.ndgl.spotfinder.domain.user.service.UserService;
 import com.ndgl.spotfinder.global.common.dto.SliceResponse;
+import com.ndgl.spotfinder.global.exception.ErrorCode;
 import com.ndgl.spotfinder.global.exception.ServiceException;
 
 import jakarta.persistence.EntityManager;
@@ -60,14 +61,13 @@ public class ReportServiceTest {
 	private BanRepository banRepository;
 
 	@Mock
-	private UserRepository userRepository;
-
-	// TODO: 이후 Service 로 의존성 교체 필요
-	@Mock
-	private PostRepository postRepository;
+	private UserService userService;
 
 	@Mock
-	private PostCommentRepository postCommentRepository;
+	private PostService postService;
+
+	@Mock
+	private PostCommentService postCommentService;
 
 	@InjectMocks
 	private ReportService reportService;
@@ -85,9 +85,9 @@ public class ReportServiceTest {
 		User reportedUser = User.builder().build();
 		Post post = Post.builder().build();
 
-		when(userRepository.findById(reporterId)).thenReturn(Optional.of(reporter));
-		when(userRepository.findById(request.reportedUserId())).thenReturn(Optional.of(reportedUser));
-		when(postRepository.findById(postId)).thenReturn(Optional.of(post));
+		when(userService.findUserById(reporterId)).thenReturn(reporter);
+		when(userService.findUserById(request.reportedUserId())).thenReturn(reportedUser);
+		when(postService.findPostById(postId)).thenReturn(post);
 
 		ArgumentCaptor<PostReport> reportCaptor = ArgumentCaptor.forClass(PostReport.class);
 
@@ -114,7 +114,8 @@ public class ReportServiceTest {
 		long postId = 3L;
 		ReportCreateRequest request = new ReportCreateRequest(reportedUserId, ReportType.SPAM, "SPAM");
 
-		when(userRepository.findById(invalidReporterId)).thenReturn(Optional.empty());
+		when(userService.findUserById(invalidReporterId))
+			.thenThrow(new ServiceException(ErrorCode.REPORTER_NOT_FOUND.getHttpStatus(), ErrorCode.REPORTER_NOT_FOUND.getMessage()));
 
 		// When & Then
 		assertThatThrownBy(() -> reportService.createPostReport(request, invalidReporterId, postId))
@@ -122,7 +123,7 @@ public class ReportServiceTest {
 			.satisfies(exception -> {
 				ServiceException serviceException = (ServiceException) exception;
 				assertThat(serviceException.getCode()).isEqualTo(HttpStatus.NOT_FOUND);
-				assertThat(serviceException.getMessage()).isEqualTo("reporterId에 해당하는 사용자가 없습니다.");
+				assertThat(serviceException.getMessage()).isEqualTo(ErrorCode.REPORTER_NOT_FOUND.getMessage());
 			});
 	}
 
@@ -136,8 +137,9 @@ public class ReportServiceTest {
 		ReportCreateRequest request = new ReportCreateRequest(invalidReportedUserId, ReportType.SPAM, "SPAM");
 
 		User user = User.builder().build();
-		when(userRepository.findById(reporterId)).thenReturn(Optional.of(user));
-		when(userRepository.findById(invalidReportedUserId)).thenReturn(Optional.empty());
+		when(userService.findUserById(reporterId)).thenReturn(user);
+		when(userService.findUserById(invalidReportedUserId))
+			.thenThrow(new ServiceException(ErrorCode.REPORTED_USER_NOT_FOUND.getHttpStatus(), ErrorCode.REPORTED_USER_NOT_FOUND.getMessage()));
 
 		// When & Then
 		assertThatThrownBy(() -> reportService.createPostReport(request, reporterId, postId))
@@ -145,7 +147,7 @@ public class ReportServiceTest {
 			.satisfies(exception -> {
 				ServiceException serviceException = (ServiceException) exception;
 				assertThat(serviceException.getCode()).isEqualTo(HttpStatus.NOT_FOUND);
-				assertThat(serviceException.getMessage()).isEqualTo("reportedUserId에 해당하는 사용자가 없습니다.");
+				assertThat(serviceException.getMessage()).isEqualTo(ErrorCode.REPORTED_USER_NOT_FOUND.getMessage());
 			});
 	}
 
@@ -160,9 +162,10 @@ public class ReportServiceTest {
 
 		User reporter = User.builder().build();
 		User reportedUser = User.builder().build();
-		when(userRepository.findById(reporterId)).thenReturn(Optional.of(reporter));
-		when(userRepository.findById(reportedUserId)).thenReturn(Optional.of(reportedUser));
-		when(postRepository.findById(invalidPostId)).thenReturn(Optional.empty());
+		when(userService.findUserById(reporterId)).thenReturn(reporter);
+		when(userService.findUserById(reportedUserId)).thenReturn(reportedUser);
+		when(postService.findPostById(invalidPostId))
+			.thenThrow(new ServiceException(ErrorCode.REPORTED_POST_NOT_FOUND.getHttpStatus(), ErrorCode.REPORTED_POST_NOT_FOUND.getMessage()));
 
 		// When & Then
 		assertThatThrownBy(() -> reportService.createPostReport(request, reporterId, invalidPostId))
@@ -170,7 +173,7 @@ public class ReportServiceTest {
 			.satisfies(exception -> {
 				ServiceException serviceException = (ServiceException) exception;
 				assertThat(serviceException.getCode()).isEqualTo(HttpStatus.NOT_FOUND);
-				assertThat(serviceException.getMessage()).isEqualTo("postId에 해당하는 포스트가 없습니다.");
+				assertThat(serviceException.getMessage()).isEqualTo(ErrorCode.REPORTED_POST_NOT_FOUND.getMessage());
 			});
 	}
 
@@ -186,9 +189,9 @@ public class ReportServiceTest {
 		User reportedUser = User.builder().build();
 		PostComment postComment = PostComment.builder().build();
 
-		when(userRepository.findById(reporterId)).thenReturn(Optional.of(reporter));
-		when(userRepository.findById(request.reportedUserId())).thenReturn(Optional.of(reportedUser));
-		when(postCommentRepository.findById(postCommentId)).thenReturn(Optional.of(postComment));
+		when(userService.findUserById(reporterId)).thenReturn(reporter);
+		when(userService.findUserById(request.reportedUserId())).thenReturn(reportedUser);
+		when(postCommentService.findCommentById(postCommentId)).thenReturn(postComment);
 
 		ArgumentCaptor<PostCommentReport> reportCaptor = ArgumentCaptor.forClass(PostCommentReport.class);
 
@@ -215,7 +218,8 @@ public class ReportServiceTest {
 		long postCommentId = 3L;
 		ReportCreateRequest request = new ReportCreateRequest(reportedUserId, ReportType.SPAM, "SPAM");
 
-		when(userRepository.findById(invalidReporterId)).thenReturn(Optional.empty());
+		when(userService.findUserById(invalidReporterId))
+			.thenThrow(new ServiceException(ErrorCode.REPORTER_NOT_FOUND.getHttpStatus(), ErrorCode.REPORTER_NOT_FOUND.getMessage()));
 
 		// When & Then
 		assertThatThrownBy(() -> reportService.createPostCommentReport(request, invalidReporterId, postCommentId))
@@ -223,7 +227,7 @@ public class ReportServiceTest {
 			.satisfies(exception -> {
 				ServiceException serviceException = (ServiceException) exception;
 				assertThat(serviceException.getCode()).isEqualTo(HttpStatus.NOT_FOUND);
-				assertThat(serviceException.getMessage()).isEqualTo("reporterId에 해당하는 사용자가 없습니다.");
+				assertThat(serviceException.getMessage()).isEqualTo(ErrorCode.REPORTER_NOT_FOUND.getMessage());
 			});
 	}
 
@@ -237,8 +241,9 @@ public class ReportServiceTest {
 		ReportCreateRequest request = new ReportCreateRequest(invalidReportedUserId, ReportType.SPAM, "SPAM");
 
 		User user = User.builder().build();
-		when(userRepository.findById(reporterId)).thenReturn(Optional.of(user));
-		when(userRepository.findById(invalidReportedUserId)).thenReturn(Optional.empty());
+		when(userService.findUserById(reporterId)).thenReturn(user);
+		when(userService.findUserById(invalidReportedUserId))
+			.thenThrow(new ServiceException(ErrorCode.REPORTED_USER_NOT_FOUND.getHttpStatus(), ErrorCode.REPORTED_USER_NOT_FOUND.getMessage()));
 
 		// When & Then
 		assertThatThrownBy(() -> reportService.createPostCommentReport(request, reporterId, postCommentId))
@@ -246,7 +251,7 @@ public class ReportServiceTest {
 			.satisfies(exception -> {
 				ServiceException serviceException = (ServiceException) exception;
 				assertThat(serviceException.getCode()).isEqualTo(HttpStatus.NOT_FOUND);
-				assertThat(serviceException.getMessage()).isEqualTo("reportedUserId에 해당하는 사용자가 없습니다.");
+				assertThat(serviceException.getMessage()).isEqualTo(ErrorCode.REPORTED_USER_NOT_FOUND.getMessage());
 			});
 	}
 
@@ -261,9 +266,10 @@ public class ReportServiceTest {
 
 		User reporter = User.builder().build();
 		User reportedUser = User.builder().build();
-		when(userRepository.findById(reporterId)).thenReturn(Optional.of(reporter));
-		when(userRepository.findById(reportedUserId)).thenReturn(Optional.of(reportedUser));
-		when(postCommentRepository.findById(invalidPostCommentId)).thenReturn(Optional.empty());
+		when(userService.findUserById(reporterId)).thenReturn(reporter);
+		when(userService.findUserById(reportedUserId)).thenReturn(reportedUser);
+		when(postCommentService.findCommentById(invalidPostCommentId))
+			.thenThrow(new ServiceException(ErrorCode.REPORTED_COMMENT_NOT_FOUND.getHttpStatus(), ErrorCode.REPORTED_COMMENT_NOT_FOUND.getMessage()));
 
 		// When & Then
 		assertThatThrownBy(() -> reportService.createPostCommentReport(request, reporterId, invalidPostCommentId))
@@ -271,7 +277,7 @@ public class ReportServiceTest {
 			.satisfies(exception -> {
 				ServiceException serviceException = (ServiceException) exception;
 				assertThat(serviceException.getCode()).isEqualTo(HttpStatus.NOT_FOUND);
-				assertThat(serviceException.getMessage()).isEqualTo("postCommentId에 해당하는 댓글이 없습니다.");
+				assertThat(serviceException.getMessage()).isEqualTo(ErrorCode.REPORTED_COMMENT_NOT_FOUND.getMessage());
 			});
 	}
 
@@ -288,30 +294,17 @@ public class ReportServiceTest {
 		List<PostReportResponse> mockReports = List.of(mockReport1, mockReport2);
 		Slice<PostReportResponse> mockSlice = new SliceImpl<>(mockReports, pageable, false);
 
-		when(postReportRepository.findPostReports(pageable)).thenReturn(mockSlice);
+		when(postReportRepository.findPostReports(lastId, pageable)).thenReturn(mockSlice);
 
 		// when
 		SliceResponse<PostReportResponse> result = reportService.getPostReportSlice(lastId, size);
 
 		// then
-		verify(postReportRepository).findPostReports(pageable);
+		verify(postReportRepository).findPostReports(lastId, pageable);
 
 		assertThat(result.contents()).hasSize(2);
 		assertThat(result.contents()).containsExactly(mockReport1, mockReport2);
 		assertThat(result.hasNext()).isFalse();
-	}
-
-	@Test
-	@DisplayName("포스트 신고 목록 조회 - 비정상 lastId")
-	void getPostReportSlice_invalidLastId() {
-		// given
-		long negativeLastId = -1L;
-		int size = 10;
-
-		// when, then
-		assertThatThrownBy(() -> reportService.getPostReportSlice(negativeLastId, size))
-			.isInstanceOf(ServiceException.class)
-			.hasMessageContaining("lastId 값은 음수일 수 없습니다.");
 	}
 
 	@Test
@@ -324,12 +317,12 @@ public class ReportServiceTest {
 		Pageable pageable = PageRequest.of(0, size, Sort.by(Sort.Direction.DESC, "id"));
 		Slice<PostReportResponse> emptySlice = new SliceImpl<>(Collections.emptyList(), pageable, false);
 
-		when(postReportRepository.findPostReports(pageable)).thenReturn(emptySlice);
+		when(postReportRepository.findPostReports(lastId, pageable)).thenReturn(emptySlice);
 
 		// when, then
 		assertThatThrownBy(() -> reportService.getPostReportSlice(lastId, size))
 			.isInstanceOf(ServiceException.class)
-			.hasMessageContaining("포스트 신고 데이터를 찾지 못했습니다.");
+			.hasMessageContaining(ErrorCode.EMPTY_POST_REPORT_SLICE.getMessage());
 	}
 
 	@Test
@@ -345,30 +338,17 @@ public class ReportServiceTest {
 		List<PostCommentReportResponse> mockReports = List.of(mockReport1, mockReport2);
 		Slice<PostCommentReportResponse> mockSlice = new SliceImpl<>(mockReports, pageable, false);
 
-		when(postCommentReportRepository.findPostCommentReports(pageable)).thenReturn(mockSlice);
+		when(postCommentReportRepository.findPostCommentReports(lastId, pageable)).thenReturn(mockSlice);
 
 		// when
 		SliceResponse<PostCommentReportResponse> result = reportService.getPostCommentReportSlice(lastId, size);
 
 		// then
-		verify(postCommentReportRepository).findPostCommentReports(pageable);
+		verify(postCommentReportRepository).findPostCommentReports(lastId, pageable);
 
 		assertThat(result.contents()).hasSize(2);
 		assertThat(result.contents()).containsExactly(mockReport1, mockReport2);
 		assertThat(result.hasNext()).isFalse();
-	}
-
-	@Test
-	@DisplayName("댓글 신고 목록 조회 - 비정상 lastId")
-	void getPostCommentReportSlice_invalidLastId() {
-		// given
-		long negativeLastId = -1L;
-		int size = 10;
-
-		// when, then
-		assertThatThrownBy(() -> reportService.getPostCommentReportSlice(negativeLastId, size))
-			.isInstanceOf(ServiceException.class)
-			.hasMessageContaining("lastId 값은 음수일 수 없습니다.");
 	}
 
 	@Test
@@ -381,12 +361,12 @@ public class ReportServiceTest {
 		Pageable pageable = PageRequest.of(0, size, Sort.by(Sort.Direction.DESC, "id"));
 		Slice<PostCommentReportResponse> emptySlice = new SliceImpl<>(Collections.emptyList(), pageable, false);
 
-		when(postCommentReportRepository.findPostCommentReports(pageable)).thenReturn(emptySlice);
+		when(postCommentReportRepository.findPostCommentReports(lastId, pageable)).thenReturn(emptySlice);
 
 		// when, then
 		assertThatThrownBy(() -> reportService.getPostCommentReportSlice(lastId, size))
 			.isInstanceOf(ServiceException.class)
-			.hasMessageContaining("댓글 신고 데이터를 찾지 못했습니다.");
+			.hasMessageContaining(ErrorCode.EMPTY_COMMENT_REPORT_SLICE.getMessage());
 	}
 
 	@Test
@@ -400,7 +380,7 @@ public class ReportServiceTest {
 		User user = User.builder().build();
 		PostReport report = PostReport.builder().build();
 
-		when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+		when(userService.findUserById(userId)).thenReturn(user);
 		when(postReportRepository.findById(reportId)).thenReturn(Optional.of(report));
 		when(banRepository.save(any(Ban.class))).thenReturn(Ban.builder().build());
 
@@ -435,7 +415,7 @@ public class ReportServiceTest {
 			.satisfies(exception -> {
 				ServiceException serviceException = (ServiceException) exception;
 				assertThat(serviceException.getCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-				assertThat(serviceException.getMessage()).isEqualTo("유효하지 않은 제재 일자 옵션입니다.");
+				assertThat(serviceException.getMessage()).isEqualTo(ErrorCode.INVALID_BAN_DURATION.getMessage());
 			});
 	}
 
@@ -449,7 +429,8 @@ public class ReportServiceTest {
 
 		PostReport report = PostReport.builder().build();
 		when(postReportRepository.findById(reportId)).thenReturn(Optional.of(report));
-		when(userRepository.findById(invalidUserId)).thenReturn(Optional.empty());
+		when(userService.findUserById(invalidUserId))
+			.thenThrow(new ServiceException(ErrorCode.BAN_USER_NOT_FOUND.getHttpStatus(), ErrorCode.BAN_USER_NOT_FOUND.getMessage()));
 
 		// When
 		assertThatThrownBy(() -> reportService.banUserDueToPost(reportId, invalidUserId, duration))
@@ -457,7 +438,7 @@ public class ReportServiceTest {
 			.satisfies(exception -> {
 				ServiceException serviceException = (ServiceException) exception;
 				assertThat(serviceException.getCode()).isEqualTo(HttpStatus.NOT_FOUND);
-				assertThat(serviceException.getMessage()).isEqualTo("제재할 대상이 존재하지 않습니다.");
+				assertThat(serviceException.getMessage()).isEqualTo(ErrorCode.BAN_USER_NOT_FOUND.getMessage());
 			});
 	}
 
@@ -469,7 +450,8 @@ public class ReportServiceTest {
 		long invalidReportId = -1L;
 		String duration = "30일";
 
-		when(postReportRepository.findById(invalidReportId)).thenReturn(Optional.empty());
+		when(postReportRepository.findById(invalidReportId))
+			.thenThrow(new ServiceException(ErrorCode.POST_REPORT_NOT_FOUND.getHttpStatus(), ErrorCode.POST_REPORT_NOT_FOUND.getMessage()));
 
 		// When
 		assertThatThrownBy(() -> reportService.banUserDueToPost(invalidReportId, userId, duration))
@@ -477,7 +459,7 @@ public class ReportServiceTest {
 			.satisfies(exception -> {
 				ServiceException serviceException = (ServiceException) exception;
 				assertThat(serviceException.getCode()).isEqualTo(HttpStatus.NOT_FOUND);
-				assertThat(serviceException.getMessage()).isEqualTo("존재하지 않는 신고입니다.");
+				assertThat(serviceException.getMessage()).isEqualTo(ErrorCode.POST_REPORT_NOT_FOUND.getMessage());
 			});
 	}
 
@@ -492,7 +474,7 @@ public class ReportServiceTest {
 		User user = User.builder().build();
 		PostCommentReport report = PostCommentReport.builder().build();
 
-		when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+		when(userService.findUserById(userId)).thenReturn(user);
 		when(postCommentReportRepository.findById(reportId)).thenReturn(Optional.of(report));
 		when(banRepository.save(any(Ban.class))).thenReturn(Ban.builder().build());
 
@@ -527,7 +509,7 @@ public class ReportServiceTest {
 			.satisfies(exception -> {
 				ServiceException serviceException = (ServiceException) exception;
 				assertThat(serviceException.getCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-				assertThat(serviceException.getMessage()).isEqualTo("유효하지 않은 제재 일자 옵션입니다.");
+				assertThat(serviceException.getMessage()).isEqualTo(ErrorCode.INVALID_BAN_DURATION.getMessage());
 			});
 	}
 
@@ -542,7 +524,8 @@ public class ReportServiceTest {
 		PostCommentReport report = PostCommentReport.builder().build();
 
 		when(postCommentReportRepository.findById(reportId)).thenReturn(Optional.of(report));
-		when(userRepository.findById(invalidUserId)).thenReturn(Optional.empty());
+		when(userService.findUserById(invalidUserId))
+			.thenThrow(new ServiceException(ErrorCode.BAN_USER_NOT_FOUND.getHttpStatus(), ErrorCode.BAN_USER_NOT_FOUND.getMessage()));
 
 		// When
 		assertThatThrownBy(() -> reportService.banUserDueToPostComment(reportId, invalidUserId, duration))
@@ -550,7 +533,7 @@ public class ReportServiceTest {
 			.satisfies(exception -> {
 				ServiceException serviceException = (ServiceException) exception;
 				assertThat(serviceException.getCode()).isEqualTo(HttpStatus.NOT_FOUND);
-				assertThat(serviceException.getMessage()).isEqualTo("제재할 대상이 존재하지 않습니다.");
+				assertThat(serviceException.getMessage()).isEqualTo(ErrorCode.BAN_USER_NOT_FOUND.getMessage());
 			});
 	}
 
@@ -562,7 +545,8 @@ public class ReportServiceTest {
 		long invalidReportId = -1L;
 		String duration = "30일";
 
-		when(postCommentReportRepository.findById(invalidReportId)).thenReturn(Optional.empty());
+		when(postCommentReportRepository.findById(invalidReportId))
+			.thenThrow(new ServiceException(ErrorCode.COMMENT_REPORT_NOT_FOUND.getHttpStatus(), ErrorCode.COMMENT_REPORT_NOT_FOUND.getMessage()));
 
 		// When
 		assertThatThrownBy(() -> reportService.banUserDueToPostComment(invalidReportId, userId, duration))
@@ -570,7 +554,7 @@ public class ReportServiceTest {
 			.satisfies(exception -> {
 				ServiceException serviceException = (ServiceException) exception;
 				assertThat(serviceException.getCode()).isEqualTo(HttpStatus.NOT_FOUND);
-				assertThat(serviceException.getMessage()).isEqualTo("존재하지 않는 신고입니다.");
+				assertThat(serviceException.getMessage()).isEqualTo(ErrorCode.COMMENT_REPORT_NOT_FOUND.getMessage());
 			});
 	}
 
@@ -596,7 +580,8 @@ public class ReportServiceTest {
 		// Given
 		long reportId = -1L;
 
-		when(postReportRepository.findById(reportId)).thenReturn(Optional.empty());
+		when(postReportRepository.findById(reportId))
+			.thenThrow(new ServiceException(ErrorCode.POST_REPORT_NOT_FOUND.getHttpStatus(), ErrorCode.POST_REPORT_NOT_FOUND.getMessage()));
 
 		// When, Then
 		assertThatThrownBy(() -> reportService.rejectPostReport(reportId))
@@ -604,7 +589,7 @@ public class ReportServiceTest {
 			.satisfies(exception -> {
 				ServiceException serviceException = (ServiceException) exception;
 				assertThat(serviceException.getCode()).isEqualTo(HttpStatus.NOT_FOUND);
-				assertThat(serviceException.getMessage()).isEqualTo("존재하지 않는 포스트 신고입니다.");
+				assertThat(serviceException.getMessage()).isEqualTo(ErrorCode.POST_REPORT_NOT_FOUND.getMessage());
 			});
 	}
 
@@ -630,7 +615,8 @@ public class ReportServiceTest {
 		// Given
 		long reportId = -1L;
 
-		when(postCommentReportRepository.findById(reportId)).thenReturn(Optional.empty());
+		when(postCommentReportRepository.findById(reportId))
+			.thenThrow(new ServiceException(ErrorCode.COMMENT_REPORT_NOT_FOUND.getHttpStatus(), ErrorCode.COMMENT_REPORT_NOT_FOUND.getMessage()));
 
 		// When, Then
 		assertThatThrownBy(() -> reportService.rejectPostCommentReport(reportId))
@@ -638,7 +624,7 @@ public class ReportServiceTest {
 			.satisfies(exception -> {
 				ServiceException serviceException = (ServiceException) exception;
 				assertThat(serviceException.getCode()).isEqualTo(HttpStatus.NOT_FOUND);
-				assertThat(serviceException.getMessage()).isEqualTo("존재하지 않는 댓글 신고입니다.");
+				assertThat(serviceException.getMessage()).isEqualTo(ErrorCode.COMMENT_REPORT_NOT_FOUND.getMessage());
 			});
 	}
 }
