@@ -81,4 +81,10 @@ public interface PostApiSpecification {
 		@Parameter(description = "사용자의 ID") Long userId,
 		SliceRequest sliceRequest
 	);
+
+	@Operation(summary = "자신이 좋아요한 포스트 목록 조회")
+	RsData<SliceResponse<PostResponseDto>> getPostsByLike(
+		SliceRequest sliceRequest,
+		@Parameter(hidden = true) Principal principal
+	);
 }
