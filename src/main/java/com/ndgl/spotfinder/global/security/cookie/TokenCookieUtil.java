@@ -12,16 +12,13 @@ public class TokenCookieUtil {
 	@Value("${jwt.expiration.time}")
 	private Long validationTime;
 
-	@Value("${jwt.refresh-token.expiration-time}")
-	private Long refreshTokenValidationTime;
-
 	public void setTokenCookies(HttpServletResponse response, String accessToken) {
 		//  accessToken을 쿠키에 넣자!
 		Cookie accessCookie = new Cookie("accessToken", accessToken);
 		accessCookie.setHttpOnly(true);
-		accessCookie.setSecure(false);
+		accessCookie.setSecure(true);
 		accessCookie.setPath("/");
-		accessCookie.setMaxAge(validationTime.intValue() / 1000); // ms -> s로 변환
+		accessCookie.setMaxAge(validationTime.intValue() / 1000);// ms -> s로 변환
 
 		response.addCookie(accessCookie);  // accessToken정보 cookie에 등록
 	}

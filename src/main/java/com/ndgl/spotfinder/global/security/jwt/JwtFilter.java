@@ -56,14 +56,14 @@ public class JwtFilter extends OncePerRequestFilter {
 		return null;
 	}
 
-
 	private String resolveTokenFromCookie(HttpServletRequest request) {
 		if (request.getCookies() == null)
 			return null;
 
 		for (Cookie cookie : request.getCookies()) {
 			if ("accessToken".equals(cookie.getName())) {
-				return cookie.getValue();
+				String value = cookie.getValue();
+				return value.trim();
 			}
 		}
 

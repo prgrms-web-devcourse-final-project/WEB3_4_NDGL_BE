@@ -54,9 +54,13 @@ public class UserLoginService {
 		this.tokenProvider = tokenProvider;
 	}
 
-	public UserLoginResponse processGoogleLogin(Oauth.Provider provider, String code, HttpServletResponse response) {
+	public UserLoginResponse processGoogleLogin(
+		Oauth.Provider provider,
+		String code,
+		String redirectUri,
+		HttpServletResponse response) {
 		// 1. 토큰 발급 : 구글
-		String googleAccessToken = getAccessToken(provider, code);
+		String googleAccessToken = getAccessToken(provider, code, redirectUri);
 
 		UserLoginResponse googleUserInfo = getGoogleUserInfo(googleAccessToken);
 
@@ -85,7 +89,10 @@ public class UserLoginService {
 
 	}
 
-	private String getAccessToken(Oauth.Provider provider, String code) {
+	private String getAccessToken(
+		Oauth.Provider provider,
+		String code,
+		String redirectUri) {
 		String tokenRequestUrl;
 		if (provider == Oauth.Provider.GOOGLE) {
 			tokenRequestUrl = "https://oauth2.googleapis.com/token";
@@ -93,19 +100,33 @@ public class UserLoginService {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
+			//String origin = request.getScheme() + "://" + request.getServerName();
+
+			System.out.println(redirectUri);
+
+			//String dynamicRedirectUri = origin + ":3000" + "/callback/google";
+			//System.out.println(dynamicRedirectUri);
+
 			MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>();
 			requestBody.add("grant_type", "authorization_code");
 			requestBody.add("client_id", googleClientId);
 			requestBody.add("client_secret", googleClientSecret);
 			requestBody.add("code", code);
-			requestBody.add("redirect_uri", googleRedirectUri);
+			//requestBody.add("redirect_uri", googleRedirectUri);
+			requestBody.add("redirect_uri", redirectUri);
+
+			System.out.println(requestBody);
 
 			HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(requestBody, headers);
 			RestTemplate restTemplate = new RestTemplate();
 
+			System.out.println("requestEntity: " + requestEntity);
+
 			ResponseEntity<GoogleTokenResponse> tokenResponse = restTemplate.postForEntity(
 				tokenRequestUrl, requestEntity, GoogleTokenResponse.class
 			);
+
+			System.out.println("tokenResponse: " + tokenResponse);
 
 			if (tokenResponse.getStatusCode() != HttpStatus.OK || tokenResponse.getBody() == null) {
 				ErrorCode.UNAUTHORIZED.throwServiceException();
@@ -133,7 +154,7 @@ public class UserLoginService {
 		);
 
 		if (userInfoResponse.getStatusCode() != HttpStatus.OK || userInfoResponse.getBody() == null) {
-			throw new ServiceException(HttpStatus.BAD_REQUEST, "BAD_REQUEST");
+			throw new ServiceException(HttpStatus.BAD_REQUEST, "BAD_REQUEST"); // 500번으로 수정 후 OAUTH ERRORCODE 추가
 		}
 
 		Map<String, Object> responseMap = userInfoResponse.getBody();

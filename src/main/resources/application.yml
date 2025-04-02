@@ -1,13 +1,13 @@
-spring:
-  server:
-    port: 443
-    ssl:
-      enabled: true
-      key-store: file:/app/keystore.p12
-      key-store-type: PKCS12
-      key-alias: springboot-ssl
-      key-store-password: code1zero!9037
+server:
+  port: 443
+  ssl:
+    enabled: true
+    key-store: file:/app/keystore.p12
+    key-store-type: PKCS12
+    key-alias: springboot-ssl
+    key-store-password: ${KEY_STORE_PW}
 
+spring:
   datasource:
     url: ${DB_URL}
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -48,9 +48,6 @@ spring:
     redis:
       host: redis_1
       port: 6379
-
-    profiles:
-      active: oauth
 
   logging:
     level:
