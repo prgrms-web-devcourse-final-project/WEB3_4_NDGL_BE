@@ -82,7 +82,7 @@ public class PostService {
 		return new PostResponseDto(post);
 	}
 
-	private Post findPostById(Long id) {
+	public Post findPostById(Long id) {
 		return postRepository.findById(id)
 			.orElseThrow(ErrorCode.POST_NOT_FOUND::throwServiceException);
 	}

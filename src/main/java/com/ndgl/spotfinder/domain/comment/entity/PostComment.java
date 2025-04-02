@@ -89,4 +89,8 @@ public class PostComment extends BaseTime {
 	public boolean hasChildren() {
 		return !childrenComments.isEmpty();
 	}
+
+	public void updateLikeCount(long num) {
+		this.likeCount += num;
+	}
 }
