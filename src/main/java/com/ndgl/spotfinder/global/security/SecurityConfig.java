@@ -88,7 +88,7 @@ public class SecurityConfig {
 					"/v3/api-docs/**"
 				)
 				.permitAll()
-				.requestMatchers(HttpMethod.OPTIONS, "/**")// 프리 플라이트 설정 추가 :
+				.requestMatchers(HttpMethod.OPTIONS, "/**")// Preflight 요청(CORS)을 허용하여 브라우저의 사전 요청 차단 문제 해결
 				.permitAll()
 				.requestMatchers(HttpMethod.GET, "/api/v1/posts/**")
 				.permitAll()
