@@ -32,8 +32,6 @@ public enum ErrorCode {
 
 	// REPORT
 	REPORTER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 신고자입니다."),
-	REPORTED_USER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 신고 대상자입니다."),
-	BAN_USER_NOT_FOUND(HttpStatus.NOT_FOUND, "제재할 사용자가 존재하지 않습니다."),
 	REPORTED_POST_NOT_FOUND(HttpStatus.NOT_FOUND, "신고한 글이 존재하지 않습니다."),
 	REPORTED_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "신고한 댓글이 존재하지 않습니다."),
 	POST_REPORT_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 포스트 신고입니다."),
@@ -45,7 +43,9 @@ public enum ErrorCode {
 	MISSING_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "Refresh Token 이 유효하지 않습니다."),
 	EXPIRED_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "Refresh Token 이 만료되었습니다."),
 	MISSING_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "Access Token 이 유효하지 않습니다."),
-	EXPIRED_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "Access Token 이 만료되었습니다.");
+	EXPIRED_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "Access Token 이 만료되었습니다."),
+
+	UNREADABLE_REQUEST_PAYLOAD(HttpStatus.BAD_REQUEST, "요청 데이터 파싱을 실패하였습니다.");
 
 	private final HttpStatus httpStatus;
 	private final String message;
