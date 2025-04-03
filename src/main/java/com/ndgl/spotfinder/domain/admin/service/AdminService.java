@@ -16,13 +16,18 @@ public class AdminService {
 	private final AdminRepository adminRepository;
 	private final PasswordEncoder passwordEncoder;
 
-	public void join(CreateAdminRequest createAdminRequest) {
+	public long join(CreateAdminRequest createAdminRequest) {
+		if(adminRepository.existsAdminByUsername(createAdminRequest.username())) {
+			throw ErrorCode.ADMIN_ALREADY_EXISTS_USERNAME.throwServiceException();
+		}
+
 		Admin admin = Admin.builder()
 			.username(createAdminRequest.username())
 			.password(passwordEncoder.encode(createAdminRequest.password()))
 			.build();
 
-		adminRepository.save(admin);
+		admin = adminRepository.save(admin);
+		return admin.getId();
 	}
 
 	public void resign(String username) {
