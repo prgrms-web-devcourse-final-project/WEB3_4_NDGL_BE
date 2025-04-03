@@ -10,6 +10,10 @@ public record HashtagDto(
 	@Size(max = 30, message = "해시태그는 30자 이하입니다.")
 	String name
 ) {
+	public HashtagDto(Hashtag hashtag) {
+		this(hashtag.getName());
+	}
+
 	public Hashtag toHashtag() {
 		return Hashtag.builder()
 			.name(name)

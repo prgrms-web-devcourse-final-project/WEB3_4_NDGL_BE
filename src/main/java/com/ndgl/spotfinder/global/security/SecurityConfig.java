@@ -1,9 +1,5 @@
 package com.ndgl.spotfinder.global.security;
 
-import static org.springframework.security.config.Customizer.*;
-
-import java.util.List;
-
 import org.apache.tomcat.util.http.Rfc6265CookieProcessor;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;
@@ -14,9 +10,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ndgl.spotfinder.global.security.handler.CustomAccessDeniedHandler;
@@ -51,7 +44,6 @@ public class SecurityConfig {
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
 		http
-			.cors(withDefaults())
 			.formLogin(
 				form -> form
 					.loginProcessingUrl("/api/*/admin/login")
@@ -87,6 +79,8 @@ public class SecurityConfig {
 					"/swagger-ui/**",
 					"/v3/api-docs/**"
 				)
+				.permitAll()
+				.requestMatchers(HttpMethod.OPTIONS, "/**")// Preflight 요청(CORS)을 허용하여 브라우저의 사전 요청 차단 문제 해결
 				.permitAll()
 				.requestMatchers(HttpMethod.GET, "/api/v1/posts/**")
 				.permitAll()
@@ -130,25 +124,6 @@ public class SecurityConfig {
 			});
 
 		return http.build();
-	}
-
-	@Bean
-	public CorsConfigurationSource corsConfigurationSource() {
-		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowedOrigins(List.of(
-			"https://ndgl.vercel.app",
-			"http://localhost:3000",
-			"https://localhost:3000")); // ✅ 프론트엔드 주소 허용
-		configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-		configuration.setAllowCredentials(true);
-		configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-
-		configuration.setExposedHeaders(List.of("Authorization", "Refresh-Token"));
-
-		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-		source.registerCorsConfiguration("/**", configuration);
-
-		return source;
 	}
 
 	@Bean
