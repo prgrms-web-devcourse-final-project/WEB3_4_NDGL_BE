@@ -49,7 +49,7 @@ public class PostReport extends BaseTime {
 	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
 	@Setter
-	private ReportStatus reportStatus;
+	private ReportStatus reportStatus = ReportStatus.PENDING;
 
 	@Builder
 	private PostReport(
@@ -62,7 +62,6 @@ public class PostReport extends BaseTime {
 		this.reportedUser = reportedUser;
 		this.reason = reason;
 		this.reportType = reportType;
-		this.reportStatus = ReportStatus.PENDING;
 		this.post = post;
 	}
 }
