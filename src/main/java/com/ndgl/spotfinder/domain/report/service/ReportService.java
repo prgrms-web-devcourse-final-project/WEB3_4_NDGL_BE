@@ -12,7 +12,10 @@ import com.ndgl.spotfinder.domain.comment.entity.PostComment;
 import com.ndgl.spotfinder.domain.comment.service.PostCommentService;
 import com.ndgl.spotfinder.domain.post.entity.Post;
 import com.ndgl.spotfinder.domain.post.service.PostService;
+import com.ndgl.spotfinder.domain.report.dto.BanDto;
+import com.ndgl.spotfinder.domain.report.dto.PostCommentReportDto;
 import com.ndgl.spotfinder.domain.report.dto.PostCommentReportResponse;
+import com.ndgl.spotfinder.domain.report.dto.PostReportDto;
 import com.ndgl.spotfinder.domain.report.dto.PostReportResponse;
 import com.ndgl.spotfinder.domain.report.dto.ReportCreateRequest;
 import com.ndgl.spotfinder.domain.report.entity.Ban;
@@ -28,7 +31,6 @@ import com.ndgl.spotfinder.domain.user.service.UserService;
 import com.ndgl.spotfinder.global.common.dto.SliceResponse;
 import com.ndgl.spotfinder.global.exception.ErrorCode;
 
-import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
@@ -39,7 +41,6 @@ public class ReportService {
 
 	private final PostReportRepository postReportRepository;
 	private final PostCommentReportRepository postCommentReportRepository;
-	private final EntityManager entityManager;
 	private final BanRepository banRepository;
 
 	private final UserService userService;
@@ -47,15 +48,15 @@ public class ReportService {
 	private final PostCommentService postCommentService;
 
 	// 포스트 신고 생성
-	public void createPostReport(
+	public PostReportDto createPostReport(
 		ReportCreateRequest reportCreateRequest,
 		String reporterEmail,
 		Long postId) {
 
 		// 레포지토리를 통해 엔티티 조회 및 검증
 		User reporter = findReporter(reporterEmail);
-		User reportedUser = findReportedUser(reportCreateRequest.reportedUserId());
 		Post post = findReportedPost(postId);
+		User reportedUser = post.getUser();
 
 		PostReport report = PostReport.builder()
 			.reporter(reporter)
@@ -65,19 +66,19 @@ public class ReportService {
 			.post(post)
 			.build();
 
-		postReportRepository.save(report);
+		return new PostReportDto(postReportRepository.save(report));
 	}
 
 	// 댓글 신고 생성
-	public void createPostCommentReport(
+	public PostCommentReportDto createPostCommentReport(
 		ReportCreateRequest reportCreateRequest,
 		String reporterEmail,
 		Long postCommentId) {
 
 		// 레포지토리를 통해 엔티티 조회 및 검증
 		User reporter = findReporter(reporterEmail);
-		User reportedUser = findReportedUser(reportCreateRequest.reportedUserId());
 		PostComment postComment = findReportedPostComment(postCommentId);
+		User reportedUser = postComment.getUser();
 
 		PostCommentReport report = PostCommentReport.builder()
 			.reporter(reporter)
@@ -87,7 +88,7 @@ public class ReportService {
 			.postComment(postComment)
 			.build();
 
-		postCommentReportRepository.save(report);
+		return new PostCommentReportDto(postCommentReportRepository.save(report));
 	}
 
 	// 포스트 신고 목록 조회
@@ -117,16 +118,14 @@ public class ReportService {
 	}
 
 	// 포스트로 인한 유저 제재
-	public void banUserDueToPost(long reportId, long userId, String duration) {
+	public BanDto banUserDueToPost(long reportId, String duration) {
 		// 제재 기간 검증
 		BanDuration banDuration = BanDuration.fromString(duration);
 
-		PostReport postReport = postReportRepository.findById(reportId)
-			.orElseThrow(ErrorCode.POST_REPORT_NOT_FOUND::throwServiceException);
-
+		PostReport postReport = findPostReport(reportId);
 		postReport.setReportStatus(ReportStatus.RESOLVED);
 
-		User user = findUserToBan(userId);
+		User user = postReport.getReportedUser();
 		user.setBanned(true);
 
 		Ban ban = Ban.builder()
@@ -136,19 +135,17 @@ public class ReportService {
 			.banType(postReport.getReportType())
 			.build();
 
-		banRepository.save(ban);
+		return new BanDto(banRepository.save(ban));
 	}
 
 	// 댓글로 인한 유저 제재
-	public void banUserDueToPostComment(long reportId, long userId, String duration) {
+	public BanDto banUserDueToPostComment(long reportId, String duration) {
 		BanDuration banDuration = BanDuration.fromString(duration);
 
-		PostCommentReport postCommentReport = postCommentReportRepository.findById(reportId)
-			.orElseThrow(ErrorCode.COMMENT_REPORT_NOT_FOUND::throwServiceException);
-
+		PostCommentReport postCommentReport = findPostCommentReport(reportId);
 		postCommentReport.setReportStatus(ReportStatus.RESOLVED);
 
-		User user = findUserToBan(userId);
+		User user = postCommentReport.getReportedUser();
 		user.setBanned(true);
 
 		Ban ban = Ban.builder()
@@ -158,22 +155,29 @@ public class ReportService {
 			.banType(postCommentReport.getReportType())
 			.build();
 
-		banRepository.save(ban);
+		return new BanDto(banRepository.save(ban));
 	}
 
 	// 포스트 신고 기각
 	public void rejectPostReport(long reportId) {
-		PostReport postReport = postReportRepository.findById(reportId)
-			.orElseThrow(ErrorCode.POST_REPORT_NOT_FOUND::throwServiceException);
+		PostReport postReport = findPostReport(reportId);
 		postReport.setReportStatus(ReportStatus.REJECTED);
 	}
 
 	// 댓글 신고 기각
 	public void rejectPostCommentReport(long reportId) {
-		PostCommentReport postCommentReport = postCommentReportRepository.findById(reportId)
-			.orElseThrow(ErrorCode.COMMENT_REPORT_NOT_FOUND::throwServiceException);
-
+		PostCommentReport postCommentReport = findPostCommentReport(reportId);
 		postCommentReport.setReportStatus(ReportStatus.REJECTED);
+	}
+
+	private PostReport findPostReport(long postReportId) {
+		return postReportRepository.findById(postReportId)
+			.orElseThrow(ErrorCode.POST_REPORT_NOT_FOUND::throwServiceException);
+	}
+
+	private PostCommentReport findPostCommentReport(long postCommentReportId) {
+		return postCommentReportRepository.findById(postCommentReportId)
+			.orElseThrow(ErrorCode.COMMENT_REPORT_NOT_FOUND::throwServiceException);
 	}
 
 	// 아래의 5개 메서드는 에러를 감싸서 다시 던지는 메서드
@@ -182,22 +186,6 @@ public class ReportService {
 			return userService.findUserByEmail(email);
 		} catch (Exception e) {
 			throw ErrorCode.REPORTER_NOT_FOUND.throwServiceException(e);
-		}
-	}
-
-	private User findReportedUser(Long reportedUserId) {
-		try {
-			return userService.findUserById(reportedUserId);
-		} catch (Exception e) {
-			throw ErrorCode.REPORTED_USER_NOT_FOUND.throwServiceException(e);
-		}
-	}
-
-	private User findUserToBan(Long userId) {
-		try {
-			return userService.findUserById(userId);
-		} catch (Exception e) {
-			throw ErrorCode.BAN_USER_NOT_FOUND.throwServiceException(e);
 		}
 	}
 
