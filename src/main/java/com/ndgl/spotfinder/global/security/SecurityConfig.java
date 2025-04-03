@@ -88,6 +88,8 @@ public class SecurityConfig {
 					"/v3/api-docs/**"
 				)
 				.permitAll()
+				.requestMatchers(HttpMethod.OPTIONS, "/**")// 프리 플라이트 설정 추가 :
+				.permitAll()
 				.requestMatchers(HttpMethod.GET, "/api/v1/posts/**")
 				.permitAll()
 				.requestMatchers(HttpMethod.GET, "/api/v1/posts/*/comments")
