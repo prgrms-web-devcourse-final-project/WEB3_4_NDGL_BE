@@ -47,6 +47,11 @@ public class PostCommentService {
 		return comment;
 	}
 
+	public PostComment findCommentById(Long id) {
+		return postCommentRepository.findById(id)
+			.orElseThrow(ErrorCode.COMMENT_NOT_FOUND::throwServiceException);
+	}
+
 	@Transactional(readOnly = true)
 	public PostCommentDto getComment(Long postId, Long commentId) {
 		PostComment comment = findCommentAndVerifyPost(commentId, postId);
