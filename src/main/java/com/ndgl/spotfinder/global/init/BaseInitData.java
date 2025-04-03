@@ -180,7 +180,11 @@ public class BaseInitData {
 			for (Post post : posts) {
 				// 자신의 게시물이 아닌 경우에만 좋아요 추가
 				if (!post.getUser().getId().equals(user.getId())) {
-					Like like = Like.createPostLike(user, post.getId());
+					Like like = Like.builder()
+						.user(user)
+						.targetId(post.getId())
+						.targetType(Like.TargetType.POST)
+						.build();
 					likeRepository.save(like);
 					totalLikes++;
 

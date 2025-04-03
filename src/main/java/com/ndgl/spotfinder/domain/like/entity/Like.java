@@ -54,20 +54,4 @@ public class Like extends BaseTime {
 		COMMENT,   // 댓글
 	}
 
-	public static Like createPostLike(User user, Long postId) {
-		return builder()
-			.user(user)
-			.targetId(postId)
-			.targetType(TargetType.POST)
-			.build();
-	}
-
-	public static Like createCommentLike(User user, Long commentId) {
-		return builder()
-			.user(user)
-			.targetId(commentId)
-			.targetType(TargetType.COMMENT)
-			.build();
-	}
-
 }
