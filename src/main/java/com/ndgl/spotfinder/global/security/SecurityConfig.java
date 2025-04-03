@@ -98,8 +98,8 @@ public class SecurityConfig {
 					"/api/*/reports/**"
 				)
 				.hasAuthority("ROLE_ADMIN")
-				.requestMatchers("/example/images/**") // TODO 반드시 나중에 삭제할 것
-				.permitAll()
+				.requestMatchers("/api/v1/images/**", "/view-example/images/**")
+				.permitAll() // TODO 반드시 나중에 삭제할 것
 				.anyRequest()
 				.authenticated()
 			)

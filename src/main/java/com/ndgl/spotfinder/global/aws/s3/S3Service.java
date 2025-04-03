@@ -78,6 +78,7 @@ public class S3Service {
 					.key(key))
 				.signatureDuration(Duration.ofMinutes(EXPIRATION_MINUTES)));
 
+			log.debug("Presigned URL 생성");
 			return presignedRequest.url();
 		} catch (SdkException e) {
 			throw ErrorCode.S3_PRESIGNED_GENERATION_FAIL.throwS3Exception(e);
@@ -90,6 +91,7 @@ public class S3Service {
 	 * @param imageUrl 원본 S3 이미지 URL
 	 * @return 지정된 시간 동안 유효한 조회용 서명된 URL
 	 */
+	@Deprecated
 	public URL generatePresignedGetUrl(String imageUrl) {
 		try {
 			String objectKey = S3Util.extractObjectKeyFromUrl(imageUrl);
@@ -114,14 +116,15 @@ public class S3Service {
 	 */
 	public void deleteFile(String imageUrl) {
 		try {
-			String key = S3Util.extractObjectKeyFromUrl(imageUrl);
+			String objectKey = S3Util.extractObjectKeyFromUrl(imageUrl);
 
 			DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
 				.bucket(bucketName)
-				.key(key)
+				.key(objectKey)
 				.build();
 
 			s3Client.deleteObject(deleteRequest);
+			log.debug("S3 파일 삭제 완료: {}", objectKey);
 		} catch (SdkException e) {
 			throw ErrorCode.S3_OBJECT_DELETE_FAIL.throwS3Exception(e);
 		}
