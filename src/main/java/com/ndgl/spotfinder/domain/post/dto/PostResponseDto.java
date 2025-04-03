@@ -27,7 +27,7 @@ public record PostResponseDto(
 	Long likeCount,
 
 	@Schema(description = "댓글 수", example = "72")
-	Long commentCount,
+	Integer commentCount,
 
 	@Schema(description = "작성 일자", example = "2025-03-23T14:30:00")
 	LocalDateTime createdAt,
@@ -43,7 +43,7 @@ public record PostResponseDto(
 			post.getUser().getNickName(),
 			post.getThumbnail(),
 			post.getLikeCount(),
-			0L,
+			post.getComments().size(),
 			post.getCreatedAt(),
 			post.getHashtags()
 				.stream()
