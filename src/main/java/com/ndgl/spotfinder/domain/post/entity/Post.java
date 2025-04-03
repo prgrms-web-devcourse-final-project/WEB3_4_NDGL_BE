@@ -71,6 +71,10 @@ public class Post extends BaseTime {
 	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Location> locations = new ArrayList<>();
 
+	@Builder.Default
+	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<PostComment> comments = new ArrayList<>();
+
 	public void addHashtag(Hashtag hashtag) {
 		hashtags.add(hashtag);
 		hashtag.setPost(this);
