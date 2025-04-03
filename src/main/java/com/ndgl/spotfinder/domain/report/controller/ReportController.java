@@ -12,7 +12,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ndgl.spotfinder.domain.report.dto.BanDto;
+import com.ndgl.spotfinder.domain.report.dto.PostCommentReportDto;
 import com.ndgl.spotfinder.domain.report.dto.PostCommentReportResponse;
+import com.ndgl.spotfinder.domain.report.dto.PostReportDto;
 import com.ndgl.spotfinder.domain.report.dto.PostReportResponse;
 import com.ndgl.spotfinder.domain.report.dto.ReportCreateRequest;
 import com.ndgl.spotfinder.domain.report.service.ReportService;
@@ -34,26 +37,26 @@ public class ReportController {
 
 	@PostMapping("/posts/{id}")
 	@Operation(summary = "포스트 신고 요청")
-	public RsData<Void> createPostReport(
+	public RsData<PostReportDto> createPostReport(
 		@PathVariable Long id,
 		@RequestBody @Valid ReportCreateRequest reportCreateRequest,
 		Principal principal) {
 
-		reportService.createPostReport(reportCreateRequest, principal.getName(), id);
+		PostReportDto postReportDto = reportService.createPostReport(reportCreateRequest, principal.getName(), id);
 
-		return RsData.success(HttpStatus.OK);
+		return RsData.success(HttpStatus.OK, postReportDto);
 	}
 
 	@PostMapping("/comments/{id}")
 	@Operation(summary = "댓글 신고 요청")
-	public RsData<Void> createPostCommentReport(
+	public RsData<PostCommentReportDto> createPostCommentReport(
 		@PathVariable Long id,
 		@RequestBody @Valid ReportCreateRequest reportCreateRequest,
 		Principal principal) {
 
-		reportService.createPostCommentReport(reportCreateRequest, principal.getName(), id);
+		PostCommentReportDto postCommentReportDto = reportService.createPostCommentReport(reportCreateRequest, principal.getName(), id);
 
-		return RsData.success(HttpStatus.OK);
+		return RsData.success(HttpStatus.OK, postCommentReportDto);
 	}
 
 	@GetMapping("/posts")
@@ -69,7 +72,7 @@ public class ReportController {
 
 	@GetMapping("/comments")
 	@Operation(summary = "댓글 신고 목록 조회")
-	public RsData<SliceResponse<PostCommentReportResponse>> getCommentReportList(
+	public RsData<SliceResponse<PostCommentReportResponse>> getPostCommentReportList(
 		@ModelAttribute @Valid SliceRequest sliceRequest
 	){
 		SliceResponse<PostCommentReportResponse> commentReportSlice
@@ -78,28 +81,26 @@ public class ReportController {
 		return RsData.success(HttpStatus.OK, commentReportSlice);
 	}
 
-	@PostMapping("/{reportId}/post/ban/{userId}")
+	@PostMapping("/{reportId}/post/ban")
 	@Operation(summary = "포스트로 인한 유저 제재")
-	public RsData<Void> banUserDueToPost(
+	public RsData<BanDto> banUserDueToPost(
 		@PathVariable long reportId,
-		@PathVariable long userId,
 		@RequestParam String duration
 	){
-		reportService.banUserDueToPost(reportId, userId, duration);
+		BanDto banDto = reportService.banUserDueToPost(reportId, duration);
 
-		return RsData.success(HttpStatus.OK);
+		return RsData.success(HttpStatus.OK, banDto);
 	}
 
-	@PostMapping("/{reportId}/comment/ban/{userId}")
+	@PostMapping("/{reportId}/comment/ban")
 	@Operation(summary = "댓글로 인한 유저 제재")
-	public RsData<Void> banUserDueToPostComment(
+	public RsData<BanDto> banUserDueToPostComment(
 		@PathVariable long reportId,
-		@PathVariable long userId,
 		@RequestParam String duration
 	){
-		reportService.banUserDueToPostComment(reportId, userId, duration);
+		BanDto banDto = reportService.banUserDueToPostComment(reportId, duration);
 
-		return RsData.success(HttpStatus.OK);
+		return RsData.success(HttpStatus.OK, banDto);
 	}
 
 	@PostMapping("/{reportId}/post/reject")
