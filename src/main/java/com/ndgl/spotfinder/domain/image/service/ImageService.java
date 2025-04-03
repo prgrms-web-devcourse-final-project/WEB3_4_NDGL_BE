@@ -96,8 +96,8 @@ public class ImageService {
 	/**
 	 * 해당 객체의 모든 이미지 삭제 (이미지 엔티티, S3 객체)
 	 */
-	// @Transactional
-	// public void deletePostWithAllImages(ImageType imageType, long referenceId) {
-	// 	imageRepository.deleteAllByImageTypeAndReferenceId(imageType, referenceId);
-	// }
+	@Transactional
+	public void deletePostWithAllImages(ImageType imageType, long referenceId) {
+		imageRepository.deleteAllByImageTypeAndReferenceId(imageType, referenceId);
+	}
 }
