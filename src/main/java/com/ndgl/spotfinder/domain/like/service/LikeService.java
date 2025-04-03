@@ -153,7 +153,6 @@ public class LikeService {
 	 * 좋아요 삭제 및 대상 좋아요 카운트 감소
 	 */
 	private void deleteLike(Like like, long targetId, TargetType targetType) {
-		System.out.println("좋아요 수가 감소합니다." + targetId);
 		updateTargetLikeCount(targetId, targetType, -1);
 		likeRepository.delete(like);
 	}
@@ -162,7 +161,6 @@ public class LikeService {
 	 * 좋아요 생성 및 대상 좋아요 카운트 증가
 	 */
 	private void createLike(long userId, long targetId, TargetType targetType) {
-		System.out.println("좋아요 수가 증가합니다." + targetId);
 		User user = userService.findUserById(userId);
 		Like like = builder()
 			.user(user)
