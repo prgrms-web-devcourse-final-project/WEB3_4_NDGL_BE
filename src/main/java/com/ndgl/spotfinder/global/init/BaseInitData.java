@@ -1,6 +1,7 @@
 package com.ndgl.spotfinder.global.init;
 
 import java.util.List;
+import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
@@ -10,6 +11,8 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Profile;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ndgl.spotfinder.domain.comment.entity.PostComment;
+import com.ndgl.spotfinder.domain.comment.repository.PostCommentRepository;
 import com.ndgl.spotfinder.domain.like.entity.Like;
 import com.ndgl.spotfinder.domain.like.repository.LikeRepository;
 import com.ndgl.spotfinder.domain.post.entity.Hashtag;
@@ -34,6 +37,7 @@ public class BaseInitData {
 	private final OauthRepository oauthRepository;
 	private final PostRepository postRepository;
 	private final LikeRepository likeRepository;
+	private final PostCommentRepository postCommentRepository;
 
 	@Autowired
 	@Lazy
@@ -47,6 +51,7 @@ public class BaseInitData {
 			self.createUsers();
 			self.createPosts();
 			self.createLikes();
+			self.createComments();
 		};
 	}
 
@@ -194,6 +199,45 @@ public class BaseInitData {
 		log.debug("좋아요 {} 개 생성 완료", totalLikes);
 	}
 
+	@Transactional
+	public void createComments() {
+		if (postCommentRepository.count() > 0) {
+			log.info("댓글 데이터가 이미 존재하여 초기화를 건너뜁니다.");
+			return;
+		}
+		log.info("댓글 데이터 생성 시작");
+
+		List<User> users = userRepository.findAll();
+		if (users.isEmpty()) {
+			log.error("사용자 데이터가 존재하지 않아 댓글을 생성할 수 없습니다.");
+			return;
+		}
+
+		List<Post> posts = postRepository.findAll();
+		if (posts.isEmpty()) {
+			log.error("게시글 데이터가 존재하지 않아 댓글을 생성할 수 없습니다.");
+			return;
+		}
+
+		Random random = new Random();
+
+		for (int i = 1; i <= 5; i++) {
+			User randomUser = users.get(random.nextInt(users.size()));
+			Post post = posts.get(0);
+
+			PostComment comment = PostComment.builder()
+				.content("댓글 " + i)
+				.user(randomUser)
+				.post(post)
+				.likeCount(0L)
+				.build();
+
+			postCommentRepository.save(comment);
+		}
+
+		log.debug("댓글 {}개 생성 완료", postCommentRepository.count());
+	}
+
 	private void printStatistics() {
 		log.info("테스트 데이터 초기화 완료");
 		log.info("===== 생성된 데이터 통계 =====");
@@ -201,6 +245,7 @@ public class BaseInitData {
 		log.info("OAuth 연결: {}개", oauthRepository.count());
 		log.info("게시물: {}개", postRepository.count());
 		log.info("좋아요: {}개", likeRepository.count());
+		log.info("댓글: {}개", postCommentRepository.count());
 		log.info("===========================");
 	}
 }
