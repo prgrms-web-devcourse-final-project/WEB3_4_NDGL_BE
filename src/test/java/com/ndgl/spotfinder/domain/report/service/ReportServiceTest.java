@@ -77,17 +77,31 @@ public class ReportServiceTest {
 	@DisplayName("포스트 신고 - 정상")
 	void createPostReport_success() {
 		// given
-		ReportCreateRequest request = new ReportCreateRequest(2L, ReportType.SPAM, "SPAM");
+		ReportCreateRequest request = new ReportCreateRequest(ReportType.SPAM, "SPAM");
 		String reporterEmail = "exmaple1@example.com";
 		long postId = 3L;
 
-		User reporter = User.builder().build();
-		User reportedUser = User.builder().build();
-		Post post = Post.builder().build();
+		User reporter = mock(User.class);
+		when(reporter.getId()).thenReturn(1L);
+
+		User reportedUser = mock(User.class);
+		when(reportedUser.getId()).thenReturn(1L);
+
+		Post post = mock(Post.class);
+		when(post.getId()).thenReturn(1L);
+
+		PostReport savedReport = mock(PostReport.class);
+		when(savedReport.getId()).thenReturn(1L);
+		when(savedReport.getReporter()).thenReturn(reporter);
+		when(savedReport.getReportedUser()).thenReturn(reportedUser);
+		when(savedReport.getPost()).thenReturn(post);
+		when(savedReport.getReason()).thenReturn("SPAM");
+		when(savedReport.getReportType()).thenReturn(ReportType.SPAM);
+		when(savedReport.getReportStatus()).thenReturn(ReportStatus.PENDING);
 
 		when(userService.findUserByEmail(reporterEmail)).thenReturn(reporter);
-		when(userService.findUserById(request.reportedUserId())).thenReturn(reportedUser);
 		when(postService.findPostById(postId)).thenReturn(post);
+		when(postReportRepository.save(any(PostReport.class))).thenReturn(savedReport);
 
 		ArgumentCaptor<PostReport> reportCaptor = ArgumentCaptor.forClass(PostReport.class);
 
@@ -99,7 +113,6 @@ public class ReportServiceTest {
 
 		PostReport capturedReport = reportCaptor.getValue();
 		assertThat(capturedReport.getReporter()).isEqualTo(reporter);
-		assertThat(capturedReport.getReportedUser()).isEqualTo(reportedUser);
 		assertThat(capturedReport.getReason()).isEqualTo("SPAM");
 		assertThat(capturedReport.getReportType()).isEqualTo(ReportType.SPAM);
 		assertThat(capturedReport.getPost()).isEqualTo(post);
@@ -109,10 +122,9 @@ public class ReportServiceTest {
 	@DisplayName("포스트 신고 - 비정상 reporterEmail")
 	void createPostReportSlice_invalidReporterId() {
 		// given
-		String invalidReporterEmail = "exmaple1@example.com";long invalidReporterId = -1L;
-		long reportedUserId = 2L;
+		String invalidReporterEmail = "exmaple1@example.com";
 		long postId = 3L;
-		ReportCreateRequest request = new ReportCreateRequest(reportedUserId, ReportType.SPAM, "SPAM");
+		ReportCreateRequest request = new ReportCreateRequest(ReportType.SPAM, "SPAM");
 
 		when(userService.findUserByEmail(invalidReporterEmail))
 			.thenThrow(new ServiceException(ErrorCode.REPORTER_NOT_FOUND.getHttpStatus(), ErrorCode.REPORTER_NOT_FOUND.getMessage()));
@@ -128,42 +140,15 @@ public class ReportServiceTest {
 	}
 
 	@Test
-	@DisplayName("포스트 신고 - 비정상 reportedUserId")
-	void createPostReportSlice_invalidReportedUserId() {
-		// given
-		String reporterEmail = "exmaple1@example.com";
-		long invalidReportedUserId = -1L;
-		long postId = 3L;
-		ReportCreateRequest request = new ReportCreateRequest(invalidReportedUserId, ReportType.SPAM, "SPAM");
-
-		User user = User.builder().build();
-		when(userService.findUserByEmail(reporterEmail)).thenReturn(user);
-		when(userService.findUserById(invalidReportedUserId))
-			.thenThrow(new ServiceException(ErrorCode.REPORTED_USER_NOT_FOUND.getHttpStatus(), ErrorCode.REPORTED_USER_NOT_FOUND.getMessage()));
-
-		// When & Then
-		assertThatThrownBy(() -> reportService.createPostReport(request, reporterEmail, postId))
-			.isInstanceOf(ServiceException.class)
-			.satisfies(exception -> {
-				ServiceException serviceException = (ServiceException) exception;
-				assertThat(serviceException.getCode()).isEqualTo(HttpStatus.NOT_FOUND);
-				assertThat(serviceException.getMessage()).isEqualTo(ErrorCode.REPORTED_USER_NOT_FOUND.getMessage());
-			});
-	}
-
-	@Test
 	@DisplayName("포스트 신고 - 비정상 postId")
 	void createPostReportSlice_invalidPostId() {
 		// given
 		String reporterEmail = "exmaple1@example.com";
-		long reportedUserId = 2L;
 		long invalidPostId = -1L;
-		ReportCreateRequest request = new ReportCreateRequest(reportedUserId, ReportType.SPAM, "SPAM");
+		ReportCreateRequest request = new ReportCreateRequest(ReportType.SPAM, "SPAM");
 
 		User reporter = User.builder().build();
-		User reportedUser = User.builder().build();
 		when(userService.findUserByEmail(reporterEmail)).thenReturn(reporter);
-		when(userService.findUserById(reportedUserId)).thenReturn(reportedUser);
 		when(postService.findPostById(invalidPostId))
 			.thenThrow(new ServiceException(ErrorCode.REPORTED_POST_NOT_FOUND.getHttpStatus(), ErrorCode.REPORTED_POST_NOT_FOUND.getMessage()));
 
@@ -181,17 +166,31 @@ public class ReportServiceTest {
 	@DisplayName("댓글 신고 - 정상")
 	void createPostCommentReport_success() {
 		// given
-		ReportCreateRequest request = new ReportCreateRequest(2L, ReportType.ADVERTISING, "광고 댓글입니다");
+		ReportCreateRequest request = new ReportCreateRequest(ReportType.ADVERTISING, "광고 댓글입니다");
 		String reporterEmail = "exmaple1@example.com";
 		long postCommentId = 3L;
 
-		User reporter = User.builder().build();
-		User reportedUser = User.builder().build();
-		PostComment postComment = PostComment.builder().build();
+		User reporter = mock(User.class);
+		when(reporter.getId()).thenReturn(1L);
+
+		User reportedUser = mock(User.class);
+		when(reportedUser.getId()).thenReturn(1L);
+
+		PostComment postComment = mock(PostComment.class);
+		when(postComment.getId()).thenReturn(1L);
+
+		PostCommentReport savedReport = mock(PostCommentReport.class);
+		when(savedReport.getId()).thenReturn(1L);
+		when(savedReport.getReporter()).thenReturn(reporter);
+		when(savedReport.getReportedUser()).thenReturn(reportedUser);
+		when(savedReport.getPostComment()).thenReturn(postComment);
+		when(savedReport.getReason()).thenReturn("SPAM");
+		when(savedReport.getReportType()).thenReturn(ReportType.SPAM);
+		when(savedReport.getReportStatus()).thenReturn(ReportStatus.PENDING);
 
 		when(userService.findUserByEmail(reporterEmail)).thenReturn(reporter);
-		when(userService.findUserById(request.reportedUserId())).thenReturn(reportedUser);
 		when(postCommentService.findCommentById(postCommentId)).thenReturn(postComment);
+		when(postCommentReportRepository.save(any(PostCommentReport.class))).thenReturn(savedReport);
 
 		ArgumentCaptor<PostCommentReport> reportCaptor = ArgumentCaptor.forClass(PostCommentReport.class);
 
@@ -203,7 +202,6 @@ public class ReportServiceTest {
 
 		PostCommentReport capturedReport = reportCaptor.getValue();
 		assertThat(capturedReport.getReporter()).isEqualTo(reporter);
-		assertThat(capturedReport.getReportedUser()).isEqualTo(reportedUser);
 		assertThat(capturedReport.getReason()).isEqualTo("광고 댓글입니다");
 		assertThat(capturedReport.getReportType()).isEqualTo(ReportType.ADVERTISING);
 		assertThat(capturedReport.getPostComment()).isEqualTo(postComment);
@@ -214,9 +212,8 @@ public class ReportServiceTest {
 	void createPostCommentReportSlice_invalidReporterId() {
 		// given
 		String invalidReporterEmail = "exmaple1@example.com";
-		long reportedUserId = 2L;
 		long postCommentId = 3L;
-		ReportCreateRequest request = new ReportCreateRequest(reportedUserId, ReportType.SPAM, "SPAM");
+		ReportCreateRequest request = new ReportCreateRequest(ReportType.SPAM, "SPAM");
 
 		when(userService.findUserByEmail(invalidReporterEmail))
 			.thenThrow(new ServiceException(ErrorCode.REPORTER_NOT_FOUND.getHttpStatus(), ErrorCode.REPORTER_NOT_FOUND.getMessage()));
@@ -232,42 +229,15 @@ public class ReportServiceTest {
 	}
 
 	@Test
-	@DisplayName("포스트 신고 - 비정상 reportedUserId")
-	void createPostCommentReportSlice_invalidReportedUserId() {
+	@DisplayName("댓글 신고 - 비정상 postCommentId")
+	void createPostCommentReportSlice_invalidPostCommentId() {
 		// given
 		String reporterEmail = "exmaple1@example.com";
-		long invalidReportedUserId = -1L;
-		long postCommentId = 3L;
-		ReportCreateRequest request = new ReportCreateRequest(invalidReportedUserId, ReportType.SPAM, "SPAM");
-
-		User user = User.builder().build();
-		when(userService.findUserByEmail(reporterEmail)).thenReturn(user);
-		when(userService.findUserById(invalidReportedUserId))
-			.thenThrow(new ServiceException(ErrorCode.REPORTED_USER_NOT_FOUND.getHttpStatus(), ErrorCode.REPORTED_USER_NOT_FOUND.getMessage()));
-
-		// When & Then
-		assertThatThrownBy(() -> reportService.createPostCommentReport(request, reporterEmail, postCommentId))
-			.isInstanceOf(ServiceException.class)
-			.satisfies(exception -> {
-				ServiceException serviceException = (ServiceException) exception;
-				assertThat(serviceException.getCode()).isEqualTo(HttpStatus.NOT_FOUND);
-				assertThat(serviceException.getMessage()).isEqualTo(ErrorCode.REPORTED_USER_NOT_FOUND.getMessage());
-			});
-	}
-
-	@Test
-	@DisplayName("포스트 신고 - 비정상 postId")
-	void createPostCommentReportSlice_invalidPostId() {
-		// given
-		String reporterEmail = "exmaple1@example.com";
-		long reportedUserId = 2L;
 		long invalidPostCommentId = -1L;
-		ReportCreateRequest request = new ReportCreateRequest(reportedUserId, ReportType.SPAM, "SPAM");
+		ReportCreateRequest request = new ReportCreateRequest(ReportType.SPAM, "SPAM");
 
 		User reporter = User.builder().build();
-		User reportedUser = User.builder().build();
 		when(userService.findUserByEmail(reporterEmail)).thenReturn(reporter);
-		when(userService.findUserById(reportedUserId)).thenReturn(reportedUser);
 		when(postCommentService.findCommentById(invalidPostCommentId))
 			.thenThrow(new ServiceException(ErrorCode.REPORTED_COMMENT_NOT_FOUND.getHttpStatus(), ErrorCode.REPORTED_COMMENT_NOT_FOUND.getMessage()));
 
@@ -373,21 +343,23 @@ public class ReportServiceTest {
 	@DisplayName("포스트 유저 제재 - 정상")
 	void banUserDueToPost_success() {
 		// Given
-		long userId = 1L;
 		long reportId = 1L;
 		String duration = "30일";
 
-		User user = User.builder().build();
-		PostReport report = PostReport.builder().build();
+		User user = User.builder().id(1L).build();
+		PostReport report = PostReport.builder().reportedUser(user).build();
 
-		when(userService.findUserById(userId)).thenReturn(user);
+		Ban ban = mock(Ban.class);
+		when(ban.getId()).thenReturn(1L);
+		when(ban.getUser()).thenReturn(user);
+
 		when(postReportRepository.findById(reportId)).thenReturn(Optional.of(report));
-		when(banRepository.save(any(Ban.class))).thenReturn(Ban.builder().build());
+		when(banRepository.save(any(Ban.class))).thenReturn(ban);
 
 		ArgumentCaptor<Ban> banCaptor = ArgumentCaptor.forClass(Ban.class);
 
 		// When
-		reportService.banUserDueToPost(reportId, userId, duration);
+		reportService.banUserDueToPost(reportId, duration);
 
 		// Then
 		verify(banRepository).save(banCaptor.capture());
@@ -406,11 +378,10 @@ public class ReportServiceTest {
 	void banUserDueToPost_invalidDuration() {
 		// Given
 		long reportId = -1L;
-		long userId = 1L;
 		String duration = "에러";
 
 		// When
-		assertThatThrownBy(() -> reportService.banUserDueToPost(reportId, userId, duration))
+		assertThatThrownBy(() -> reportService.banUserDueToPost(reportId, duration))
 			.isInstanceOf(ServiceException.class)
 			.satisfies(exception -> {
 				ServiceException serviceException = (ServiceException) exception;
@@ -420,33 +391,9 @@ public class ReportServiceTest {
 	}
 
 	@Test
-	@DisplayName("포스트 유저 제재 - 비정상 userId")
-	void banUserDueToPost_invalidUserId() {
-		// Given
-		long reportId = 1L;
-		long invalidUserId = -1L;
-		String duration = "30일";
-
-		PostReport report = PostReport.builder().build();
-		when(postReportRepository.findById(reportId)).thenReturn(Optional.of(report));
-		when(userService.findUserById(invalidUserId))
-			.thenThrow(new ServiceException(ErrorCode.BAN_USER_NOT_FOUND.getHttpStatus(), ErrorCode.BAN_USER_NOT_FOUND.getMessage()));
-
-		// When
-		assertThatThrownBy(() -> reportService.banUserDueToPost(reportId, invalidUserId, duration))
-			.isInstanceOf(ServiceException.class)
-			.satisfies(exception -> {
-				ServiceException serviceException = (ServiceException) exception;
-				assertThat(serviceException.getCode()).isEqualTo(HttpStatus.NOT_FOUND);
-				assertThat(serviceException.getMessage()).isEqualTo(ErrorCode.BAN_USER_NOT_FOUND.getMessage());
-			});
-	}
-
-	@Test
 	@DisplayName("포스트 유저 제재 - 비정상 reportId")
 	void banUserDueToPost_invalidReportId() {
 		// Given
-		long userId = 1L;
 		long invalidReportId = -1L;
 		String duration = "30일";
 
@@ -454,7 +401,7 @@ public class ReportServiceTest {
 			.thenThrow(new ServiceException(ErrorCode.POST_REPORT_NOT_FOUND.getHttpStatus(), ErrorCode.POST_REPORT_NOT_FOUND.getMessage()));
 
 		// When
-		assertThatThrownBy(() -> reportService.banUserDueToPost(invalidReportId, userId, duration))
+		assertThatThrownBy(() -> reportService.banUserDueToPost(invalidReportId, duration))
 			.isInstanceOf(ServiceException.class)
 			.satisfies(exception -> {
 				ServiceException serviceException = (ServiceException) exception;
@@ -468,20 +415,23 @@ public class ReportServiceTest {
 	void banUserDueToPostComment_success() {
 		// Given
 		long reportId = 1L;
-		long userId = 1L;
 		String duration = "7일";
 
-		User user = User.builder().build();
-		PostCommentReport report = PostCommentReport.builder().build();
+		User user = User.builder().id(1L).build();
 
-		when(userService.findUserById(userId)).thenReturn(user);
+		PostCommentReport report = PostCommentReport.builder().reportedUser(user).build();
+
+		Ban ban = mock(Ban.class);
+		when(ban.getId()).thenReturn(1L);
+		when(ban.getUser()).thenReturn(user);
+
 		when(postCommentReportRepository.findById(reportId)).thenReturn(Optional.of(report));
-		when(banRepository.save(any(Ban.class))).thenReturn(Ban.builder().build());
+		when(banRepository.save(any(Ban.class))).thenReturn(ban);
 
 		ArgumentCaptor<Ban> banCaptor = ArgumentCaptor.forClass(Ban.class);
 
 		// When
-		reportService.banUserDueToPostComment(reportId, userId, duration);
+		reportService.banUserDueToPostComment(reportId, duration);
 
 		// Then
 		verify(banRepository).save(banCaptor.capture());
@@ -500,11 +450,10 @@ public class ReportServiceTest {
 	void banUserDueToPostComment_invalidDuration() {
 		// Given
 		long reportId = -1L;
-		long userId = 1L;
 		String duration = "에러";
 
 		// When
-		assertThatThrownBy(() -> reportService.banUserDueToPostComment(reportId, userId, duration))
+		assertThatThrownBy(() -> reportService.banUserDueToPostComment(reportId, duration))
 			.isInstanceOf(ServiceException.class)
 			.satisfies(exception -> {
 				ServiceException serviceException = (ServiceException) exception;
@@ -514,34 +463,9 @@ public class ReportServiceTest {
 	}
 
 	@Test
-	@DisplayName("댓글 유저 제재 - 비정상 userId")
-	void banUserDueToPostComment_invalidUserId() {
-		// Given
-		long reportId = -1L;
-		long invalidUserId = 1L;
-		String duration = "30일";
-
-		PostCommentReport report = PostCommentReport.builder().build();
-
-		when(postCommentReportRepository.findById(reportId)).thenReturn(Optional.of(report));
-		when(userService.findUserById(invalidUserId))
-			.thenThrow(new ServiceException(ErrorCode.BAN_USER_NOT_FOUND.getHttpStatus(), ErrorCode.BAN_USER_NOT_FOUND.getMessage()));
-
-		// When
-		assertThatThrownBy(() -> reportService.banUserDueToPostComment(reportId, invalidUserId, duration))
-			.isInstanceOf(ServiceException.class)
-			.satisfies(exception -> {
-				ServiceException serviceException = (ServiceException) exception;
-				assertThat(serviceException.getCode()).isEqualTo(HttpStatus.NOT_FOUND);
-				assertThat(serviceException.getMessage()).isEqualTo(ErrorCode.BAN_USER_NOT_FOUND.getMessage());
-			});
-	}
-
-	@Test
 	@DisplayName("댓글 유저 제재 - 비정상 reportId")
 	void banUserDueToPostComment_invalidReportId() {
 		// Given
-		long userId = 1L;
 		long invalidReportId = -1L;
 		String duration = "30일";
 
@@ -549,7 +473,7 @@ public class ReportServiceTest {
 			.thenThrow(new ServiceException(ErrorCode.COMMENT_REPORT_NOT_FOUND.getHttpStatus(), ErrorCode.COMMENT_REPORT_NOT_FOUND.getMessage()));
 
 		// When
-		assertThatThrownBy(() -> reportService.banUserDueToPostComment(invalidReportId, userId, duration))
+		assertThatThrownBy(() -> reportService.banUserDueToPostComment(invalidReportId, duration))
 			.isInstanceOf(ServiceException.class)
 			.satisfies(exception -> {
 				ServiceException serviceException = (ServiceException) exception;
