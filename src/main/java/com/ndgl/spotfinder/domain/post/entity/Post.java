@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.springframework.data.annotation.LastModifiedDate;
 
+import com.ndgl.spotfinder.domain.comment.entity.PostComment;
 import com.ndgl.spotfinder.domain.post.dto.HashtagDto;
 import com.ndgl.spotfinder.domain.post.dto.LocationDto;
 import com.ndgl.spotfinder.domain.post.dto.PostUpdateRequestDto;
@@ -15,6 +16,7 @@ import com.ndgl.spotfinder.global.base.BaseTime;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -45,7 +47,7 @@ public class Post extends BaseTime {
 	@LastModifiedDate
 	private LocalDateTime updatedAt;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
 	private User user;
 
@@ -56,6 +58,10 @@ public class Post extends BaseTime {
 
 	@Builder.Default
 	private Long likeCount = 0L;
+
+	@Builder.Default
+	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<PostComment> comments = new ArrayList<>();
 
 	@Builder.Default
 	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -12,7 +12,7 @@ import com.ndgl.spotfinder.domain.post.dto.PostUpdateRequestDto;
 import com.ndgl.spotfinder.domain.post.entity.Post;
 import com.ndgl.spotfinder.domain.post.repository.PostRepository;
 import com.ndgl.spotfinder.domain.user.entity.User;
-import com.ndgl.spotfinder.domain.user.repository.UserRepository;
+import com.ndgl.spotfinder.domain.user.service.UserService;
 import com.ndgl.spotfinder.global.common.dto.SliceRequest;
 import com.ndgl.spotfinder.global.common.dto.SliceResponse;
 import com.ndgl.spotfinder.global.exception.ErrorCode;
@@ -22,13 +22,12 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class PostService {
-	private final UserRepository userRepository;
 	private final PostRepository postRepository;
+	private final UserService userService;
 
 	@Transactional
 	public void createPost(PostCreateRequestDto requestDto, String email) {
-		User user = userRepository.findByEmail(email)
-			.orElseThrow(ErrorCode.USER_NOT_FOUND::throwServiceException);
+		User user = userService.findUserByEmail(email);
 
 		postRepository.save(requestDto.toPost(user));
 	}
@@ -61,8 +60,7 @@ public class PostService {
 	public SliceResponse<PostResponseDto> getPostsByUser(SliceRequest sliceRequest, Long userId) {
 		PageRequest pageRequest = PageRequest.of(0, sliceRequest.size());
 		Long lastId = getLastPostId(sliceRequest);
-		User user = userRepository.findById(userId)
-			.orElseThrow(ErrorCode.USER_NOT_FOUND::throwServiceException);
+		User user = userService.findUserById(userId);
 
 		Slice<Post> results = postRepository.findByUserAndIdLessThanOrderByCreatedAtDesc(user, lastId, pageRequest);
 
@@ -78,8 +76,7 @@ public class PostService {
 	public SliceResponse<PostResponseDto> getPostsByLike(SliceRequest sliceRequest, String email) {
 		PageRequest pageRequest = PageRequest.of(0, sliceRequest.size());
 		Long lastId = getLastPostId(sliceRequest);
-		User user = userRepository.findByEmail(email)
-			.orElseThrow(ErrorCode.USER_NOT_FOUND::throwServiceException);
+		User user = userService.findUserByEmail(email);
 
 		Slice<Post> results = postRepository.findLikedPostsByUser(user.getId(), lastId, pageRequest);
 
