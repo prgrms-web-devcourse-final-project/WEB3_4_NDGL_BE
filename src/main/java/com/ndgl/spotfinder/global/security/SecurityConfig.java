@@ -89,9 +89,7 @@ public class SecurityConfig {
 				.requestMatchers(HttpMethod.GET, "/api/v1/posts/*/comments/*")
 				.permitAll()
 				// 관리자 권한 필요한 요청
-				.requestMatchers(HttpMethod.GET, "/api/*/admin/logout")
-				.hasAuthority("ROLE_ADMIN")
-				.requestMatchers(HttpMethod.GET, "/api/*/admin/resign")
+				.requestMatchers(HttpMethod.POST, "/api/*/admin/resign")
 				.hasAuthority("ROLE_ADMIN")
 				.requestMatchers(HttpMethod.GET, "/api/*/admin/posts/statistics")
 				.hasAuthority("ROLE_ADMIN")
