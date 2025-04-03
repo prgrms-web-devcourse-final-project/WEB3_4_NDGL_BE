@@ -179,11 +179,11 @@ public class LikeService {
 		switch (targetType) {
 			case POST -> {
 				Post post = postService.findPostById(targetId);
-				post.updateLikeCount(post.getLikeCount() + num);
+				post.updateLikeCount(num);
 			}
 			case COMMENT -> {
 				PostComment comment = postCommentService.findById(targetId);
-				comment.updateLikeCount(comment.getLikeCount() + num);
+				comment.updateLikeCount(num);
 			}
 			default -> ErrorCode.UNSUPPORTED_TARGET_TYPE.throwServiceException();
 		}

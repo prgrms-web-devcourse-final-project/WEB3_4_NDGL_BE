@@ -25,7 +25,8 @@ import com.ndgl.spotfinder.domain.post.entity.Post;
 import com.ndgl.spotfinder.domain.post.repository.PostRepository;
 import com.ndgl.spotfinder.domain.post.service.PostService;
 import com.ndgl.spotfinder.domain.user.entity.User;
-import com.ndgl.spotfinder.domain.user.repository.UserRepository;
+import com.ndgl.spotfinder.domain.user.service.UserService;
+import com.ndgl.spotfinder.global.exception.ErrorCode;
 import com.ndgl.spotfinder.global.exception.ServiceException;
 
 @ActiveProfiles("test")
@@ -38,7 +39,7 @@ public class PostServiceTest {
 	private PostRepository postRepository;
 
 	@Mock
-	private UserRepository userRepository;
+	private UserService userService;
 
 	private final User user1 = User.builder()
 		.id(1L)
@@ -100,7 +101,7 @@ public class PostServiceTest {
 		);
 
 		// when
-		when(userRepository.findByEmail("이메일1")).thenReturn(Optional.of(user1));
+		when(userService.findUserByEmail("이메일1")).thenReturn(user1);
 		postService.createPost(requestDto, "이메일1");
 
 		// then
@@ -122,7 +123,9 @@ public class PostServiceTest {
 	@Test
 	public void createPost_userNotFound() {
 		// when
-		when(userRepository.findByEmail("이메일1")).thenReturn(Optional.empty());
+		ErrorCode errorCode = ErrorCode.USER_NOT_FOUND;
+		when(userService.findUserByEmail("이메일1"))
+			.thenThrow(new ServiceException(errorCode.getHttpStatus(), errorCode.getMessage()));
 
 		// then
 		ServiceException exception = assertThrows(ServiceException.class,
@@ -150,7 +153,7 @@ public class PostServiceTest {
 		);
 
 		// when
-		when(userRepository.findByEmail("이메일1")).thenReturn(Optional.of(user1));
+		when(userService.findUserByEmail("이메일1")).thenReturn(user1);
 		when(postRepository.findById(1L)).thenReturn(Optional.of(samplePost));
 		postService.updatePost(1L, requestDto, "이메일1");
 
@@ -176,7 +179,7 @@ public class PostServiceTest {
 	@Test
 	public void updatePost_notFound() {
 		// when
-		when(userRepository.findByEmail("이메일1")).thenReturn(Optional.of(user1));
+		when(userService.findUserByEmail("이메일1")).thenReturn(user1);
 		when(postRepository.findById(1L)).thenReturn(Optional.empty());
 
 		// then
@@ -188,7 +191,7 @@ public class PostServiceTest {
 	@Test
 	public void updatePost_AuthorMissMatch() {
 		// when
-		when(userRepository.findByEmail("이메일2")).thenReturn(Optional.of(user2));
+		when(userService.findUserByEmail("이메일2")).thenReturn(user2);
 		when(postRepository.findById(1L)).thenReturn(Optional.of(samplePost));
 
 		// then
@@ -200,7 +203,7 @@ public class PostServiceTest {
 	@Test
 	public void deletePost_success() {
 		// when
-		when(userRepository.findByEmail("이메일1")).thenReturn(Optional.of(user1));
+		when(userService.findUserByEmail("이메일1")).thenReturn(user1);
 		when(postRepository.findById(1L)).thenReturn(Optional.of(samplePost));
 		postService.deletePost(1L, "이메일1");
 
@@ -211,7 +214,7 @@ public class PostServiceTest {
 	@Test
 	public void deletePost_notFound() {
 		// when
-		when(userRepository.findByEmail("이메일1")).thenReturn(Optional.of(user1));
+		when(userService.findUserByEmail("이메일1")).thenReturn(user1);
 		when(postRepository.findById(1L)).thenReturn(Optional.empty());
 
 		// then
@@ -223,7 +226,7 @@ public class PostServiceTest {
 	@Test
 	public void deletePost_AuthorMissMatch() {
 		// when
-		when(userRepository.findByEmail("이메일2")).thenReturn(Optional.of(user2));
+		when(userService.findUserByEmail("이메일2")).thenReturn(user2);
 		when(postRepository.findById(1L)).thenReturn(Optional.of(samplePost));
 
 		// then
