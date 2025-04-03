@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>포스트 작성하기</title>
+    <!-- Toss UI CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@toss/toss-ui@latest/dist/toss-ui.css">
+    <!-- EasyMDE 마크다운 에디터 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.js"></script>
+    <!-- Marked.js for Markdown rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Pretendard Variable', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9fafc;
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 24px;
+            background-color: white;
+            border-radius: 16px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        .form-header {
+            margin-bottom: 24px;
+        }
+        .form-header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 700;
+        }
+        .form-section {
+            margin-bottom: 32px;
+        }
+        .form-section h2 {
+            font-size: 18px;
+            margin-top: 0;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 15px;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 15px;
+            border: 1px solid #dfe3e8;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+        input[type="text"]:focus, textarea:focus {
+            outline: none;
+            border-color: #3182ce;
+            box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px;
+            font-size: 15px;
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+        .btn-primary {
+            background-color: #3182ce;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #2b6cb0;
+        }
+        .btn-secondary {
+            background-color: #f7fafc;
+            color: #4a5568;
+            border: 1px solid #e2e8f0;
+        }
+        .btn-secondary:hover {
+            background-color: #edf2f7;
+        }
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        /* 썸네일 컨테이너 */
+        .thumbnail-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        /* 썸네일 미리보기 */
+        #thumbnail-preview {
+            width: 140px !important;
+            height: 140px !important;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+            overflow: hidden !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            margin-bottom: 10px;
+            border: 2px solid #e0e0e0;
+            position: relative !important;
+            box-sizing: content-box !important;
+            min-width: 140px !important; 
+            min-height: 140px !important;
+            max-width: 140px !important;
+            max-height: 140px !important;
+        }
+        
+        #thumbnail-preview.has-image {
+            border-color: #4285F4;
+        }
+        
+        /* 강제 크기 제한을 위한 이미지 래퍼 - 크기 2배 확대 */
+        .thumbnail-img-wrapper {
+            width: 140px !important;
+            height: 140px !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            overflow: hidden !important;
+        }
+        
+        #thumbnail-preview img,
+        .thumbnail-img-wrapper img {
+            width: 140px !important;
+            height: 140px !important;
+            object-fit: cover !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            min-width: 140px !important;
+            min-height: 140px !important;
+            max-width: 140px !important;
+            max-height: 140px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            display: block !important;
+        }
+        
+        #thumbnail-preview .no-thumbnail {
+            color: #999;
+            text-align: center;
+            padding: 16px;
+            font-size: 14px;
+            max-width: 100%;
+        }
+        
+        /* 썸네일 설명 영역 */
+        #thumbnail-status {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+        
+        /* 마크다운 에디터 스타일 */
+        .editor-container {
+            margin-top: 24px;
+        }
+        
+        /* 이미지 갤러리 */
+        #image-gallery {
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .image-gallery {
+            position: relative;
+            width: 100%;
+            margin: 20px 0;
+            padding: 15px 0;
+            display: none;
+        }
+        
+        .image-gallery.has-images {
+            display: block;
+        }
+        
+        .gallery-container {
+            width: 100%;
+            overflow-x: auto;
+            white-space: nowrap;
+            scroll-behavior: smooth;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
+            padding: 0 10px;
+        }
+        
+        .gallery-container::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
+        }
+        
+        .gallery-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        
+        .gallery-scroller {
+            display: flex;
+            gap: 15px;
+            padding: 5px 0;
+        }
+        
+        .gallery-item {
+            display: inline-block;
+            width: 120px;
+            height: 120px;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            border: 2px solid #e0e0e0;
+            box-sizing: border-box;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .gallery-item.is-thumbnail {
+            border-color: #4285F4;
+            box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.3);
+        }
+        
+        .gallery-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        /* 갤러리 화살표 버튼 */
+        .gallery-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: white;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 2;
+            color: #333;
+            font-size: 18px;
+            transition: all 0.2s ease;
+        }
+        
+        .gallery-arrow-left {
+            left: 0;
+        }
+        
+        .gallery-arrow-right {
+            right: 0;
+        }
+        
+        .gallery-arrow:hover {
+            background-color: #4285F4;
+            color: white;
+            border-color: #4285F4;
+        }
+        
+        .gallery-arrow:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background-color: #f5f5f5;
+            color: #bdbdbd;
+        }
+        
+        /* 해시태그 스타일 */
+        .hashtag-container {
+            margin-top: 16px;
+        }
+        
+        .hashtag-input-container {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .hashtag-input {
+            flex: 1;
+        }
+        
+        .hashtag-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        
+        .hashtag-item {
+            background-color: #ebf5ff;
+            color: #2b6cb0;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .hashtag-remove {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #63b3ed;
+            color: white;
+            cursor: pointer;
+            font-size: 10px;
+        }
+        
+        /* 토스트 메시지 */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 20px;
+            background-color: #2d3748;
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        
+        .toast.show {
+            opacity: 1;
+        }
+        
+        .toast.success {
+            background-color: #38a169;
+        }
+        
+        .toast.error {
+            background-color: #e53e3e;
+        }
+        
+        /* 버튼 영역 */
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        
+        /* 모바일 대응 */
+        @media (max-width: 768px) {
+            .container {
+                margin: 0;
+                border-radius: 0;
+                padding: 16px;
+            }
+            
+            .thumbnail-container {
+                flex-direction: column;
+            }
+            
+            .thumbnail-preview {
+                width: 100%;
+                height: 180px;
+            }
+        }
+        
+        /* 마크다운 에디터 이미지 크기 제한 */
+        .editor-preview img, 
+        .editor-preview-side img, 
+        .CodeMirror-preview img {
+            max-width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+        }
+        
+        /* 에디터 내 이미지가 중앙 정렬되도록 */
+        .editor-preview p:has(img), 
+        .editor-preview-side p:has(img) {
+            text-align: center;
+        }
+        
+        /* 마크다운 에디터 이미지 호버 스타일 */
+        .editor-preview img:hover, 
+        .editor-preview-side img:hover {
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* 에디터 외부의 이미지 크기 제한 (렌더링된 마크다운 내) */
+        .markdown-body img {
+            max-width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-header">
+            <h1>새 포스트 작성</h1>
+        </div>
+        
+        <form id="post-form" onsubmit="submitPost(event)">
+            <div class="form-section">
+                <div class="input-group">
+                    <label for="post-title">제목</label>
+                    <input type="text" id="post-title" placeholder="제목을 입력하세요" required maxlength="100">
+                </div>
+                
+                <!-- 썸네일 섹션 (상단에 배치) -->
+                <div class="input-group thumbnail-container">
+                    <label for="thumbnail-preview">썸네일 이미지</label>
+                    <div id="thumbnail-preview">
+                        <div class="no-thumbnail">썸네일 미리보기</div>
+                    </div>
+                    <div id="thumbnail-status">썸네일을 선택해주세요</div>
+                </div>
+                
+                <!-- 해시태그 입력 -->
+                <div class="form-section">
+                    <h2>해시태그</h2>
+                    <div class="hashtag-container">
+                        <div class="hashtag-input-container">
+                            <input type="text" id="hashtag-input" class="hashtag-input" 
+                                   placeholder="해시태그 입력 후 엔터" maxlength="30">
+                            <button type="button" id="add-hashtag" class="btn btn-secondary">추가</button>
+                        </div>
+                        <div id="hashtag-list" class="hashtag-list">
+                            <!-- 해시태그가 여기에 추가됩니다 -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 이미지 갤러리 영역 -->
+                <div id="image-gallery">
+                    <div class="gallery-wrapper">
+                        <button class="gallery-arrow gallery-arrow-left" id="gallery-prev">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <div class="gallery-container">
+                            <div class="gallery-scroller"></div>
+                        </div>
+                        <button class="gallery-arrow gallery-arrow-right" id="gallery-next">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 마크다운 에디터 -->
+                <div class="form-section">
+                    <h2>내용</h2>
+                    <div class="editor-container">
+                        <textarea id="markdown-editor"></textarea>
+                    </div>
+                </div>
+                
+                <!-- 폼 액션 버튼 -->
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary">취소</button>
+                    <button type="submit" id="submit-button" class="btn btn-primary">포스트 등록</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <!-- 토스트 메시지 -->
+    <div id="toast" class="toast"></div>
+    
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            // 설정 값 - 서버에서 전달된 값 확인 및 기본값 설정
+            const referenceId = [[${id}]] || 9999;  // ID가 없으면 기본값 사용
+            const imageType = [[${imageType}]] || 'POST';  // 이미지 타입이 없으면 기본값 사용
+            const maxFilesCount = [[${maxImageCount}]] || 10;
+            const maxFileSizeMB = [[${maxFileSize}]] || 5;
+            const maxFileSize = maxFileSizeMB * 1024 * 1024; // MB를 바이트로 변환
+            const allowedTypes = ([[${allowedTypes}]] || 'image/jpeg, image/png, image/gif, image/webp').split(', ');
+            
+            // 전역 변수 선언 - 여러 함수에서 공유할 변수들
+            let editor;                  // 마크다운 에디터 인스턴스
+            let thumbnailUrl = null;     // 선택된 썸네일 URL
+            let uploadedUrls = [];       // 업로드된 모든 이미지 URL 배열
+            
+            // =============================================
+            // 1. 유틸리티 함수
+            // =============================================
+            
+            /**
+             * 토스트 메시지 표시 함수
+             * @param {string} message - 표시할 메시지
+             * @param {string} type - 메시지 타입 (info, success, error, warning)
+             */
+            function showToast(message, type = 'info') {
+                const toast = document.getElementById('toast');
+                toast.textContent = message;
+                toast.className = `toast ${type} show`;
+                
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3000);
+            }
+            
+            /**
+             * 마크다운 텍스트에서 이미지 URL 추출 함수
+             * @param {string} markdownText - 마크다운 텍스트
+             * @returns {Array} - 추출된 이미지 URL 배열
+             */
+            function extractImageUrls(markdownText) {
+                const imageRegex = /!\[.*?\]\((https?:\/\/[^)]+)\)/g;
+                const matches = Array.from(markdownText.matchAll(imageRegex));
+                return matches.map(match => match[1]);
+            }
+            
+            // =============================================
+            // 2. 이미지 업로드 및 처리 함수
+            // =============================================
+            
+            /**
+             * 이미지 파일 유효성 검사
+             * @param {File} file - 업로드할 이미지 파일
+             * @returns {boolean} - 유효성 검사 통과 여부
+             */
+            function validateImageFile(file) {
+                // 1. 파일이 존재하고 이미지 타입인지 확인
+                if (!file || !file.type.startsWith('image/')) {
+                    showToast('이미지 파일만 업로드할 수 있습니다.', 'error');
+                    return false;
+                }
+                
+                // 2. 허용된 이미지 타입인지 확인
+                if (!allowedTypes.includes(file.type)) {
+                    showToast(`지원하지 않는 파일 형식입니다. 지원 형식: ${allowedTypes.join(', ')}`, 'error');
+                    return false;
+                }
+                
+                // 3. 파일 크기 제한 확인
+                if (file.size > maxFileSize) {
+                    showToast(`파일 크기는 ${maxFileSizeMB}MB 이하여야 합니다.`, 'error');
+                    return false;
+                }
+                
+                return true;
+            }
+            
+            /**
+             * 프리사인드 URL 요청 함수
+             * @param {string} fileExt - 파일 확장자
+             * @returns {Promise<string>} - 프리사인드 URL
+             */
+            async function requestPresignedUrl(fileExt) {
+                const response = await fetch('/api/v1/images/presigned-url', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        referenceId: referenceId,
+                        imageType: imageType,
+                        imageExtensions: [fileExt]
+                    })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.msg || '프리사인드 URL 생성 실패');
+                }
+                
+                const result = await response.json();
+                if (!result.data || !result.data.presignedUrls || result.data.presignedUrls.length === 0) {
+                    throw new Error('유효하지 않은 응답 데이터');
+                }
+                
+                return result.data.presignedUrls[0];
+            }
+            
+            /**
+             * S3에 이미지 업로드 함수
+             * @param {string} presignedUrl - 프리사인드 URL
+             * @param {File} file - 업로드할 파일
+             * @returns {Promise<void>}
+             */
+            async function uploadToS3(presignedUrl, file) {
+                const uploadResponse = await fetch(presignedUrl, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': file.type
+                    },
+                    body: file
+                });
+                
+                if (!uploadResponse.ok) {
+                    throw new Error('S3 업로드 실패 (상태 코드: ' + uploadResponse.status + ')');
+                }
+            }
+            
+            /**
+             * 이미지 업로드 완료 후 DB에 정보 저장
+             * @param {string} imageUrl - 업로드된 이미지 URL
+             * @returns {Promise<boolean>} - 저장 성공 여부
+             */
+            async function completeUpload(imageUrl) {
+                try {
+                    const response = await fetch('/api/v1/images/complete', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            id: referenceId,
+                            imageType: imageType,
+                            imageUrl: [imageUrl]
+                        })
+                    });
+                    
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.msg || '이미지 정보 저장 실패');
+                    }
+                    
+                    console.log('이미지 DB 저장 완료:', imageUrl);
+                    return true;
+                } catch (error) {
+                    console.error('이미지 DB 저장 오류:', error);
+                    // DB 저장 실패해도 에디터에는 표시되도록 오류는 무시
+                    return false;
+                }
+            }
+            
+            /**
+             * 이미지를 썸네일로 설정
+             * @param {string} imageUrl - 썸네일로 설정할 이미지 URL
+             */
+            function setThumbnail(imageUrl) {
+                thumbnailUrl = imageUrl;
+                
+                const thumbnailPreview = document.getElementById('thumbnail-preview');
+                thumbnailPreview.innerHTML = '';
+                thumbnailPreview.classList.add('has-image');
+                
+                const imgWrapper = document.createElement('div');
+                imgWrapper.className = 'thumbnail-img-wrapper';
+                
+                const img = document.createElement('img');
+                img.src = imageUrl;
+                img.alt = '썸네일 이미지';
+                
+                imgWrapper.appendChild(img);
+                thumbnailPreview.appendChild(imgWrapper);
+                
+                document.getElementById('thumbnail-status').textContent = '썸네일이 설정되었습니다';
+                
+                // 갤러리에서 해당 이미지에 썸네일 표시 업데이트
+                document.querySelectorAll('.gallery-item').forEach(item => {
+                    if (item.dataset.url === imageUrl) {
+                        item.classList.add('is-thumbnail');
+                    } else {
+                        item.classList.remove('is-thumbnail');
+                    }
+                });
+            }
+            
+            /**
+             * 이미지를 갤러리에 추가
+             * @param {string} imageUrl - 갤러리에 추가할 이미지 URL
+             */
+            function addImageToGallery(imageUrl) {
+                const galleryScroller = document.querySelector('.gallery-scroller');
+                const imageGallery = document.getElementById('image-gallery');
+                
+                // 이미 갤러리에 있는지 확인
+                const existingItem = Array.from(galleryScroller.children).find(item => 
+                    item.dataset.url === imageUrl);
+                    
+                if (existingItem) {
+                    return; // 이미 있으면 추가하지 않음
+                }
+                
+                // 갤러리 아이템 생성
+                const galleryItem = document.createElement('div');
+                galleryItem.className = 'gallery-item';
+                galleryItem.dataset.url = imageUrl;
+                
+                const img = document.createElement('img');
+                img.src = imageUrl;
+                img.alt = '업로드된 이미지';
+                
+                galleryItem.appendChild(img);
+                galleryScroller.appendChild(galleryItem);
+                
+                // 갤러리 표시 상태 업데이트
+                imageGallery.classList.add('has-images');
+                
+                // 썸네일로 설정하는 클릭 이벤트 추가
+                galleryItem.addEventListener('click', function() {
+                    setThumbnail(imageUrl);
+                });
+                
+                // 갤러리 화살표 상태 업데이트
+                updateArrowButtons();
+            }
+            
+            /**
+             * 스크롤 위치에 따른 갤러리 화살표 버튼 상태 업데이트
+             */
+            function updateArrowButtons() {
+                const galleryContainer = document.querySelector('.gallery-container');
+                const prevButton = document.getElementById('gallery-prev');
+                const nextButton = document.getElementById('gallery-next');
+                
+                const scrollLeft = galleryContainer.scrollLeft;
+                const maxScrollLeft = galleryContainer.scrollWidth - galleryContainer.clientWidth;
+                
+                prevButton.disabled = scrollLeft <= 0;
+                nextButton.disabled = scrollLeft >= maxScrollLeft - 5; // 약간의 여유
+                
+                // 시각적 표시
+                prevButton.style.opacity = prevButton.disabled ? '0.5' : '1';
+                nextButton.style.opacity = nextButton.disabled ? '0.5' : '1';
+            }
+            
+            /**
+             * 마크다운 에디터 초기화
+             * @returns {EasyMDE} - 초기화된 에디터 객체
+             */
+            function initEasyMDE() {
+                // 중복 업로드 방지를 위한 변수
+                let isUploading = false;
+                
+                const markdownEditor = new EasyMDE({
+                    element: document.getElementById('markdown-editor'),
+                    spellChecker: false,
+                    autofocus: true,
+                    placeholder: '내용을 작성해주세요...',
+                    status: ['lines', 'words', 'cursor'],
+                    renderingConfig: {
+                        codeSyntaxHighlighting: true,
+                        markedOptions: {
+                            breaks: true,
+                            gfm: true
+                        }
+                    },
+                    toolbar: [
+                        'bold', 'italic', 'heading', '|',
+                        'quote', 'code', 'unordered-list', 'ordered-list', '|',
+                        'link', {
+                            name: "custom-image",
+                            action: function customImageFunction(editor){
+                                // 파일 선택기 트리거
+                                const fileInput = document.createElement('input');
+                                fileInput.type = 'file';
+                                fileInput.accept = 'image/*';
+                                fileInput.style.display = 'none';
+                                document.body.appendChild(fileInput);
+                                
+                                fileInput.addEventListener('change', function() {
+                                    if (fileInput.files && fileInput.files.length > 0) {
+                                        // 이미지 업로드 상태 표시
+                                        const placeholder = `![업로드 중...](업로드 중...)`;
+                                        const cm = editor.codemirror;
+                                        const cursorPos = cm.getCursor();
+                                        cm.replaceSelection(placeholder);
+                                        
+                                        // 업로드 함수를 직접 호출하고 결과를 마크다운에 삽입
+                                        handleImageUpload(fileInput.files[0]).then(url => {
+                                            if (url) {
+                                                // 현재 에디터 내용 가져오기
+                                                const content = cm.getValue();
+                                                // 업로드 중 표시를 실제 이미지로 교체
+                                                const updatedContent = content.replace(placeholder, `![](${url})`);
+                                                // 새 내용으로 에디터 업데이트
+                                                cm.setValue(updatedContent);
+                                                console.log('에디터에 이미지 URL 삽입 완료:', url);
+                                            }
+                                        });
+                                    }
+                                    // 사용 후 파일 입력 요소 제거
+                                    document.body.removeChild(fileInput);
+                                });
+                                
+                                fileInput.click();
+                            },
+                            className: "fa fa-image",
+                            title: "이미지 업로드",
+                        },
+                        'table', '|',
+                        'preview', 'side-by-side', 'fullscreen', '|',
+                        'guide'
+                    ],
+                    // 중요: EasyMDE의 기본 이미지 업로드 기능 비활성화
+                    uploadImage: false,
+                    // 기본 이미지 업로드 기능 대신 커스텀 이미지 버튼만 사용
+                    imageUploadFunction: undefined
+                });
+                
+                // 이미지 크기 조정을 위한 스타일 추가
+                const styleElement = document.createElement('style');
+                styleElement.textContent = `
+                    .CodeMirror img, .editor-preview img {
+                        max-width: 100%;
+                        max-height: 400px;
+                    }
+                `;
+                document.head.appendChild(styleElement);
+                
+                // 드래그 앤 드롭 이미지 업로드 지원
+                const cm = markdownEditor.codemirror;
+                cm.on('drop', (editor, event) => {
+                    const dataTransfer = event.dataTransfer;
+                    if (dataTransfer && dataTransfer.files && dataTransfer.files.length) {
+                        const files = Array.from(dataTransfer.files).filter(file => 
+                            file.type.startsWith('image/'));
+                        
+                        if (files.length > 0) {
+                            event.preventDefault();
+                            
+                            // 각 이미지 파일 처리
+                            files.forEach(file => {
+                                // 이미지 업로드 상태 표시
+                                const placeholder = `![업로드 중...](업로드 중...)`;
+                                editor.replaceSelection(placeholder);
+                                
+                                // 업로드 처리
+                                handleImageUpload(file).then(url => {
+                                    if (url) {
+                                        // 현재 에디터 내용 가져오기
+                                        const content = editor.getValue();
+                                        // 업로드 중 표시를 실제 이미지로 교체
+                                        const updatedContent = content.replace(placeholder, `![](${url})`);
+                                        // 새 내용으로 에디터 업데이트
+                                        editor.setValue(updatedContent);
+                                        console.log('드래그 앤 드롭: 에디터에 이미지 URL 삽입 완료:', url);
+                                    }
+                                });
+                            });
+                        }
+                    }
+                });
+                
+                // 붙여넣기 이미지 업로드 지원
+                document.addEventListener('paste', function(e) {
+                    if (!markdownEditor.codemirror.hasFocus()) return;
+                    
+                    const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+                    
+                    for (let i = 0; i < items.length; i++) {
+                        if (items[i].type.indexOf('image') !== -1) {
+                            e.preventDefault();
+                            
+                            const file = items[i].getAsFile();
+                            const placeholder = `![업로드 중...](업로드 중...)`;
+                            markdownEditor.codemirror.replaceSelection(placeholder);
+                            
+                            handleImageUpload(file).then(url => {
+                                if (url) {
+                                    const content = markdownEditor.value();
+                                    const updatedContent = content.replace(placeholder, `![](${url})`);
+                                    markdownEditor.value(updatedContent);
+                                    console.log('붙여넣기: 에디터에 이미지 URL 삽입 완료:', url);
+                                }
+                            });
+                            
+                            break;
+                        }
+                    }
+                });
+                
+                return markdownEditor;
+            }
+            
+            /**
+             * EasyMDE 에디터에서 사용할 이미지 업로드 함수
+             * @param {File} file - 업로드할 이미지 파일
+             * @returns {Promise<string|null>} - 업로드된 이미지 URL 또는 null
+             */
+            async function handleImageUpload(file) {
+                // 이 함수가 여러 번 호출되는지 확인하기 위한 로그
+                console.log('이미지 업로드 함수 호출:', new Date().toISOString());
+                
+                try {
+                    // 1. 파일 유효성 검사
+                    if (!validateImageFile(file)) {
+                        return null;
+                    }
+                    
+                    showToast('이미지 업로드 중...', 'info');
+                    
+                    // 2. 파일 확장자 추출
+                    const fileExt = file.name.split('.').pop().toLowerCase();
+                    
+                    // 3. 프리사인드 URL 요청
+                    const presignedUrl = await requestPresignedUrl(fileExt);
+                    
+                    // 프리사인드 URL에서 쿼리스트링 제거 (실제 이미지 URL)
+                    const imageUrl = presignedUrl.split('?')[0];
+                    
+                    console.log('프리사인드 URL 획득:', presignedUrl);
+                    console.log('실제 이미지 URL:', imageUrl);
+                    
+                    // 4. S3에 이미지 업로드
+                    await uploadToS3(presignedUrl, file);
+                    
+                    // 5. 업로드 완료 후 DB에 이미지 정보 저장
+                    const saveResult = await completeUpload(imageUrl);
+                    console.log('DB 저장 결과:', saveResult);
+                    
+                    // 6. 썸네일이 없는 경우 첫 번째 이미지를 썸네일로 설정
+                    if (thumbnailUrl === null) {
+                        setThumbnail(imageUrl);
+                    }
+                    
+                    // 7. 이미지 갤러리에 추가
+                    addImageToGallery(imageUrl);
+                    
+                    // 8. 업로드된 이미지 URL 목록에 추가
+                    uploadedUrls.push(imageUrl);
+                    
+                    showToast('이미지가 성공적으로 업로드되었습니다.', 'success');
+                    
+                    // 9. URL 반환
+                    return imageUrl;
+                } catch (error) {
+                    console.error('이미지 업로드 오류:', error);
+                    showToast('이미지 업로드 중 오류가 발생했습니다: ' + error.message, 'error');
+                    return null;
+                }
+            }
+            
+            // =============================================
+            // 3. 마크다운 에디터 초기화 및 설정
+            // =============================================
+            
+            // 마크다운 에디터 초기화
+            editor = initEasyMDE();
+            
+            // 해시태그 기능 설정
+            setupHashtags();
+            
+            // 갤러리 설정
+            setupGallery();
+            
+            // window 객체에 submitPost 함수 등록 (폼 onsubmit에서 사용)
+            window.submitPost = submitPost;
+        });
+    </script>
+</body>
+</html>
