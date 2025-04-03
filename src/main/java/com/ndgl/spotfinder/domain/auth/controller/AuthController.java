@@ -54,11 +54,19 @@ public class AuthController {
 		HttpServletResponse response) {
 		String accessToken = extractAccessTokenFromCookies(request);
 
+		//  accessToken 유무 확인
 		if (accessToken == null) {
 			ErrorCode.MISSING_ACCESS_TOKEN.throwServiceException();
 		}
 
+		//  refreshToken이 redis에 있는지 확인
 		String userId = tokenProvider.getEmail(accessToken);
+		String refreshToken = authService.getRefreshTokenFromRedis(userId);
+
+		//  새 accessToken 발급
+		tokenProvider.createTokenAndSetCookiesByEmail(userId, response);
+
+		return RsData.success(HttpStatus.OK);
 	}
 
 	private String extractAccessTokenFromCookies(HttpServletRequest request) {
