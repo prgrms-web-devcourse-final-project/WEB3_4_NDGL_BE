@@ -67,19 +67,21 @@ public class UserService {
 
 			return UserJoinResponse.from(oauth);
 		} else {
-			User newUser = User.builder()
-				.email(userJoinRequest.email())
-				.nickName(userJoinRequest.nickName())
-				.blogName(userJoinRequest.blogName())
-				.build();
-			userRepository.save(newUser);
+			User newUser = userRepository.save(
+				User.builder()
+					.email(userJoinRequest.email())
+					.nickName(userJoinRequest.nickName())
+					.blogName(userJoinRequest.blogName())
+					.build()
+			);
 
-			Oauth newOauth = Oauth.builder()
-				.user(newUser)
-				.provider(userJoinRequest.provider())
-				.identify(userJoinRequest.identify())
-				.build();
-			oauthRepository.save(newOauth);
+			Oauth newOauth = oauthRepository.save(
+				Oauth.builder()
+					.user(newUser)
+					.provider(userJoinRequest.provider())
+					.identify(userJoinRequest.identify())
+					.build()
+			);
 
 			return UserJoinResponse.from(newOauth);
 		}
