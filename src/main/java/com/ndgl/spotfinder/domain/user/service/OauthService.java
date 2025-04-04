@@ -32,7 +32,7 @@ import com.ndgl.spotfinder.global.security.jwt.TokenProvider;
 import jakarta.servlet.http.HttpServletResponse;
 
 @Service
-public class UserLoginService {
+public class OauthService {
 	@Value("${spring.security.oauth2.client.registration.google.client-id}")
 	private String googleClientId;
 
@@ -46,7 +46,7 @@ public class UserLoginService {
 	private final UserRepository userRepository;
 	private final TokenProvider tokenProvider;
 
-	public UserLoginService(OauthRepository oauthRepository,
+	public OauthService(OauthRepository oauthRepository,
 		UserRepository userRepository,
 		TokenProvider tokenProvider) {
 		this.oauthRepository = oauthRepository;
