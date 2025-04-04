@@ -39,14 +39,19 @@ public record UserJoinRequest(
 	)
 	String blogName
 ) {
-	public static UserJoinRequest of(Oauth oauth) {
-		User user = oauth.getUser();
-		return new UserJoinRequest(
-			oauth.getProvider(),
-			oauth.getIdentify(),
-			user.getNickName(),
-			user.getBlogName(),
-			user.getEmail()
-		);
+	public User toUser() {
+		return User.builder()
+			.email(email)
+			.nickName(nickName)
+			.blogName(blogName)
+			.build();
+	}
+
+	public Oauth toOauth(User user) {
+		return Oauth.builder()
+			.user(user)
+			.provider(provider)
+			.identify(identify)
+			.build();
 	}
 }

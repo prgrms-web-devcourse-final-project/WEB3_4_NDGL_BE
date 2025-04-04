@@ -61,30 +61,10 @@ public class UserService {
 		//  4.  중복 닉네임 및 블로그 명이 있으면 에러 핸들러 발생
 		dupCheck(dupNickName, dupBlogName);
 
-		// 최초 로그인이 아니면 로그인
-		if (existingUser.isPresent()) {
-			Oauth oauth = oauthRepository.findByUser(existingUser.get());
+		User newUser = userRepository.save(userJoinRequest.toUser());
+		Oauth newOauth = oauthRepository.save(userJoinRequest.toOauth(newUser));
 
-			return UserJoinResponse.from(oauth);
-		} else {
-			User newUser = userRepository.save(
-				User.builder()
-					.email(userJoinRequest.email())
-					.nickName(userJoinRequest.nickName())
-					.blogName(userJoinRequest.blogName())
-					.build()
-			);
-
-			Oauth newOauth = oauthRepository.save(
-				Oauth.builder()
-					.user(newUser)
-					.provider(userJoinRequest.provider())
-					.identify(userJoinRequest.identify())
-					.build()
-			);
-
-			return UserJoinResponse.from(newOauth);
-		}
+		return UserJoinResponse.from(newOauth);
 	}
 
 	public void dupCheck(Optional<User> dupNickName, Optional<User> dupBlogName) {
