@@ -60,7 +60,7 @@ public class UserController {
 		UserLoginResponse responseDto = oauthService.processGoogleLogin(Oauth.Provider.GOOGLE, code, redirectUri,
 			response);
 
-		return new RsData<>(responseDto.getCode(), responseDto.getMessage(), responseDto);
+		return RsData.success(HttpStatus.OK);
 
 	}
 
