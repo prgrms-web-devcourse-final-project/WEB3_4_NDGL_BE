@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import com.ndgl.spotfinder.domain.post.entity.Post;
+import com.ndgl.spotfinder.domain.search.document.PostDocument;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -44,6 +45,24 @@ public record PostResponseDto(
 			post.getThumbnail(),
 			post.getLikeCount(),
 			post.getComments().size(),
+			post.getCreatedAt(),
+			post.getHashtags()
+				.stream()
+				.limit(3)
+				.map(HashtagDto::new)
+				.toList()
+		);
+	}
+
+	public PostResponseDto(PostDocument post) {
+		this(
+			post.getId(),
+			post.getTitle(),
+			post.getContent(),
+			post.getNickname(),
+			post.getThumbnail(),
+			post.getLikeCount(),
+			0,
 			post.getCreatedAt(),
 			post.getHashtags()
 				.stream()
