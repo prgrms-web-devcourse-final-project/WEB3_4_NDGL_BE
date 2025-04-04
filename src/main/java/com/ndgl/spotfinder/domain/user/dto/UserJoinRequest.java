@@ -10,15 +10,12 @@ import jakarta.validation.constraints.Size;
 
 public record UserJoinRequest(
 	@NotNull(message = "provider 값이 없습니다. ")
-	@JsonProperty("provider")
 	Oauth.Provider provider,
 
 	@NotNull(message = "identify 값이 필요합니다.")
-	@JsonProperty("identify")
 	String identify,
 
 	@NotNull(message = "email 값이 필요합니다.")
-	@JsonProperty("email")
 	String email,
 
 	@NotNull(message = "nickName 값이 필요합니다.")
