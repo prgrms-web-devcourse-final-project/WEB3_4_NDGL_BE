@@ -66,13 +66,13 @@ public class OauthService {
 
 		UserLoginResponse googleUser = saveOrUpdateGoogleUser(googleUserInfo);
 
-		if (googleUser.code() == HttpStatus.CREATED.value()) {
+		if (googleUser.getCode() == HttpStatus.CREATED.value()) {
 			// 회원가입 폼으로 이동할 유저이므로, 토큰 발급 X
 			return googleUser;
 		}
 
 		//  유저 객체 생성
-		User user = userRepository.findByEmail(googleUser.email())
+		User user = userRepository.findByEmail(googleUser.getEmail())
 			.orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND, "NOT_FOUND"));
 
 		CustomUserDetails customUserDetails = new CustomUserDetails(user);
@@ -165,24 +165,27 @@ public class OauthService {
 
 		}
 
-		return new UserLoginResponse(
-			HttpStatus.OK.value(),
-			null,
-			"GOOGLE",
-			identify,
-			email
-		);
+		return UserLoginResponse.builder()
+			.identify(identify)
+			.email(email)
+			.build();
 	}
 
 	private UserLoginResponse saveOrUpdateGoogleUser(UserLoginResponse userInfo) {
-		String googleId = userInfo.identify();
-		String email = userInfo.email();
+		String googleId = userInfo.getIdentify();
+		String email = userInfo.getEmail();
 
 		Optional<Oauth> existingOauthByIdentify = oauthRepository.findByIdentifyAndProvider(googleId,
 			Oauth.Provider.GOOGLE);
 
 		if (existingOauthByIdentify.isPresent()) {
-			return UserLoginResponse.from(existingOauthByIdentify.get(), HttpStatus.OK.value());
+			return UserLoginResponse.builder()
+				.message("OK")
+				.code(HttpStatus.OK.value())
+				.provider(Oauth.Provider.GOOGLE.name())
+				.identify(googleId)
+				.email(email)
+				.build();
 		}
 
 		Optional<User> existingUser = userRepository.findByEmail(email);
@@ -190,36 +193,33 @@ public class OauthService {
 		if (existingUser.isPresent()) {
 			User nowUser = existingUser.get();
 
-			Optional<Oauth> existingOauth = oauthRepository.findByUserAndProvider(
-				nowUser, Oauth.Provider.GOOGLE);
-
-			Oauth oauth;
+			Optional<Oauth> existingOauth = oauthRepository.findByUserAndProvider(nowUser, Oauth.Provider.GOOGLE);
 
 			if (existingOauth.isEmpty()) {
-				oauth = oauthRepository.save(
-					Oauth.builder()
-						.user(nowUser)
-						.provider(Oauth.Provider.GOOGLE)
-						.identify(googleId)
-						.build()
-				);
-			} else {
-				oauth = existingOauth.get();
+				Oauth newOauth = Oauth.builder()
+					.user(nowUser)
+					.provider(Oauth.Provider.GOOGLE)
+					.identify(googleId)
+					.build();
+
+				oauthRepository.save(newOauth);
 			}
 
-			return UserLoginResponse.from(oauth, HttpStatus.OK.value());
-		} else {
-			User tempUser = User.builder()
+			return UserLoginResponse.builder()
+				.message("OK")
+				.code(HttpStatus.OK.value())
+				.provider(Oauth.Provider.GOOGLE.name())
+				.identify(googleId)
 				.email(email)
 				.build();
-
-			Oauth tempOauth = Oauth.builder()
-				.user(tempUser)
-				.provider(Oauth.Provider.GOOGLE)
+		} else {
+			return UserLoginResponse.builder()
+				.message("OK")
+				.code(HttpStatus.CREATED.value())
+				.provider(Oauth.Provider.GOOGLE.name())
 				.identify(googleId)
+				.email(email)
 				.build();
-
-			return UserLoginResponse.from(tempOauth, HttpStatus.CREATED.value());
 		}
 	}
 }
