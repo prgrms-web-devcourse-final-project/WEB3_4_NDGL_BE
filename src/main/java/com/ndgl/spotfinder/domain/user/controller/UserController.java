@@ -1,6 +1,7 @@
 package com.ndgl.spotfinder.domain.user.controller;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -9,9 +10,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ndgl.spotfinder.domain.user.dto.UserInfoResponse;
 import com.ndgl.spotfinder.domain.user.dto.UserJoinRequest;
 import com.ndgl.spotfinder.domain.user.dto.UserLoginResponse;
 import com.ndgl.spotfinder.domain.user.entity.Oauth;
+import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.domain.user.service.OauthService;
 import com.ndgl.spotfinder.domain.user.service.UserService;
 import com.ndgl.spotfinder.global.exception.ErrorCode;
@@ -77,5 +80,13 @@ public class UserController {
 		userService.logout(userId, response, accessToken);
 
 		return RsData.success(HttpStatus.OK);
+	}
+
+	@GetMapping("/info")
+	public RsData<UserInfoResponse> userInfo(@AuthenticationPrincipal User user) {
+		UserInfoResponse targetUser = userService.getUserInfo(user);
+
+		return RsData.success(HttpStatus.OK, targetUser);
+
 	}
 }

@@ -211,6 +211,7 @@ public class OauthService {
 				.provider(Oauth.Provider.GOOGLE.name())
 				.identify(googleId)
 				.email(email)
+				.userId(nowUser.getId()) // Logging용 id 추가
 				.build();
 		} else {
 			return UserLoginResponse.builder()
