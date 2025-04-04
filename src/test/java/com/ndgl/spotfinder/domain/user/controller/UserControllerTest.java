@@ -26,17 +26,18 @@ public class UserControllerTest {
 
 	@Autowired
 	private ObjectMapper objectMapper;
-	
+
 	@Test
 	@DisplayName("회원가입 테스트")
 	void join_success() throws Exception {
-		UserJoinRequest request = UserJoinRequest.builder()
-			.provider(Oauth.Provider.GOOGLE)
-			.identify("123456789")
-			.email("testman001@gmail.com")
-			.nickName("testman001")
-			.blogName("testblog001")
-			.build();
+		UserJoinRequest request = new UserJoinRequest(
+			Oauth.Provider.GOOGLE,
+			"123456789",
+			"testman001@gmail.com",
+			"testman001",
+			"testblog001"
+
+		);
 
 		mockMvc.perform(post("/api/v1/users/join")
 				.contentType(MediaType.APPLICATION_JSON)
