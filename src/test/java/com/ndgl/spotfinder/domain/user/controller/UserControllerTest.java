@@ -33,9 +33,9 @@ public class UserControllerTest {
 		UserJoinRequest request = new UserJoinRequest(
 			Oauth.Provider.GOOGLE,
 			"123456789",
-			"testman001@gmail.com",
-			"testman001",
-			"testblog001"
+			"testman002@gmail.com",
+			"testman003",
+			"testblog004"
 
 		);
 
