@@ -50,6 +50,7 @@ public enum ErrorCode {
 	// IMAGE
 	UNSUPPORTED_IMAGE_TYPE(HttpStatus.NOT_FOUND, "지원하지 않는 이미지 유형입니다."),
 	IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 이미지가 존재하지 않습니다."),
+	IMAGE_DELETE_ERROR(HttpStatus.NOT_FOUND, "해당 이미지가 존재하지 않습니다."),
 
 	// S3,
 	S3_PRESIGNED_GENERATION_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "Presigned URL 생성 실패"),
