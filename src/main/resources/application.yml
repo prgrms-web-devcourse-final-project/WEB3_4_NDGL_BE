@@ -43,9 +43,6 @@ spring:
       host: redis_1
       port: 6379
 
-    profiles:
-      active: oauth
-
     elasticsearch:
       repositories:
         enabled: true
