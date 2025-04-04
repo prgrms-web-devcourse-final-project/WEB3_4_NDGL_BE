@@ -182,13 +182,7 @@ public class OauthService {
 			Oauth.Provider.GOOGLE);
 
 		if (existingOauthByIdentify.isPresent()) {
-			return new UserLoginResponse(
-				HttpStatus.OK.value(),
-				userInfo.userId(),
-				Oauth.Provider.GOOGLE.name(),
-				googleId,
-				email
-			);
+			return UserLoginResponse.from(existingOauthByIdentify.get(), HttpStatus.OK.value());
 		}
 
 		Optional<User> existingUser = userRepository.findByEmail(email);
@@ -196,33 +190,36 @@ public class OauthService {
 		if (existingUser.isPresent()) {
 			User nowUser = existingUser.get();
 
-			Optional<Oauth> existingOauth = oauthRepository.findByUserAndProvider(nowUser, Oauth.Provider.GOOGLE);
+			Optional<Oauth> existingOauth = oauthRepository.findByUserAndProvider(
+				nowUser, Oauth.Provider.GOOGLE);
+
+			Oauth oauth;
 
 			if (existingOauth.isEmpty()) {
-				Oauth newOauth = Oauth.builder()
-					.user(nowUser)
-					.provider(Oauth.Provider.GOOGLE)
-					.identify(googleId)
-					.build();
-
-				oauthRepository.save(newOauth);
+				oauth = oauthRepository.save(
+					Oauth.builder()
+						.user(nowUser)
+						.provider(Oauth.Provider.GOOGLE)
+						.identify(googleId)
+						.build()
+				);
+			} else {
+				oauth = existingOauth.get();
 			}
 
-			return new UserLoginResponse(
-				HttpStatus.OK.value(),
-				nowUser.getId(),// Logging용 id 추가
-				Oauth.Provider.GOOGLE.name(),
-				googleId,
-				email
-			);
+			return UserLoginResponse.from(oauth, HttpStatus.OK.value());
 		} else {
-			return new UserLoginResponse(
-				HttpStatus.CREATED.value(),
-				null,
-				Oauth.Provider.GOOGLE.name(),
-				googleId,
-				email
-			);
+			User tempUser = User.builder()
+				.email(email)
+				.build();
+
+			Oauth tempOauth = Oauth.builder()
+				.user(tempUser)
+				.provider(Oauth.Provider.GOOGLE)
+				.identify(googleId)
+				.build();
+
+			return UserLoginResponse.from(tempOauth, HttpStatus.CREATED.value());
 		}
 	}
 }
