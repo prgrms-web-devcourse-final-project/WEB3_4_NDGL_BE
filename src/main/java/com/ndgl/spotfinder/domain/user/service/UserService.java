@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ndgl.spotfinder.domain.user.dto.UserInfoResponse;
 import com.ndgl.spotfinder.domain.user.dto.UserJoinRequest;
 import com.ndgl.spotfinder.domain.user.dto.UserJoinResponse;
 import com.ndgl.spotfinder.domain.user.entity.Oauth;
@@ -103,5 +104,18 @@ public class UserService {
 		refreshTokenRepository.deleteById(userId);
 
 		tokenCookieUtil.cleanTokenCookies(response, accessToken);
+	}
+
+	public UserInfoResponse getUserInfo(User user) {
+		User targerUser = findUserByEmail(user.getEmail());
+
+		return UserInfoResponse.builder()
+			.message("OK")
+			.code(HttpStatus.OK.value())
+			.nickname(targerUser.getNickName())
+			.blogName(targerUser.getBlogName())
+			.email(targerUser.getEmail())
+			.createdAt(targerUser.getCreatedAt())
+			.build();
 	}
 }
