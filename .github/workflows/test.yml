@@ -9,6 +9,12 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    services:
+      redis:
+        image: redis
+        ports:
+          - 6379:6379
+
     env:
       SPRING_PROFILES_ACTIVE: test
       JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
@@ -20,6 +26,9 @@ jobs:
       SPRING_SECURITY_GOOGLE_CLIENT_ID: ${{ secrets.SPRING_SECURITY_GOOGLE_CLIENT_ID }}
       SPRING_SECURITY_GOOGLE_CLIENT_SECRET: ${{ secrets.SPRING_SECURITY_GOOGLE_CLIENT_SECRET }}
       SPRING_SECURITY_GOOGLE_REDIRECT_URI: ${{ secrets.SPRING_SECURITY_GOOGLE_REDIRECT_URI }}
+
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
 
     steps:
       - name: Checkout code
