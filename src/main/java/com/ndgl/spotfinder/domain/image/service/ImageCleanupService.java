@@ -34,32 +34,24 @@ public class ImageCleanupService {
 	@Async("imageCleanupExecutor")
 	@Transactional
 	public void cleanupUnusedImages(ImageType imageType, long referenceId, Set<String> usedImageUrls) {
-		log.debug("이미지 정리 시작: type={}, referenceId={}, 사용 중인 이미지 수={}",
-			imageType, referenceId, usedImageUrls.size());
-
 		// DB에서 해당 객체와 연결된 모든 이미지 가져오기
-		List<Image> savedImages = imageRepository.findByImageTypeAndReferenceId(imageType, 999L); // 임시 하드코딩
+		// TODO 임시 하드코딩
+		List<Image> savedImages = imageRepository.findByImageTypeAndReferenceId(imageType, 999L);
 
 		// 실제 사용되지 않는 이미지 필터링
 		List<Image> unusedImages = savedImages.stream()
 			.filter(image -> !usedImageUrls.contains(image.getUrl()))
 			.toList();
 
-		log.debug("미사용 이미지 발견: {}/{} 개의 이미지가 미사용 상태",
-			unusedImages.size(), savedImages.size());
-
 		// 미사용 이미지 삭제 (S3 및 DB에서)
 		for (Image image : unusedImages) {
 			try {
 				s3Service.deleteFile(image.getUrl());
 				imageRepository.delete(image);
-				log.debug("이미지 삭제 완료: {}", image.getUrl());
 			} catch (Exception e) {
-				log.error("이미지 삭제 중 오류: {} - {}", image.getUrl(), e.getMessage());
 				throw ErrorCode.IMAGE_DELETE_ERROR.throwServiceException();
 			}
 		}
 
-		log.debug("이미지 정리 완료: type={}, referenceId={}", imageType, referenceId);
 	}
 } 

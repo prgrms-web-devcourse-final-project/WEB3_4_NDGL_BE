@@ -52,12 +52,11 @@ spring:
 
   logging:
     level:
+      root: INFO
       org.hibernate.SQL: ERROR
       org.hibernate.orm.jdbc.bind: ERROR
       org.hibernate.orm.jdbc.extract: ERROR
       org.springframework.data.redis: INFO
-      com.ndgl.spotfinder.domain.image.service: DEBUG
-      root: INFO
 
   jwt:
     secret:
