@@ -66,13 +66,13 @@ public class OauthService {
 
 		UserLoginResponse googleUser = saveOrUpdateGoogleUser(googleUserInfo);
 
-		if (googleUser.getCode() == HttpStatus.CREATED.value()) {
+		if (googleUser.code() == HttpStatus.CREATED.value()) {
 			// 회원가입 폼으로 이동할 유저이므로, 토큰 발급 X
 			return googleUser;
 		}
 
 		//  유저 객체 생성
-		User user = userRepository.findByEmail(googleUser.getEmail())
+		User user = userRepository.findByEmail(googleUser.email())
 			.orElseThrow(() -> new ServiceException(HttpStatus.NOT_FOUND, "NOT_FOUND"));
 
 		CustomUserDetails customUserDetails = new CustomUserDetails(user);
@@ -165,27 +165,30 @@ public class OauthService {
 
 		}
 
-		return UserLoginResponse.builder()
-			.identify(identify)
-			.email(email)
-			.build();
+		return new UserLoginResponse(
+			HttpStatus.OK.value(),
+			null,
+			"GOOGLE",
+			identify,
+			email
+		);
 	}
 
 	private UserLoginResponse saveOrUpdateGoogleUser(UserLoginResponse userInfo) {
-		String googleId = userInfo.getIdentify();
-		String email = userInfo.getEmail();
+		String googleId = userInfo.identify();
+		String email = userInfo.email();
 
 		Optional<Oauth> existingOauthByIdentify = oauthRepository.findByIdentifyAndProvider(googleId,
 			Oauth.Provider.GOOGLE);
 
 		if (existingOauthByIdentify.isPresent()) {
-			return UserLoginResponse.builder()
-				.message("OK")
-				.code(HttpStatus.OK.value())
-				.provider(Oauth.Provider.GOOGLE.name())
-				.identify(googleId)
-				.email(email)
-				.build();
+			return new UserLoginResponse(
+				HttpStatus.OK.value(),
+				userInfo.userId(),
+				Oauth.Provider.GOOGLE.name(),
+				googleId,
+				email
+			);
 		}
 
 		Optional<User> existingUser = userRepository.findByEmail(email);
@@ -205,22 +208,21 @@ public class OauthService {
 				oauthRepository.save(newOauth);
 			}
 
-			return UserLoginResponse.builder()
-				.message("OK")
-				.code(HttpStatus.OK.value())
-				.provider(Oauth.Provider.GOOGLE.name())
-				.identify(googleId)
-				.email(email)
-				.userId(nowUser.getId()) // Logging용 id 추가
-				.build();
+			return new UserLoginResponse(
+				HttpStatus.OK.value(),
+				nowUser.getId(),// Logging용 id 추가
+				Oauth.Provider.GOOGLE.name(),
+				googleId,
+				email
+			);
 		} else {
-			return UserLoginResponse.builder()
-				.message("OK")
-				.code(HttpStatus.CREATED.value())
-				.provider(Oauth.Provider.GOOGLE.name())
-				.identify(googleId)
-				.email(email)
-				.build();
+			return new UserLoginResponse(
+				HttpStatus.CREATED.value(),
+				null,
+				Oauth.Provider.GOOGLE.name(),
+				googleId,
+				email
+			);
 		}
 	}
 }

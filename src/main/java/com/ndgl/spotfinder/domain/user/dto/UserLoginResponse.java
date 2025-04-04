@@ -1,15 +1,23 @@
 package com.ndgl.spotfinder.domain.user.dto;
 
-import lombok.Builder;
-import lombok.Getter;
+import com.ndgl.spotfinder.domain.user.entity.Oauth;
+import com.ndgl.spotfinder.domain.user.entity.User;
 
-@Getter
-@Builder
-public class UserLoginResponse {
-	private final String message;
-	private final Integer code;
-	private final Long userId;
-	private final String provider;
-	private final String identify;
-	private final String email;
+public record UserLoginResponse(
+	Integer code,
+	Long userId,
+	String provider,
+	String identify,
+	String email
+) {
+	public static UserLoginResponse from(Oauth oauth, Integer code) {
+		User user = oauth.getUser();
+		return new UserLoginResponse(
+			code,
+			user.getId(),
+			oauth.getProvider().toString(),
+			oauth.getIdentify(),
+			user.getEmail()
+		);
+	}
 }
