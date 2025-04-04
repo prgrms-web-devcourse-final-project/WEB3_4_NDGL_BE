@@ -82,30 +82,21 @@ public class SecurityConfig {
 				.permitAll()
 				.requestMatchers(HttpMethod.OPTIONS, "/**")// Preflight 요청(CORS)을 허용하여 브라우저의 사전 요청 차단 문제 해결
 				.permitAll()
-				.requestMatchers(HttpMethod.GET, "/api/v1/posts/**")
+				.requestMatchers(HttpMethod.GET,
+					"/api/v1/posts/**",
+					"/api/v1/posts/*/comments",
+					"/api/v1/posts/*/comments/*"
+				)
 				.permitAll()
-				.requestMatchers(HttpMethod.GET, "/api/v1/posts/*/comments")
-				.permitAll()
-				.requestMatchers(HttpMethod.GET, "/api/v1/posts/*/comments/*")
-				.permitAll()
-				// 관리자 권한 필요한 요청
-				.requestMatchers(HttpMethod.GET, "/api/*/admin/logout")
-				.hasAuthority("ROLE_ADMIN")
-				.requestMatchers(HttpMethod.GET, "/api/*/admin/resign")
-				.hasAuthority("ROLE_ADMIN")
-				.requestMatchers(HttpMethod.GET, "/api/*/admin/posts/statistics")
-				.hasAuthority("ROLE_ADMIN")
-				.requestMatchers(HttpMethod.GET, "/api/*/reports/posts")
-				.hasAuthority("ROLE_ADMIN")
-				.requestMatchers(HttpMethod.GET, "/api/*/reports/comments")
-				.hasAuthority("ROLE_ADMIN")
-				.requestMatchers(HttpMethod.POST, "/api/*/reports/{reportId}/post/ban")
-				.hasAuthority("ROLE_ADMIN")
-				.requestMatchers(HttpMethod.POST, "/api/*/reports/{reportId}/comment/ban")
-				.hasAuthority("ROLE_ADMIN")
-				.requestMatchers(HttpMethod.POST, "/api/*/reports/{reportId}/post/reject")
-				.hasAuthority("ROLE_ADMIN")
-				.requestMatchers(HttpMethod.POST, "/api/*/reports/{reportId}/comment/reject")
+				.requestMatchers(HttpMethod.POST,
+					"/api/*/reports/posts/{id}",
+					"/api/*/reports/comments/{id}"
+				)
+				.authenticated()
+				.requestMatchers(
+					"/api/*/admin/**",
+					"/api/*/reports/**"
+				)
 				.hasAuthority("ROLE_ADMIN")
 				.anyRequest()
 				.authenticated()

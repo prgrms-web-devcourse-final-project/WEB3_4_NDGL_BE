@@ -15,6 +15,7 @@ public enum ErrorCode {
 	ACCESS_DENIED(HttpStatus.FORBIDDEN, "권한이 없습니다."),
 
 	ADMIN_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 관리자입니다."),
+	ADMIN_ALREADY_EXISTS_USERNAME(HttpStatus.CONFLICT, "이미 사용 중인 관리자 username 입니다."),
 
 	CONFLICTED_NICKNAME(HttpStatus.CONFLICT, "이미 사용중인 닉네임 입니다."),
 	CONFLICTED_BLOG_NAME(HttpStatus.CONFLICT, "이미 사용중인 블로그 명 입니다."),

@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Profile;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ndgl.spotfinder.domain.admin.entity.Admin;
@@ -37,6 +38,7 @@ public class ReportTestInit {
 	private final AdminRepository adminRepository;
 	private final PostRepository postRepository;
 	private final PostCommentRepository postCommentRepository;
+	private final PasswordEncoder passwordEncoder;
 
 	@Autowired
 	@Lazy
@@ -60,7 +62,11 @@ public class ReportTestInit {
 			return;
 		}
 		// 테스트 사용자 생성
-		Admin admin = Admin.builder().username("admin").password("12345").build();
+		String username = "admin";
+		String password = "12345";
+		String encodedPassword = passwordEncoder.encode(password);
+
+		Admin admin = Admin.builder().username("admin").password(encodedPassword).build();
 		adminRepository.save(admin);
 	}
 
