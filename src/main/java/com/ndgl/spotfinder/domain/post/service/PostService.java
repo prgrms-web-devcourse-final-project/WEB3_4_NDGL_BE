@@ -1,5 +1,10 @@
 package com.ndgl.spotfinder.domain.post.service;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import java.util.List;
 
 import org.springframework.data.domain.PageRequest;
@@ -7,6 +12,8 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ndgl.spotfinder.domain.image.service.ImageCleanupService;
+import com.ndgl.spotfinder.domain.image.type.ImageType;
 import com.ndgl.spotfinder.domain.post.dto.PostCreateRequestDto;
 import com.ndgl.spotfinder.domain.post.dto.PostDetailResponseDto;
 import com.ndgl.spotfinder.domain.post.dto.PostResponseDto;
@@ -26,6 +33,7 @@ import lombok.RequiredArgsConstructor;
 public class PostService {
 	private final PostRepository postRepository;
 	private final UserService userService;
+	private final ImageCleanupService imageCleanupService;
 
 	private static final Long DEFAULT_LAST_ID = 0L;
 
@@ -33,7 +41,11 @@ public class PostService {
 	public void createPost(PostCreateRequestDto requestDto, String email) {
 		User user = userService.findUserByEmail(email);
 
-		postRepository.save(requestDto.toPost(user));
+		Post post = requestDto.toPost(user);
+		postRepository.save(post);
+
+		Set<String> usedImageUrls = extractImageUrlsFromContent(post.getContent());
+		imageCleanupService.cleanupUnusedImages(ImageType.POST, post.getId(), usedImageUrls);
 	}
 
 	@Transactional
@@ -137,5 +149,20 @@ public class PostService {
 			results.map(PostResponseDto::new).toList(),
 			results.hasNext()
 		);
+	}
+
+	/**
+	 * 컨텐츠에서 이미지 URL을 추출하는 헬퍼 메서드
+	 */
+	private Set<String> extractImageUrlsFromContent(String content) {
+		Set<String> urls = new HashSet<>();
+
+		Pattern markdownPattern = Pattern.compile("!\\[\\]\\((https?://[^\\)]+)\\)");
+		Matcher markdownMatcher = markdownPattern.matcher(content);
+		while (markdownMatcher.find()) {
+			urls.add(markdownMatcher.group(1));
+		}
+
+		return urls;
 	}
 }

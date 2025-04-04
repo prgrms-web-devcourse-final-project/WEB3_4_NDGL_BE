@@ -49,7 +49,7 @@ public class ImageController {
 	public RsData<PresignedUrlsResponse> createPresignedUrl(
 		@Valid @RequestBody ImageRequest rq
 	) {
-		log.info("Presigned URL 요청 받음: referenceId={}, type={}, extensions={}",
+		log.debug("Presigned URL 요청 받음: referenceId={}, type={}, extensions={}",
 			rq.referenceId(), rq.imageType(), rq.imageExtensions());
 
 		PresignedUrlsResponse rs = imageService.createImage(rq);
@@ -71,7 +71,7 @@ public class ImageController {
 	public RsData<String> uploadComplete(
 		@Valid @RequestBody UploadCompleteRequest rq
 	) {
-		log.info("업로드 완료 요청 받음: referenceId={}, type={}, urls 개수={}",
+		log.debug("업로드 완료 요청 받음: referenceId={}, type={}, urls 개수={}",
 			rq.id(), rq.imageType(), rq.imageUrl().size());
 
 		imageService.saveImages(rq);
@@ -84,7 +84,7 @@ public class ImageController {
 	@Deprecated
 	@DeleteMapping
 	public RsData<String> deleteImage(@RequestParam String url) {
-		log.info("삭제 URL : url={}", url);
+		log.debug("삭제 URL : url={}", url);
 		imageService.deleteImageByUrl(url);
 		return RsData.success(HttpStatus.OK, "이미지가 성공적으로 삭제되었습니다.");
 	}
