@@ -34,11 +34,9 @@ public class ImageCleanupService {
 	@Async("imageCleanupExecutor")
 	@Transactional
 	public void cleanupUnusedImages(ImageType imageType, long referenceId, Set<String> usedImageUrls) {
-		// DB에서 해당 객체와 연결된 모든 이미지 가져오기
 		// TODO 임시 하드코딩
 		List<Image> savedImages = imageRepository.findByImageTypeAndReferenceId(imageType, 999L);
 
-		// 실제 사용되지 않는 이미지 필터링
 		List<Image> unusedImages = savedImages.stream()
 			.filter(image -> !usedImageUrls.contains(image.getUrl()))
 			.toList();

@@ -53,7 +53,10 @@ public class PostService {
 		Post post = findPostById(id);
 
 		checkUserPermission(post, email);
-		postRepository.save(requestDto.toUpdatedPost(post));
+		postRepository.save(post.updatePost(requestDto));
+
+		Set<String> usedImageUrls = extractImageUrlsFromContent(post.getContent());
+		imageCleanupService.cleanupUnusedImages(ImageType.POST, post.getId(), usedImageUrls);
 	}
 
 	@Transactional
