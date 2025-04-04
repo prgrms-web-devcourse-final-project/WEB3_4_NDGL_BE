@@ -50,6 +50,9 @@ public class PostService {
 
 		checkUserPermission(post, email);
 		postRepository.save(post.updatePost(requestDto));
+
+		Set<String> usedImageUrls = extractImageUrlsFromContent(post.getContent());
+		imageCleanupService.cleanupUnusedImages(ImageType.POST, post.getId(), usedImageUrls);
 	}
 
 	@Transactional

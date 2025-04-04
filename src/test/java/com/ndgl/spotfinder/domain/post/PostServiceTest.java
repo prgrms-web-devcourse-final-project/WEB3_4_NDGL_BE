@@ -14,7 +14,9 @@ import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.util.ReflectionTestUtils;
 
+import com.ndgl.spotfinder.domain.image.service.ImageCleanupService;
 import com.ndgl.spotfinder.domain.post.dto.HashtagDto;
 import com.ndgl.spotfinder.domain.post.dto.LocationDto;
 import com.ndgl.spotfinder.domain.post.dto.PostCreateRequestDto;
@@ -34,6 +36,9 @@ import com.ndgl.spotfinder.global.exception.ServiceException;
 public class PostServiceTest {
 	@InjectMocks
 	private PostService postService;
+
+	@Mock
+	private ImageCleanupService imageCleanupService;
 
 	@Mock
 	private PostRepository postRepository;
@@ -102,6 +107,12 @@ public class PostServiceTest {
 
 		// when
 		when(userService.findUserByEmail("이메일1")).thenReturn(user1);
+		when(postRepository.save(any(Post.class))).thenAnswer(invocation -> {
+			Post post = invocation.getArgument(0);
+			ReflectionTestUtils.setField(post, "id", 1L);
+			return post;
+		});
+
 		postService.createPost(requestDto, "이메일1");
 
 		// then
