@@ -45,6 +45,8 @@ public class UserController {
 	public RsData<Void> join(
 		@Valid @RequestBody UserJoinRequest userJoinRequest) {
 
+		System.out.println(userJoinRequest);
+
 		userService.join(userJoinRequest);
 
 		return RsData.success(HttpStatus.OK);
@@ -60,7 +62,7 @@ public class UserController {
 		UserLoginResponse responseDto = oauthService.processGoogleLogin(Oauth.Provider.GOOGLE, code, redirectUri,
 			response);
 
-		return RsData.success(HttpStatus.OK);
+		return RsData.success(HttpStatus.OK, responseDto);
 
 	}
 
