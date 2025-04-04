@@ -56,7 +56,9 @@ public enum ErrorCode {
 	S3_OBJECT_DELETE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "S3 객체 삭제 실패"),
 	S3_OBJECT_ACCESS_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "S3 객체 조회 실패"),
 	S3_OBJECT_UPLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "S3 업로드 실패"),
-	S3_INVALID_URL(HttpStatus.INTERNAL_SERVER_ERROR, "옳지 않은 URL");
+	S3_INVALID_URL(HttpStatus.INTERNAL_SERVER_ERROR, "옳지 않은 URL"),
+
+	UNREADABLE_REQUEST_PAYLOAD(HttpStatus.BAD_REQUEST, "요청 데이터 파싱을 실패하였습니다.");
 
 	private final HttpStatus httpStatus;
 	private final String message;

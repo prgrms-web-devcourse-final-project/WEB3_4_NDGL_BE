@@ -118,10 +118,11 @@ public class BaseInitData {
 
 			for (int i = 1; i <= 2; i++) {
 				Post post = Post.builder()
-					.title(user.getNickName() + "의 " + theme + " 코스 " + i)
+					// .title(user.getNickName() + "의 " + theme + " 코스 " + i)
+					.title("임시글")
 					.content(theme + "을 소개합니다. 서울의 아름다운 명소들을 방문해보세요.")
 					.user(user)
-					.thumbnail("https://example.com/" + user.getId() + "_thumbnail" + i + ".jpg")
+					// .thumbnail("https://example.com/" + user.getId() + "_thumbnail" + i + ".jpg")
 					.viewCount((long)(i * 10)) // 조회수 설정
 					.likeCount(0L)
 					.build();
