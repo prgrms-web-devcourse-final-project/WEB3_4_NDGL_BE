@@ -28,9 +28,9 @@ public class AdminController {
 
 	@PostMapping("/join")
 	public RsData<CreateAdminResponse> joinAdmin(@RequestBody @Valid CreateAdminRequest createAdminRequest) {
-		long adminId = adminService.join(createAdminRequest);
+		CreateAdminResponse createAdminResponse = adminService.join(createAdminRequest);
 
-		return RsData.success(HttpStatus.OK, new CreateAdminResponse(adminId));
+		return RsData.success(HttpStatus.OK, createAdminResponse);
 	}
 
 	@PostMapping("/resign")
