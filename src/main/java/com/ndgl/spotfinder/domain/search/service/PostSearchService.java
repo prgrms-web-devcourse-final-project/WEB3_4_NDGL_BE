@@ -52,11 +52,15 @@ public class PostSearchService {
 
 	private SliceResponse<PostResponseDto> searchWithElasticsearch(SliceRequest request, String keyword) {
 		if (postSearchRepository == null) {  // ES 서버 비활성 재확인 수행
+			log.info("엘라스틱서치 실패");
 			return searchWithJpa(request, keyword);
 		}
 
 		Pageable pageable = PageRequest.of(0, request.size());
 		Page<PostDocument> page = postSearchRepository.findByTitleOrContent(keyword, keyword, pageable);
+
+		log.info("엘라스틱서치 결과 수: {}", page.getTotalElements());
+		page.getContent().forEach(post -> log.info("결과: id={}, title={}", post.getId(), post.getTitle()));
 
 		log.info("엘라스틱서치 사용");
 		return new SliceResponse<>(

@@ -9,12 +9,19 @@ import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
+import com.ndgl.spotfinder.domain.post.entity.Hashtag;
+import com.ndgl.spotfinder.domain.post.entity.Post;
+
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Document(indexName = "my_index")
 @Getter
 @AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class PostDocument {
 	@Id
 	@Field(type = FieldType.Long, index = false)
@@ -46,4 +53,23 @@ public class PostDocument {
 
 	@Field(type = FieldType.Keyword)
 	private List<String> hashtags;
+
+	public static PostDocument from(Post post) {
+		return PostDocument.builder()
+			.id(post.getId())
+			.title(post.getTitle())
+			.content(post.getContent())
+			.nickname(post.getUser().getNickName())
+			.createdAt(post.getCreatedAt())
+			.updatedAt(post.getUpdatedAt())
+			.thumbnail(post.getThumbnail())
+			.viewCount(post.getViewCount())
+			.likeCount(post.getLikeCount())
+			.hashtags(
+				post.getHashtags().stream()
+					.map(Hashtag::getName)
+					.toList()
+			)
+			.build();
+	}
 }

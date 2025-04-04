@@ -19,6 +19,8 @@ import com.ndgl.spotfinder.domain.post.entity.Hashtag;
 import com.ndgl.spotfinder.domain.post.entity.Location;
 import com.ndgl.spotfinder.domain.post.entity.Post;
 import com.ndgl.spotfinder.domain.post.repository.PostRepository;
+import com.ndgl.spotfinder.domain.search.document.PostDocument;
+import com.ndgl.spotfinder.domain.search.repository.PostSearchRepository;
 import com.ndgl.spotfinder.domain.user.entity.Oauth;
 import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.domain.user.repository.OauthRepository;
@@ -38,6 +40,7 @@ public class BaseInitData {
 	private final PostRepository postRepository;
 	private final LikeRepository likeRepository;
 	private final PostCommentRepository postCommentRepository;
+	private final PostSearchRepository postSearchRepository;
 
 	@Autowired
 	@Lazy
@@ -158,7 +161,16 @@ public class BaseInitData {
 			}
 		}
 
+		List<Post> savedPosts = postRepository.findAll();
 		log.debug("게시물 {} 개 생성 완료", postRepository.count());
+
+		if (postSearchRepository != null) {
+			List<PostDocument> docs = savedPosts.stream()
+				.map(PostDocument::from)
+				.toList();
+
+			postSearchRepository.saveAll(docs);
+		}
 	}
 
 	@Transactional

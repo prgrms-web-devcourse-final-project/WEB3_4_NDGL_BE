@@ -1,7 +1,9 @@
 package com.ndgl.spotfinder.domain.post.dto;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import com.ndgl.spotfinder.domain.post.entity.Post;
 import com.ndgl.spotfinder.domain.search.document.PostDocument;
@@ -64,7 +66,8 @@ public record PostResponseDto(
 			post.getLikeCount(),
 			0,
 			post.getCreatedAt(),
-			post.getHashtags()
+			Optional.ofNullable(post.getHashtags())
+				.orElse(Collections.emptyList())
 				.stream()
 				.limit(3)
 				.map(HashtagDto::new)
