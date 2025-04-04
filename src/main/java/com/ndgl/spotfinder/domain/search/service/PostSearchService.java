@@ -1,5 +1,8 @@
 package com.ndgl.spotfinder.domain.search.service;
 
+import java.util.Comparator;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -56,18 +59,29 @@ public class PostSearchService {
 			return searchWithJpa(request, keyword);
 		}
 
-		Pageable pageable = PageRequest.of(0, request.size());
+		Long lastId = request.lastId();
+		int size = request.size();
+		Pageable pageable = PageRequest.of(0, size + 1);
 		Page<PostDocument> page = postSearchRepository.findByTitleOrContent(keyword, keyword, pageable);
 
+		List<PostDocument> filtered = page.getContent().stream()
+			.filter(post -> post.getId() > lastId)
+			.sorted(Comparator.comparing(PostDocument::getId))
+			.limit(size + 1)
+			.toList();
+
+		boolean hasNext = filtered.size() > size;
+		List<PostDocument> content = hasNext ? filtered.subList(0, size) : filtered;
+
 		log.info("엘라스틱서치 결과 수: {}", page.getTotalElements());
-		page.getContent().forEach(post -> log.info("결과: id={}, title={}", post.getId(), post.getTitle()));
+		content.forEach(post -> log.info("결과: id={}, title={}", post.getId(), post.getTitle()));
 
 		log.info("엘라스틱서치 사용");
 		return new SliceResponse<>(
-			page.getContent().stream()
+			content.stream()
 				.map(PostResponseDto::new)
 				.toList(),
-			page.hasNext()
+			hasNext
 		);
 	}
 
