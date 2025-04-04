@@ -43,6 +43,13 @@ spring:
       host: redis_1
       port: 6379
 
+    profiles:
+      active: oauth
+
+    elasticsearch:
+      repositories:
+        enabled: true
+
   logging:
     level:
       org.hibernate.SQL: ERROR
@@ -50,6 +57,11 @@ spring:
       org.hibernate.orm.jdbc.extract: ERROR
       org.springframework.data.redis: INFO
       root: INFO
+
+  elasticsearch:
+    uris: http://localhost:9200
+    ssl:
+      verification-mode: none
 
 jwt:
   secret:
@@ -70,3 +82,6 @@ aes:
 
 springdoc:
   default-produces-media-type: application/json;charset=UTF-8
+
+elasticsearch:
+  enabled: false
