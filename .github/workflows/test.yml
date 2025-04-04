@@ -27,9 +27,6 @@ jobs:
       SPRING_SECURITY_GOOGLE_CLIENT_SECRET: ${{ secrets.SPRING_SECURITY_GOOGLE_CLIENT_SECRET }}
       SPRING_SECURITY_GOOGLE_REDIRECT_URI: ${{ secrets.SPRING_SECURITY_GOOGLE_REDIRECT_URI }}
 
-      SPRING_DATA_REDIS_HOST: localhost
-      SPRING_DATA_REDIS_PORT: 6379
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
