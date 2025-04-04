@@ -29,12 +29,11 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
 	Optional<Post> findTopByOrderByIdDesc();
 
-	Slice<Post> findByTitleContainingOrContentContainingAndIdGreaterThan(
-		String title, String content, Long lastId, PageRequest pageRequest);
-
-	Slice<Post> findByUser_NickNameContainingAndIdGreaterThan(
-		String nickname, Long lastId, PageRequest pageRequest);
-
-	Slice<Post> findByHashtags_NameContainingAndIdGreaterThan(
-		String hashtag, Long lastId, PageRequest pageRequest);
+	@Query("SELECT p FROM Post p "
+		+ "WHERE (LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')) "
+		+ "OR LOWER(p.content) LIKE LOWER(CONCAT('%', :keyword, '%')) "
+		+ "OR LOWER(p.user.nickName) LIKE LOWER(CONCAT('%', :keyword, '%')) "
+		+ "OR EXISTS (SELECT h FROM p.hashtags h WHERE LOWER(h.name) LIKE LOWER(CONCAT('%', :keyword, '%')))) "
+		+ "AND p.id > :lastId")
+	Slice<Post> searchAll(String keyword, Long lastId, PageRequest pageRequest);
 }
