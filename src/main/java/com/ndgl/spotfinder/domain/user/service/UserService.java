@@ -2,7 +2,6 @@ package com.ndgl.spotfinder.domain.user.service;
 
 import java.util.Optional;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,43 +50,21 @@ public class UserService {
 		 * */
 
 		//  1.  users 테이블에 이메일이 존재 하는지 확인.
-		Optional<User> existingUser = userRepository.findByEmail(userJoinRequest.getEmail());
+		Optional<User> existingUser = userRepository.findByEmail(userJoinRequest.email());
 
 		//  2.  Users 테이블에서 같은 닉네임 있는지 확인
-		Optional<User> dupNickName = userRepository.findByNickName(userJoinRequest.getNickName());
+		Optional<User> dupNickName = userRepository.findByNickName(userJoinRequest.nickName());
 
 		//  3.  Users 테이블에서 같은 블로그 명 있는지 확인
-		Optional<User> dupBlogName = userRepository.findByBlogName(userJoinRequest.getBlogName());
+		Optional<User> dupBlogName = userRepository.findByBlogName(userJoinRequest.blogName());
 
 		//  4.  중복 닉네임 및 블로그 명이 있으면 에러 핸들러 발생
 		dupCheck(dupNickName, dupBlogName);
 
-		// 최초 로그인이 아니면 로그인
-		if (existingUser.isPresent()) {
-			return UserJoinResponse.builder()
-				.code(HttpStatus.OK.value())
-				.message("OK")
-				.build();
-		} else {
-			User newUser = User.builder()
-				.email(userJoinRequest.getEmail())
-				.nickName(userJoinRequest.getNickName())
-				.blogName(userJoinRequest.getBlogName())
-				.build();
-			userRepository.save(newUser);
+		User newUser = userRepository.save(userJoinRequest.toUser());
+		Oauth newOauth = oauthRepository.save(userJoinRequest.toOauth(newUser));
 
-			Oauth newOauth = Oauth.builder()
-				.user(newUser)
-				.provider(userJoinRequest.getProvider())
-				.identify(userJoinRequest.getIdentify())
-				.build();
-			oauthRepository.save(newOauth);
-
-			return UserJoinResponse.builder()
-				.message("ok")
-				.code(HttpStatus.OK.value())
-				.build();
-		}
+		return UserJoinResponse.from(newOauth);
 	}
 
 	public void dupCheck(Optional<User> dupNickName, Optional<User> dupBlogName) {
