@@ -94,7 +94,7 @@ public class PostService {
 		}
 	}
 
-	private Long getLastPostId(SliceRequest sliceRequest) {
+	public Long getLastPostId(SliceRequest sliceRequest) {
 		if (sliceRequest.lastId() == null) {
 			return postRepository.findTopByOrderByIdDesc()
 				.map(post -> post.getId() + 1)

@@ -66,6 +66,9 @@ dependencies {
 
     // spring-dotenv
     implementation 'me.paulschwarz:spring-dotenv:3.0.0'
+
+    //elasticSearch
+    implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch:3.0.0'
 }
 
 tasks.named('test') {

@@ -2,6 +2,7 @@ package com.ndgl.spotfinder.domain.comment.dto;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import com.ndgl.spotfinder.domain.comment.entity.PostComment;
@@ -31,6 +32,7 @@ public class PostCommentDto {
 		this.modifiedAt = comment.getModifiedAt();
 		this.replies = comment.getChildrenComments() == null ? new ArrayList<>()
 			: comment.getChildrenComments().stream()
+			.sorted(Comparator.comparing(PostComment::getId).reversed())
 			.map(PostCommentDto::new)
 			.toList();
 	}

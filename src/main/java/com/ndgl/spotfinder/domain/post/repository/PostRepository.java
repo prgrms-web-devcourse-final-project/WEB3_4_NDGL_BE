@@ -28,4 +28,12 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 		PageRequest pageRequest);
 
 	Optional<Post> findTopByOrderByIdDesc();
+
+	@Query("SELECT p FROM Post p "
+		+ "WHERE (LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')) "
+		+ "OR LOWER(p.content) LIKE LOWER(CONCAT('%', :keyword, '%')) "
+		+ "OR LOWER(p.user.nickName) LIKE LOWER(CONCAT('%', :keyword, '%')) "
+		+ "OR EXISTS (SELECT h FROM p.hashtags h WHERE LOWER(h.name) LIKE LOWER(CONCAT('%', :keyword, '%')))) "
+		+ "AND p.id > :lastId")
+	Slice<Post> searchAll(String keyword, Long lastId, PageRequest pageRequest);
 }

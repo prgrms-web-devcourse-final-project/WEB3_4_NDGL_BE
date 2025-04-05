@@ -27,10 +27,12 @@ public class PostCommentService {
 	private final UserRepository userRepository;
 
 	@Transactional(readOnly = true)
-	public SliceResponse<PostCommentDto> getComments(Long postId, long lastId, int size) {
+	public SliceResponse<PostCommentDto> getComments(Long postId, Long lastId, int size) {
 		Pageable pageable = PageRequest.of(0, size);
+		long startId = (lastId != null) ? lastId : Long.MAX_VALUE;
+
 		Slice<PostComment> comments = postCommentRepository
-			.findByPostIdAndParentCommentIsNullAndIdGreaterThanOrderByIdAsc(postId, lastId, pageable);
+			.findByPostIdAndParentCommentIsNullAndIdLessThanOrderByIdDesc(postId, startId, pageable);
 
 		return new SliceResponse<>(
 			comments.stream()
