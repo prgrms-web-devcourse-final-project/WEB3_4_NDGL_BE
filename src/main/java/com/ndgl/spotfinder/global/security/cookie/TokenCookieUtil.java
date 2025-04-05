@@ -16,7 +16,8 @@ public class TokenCookieUtil {
 		//  accessToken을 쿠키에 넣자!
 		Cookie accessCookie = new Cookie("accessToken", accessToken);
 		accessCookie.setHttpOnly(true);
-		accessCookie.setSecure(true);
+		//accessCookie.setSecure(true);
+		accessCookie.setSecure(false);
 		accessCookie.setPath("/");
 		accessCookie.setMaxAge(validationTime.intValue() / 1000);// ms -> s로 변환
 
