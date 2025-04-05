@@ -233,7 +233,7 @@ public class PostCommentServiceTest {
 		Slice<PostComment> commentSlice = new SliceImpl<>(comments.subList(0, size), pageRequest, true);
 
 		// Repository Stub 설정
-		when(postCommentRepository.findByPostIdAndParentCommentIsNullAndIdGreaterThanOrderByIdAsc(postId, lastId, pageRequest))
+		when(postCommentRepository.findByPostIdAndParentCommentIsNullAndIdLessThanOrderByIdDesc(postId, lastId, pageRequest))
 			.thenReturn(commentSlice);
 
 		// When
@@ -244,7 +244,7 @@ public class PostCommentServiceTest {
 		assertEquals(size, response.contents().size());
 		assertTrue(response.hasNext());
 		verify(postCommentRepository, times(1))
-			.findByPostIdAndParentCommentIsNullAndIdGreaterThanOrderByIdAsc(postId, lastId, pageRequest);
+			.findByPostIdAndParentCommentIsNullAndIdLessThanOrderByIdDesc(postId, lastId, pageRequest);
 	}
 
 	@Test
@@ -262,7 +262,7 @@ public class PostCommentServiceTest {
 		Slice<PostComment> commentSlice = new SliceImpl<>(comments.subList(0, toIndex), pageRequest, false);
 
 		// Repository Stub 설정
-		when(postCommentRepository.findByPostIdAndParentCommentIsNullAndIdGreaterThanOrderByIdAsc(postId, lastId, pageRequest))
+		when(postCommentRepository.findByPostIdAndParentCommentIsNullAndIdLessThanOrderByIdDesc(postId, lastId, pageRequest))
 			.thenReturn(commentSlice);
 
 		// When
@@ -273,7 +273,7 @@ public class PostCommentServiceTest {
 		assertEquals(toIndex, response.contents().size());
 		assertFalse(response.hasNext());
 		verify(postCommentRepository, times(1))
-			.findByPostIdAndParentCommentIsNullAndIdGreaterThanOrderByIdAsc(postId, lastId, pageRequest);
+			.findByPostIdAndParentCommentIsNullAndIdLessThanOrderByIdDesc(postId, lastId, pageRequest);
 	}
 
 
@@ -288,7 +288,7 @@ public class PostCommentServiceTest {
 		PageRequest pageRequest = PageRequest.of(0, size);
 		Slice<PostComment> emptySlice = new SliceImpl<>(Collections.emptyList(), pageRequest, false);
 
-		when(postCommentRepository.findByPostIdAndParentCommentIsNullAndIdGreaterThanOrderByIdAsc(postId, lastId, pageRequest))
+		when(postCommentRepository.findByPostIdAndParentCommentIsNullAndIdLessThanOrderByIdDesc(postId, lastId, pageRequest))
 			.thenReturn(emptySlice);
 
 		// When
@@ -299,6 +299,6 @@ public class PostCommentServiceTest {
 		assertTrue(response.contents().isEmpty());
 		assertFalse(response.hasNext());
 		verify(postCommentRepository, times(1))
-			.findByPostIdAndParentCommentIsNullAndIdGreaterThanOrderByIdAsc(postId, lastId, pageRequest);
+			.findByPostIdAndParentCommentIsNullAndIdLessThanOrderByIdDesc(postId, lastId, pageRequest);
 	}
 }
