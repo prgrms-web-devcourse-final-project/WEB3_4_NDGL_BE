@@ -9,6 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.ndgl.spotfinder.domain.user.dto.UserInfoResponse;
 import com.ndgl.spotfinder.domain.user.dto.UserJoinRequest;
 import com.ndgl.spotfinder.domain.user.dto.UserJoinResponse;
+import com.ndgl.spotfinder.domain.user.dto.UserModifiedRequest;
+import com.ndgl.spotfinder.domain.user.dto.UserModifiedResponse;
 import com.ndgl.spotfinder.domain.user.entity.Oauth;
 import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.domain.user.repository.OauthRepository;
@@ -107,13 +109,28 @@ public class UserService {
 	}
 
 	public UserInfoResponse getUserInfo(User user) {
-		User targerUser = findUserByEmail(user.getEmail());
+		User targetUser = findUserByEmail(user.getEmail());
 
-		return new UserInfoResponse(
-			targerUser.getNickName(),
-			targerUser.getBlogName(),
-			targerUser.getEmail(),
-			targerUser.getCreatedAt()
+		return UserInfoResponse.from(targetUser);
+	}
+
+	@Transactional
+	public UserModifiedResponse updateUser(UserModifiedRequest request, User user) {
+		User targetUser = findUserByEmail(user.getEmail());
+
+		targetUser.setNickName(request.nickName());
+		targetUser.setBlogName(request.blogName());
+
+		return UserModifiedResponse.success(
+			HttpStatus.OK.value(),
+			"OK",
+			targetUser
 		);
+	}
+
+	@Transactional
+	public void deleteUser(User user) {
+		User targetUser = findUserByEmail(user.getEmail());
+		userRepository.delete(targetUser);
 	}
 }
