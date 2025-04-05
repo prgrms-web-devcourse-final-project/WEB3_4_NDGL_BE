@@ -12,14 +12,6 @@ public class TokenCookieUtil {
 	private Long validationTime;
 
 	public void setTokenCookies(HttpServletResponse response, String accessToken) {
-		//  accessToken을 쿠키에 넣자!
-		// Cookie accessCookie = new Cookie("accessToken", accessToken);
-		// accessCookie.setHttpOnly(true);
-		// accessCookie.setSecure(true);
-		// //accessCookie.setSecure(false);
-		// accessCookie.setPath("/");
-		// accessCookie.setMaxAge(validationTime.intValue() / 1000);// ms -> s로 변환
-
 		int maxAge = validationTime.intValue() / 1000;
 
 		//  samesite 설정
@@ -33,13 +25,6 @@ public class TokenCookieUtil {
 	}
 
 	public void cleanTokenCookies(HttpServletResponse response, String cookieName) {
-		// Cookie cookie = new Cookie(cookieName, null);
-		// cookie.setMaxAge(0);
-		// cookie.setPath("/");
-		// cookie.setHttpOnly(true);  // HttpOnly 속성 추가
-		// cookie.setSecure(true);  // Secure 속성 추가
-		// response.addCookie(cookie);
-
 		String cookieString = String.format(
 			"%s=; Max-Age=0; Path=/; HttpOnly; Secure; SameSite=None",
 			cookieName
