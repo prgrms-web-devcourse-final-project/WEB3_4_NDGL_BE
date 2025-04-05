@@ -24,7 +24,7 @@ public class TokenCookieUtil {
 
 		//  samesite 설정
 		String cookieString = String.format(
-			"%s=%s; Max-Age=%d; Path=%s; HttpOnly; Secure; SameSite=None",
+			"accessToken=%s; Max-Age=%d; Path=/; HttpOnly; Secure; SameSite=Lax",
 			accessToken,
 			maxAge
 		);

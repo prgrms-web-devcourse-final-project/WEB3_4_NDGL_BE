@@ -11,4 +11,5 @@ public class UserLoginResponse {
 	private final String provider;
 	private final String identify;
 	private final String email;
+	private final Long userId;
 }

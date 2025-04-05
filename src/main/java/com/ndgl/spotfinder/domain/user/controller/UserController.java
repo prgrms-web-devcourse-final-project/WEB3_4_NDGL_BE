@@ -3,8 +3,10 @@ package com.ndgl.spotfinder.domain.user.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -13,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ndgl.spotfinder.domain.user.dto.UserInfoResponse;
 import com.ndgl.spotfinder.domain.user.dto.UserJoinRequest;
 import com.ndgl.spotfinder.domain.user.dto.UserLoginResponse;
+import com.ndgl.spotfinder.domain.user.dto.UserModifiedRequest;
+import com.ndgl.spotfinder.domain.user.dto.UserModifiedResponse;
 import com.ndgl.spotfinder.domain.user.entity.Oauth;
 import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.domain.user.service.OauthService;
@@ -87,6 +91,20 @@ public class UserController {
 		UserInfoResponse targetUser = userService.getUserInfo(user);
 
 		return RsData.success(HttpStatus.OK, targetUser);
+	}
 
+	@PutMapping
+	public RsData<UserModifiedResponse> update(
+		@RequestBody UserModifiedRequest request,
+		@AuthenticationPrincipal User user) {
+		UserModifiedResponse response = userService.updateUser(request, user);
+
+		return RsData.success(HttpStatus.OK, response);
+	}
+
+	@DeleteMapping("/resign")
+	public RsData<Void> resign(@AuthenticationPrincipal User user) {
+		userService.deleteUser(user);
+		return RsData.success(HttpStatus.OK);
 	}
 }
