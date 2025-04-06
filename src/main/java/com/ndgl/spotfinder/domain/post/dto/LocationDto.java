@@ -8,6 +8,7 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 public record LocationDto(
 	@Schema(description = "장소 이름", example = "식당")
@@ -19,16 +20,19 @@ public record LocationDto(
 	String address,
 
 	@Schema(description = "위도", example = "36.0")
+	@NotNull(message = "위도는 필수입니다.")
 	@DecimalMin(value = "-90.0", message = "위도는 -90 이상입니다.")
 	@DecimalMax(value = "90.0", message = "위도는 90 이하입니다.")
 	Double latitude,
 
 	@Schema(description = "경도", example = "127.0")
+	@NotNull(message = "경도는 필수입니다.")
 	@DecimalMin(value = "-180.0", message = "경도는 -180 이상입니다.")
 	@DecimalMax(value = "180.0", message = "경도는 180 이하입니다.")
 	Double longitude,
 
 	@Schema(description = "순서", example = "1")
+	@NotNull(message = "장소 순서는 필수입니다.")
 	@Min(value = 1, message = "순서는 1 이상입니다.")
 	@Max(value = 20, message = "순서는 20 이하입니다.")
 	Integer sequence

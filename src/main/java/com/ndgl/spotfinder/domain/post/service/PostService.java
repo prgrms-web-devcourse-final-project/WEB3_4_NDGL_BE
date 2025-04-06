@@ -39,7 +39,7 @@ public class PostService {
 		Post post = findPostById(id);
 
 		checkUserPermission(post, email);
-		postRepository.save(post.updatePost(requestDto));
+		postRepository.save(requestDto.toUpdatedPost(post));
 	}
 
 	@Transactional

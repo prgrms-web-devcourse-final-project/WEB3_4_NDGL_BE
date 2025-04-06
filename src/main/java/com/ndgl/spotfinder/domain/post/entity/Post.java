@@ -4,12 +4,10 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import com.ndgl.spotfinder.domain.comment.entity.PostComment;
-import com.ndgl.spotfinder.domain.post.dto.HashtagDto;
-import com.ndgl.spotfinder.domain.post.dto.LocationDto;
-import com.ndgl.spotfinder.domain.post.dto.PostUpdateRequestDto;
 import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.global.base.BaseTime;
 
@@ -27,20 +25,24 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@DynamicUpdate
 @Entity
 public class Post extends BaseTime {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
+	@Setter
 	@Column(length = 100)
 	private String title;
 
+	@Setter
 	@Column(columnDefinition = "TEXT")
 	private String content;
 
@@ -51,6 +53,7 @@ public class Post extends BaseTime {
 	@JoinColumn(name = "user_id")
 	private User user;
 
+	@Setter
 	private String thumbnail;
 
 	@Builder.Default
@@ -87,26 +90,6 @@ public class Post extends BaseTime {
 
 	public void addLocations(List<Location> locations) {
 		locations.forEach(this::addLocation);
-	}
-
-	public Post updatePost(PostUpdateRequestDto requestDto) {
-		title = requestDto.title();
-		content = requestDto.content();
-		thumbnail = requestDto.thumbnail();
-
-		List<Hashtag> newHashtags = requestDto.hashtags()
-			.stream()
-			.map(HashtagDto::toHashtag)
-			.toList();
-		updateHashtags(newHashtags);
-
-		List<Location> newLocations = requestDto.locations()
-			.stream()
-			.map(LocationDto::toLocation)
-			.toList();
-		updateLocations(newLocations);
-
-		return this;
 	}
 
 	public void updateHashtags(List<Hashtag> newHashtags) {
