@@ -39,8 +39,17 @@ public class OauthService {
 	@Value("${spring.security.oauth2.client.registration.google.client_secret}")
 	private String googleClientSecret;
 
-	@Value("${spring.security.oauth2.client.registration.google.redirect-uri}")
-	private String googleRedirectUri;
+	@Value("${spring.security.oauth2.client.provider.google.token-uri}")
+	private String tokenUri;
+
+	@Value("${spring.security.oauth2.client.registration.google.authorization-grant-type}")
+	private String authorizationGrantType;
+
+	@Value("${spring.security.oauth2.client.provider.google.user-info-uri}")
+	private String userInfoUri;
+
+	@Value("${auth.header.prefix}")
+	private String authHeaderPrefix;
 
 	private final OauthRepository oauthRepository;
 	private final UserRepository userRepository;
@@ -95,13 +104,13 @@ public class OauthService {
 		String redirectUri) {
 		String tokenRequestUrl;
 		if (provider == Oauth.Provider.GOOGLE) {
-			tokenRequestUrl = "https://oauth2.googleapis.com/token";
+			tokenRequestUrl = tokenUri;
 
 			HttpHeaders headers = new HttpHeaders();
 			headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
 			MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>();
-			requestBody.add("grant_type", "authorization_code");
+			requestBody.add("grant_type", authorizationGrantType);
 			requestBody.add("client_id", googleClientId);
 			requestBody.add("client_secret", googleClientSecret);
 			requestBody.add("code", code);
@@ -126,10 +135,13 @@ public class OauthService {
 	}
 
 	private UserLoginResponseDTO getGoogleUserInfo(String accessToken) {
-		String userInfoUrl = "https://www.googleapis.com/oauth2/v2/userinfo";
+
+		String userInfoUrl = userInfoUri;
+		String prefix = authHeaderPrefix + " ";
 
 		HttpHeaders headers = new HttpHeaders();
-		headers.add("Authorization", "Bearer " + accessToken);
+		//headers.add("Authorization", "Bearer " + accessToken);
+		headers.add(HttpHeaders.AUTHORIZATION, prefix + accessToken);
 
 		HttpEntity<?> entity = new HttpEntity<>(headers);
 		RestTemplate restTemplate = new RestTemplate();
