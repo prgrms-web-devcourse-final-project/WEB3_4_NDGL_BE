@@ -25,6 +25,8 @@ public class PostService {
 	private final PostRepository postRepository;
 	private final UserService userService;
 
+	private static final Long DEFAULT_LAST_ID = 0L;
+
 	@Transactional
 	public void createPost(PostCreateRequestDto requestDto, String email) {
 		User user = userService.findUserByEmail(email);
@@ -48,6 +50,7 @@ public class PostService {
 		postRepository.delete(post);
 	}
 
+	@Transactional(readOnly = true)
 	public SliceResponse<PostResponseDto> getPosts(SliceRequest sliceRequest) {
 		PageRequest pageRequest = PageRequest.of(0, sliceRequest.size());
 		Long lastId = getLastPostId(sliceRequest);
@@ -57,6 +60,7 @@ public class PostService {
 		return convertToSliceResponse(results);
 	}
 
+	@Transactional(readOnly = true)
 	public SliceResponse<PostResponseDto> getPostsByUser(SliceRequest sliceRequest, Long userId) {
 		PageRequest pageRequest = PageRequest.of(0, sliceRequest.size());
 		Long lastId = getLastPostId(sliceRequest);
@@ -67,12 +71,14 @@ public class PostService {
 		return convertToSliceResponse(results);
 	}
 
+	@Transactional(readOnly = true)
 	public PostDetailResponseDto getPost(Long id) {
 		Post post = findPostById(id);
 
 		return new PostDetailResponseDto(post);
 	}
 
+	@Transactional(readOnly = true)
 	public SliceResponse<PostResponseDto> getPostsByLike(SliceRequest sliceRequest, String email) {
 		PageRequest pageRequest = PageRequest.of(0, sliceRequest.size());
 		Long lastId = getLastPostId(sliceRequest);
@@ -83,6 +89,7 @@ public class PostService {
 		return convertToSliceResponse(results);
 	}
 
+	@Transactional(readOnly = true)
 	public Post findPostById(Long id) {
 		return postRepository.findById(id)
 			.orElseThrow(ErrorCode.POST_NOT_FOUND::throwServiceException);
@@ -98,7 +105,7 @@ public class PostService {
 		if (sliceRequest.lastId() == null) {
 			return postRepository.findTopByOrderByIdDesc()
 				.map(post -> post.getId() + 1)
-				.orElse(0L);
+				.orElse(DEFAULT_LAST_ID);
 		} else {
 			return sliceRequest.lastId();
 		}

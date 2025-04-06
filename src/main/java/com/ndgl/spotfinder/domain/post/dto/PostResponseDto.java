@@ -38,6 +38,8 @@ public record PostResponseDto(
 	@Schema(description = "해시태그 목록")
 	List<HashtagDto> hashtags
 ) {
+	private static final Long POST_LIST_HASHTAG_COUNT = 3L;
+
 	public PostResponseDto(Post post) {
 		this(
 			post.getId(),
@@ -50,7 +52,7 @@ public record PostResponseDto(
 			post.getCreatedAt(),
 			post.getHashtags()
 				.stream()
-				.limit(3)
+				.limit(POST_LIST_HASHTAG_COUNT)
 				.map(HashtagDto::new)
 				.toList()
 		);

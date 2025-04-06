@@ -1,7 +1,10 @@
 package com.ndgl.spotfinder.domain.user.entity;
 
+import java.util.Set;
+
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import com.ndgl.spotfinder.domain.follow.entity.Follow;
 import com.ndgl.spotfinder.global.base.BaseTime;
 
 import jakarta.persistence.Column;
@@ -10,6 +13,7 @@ import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
@@ -49,4 +53,7 @@ public class User extends BaseTime {
 	@Column(nullable = false)
 	@Builder.Default
 	private boolean isBanned = false;
+
+	@OneToMany(mappedBy = "follower")
+	private Set<Follow> followings;
 }
