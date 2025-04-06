@@ -116,5 +116,5 @@ jobs:
             docker stop app1 2>/dev/null
             docker rm app1 2>/dev/null
             docker run -d -v /gen:/gen --name app1 --restart unless-stopped --network common --env-file /root/.env -e TZ=Asia/Seoul  -p 8080:8080 ghcr.io/${{ env.OWNER_LC }}/${{ env.DOCKER_IMAGE_NAME }}:latest
-            docker run -d -v /gen:/gen --name app-dev --restart unless-stopped --network common --env-file /root/.env -e -e TZ=Asia/Seoul SPRING_PROFILES_ACTIVE=test -p 8081:8081 ghcr.io/${{ env.OWNER_LC }}/${{ env.DOCKER_IMAGE_NAME }}:latest
+            docker run -d -v /gen:/gen --name app-dev --restart unless-stopped --network common --env-file /root/.env -e TZ=Asia/Seoul -e SPRING_PROFILES_ACTIVE=test -p 8081:8081 ghcr.io/${{ env.OWNER_LC }}/${{ env.DOCKER_IMAGE_NAME }}:latest
             docker rmi $(docker images -f "dangling=true" -q)
