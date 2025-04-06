@@ -140,7 +140,6 @@ public class OauthService {
 		String prefix = authHeaderPrefix + " ";
 
 		HttpHeaders headers = new HttpHeaders();
-		//headers.add("Authorization", "Bearer " + accessToken);
 		headers.add(HttpHeaders.AUTHORIZATION, prefix + accessToken);
 
 		HttpEntity<?> entity = new HttpEntity<>(headers);
@@ -221,7 +220,7 @@ public class OauthService {
 				.provider(Oauth.Provider.GOOGLE.name())
 				.identify(googleId)
 				.email(email)
-				.userId(nowUser.getId())
+				.userId(existingOauth.get().getId())
 				.build();
 		} else {
 			return UserLoginResponseDTO.builder()
