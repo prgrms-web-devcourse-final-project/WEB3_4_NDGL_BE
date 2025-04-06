@@ -1,13 +1,12 @@
 package com.ndgl.spotfinder.global.security.cookie;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component
 public class TokenCookieUtil {
 
@@ -26,10 +25,12 @@ public class TokenCookieUtil {
 	public void setTokenCookies(HttpServletResponse response, String accessToken) {
 		int maxAge = validationTime.intValue() / 1000;
 
-		LocalDateTime expireAt = LocalDateTime.now().plusSeconds(maxAge);
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
 		String secureFlag = secure ? "; Secure" : "";
+
+		log.info("setTokenCookies: accessToken: {}, maxAge: {}", accessToken, maxAge);
+		log.info("setTokenCookies: secureFlag: {}", secureFlag);
+		log.info("setTokenCookies: domain: {}", domain);
+		log.info("setTokenCookies: sameSite: {}", sameSite);
 
 		//  samesite 설정
 		String cookieString = String.format(
