@@ -1,3 +1,10 @@
+app:
+  cookie:
+    secure: false
+    sameSite: Lax
+    domain: localhost
+    frontend-origin: http://localhost:3000
+
 spring:
   config:
     import:

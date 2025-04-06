@@ -1,19 +1,23 @@
-spring:
-  config:
-    import:
-      optional:file:.env[.properties]
+app:
+  cookie:
+    secure: false
+    sameSite: Lax
+    domain: localhost
+    frontend-origin: http://localhost:3000
 
+server:
+  port: 8081
+
+spring:
   datasource:
-    url: jdbc:h2:mem:db_test;MODE=MySQL
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
-    hikari:
-      auto-commit: false
+    url: ${DB_URL_TEST}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${DB_USERNAME_TEST}
+    password: ${DB_PASSWORD_TEST}
 
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     show-sql: false
     properties:
       hibernate:
@@ -43,11 +47,8 @@ spring:
             user-name-attribute: sub
   data:
     redis:
-      host: localhost
+      host: redis_1
       port: 6379
-
-    profiles:
-      active: oauth
 
   logging:
     level:

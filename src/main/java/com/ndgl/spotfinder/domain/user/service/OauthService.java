@@ -107,8 +107,6 @@ public class OauthService {
 			requestBody.add("code", code);
 			requestBody.add("redirect_uri", redirectUri);
 
-			System.out.println(requestBody);
-
 			HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(requestBody, headers);
 			RestTemplate restTemplate = new RestTemplate();
 
