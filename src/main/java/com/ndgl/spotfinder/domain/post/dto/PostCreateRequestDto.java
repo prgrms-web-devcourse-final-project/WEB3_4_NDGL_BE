@@ -50,8 +50,6 @@ public record PostCreateRequestDto(
 			.content(content)
 			.user(user)
 			.thumbnail(thumbnail)
-			.viewCount(0L)
-			.likeCount(0L)
 			.build();
 
 		post.addHashtags(hashtagEntities);

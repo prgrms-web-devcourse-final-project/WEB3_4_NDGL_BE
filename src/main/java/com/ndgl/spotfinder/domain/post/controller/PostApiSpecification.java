@@ -15,18 +15,12 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
+@Tag(name = "포스트")
 public interface PostApiSpecification {
-	@Operation(
-		summary = "포스트 생성",
-		responses = {
-			@ApiResponse(responseCode = "200", description = "성공", content = @Content(
-				mediaType = "application/json",
-				examples = @ExampleObject("{\"code\": 200, \"message\": \"OK\"}")
-			))
-		}
-	)
-	RsData<String> createPost(
+	@Operation(summary = "포스트 생성")
+	RsData<Void> createPost(
 		PostCreateRequestDto postCreateRequestDto,
 		@Parameter(hidden = true) Principal principal
 	);
@@ -40,7 +34,7 @@ public interface PostApiSpecification {
 			))
 		}
 	)
-	RsData<String> updatePost(
+	RsData<Void> updatePost(
 		@Parameter(description = "게시물의 ID") Long id,
 		PostUpdateRequestDto postUpdateRequestDto,
 		@Parameter(hidden = true) Principal principal
@@ -55,7 +49,7 @@ public interface PostApiSpecification {
 			))
 		}
 	)
-	RsData<String> deletePost(
+	RsData<Void> deletePost(
 		@Parameter(description = "게시물의 ID") Long id,
 		@Parameter(hidden = true) Principal principal
 	);
