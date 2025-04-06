@@ -42,11 +42,12 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 	Optional<Post> findFirstByUserAndStatus(User user, PostStatus status);
 
 	@Query("SELECT p FROM Post p "
-		   + "WHERE (LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')) "
-		   + "OR LOWER(p.content) LIKE LOWER(CONCAT('%', :keyword, '%')) "
-		   + "OR LOWER(p.user.nickName) LIKE LOWER(CONCAT('%', :keyword, '%')) "
-		   + "OR EXISTS (SELECT h FROM p.hashtags h WHERE LOWER(h.name) LIKE LOWER(CONCAT('%', :keyword, '%')))) "
-		   + "AND p.id > :lastId")
+		+ "WHERE (LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')) "
+		+ "OR LOWER(p.content) LIKE LOWER(CONCAT('%', :keyword, '%')) "
+		+ "OR LOWER(p.user.nickName) LIKE LOWER(CONCAT('%', :keyword, '%')) "
+		+ "OR EXISTS (SELECT h FROM p.hashtags h WHERE LOWER(h.name) LIKE LOWER(CONCAT('%', :keyword, '%')))) "
+		+ "AND p.id < :lastId "
+		+ "ORDER BY p.createdAt DESC")
 	Slice<Post> searchAll(String keyword, Long lastId, PageRequest pageRequest);
 
 	List<Post> findByUser(User user);
