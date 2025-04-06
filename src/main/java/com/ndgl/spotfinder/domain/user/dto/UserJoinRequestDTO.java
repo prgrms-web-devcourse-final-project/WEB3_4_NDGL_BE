@@ -10,7 +10,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class UserJoinRequest {
+public class UserJoinRequestDTO {
 	@NotNull(message = "provider 값이 없습니다. ")
 	private Oauth.Provider provider;
 

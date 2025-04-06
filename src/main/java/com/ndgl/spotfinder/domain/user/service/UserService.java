@@ -8,11 +8,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ndgl.spotfinder.domain.user.dto.UserInfoResponse;
-import com.ndgl.spotfinder.domain.user.dto.UserJoinRequest;
-import com.ndgl.spotfinder.domain.user.dto.UserJoinResponse;
-import com.ndgl.spotfinder.domain.user.dto.UserModifiedRequest;
-import com.ndgl.spotfinder.domain.user.dto.UserModifiedResponse;
+import com.ndgl.spotfinder.domain.user.dto.UserInfoResponseDTO;
+import com.ndgl.spotfinder.domain.user.dto.UserJoinRequestDTO;
+import com.ndgl.spotfinder.domain.user.dto.UserJoinResponseDTO;
+import com.ndgl.spotfinder.domain.user.dto.UserModifiedRequestDTO;
+import com.ndgl.spotfinder.domain.user.dto.UserModifiedResponseDTO;
 import com.ndgl.spotfinder.domain.user.entity.Oauth;
 import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.domain.user.repository.OauthRepository;
@@ -53,7 +53,7 @@ public class UserService {
 
 	// 유저 등록
 	@Transactional
-	public UserJoinResponse join(@Valid UserJoinRequest userJoinRequest) {
+	public UserJoinResponseDTO join(@Valid UserJoinRequestDTO userJoinRequestDTO) {
 		/*
 		 *  1.  oauth테이블의 provider, identify 항목 취득 항목 삭제.
 		 *    사유 : 지금은 소셜 로그인 플랫폼은 Google 만 이용하는데,
@@ -63,39 +63,39 @@ public class UserService {
 		 * */
 
 		//  1.  users 테이블에 이메일이 존재 하는지 확인.
-		Optional<User> existingUser = userRepository.findByEmail(userJoinRequest.getEmail());
+		Optional<User> existingUser = userRepository.findByEmail(userJoinRequestDTO.getEmail());
 
 		//  2.  Users 테이블에서 같은 닉네임 있는지 확인
-		Optional<User> dupNickName = userRepository.findByNickName(userJoinRequest.getNickName());
+		Optional<User> dupNickName = userRepository.findByNickName(userJoinRequestDTO.getNickName());
 
 		//  3.  Users 테이블에서 같은 블로그 명 있는지 확인
-		Optional<User> dupBlogName = userRepository.findByBlogName(userJoinRequest.getBlogName());
+		Optional<User> dupBlogName = userRepository.findByBlogName(userJoinRequestDTO.getBlogName());
 
 		//  4.  중복 닉네임 및 블로그 명이 있으면 에러 핸들러 발생
 		dupCheck(dupNickName, dupBlogName);
 
 		// 최초 로그인이 아니면 로그인
 		if (existingUser.isPresent()) {
-			return UserJoinResponse.builder()
+			return UserJoinResponseDTO.builder()
 				.code(HttpStatus.OK.value())
 				.message("OK")
 				.build();
 		} else {
 			User newUser = User.builder()
-				.email(userJoinRequest.getEmail())
-				.nickName(userJoinRequest.getNickName())
-				.blogName(userJoinRequest.getBlogName())
+				.email(userJoinRequestDTO.getEmail())
+				.nickName(userJoinRequestDTO.getNickName())
+				.blogName(userJoinRequestDTO.getBlogName())
 				.build();
 			userRepository.save(newUser);
 
 			Oauth newOauth = Oauth.builder()
 				.user(newUser)
-				.provider(userJoinRequest.getProvider())
-				.identify(userJoinRequest.getIdentify())
+				.provider(userJoinRequestDTO.getProvider())
+				.identify(userJoinRequestDTO.getIdentify())
 				.build();
 			oauthRepository.save(newOauth);
 
-			return UserJoinResponse.builder()
+			return UserJoinResponseDTO.builder()
 				.message("ok")
 				.code(HttpStatus.OK.value())
 				.build();
@@ -118,20 +118,20 @@ public class UserService {
 		tokenCookieUtil.cleanTokenCookies(response, accessToken);
 	}
 
-	public UserInfoResponse getUserInfo(User user) {
+	public UserInfoResponseDTO getUserInfo(User user) {
 		User targetUser = findUserByEmail(user.getEmail());
 
-		return UserInfoResponse.from(targetUser);
+		return UserInfoResponseDTO.from(targetUser);
 	}
 
 	@Transactional
-	public UserModifiedResponse updateUser(UserModifiedRequest request, User user) {
+	public UserModifiedResponseDTO updateUser(UserModifiedRequestDTO request, User user) {
 		User targetUser = findUserByEmail(user.getEmail());
 
 		targetUser.setNickName(request.nickName());
 		targetUser.setBlogName(request.blogName());
 
-		return UserModifiedResponse.success(
+		return UserModifiedResponseDTO.success(
 			HttpStatus.OK.value(),
 			"OK",
 			targetUser

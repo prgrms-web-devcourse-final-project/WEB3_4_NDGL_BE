@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class UserLoginResponse {
+public class UserLoginResponseDTO {
 	private final String message;
 	private final Integer code;
 	private final String provider;

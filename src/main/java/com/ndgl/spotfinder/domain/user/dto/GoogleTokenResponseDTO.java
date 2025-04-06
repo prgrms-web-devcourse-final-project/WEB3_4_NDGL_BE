@@ -7,7 +7,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class GoogleTokenResponse {
+public class GoogleTokenResponseDTO {
 	@JsonProperty("access_token")
 	private String accessToken;
 

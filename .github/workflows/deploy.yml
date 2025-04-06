@@ -39,7 +39,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
 
-      DOCKER_IMAGE_NAME: app20250330
+      DOCKER_IMAGE_NAME: app20250406
 
     outputs:
       DOCKER_IMAGE_NAME: ${{ env.DOCKER_IMAGE_NAME }}

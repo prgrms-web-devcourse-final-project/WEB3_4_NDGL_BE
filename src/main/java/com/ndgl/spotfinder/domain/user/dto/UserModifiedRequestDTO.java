@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-public record UserModifiedRequest(
+public record UserModifiedRequestDTO(
 	@NotNull(message = "nickName 값이 필요합니다.")
 	@Size(min = 2, max = 15, message = "닉네임은 15자 이하로 입력해주세요.")
 	@Pattern(
@@ -23,8 +23,8 @@ public record UserModifiedRequest(
 	)
 	String blogName
 ) {
-	public static UserModifiedRequest from(User user) {
-		return new UserModifiedRequest(
+	public static UserModifiedRequestDTO from(User user) {
+		return new UserModifiedRequestDTO(
 			user.getNickName(),
 			user.getBlogName()
 		);
