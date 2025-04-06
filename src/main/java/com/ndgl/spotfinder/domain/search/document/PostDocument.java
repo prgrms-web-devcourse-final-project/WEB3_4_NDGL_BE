@@ -36,7 +36,7 @@ public class PostDocument {
 	@Field(type = FieldType.Keyword, index = false)
 	private Long userId;
 
-	@Field(type = FieldType.Keyword, index = false)
+	@Field(type = FieldType.Text, analyzer = "test_analyzer")
 	private String nickname;
 
 	@Field(type = FieldType.Date, format = DateFormat.date_hour_minute_second)
@@ -54,7 +54,7 @@ public class PostDocument {
 	@Field(type = FieldType.Long, index = false)
 	private Long likeCount;
 
-	@Field(type = FieldType.Keyword)
+	@Field(type = FieldType.Text, analyzer = "test_analyzer")
 	private List<String> hashtags;
 
 	public static PostDocument from(Post post) {

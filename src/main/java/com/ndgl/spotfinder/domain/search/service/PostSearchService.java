@@ -59,14 +59,14 @@ public class PostSearchService {
 			return searchWithJpa(request, keyword);
 		}
 
-		Long lastId = request.lastId();
+		Long lastId = postService.getLastPostId(request);
 		int size = request.size();
 		Pageable pageable = PageRequest.of(0, size + 1);
-		Page<PostDocument> page = postSearchRepository.findByTitleOrContent(keyword, keyword, pageable);
+		Page<PostDocument> page = postSearchRepository.searchByKeyword(keyword, pageable);
 
 		List<PostDocument> filtered = page.getContent().stream()
-			.filter(post -> post.getId() > lastId)
-			.sorted(Comparator.comparing(PostDocument::getId))
+			.filter(post -> post.getId() < lastId)
+			.sorted(Comparator.comparing(PostDocument::getId).reversed())
 			.limit(size + 1)
 			.toList();
 
@@ -98,5 +98,29 @@ public class PostSearchService {
 				.toList(),
 			posts.hasNext()
 		);
+	}
+
+	@Transactional(readOnly = true)
+	public void indexPosts() {
+		List<Post> posts = postRepository.findAll();
+		List<PostDocument> documents = posts.stream()
+			.map(PostDocument::from)
+			.toList();
+
+		postSearchRepository.deleteAll();
+		postSearchRepository.saveAll(documents);
+	}
+
+	@Transactional(readOnly = true)
+	public List<PostResponseDto> searchPoststoList(String keyword) {
+		List<PostDocument> posts = postSearchRepository.searchAllByKeyword(keyword);
+
+		log.info("엘라스틱서치 검색 결과 수: {}", posts.size());
+		// posts.forEach(post -> log.info("검색 결과 - id: {}, title: {}", post.getId(), post.getTitle()));
+
+		return posts.stream()
+			.map(PostResponseDto::new)
+			.sorted(Comparator.comparing(PostResponseDto::id).reversed())
+			.toList();
 	}
 }
