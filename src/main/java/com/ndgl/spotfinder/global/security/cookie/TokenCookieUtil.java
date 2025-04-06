@@ -27,11 +27,6 @@ public class TokenCookieUtil {
 
 		String secureFlag = secure ? "; Secure" : "";
 
-		log.info("setTokenCookies: accessToken: {}, maxAge: {}", accessToken, maxAge);
-		log.info("setTokenCookies: secureFlag: {}", secureFlag);
-		log.info("setTokenCookies: domain: {}", domain);
-		log.info("setTokenCookies: sameSite: {}", sameSite);
-
 		//  samesite 설정
 		String cookieString = String.format(
 			"accessToken=%s; Max-Age=%d; Path=/; Domain=%s; HttpOnly%s; SameSite=%s",

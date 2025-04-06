@@ -2,7 +2,8 @@ app:
   cookie:
     secure: true
     sameSite: None
-    domain: ndgl.vercel.app
+    #domain: ndgl.vercel.app
+    domain: ndgl.p-e.kr
     frontend-origin: https://ndgl.vercel.app
 
 server:
