@@ -2,8 +2,8 @@ app:
   cookie:
     secure: true
     sameSite: None
-    domain: ndgl.p-e.kr
-    frontend-origin: https://ndgl.vercel.app
+    domain: .ndgl.p-e.kr
+    frontend-origin: https://www.ndgl.p-e.kr
 
 server:
   port: 8080

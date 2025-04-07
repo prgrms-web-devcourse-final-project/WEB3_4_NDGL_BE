@@ -2,7 +2,7 @@ app:
   cookie:
     secure: false
     sameSite: Lax
-    domain: ndgl.p-e.kr
+    domain: localhost
     frontend-origin: http://localhost:3000
 
 server:
