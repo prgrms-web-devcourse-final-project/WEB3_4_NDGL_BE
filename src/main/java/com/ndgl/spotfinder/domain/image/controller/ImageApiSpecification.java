@@ -2,9 +2,9 @@ package com.ndgl.spotfinder.domain.image.controller;
 
 import org.springframework.web.bind.annotation.RequestBody;
 
-import com.ndgl.spotfinder.domain.image.dto.ImageRequest;
-import com.ndgl.spotfinder.domain.image.dto.PresignedUrlsResponse;
-import com.ndgl.spotfinder.domain.image.dto.UploadCompleteRequest;
+import com.ndgl.spotfinder.domain.image.dto.ImageUrlRequestDto;
+import com.ndgl.spotfinder.domain.image.dto.PresignedUrlsResponseDto;
+import com.ndgl.spotfinder.domain.image.dto.UploadCompleteRequestDto;
 import com.ndgl.spotfinder.global.rsdata.RsData;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,8 +12,10 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
+@Tag(name = "이미지 API", description = "이미지 관련 API")
 public interface ImageApiSpecification {
 	@Operation(
 		summary = "Presigned URL 생성",
@@ -22,13 +24,13 @@ public interface ImageApiSpecification {
 			@ApiResponse(
 				responseCode = "200",
 				description = "Presigned URL 생성 성공",
-				content = @Content(schema = @Schema(implementation = PresignedUrlsResponse.class))
+				content = @Content(schema = @Schema(implementation = PresignedUrlsResponseDto.class))
 			)
 		},
 		security = {@SecurityRequirement(name = "JWT")}
 	)
-	RsData<PresignedUrlsResponse> createPresignedUrl(
-		@Valid @RequestBody ImageRequest rq
+	RsData<PresignedUrlsResponseDto> createPresignedUrl(
+		@Valid @RequestBody ImageUrlRequestDto rq
 	);
 
 	@Operation(
@@ -43,7 +45,7 @@ public interface ImageApiSpecification {
 		security = {@SecurityRequirement(name = "JWT")}
 	)
 	RsData<String> uploadComplete(
-		@Valid @RequestBody UploadCompleteRequest rq
+		@Valid @RequestBody UploadCompleteRequestDto rq
 	);
 
 }

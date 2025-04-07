@@ -11,7 +11,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 @Schema(description = "이미지 업로드 완료 DTO")
-public record UploadCompleteRequest(
+public record UploadCompleteRequestDto(
 	@Schema(description = "이미지 참조 객체 ID", example = "1")
 	@NotNull(message = "ID는 필수입니다.")
 	@Min(value = 1, message = "ID는 최소 1 이상입니다.")
