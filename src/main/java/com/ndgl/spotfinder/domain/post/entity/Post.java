@@ -79,6 +79,15 @@ public class Post extends BaseTime {
 	@Builder.Default
 	private PostStatus status = PostStatus.TEMP;
 
+	public static Post createTempPost(User user) {
+		return Post.builder()
+			.title("임시글")
+			.content("")
+			.status(PostStatus.TEMP)
+			.user(user)
+			.build();
+	}
+
 	public void addHashtag(Hashtag hashtag) {
 		hashtags.add(hashtag);
 		hashtag.setPost(this);

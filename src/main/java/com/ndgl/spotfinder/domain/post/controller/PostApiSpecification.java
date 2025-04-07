@@ -2,9 +2,12 @@ package com.ndgl.spotfinder.domain.post.controller;
 
 import java.security.Principal;
 
+import org.springframework.web.bind.annotation.PostMapping;
+
 import com.ndgl.spotfinder.domain.post.dto.PostCreateRequestDto;
 import com.ndgl.spotfinder.domain.post.dto.PostDetailResponseDto;
 import com.ndgl.spotfinder.domain.post.dto.PostResponseDto;
+import com.ndgl.spotfinder.domain.post.dto.PostTempResponse;
 import com.ndgl.spotfinder.domain.post.dto.PostUpdateRequestDto;
 import com.ndgl.spotfinder.global.common.dto.SliceRequest;
 import com.ndgl.spotfinder.global.common.dto.SliceResponse;
@@ -24,6 +27,13 @@ public interface PostApiSpecification {
 		PostCreateRequestDto postCreateRequestDto,
 		@Parameter(hidden = true) Principal principal
 	);
+
+	@PostMapping("/temp")
+	@Operation(
+		summary = "임시글 생성",
+		description = "새로운 임시글을 생성합니다."
+	)
+	public RsData<PostTempResponse> createTempPost(Principal principal);
 
 	@Operation(
 		summary = "포스트 수정",
