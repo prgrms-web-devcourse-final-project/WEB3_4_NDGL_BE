@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import com.ndgl.spotfinder.domain.comment.entity.PostComment;
@@ -31,7 +30,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@DynamicUpdate
 @Entity
 public class Post extends BaseTime {
 	@Id
