@@ -27,7 +27,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(name = "`Like`",
+@Table(
+	name = "\"Like\"",
 	uniqueConstraints = @UniqueConstraint(
 		columnNames = {"user_id", "target_id", "target_type"},
 		name = "uk_like_user_target"
