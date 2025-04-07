@@ -182,7 +182,7 @@ public class LikeService {
 				post.updateLikeCount(num);
 			}
 			case COMMENT -> {
-				PostComment comment = postCommentService.findById(targetId);
+				PostComment comment = postCommentService.findCommentById(targetId);
 				comment.updateLikeCount(num);
 			}
 			default -> ErrorCode.UNSUPPORTED_TARGET_TYPE.throwServiceException();
