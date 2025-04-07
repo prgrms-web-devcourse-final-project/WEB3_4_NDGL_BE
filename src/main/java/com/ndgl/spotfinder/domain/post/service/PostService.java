@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ndgl.spotfinder.domain.image.service.ImageCleanupService;
+import com.ndgl.spotfinder.domain.image.service.ImageService;
 import com.ndgl.spotfinder.domain.image.type.ImageType;
 import com.ndgl.spotfinder.domain.post.dto.PostCreateRequestDto;
 import com.ndgl.spotfinder.domain.post.dto.PostDetailResponseDto;
@@ -36,6 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class PostService {
 	private final PostRepository postRepository;
+	private final ImageService imageService;
 	private final UserService userService;
 	private final ImageCleanupService imageCleanupService;
 
@@ -79,9 +81,9 @@ public class PostService {
 	@Transactional
 	public void deletePost(Long id, String email) {
 		Post post = findPostById(id);
-
 		checkUserPermission(post, email);
 		postRepository.delete(post);
+		imageService.deletePostWithAllImages(ImageType.POST, post.getId());
 	}
 
 	@Transactional(readOnly = true)
