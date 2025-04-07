@@ -7,9 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.ndgl.spotfinder.domain.image.type.ImageType;
-import com.ndgl.spotfinder.domain.post.dto.PostTempResponse;
 import com.ndgl.spotfinder.domain.post.service.PostService;
-import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.domain.user.service.UserService;
 
 import lombok.RequiredArgsConstructor;
@@ -40,13 +38,13 @@ public class ImageViewController {
 	 */
 	@GetMapping("/post-upload")
 	public String showPostWithUpload(Model model) {
-		User testUser = userService.findUserByEmail(TEST_USER_EMAIL);
-
-		PostTempResponse tempPost = postService.findOrCreateTempPost(testUser.getEmail());
-
-		model.addAttribute("id", tempPost.id());
-		model.addAttribute("title", tempPost.title());
-		model.addAttribute("content", tempPost.content());
+		// User testUser = userService.findUserByEmail(TEST_USER_EMAIL);
+		//
+		// PostTempResponse tempPost = postService.findOrCreateTempPost(testUser.getEmail());
+		//
+		// model.addAttribute("id", tempPost.id());
+		// model.addAttribute("title", tempPost.title());
+		// model.addAttribute("content", tempPost.content());
 
 		model.addAttribute("imageType", ImageType.POST);
 		model.addAttribute("pageTitle", "새 포스트 작성");

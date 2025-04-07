@@ -467,7 +467,7 @@
             position: fixed;
             top: 12px;
             right: 12px;
-            background-color: rgba(0,0,0,0.7);
+            background-color: rgba(0, 0, 0, 0.7);
             color: white;
             padding: 5px 10px;
             border-radius: 20px;
@@ -490,14 +490,92 @@
                 flex-direction: column;
             }
         }
+
+        /* 알림창 스타일 */
+        .toss-notification {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            width: 320px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 16px;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            animation: slideIn 0.3s ease;
+        }
+
+        .toss-notification-content {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .toss-notification-content i {
+            font-size: 20px;
+            color: var(--toss-primary);
+        }
+
+        .toss-notification-content strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .toss-notification-content p {
+            margin: 0;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .toss-notification-close {
+            background: none;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 4px;
+        }
+
+        .toss-notification-close:hover {
+            color: #333;
+        }
+
+        .fade-out {
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        /* 임시 저장 정보 */
+        #temp-save-info {
+            margin-top: 8px;
+            color: #666;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* 추가 스타일 - head의 style 태그 내에 추가 */
+        /* toss-notification.success { background-color: #ebf9eb; border-left: 4px solid #4caf50; }
+        toss-notification.success i { color: #4caf50; } */
     </style>
 </head>
 <body>
-<!-- 임시 글 ID 표시 배지 -->
+`<!-- 임시 글 ID 표시 배지 -->
 <div class="temp-post-badge">
     <i class="fa fa-file-edit"></i>
     <span>임시 글 ID: <strong th:text="${id}">0</strong></span>
-</div>
+</div>`
 
 <div class="container">
     <h1 class="toss-page-title" th:text="${pageTitle}">새 포스트 작성</h1>
@@ -595,17 +673,45 @@
     <div class="toss-toast-message"></div>
 </div>
 
+<div id="temp-save-info" class="temp-save-info"></div>
+
 <script th:inline="javascript">
     // 전역 변수 선언
     let editor;
-    let thumbnailUrl = null;      // 선택된 썸네일 URL
-    let uploadedUrls = [];        // 업로드된 모든 이미지 URL 배열
+    let uploadedUrls = [];
+    let thumbnailUrl = null;
+    let postId = null;
+    let postStatus = "TEMP";
     let referenceId;
     let imageType;
     let maxFilesCount;
     let maxFileSizeMB;
     let maxFileSize;
     let allowedTypes;
+    let initialTitle = [[${post?.title
+    }]] ||
+    "";
+    let initialContent = [[${post?.content
+    }]] ||
+    "";
+    let initialHashtags = [[${post?.hashtags
+    }]] ||
+    [];
+    let initialThumbnail = [[${post?.thumbnail
+    }]] ||
+    "";
+    let initialLocations = [[${post?.locations
+    }]] ||
+    [];
+
+    // 데이터가 하나라도 있는지 확인 (제목, 내용, 해시태그, 썸네일, 장소)
+    let hasPreviousData = postId && (
+        initialTitle.trim() !== "" ||
+        initialContent.trim() !== "" ||
+        initialHashtags.length > 0 ||
+        initialThumbnail !== "" ||
+        initialLocations.length > 0
+    );
 
     /**
      * 토스트 메시지 표시 함수
@@ -699,9 +805,9 @@
         nextButton.style.opacity = nextButton.disabled ? '0.5' : '1';
     }
 
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', async function () {
         // 서버에서 전달된 설정값 로드
-        referenceId = [[${id}]] || 1;
+        referenceId = [[${id}]] || null;
         imageType = [[${imageType}]] || 'POST';
         maxFilesCount = [[${maxImageCount}]] || 10;
         maxFileSizeMB = [[${maxFileSize}]] || 5;
@@ -870,7 +976,7 @@
             imageGallery.classList.add('has-images');
 
             // 썸네일로 설정하는 클릭 이벤트 추가
-            galleryItem.addEventListener('click', function() {
+            galleryItem.addEventListener('click', function () {
                 setThumbnail(imageUrl);
             });
 
@@ -960,22 +1066,22 @@
                     'quote', 'code', 'unordered-list', 'ordered-list', '|',
                     'link', {
                         name: "custom-image",
-                        action: function customImageFunction(editor){
+                        action: function customImageFunction(editor) {
                             // 파일 선택기 트리거
                             const fileInput = document.createElement('input');
                             fileInput.type = 'file';
                             fileInput.accept = 'image/*';
                             fileInput.style.display = 'none';
                             document.body.appendChild(fileInput);
-                            
-                            fileInput.addEventListener('change', function() {
+
+                            fileInput.addEventListener('change', function () {
                                 if (fileInput.files && fileInput.files.length > 0) {
                                     // 이미지 업로드 상태 표시
                                     const placeholder = `![업로드 중...](업로드 중...)`;
                                     const cm = editor.codemirror;
                                     const cursorPos = cm.getCursor();
                                     cm.replaceSelection(placeholder);
-                                    
+
                                     // 업로드 함수를 직접 호출하고 결과를 마크다운에 삽입
                                     handleImageUpload(fileInput.files[0]).then(url => {
                                         if (url) {
@@ -992,7 +1098,7 @@
                                 // 사용 후 파일 입력 요소 제거
                                 document.body.removeChild(fileInput);
                             });
-                            
+
                             fileInput.click();
                         },
                         className: "fa fa-image",
@@ -1007,7 +1113,7 @@
                 // 기본 이미지 업로드 기능 대신 커스텀 이미지 버튼만 사용
                 imageUploadFunction: undefined
             });
-            
+
             // 이미지 크기 조정을 위한 스타일 추가
             const styleElement = document.createElement('style');
             styleElement.textContent = `
@@ -1017,24 +1123,24 @@
                 }
             `;
             document.head.appendChild(styleElement);
-            
+
             // 드래그 앤 드롭 이미지 업로드 지원
             const cm = markdownEditor.codemirror;
             cm.on('drop', (editor, event) => {
                 const dataTransfer = event.dataTransfer;
                 if (dataTransfer && dataTransfer.files && dataTransfer.files.length) {
-                    const files = Array.from(dataTransfer.files).filter(file => 
+                    const files = Array.from(dataTransfer.files).filter(file =>
                         file.type.startsWith('image/'));
-                    
+
                     if (files.length > 0) {
                         event.preventDefault();
-                        
+
                         // 각 이미지 파일 처리
                         files.forEach(file => {
                             // 이미지 업로드 상태 표시
                             const placeholder = `![업로드 중...](업로드 중...)`;
                             editor.replaceSelection(placeholder);
-                            
+
                             // 업로드 처리
                             handleImageUpload(file).then(url => {
                                 if (url) {
@@ -1051,21 +1157,21 @@
                     }
                 }
             });
-            
+
             // 붙여넣기 이미지 업로드 지원
-            document.addEventListener('paste', function(e) {
+            document.addEventListener('paste', function (e) {
                 if (!markdownEditor.codemirror.hasFocus()) return;
-                
+
                 const items = (e.clipboardData || e.originalEvent.clipboardData).items;
-                
+
                 for (let i = 0; i < items.length; i++) {
                     if (items[i].type.indexOf('image') !== -1) {
                         e.preventDefault();
-                        
+
                         const file = items[i].getAsFile();
                         const placeholder = `![업로드 중...](업로드 중...)`;
                         markdownEditor.codemirror.replaceSelection(placeholder);
-                        
+
                         handleImageUpload(file).then(url => {
                             if (url) {
                                 const content = markdownEditor.value();
@@ -1074,19 +1180,19 @@
                                 console.log('붙여넣기: 에디터에 이미지 URL 삽입 완료:', url);
                             }
                         });
-                        
+
                         break;
                     }
                 }
             });
-            
+
             return markdownEditor;
         }
-        
+
         // =============================================
         // 3. 해시태그 기능 초기화
         // =============================================
-        
+
         /**
          * 해시태그 추가 기능 설정
          */
@@ -1094,51 +1200,51 @@
             const hashtagInput = document.getElementById('hashtag-input');
             const addHashtagButton = document.getElementById('add-hashtag');
             const hashtagList = document.getElementById('hashtag-list');
-            
+
             // 해시태그 추가 함수
             function addHashtag() {
                 const tagText = hashtagInput.value.trim();
                 if (!tagText) return;
-                
+
                 // 해시태그 중복 검사
                 const existingTags = Array.from(hashtagList.children).map(
                     tag => tag.dataset.tag || tag.textContent.replace('#', '').trim()
                 );
-                
+
                 if (existingTags.includes(tagText)) {
                     showToast('이미 추가된 해시태그입니다.', 'error');
                     return;
                 }
-                
+
                 // 해시태그 요소 생성
                 const tagItem = document.createElement('div');
                 tagItem.className = 'hashtag-item';
                 tagItem.dataset.tag = tagText;
                 tagItem.innerHTML = `#${tagText} <span class="hashtag-remove">×</span>`;
-                
+
                 // 삭제 버튼 이벤트 추가
-                tagItem.querySelector('.hashtag-remove').addEventListener('click', function() {
+                tagItem.querySelector('.hashtag-remove').addEventListener('click', function () {
                     hashtagList.removeChild(tagItem);
                 });
-                
+
                 hashtagList.appendChild(tagItem);
                 hashtagInput.value = '';
             }
-            
+
             // 버튼 클릭 및 엔터키 처리
             addHashtagButton.addEventListener('click', addHashtag);
-            hashtagInput.addEventListener('keypress', function(e) {
+            hashtagInput.addEventListener('keypress', function (e) {
                 if (e.key === 'Enter') {
                     e.preventDefault();
                     addHashtag();
                 }
             });
         }
-        
+
         // =============================================
         // 4. 갤러리 설정
         // =============================================
-        
+
         /**
          * 이미지 갤러리 설정
          */
@@ -1146,177 +1252,488 @@
             const galleryContainer = document.querySelector('.gallery-container');
             const prevButton = document.getElementById('gallery-prev');
             const nextButton = document.getElementById('gallery-next');
-            
+
             if (!galleryContainer || !prevButton || !nextButton) return;
-            
+
             // 좌우 스크롤 기능
             prevButton.addEventListener('click', () => {
-                galleryContainer.scrollBy({ left: -300, behavior: 'smooth' });
+                galleryContainer.scrollBy({left: -300, behavior: 'smooth'});
             });
-            
+
             nextButton.addEventListener('click', () => {
-                galleryContainer.scrollBy({ left: 300, behavior: 'smooth' });
+                galleryContainer.scrollBy({left: 300, behavior: 'smooth'});
             });
-            
+
             // 스크롤 이벤트 감지하여 화살표 상태 업데이트
             galleryContainer.addEventListener('scroll', () => {
                 updateArrowButtons();
             });
-            
+
             // 초기 화살표 상태 설정
             updateArrowButtons();
         }
-        
+
         // =============================================
         // 5. 초기화 및 이벤트 설정
         // =============================================
-        
+
         // 마크다운 에디터 초기화 - 전역 변수에 할당
         editor = initEditor();
-        
+
         // 해시태그 기능 초기화
         setupHashtags();
-        
+
         // 갤러리 설정
         setupGallery();
-        
+
         // 임시글 ID 표시 (작게 출력)
         const referenceIdElement = document.getElementById('reference-id');
         if (referenceIdElement) {
             referenceIdElement.textContent = `임시글 ID: ${referenceId}`;
         }
+
+        // 임시글이 있는 경우 메시지 표시
+        if (postStatus === "TEMP" && hasPreviousData) {
+            // 토스트 메시지로 표시
+            showToast("이전에 작성 중이던 임시글을 불러왔습니다.", "info");
+
+            // 더 눈에 띄는 알림창 사용
+            const notification = document.createElement('div');
+            notification.className = 'toss-notification';
+            notification.innerHTML = `
+                <div class="toss-notification-content">
+                    <i class="fas fa-info-circle"></i>
+                    <div>
+                        <strong>임시글 불러오기 성공</strong>
+                        <p>이전에 작성 중이던 임시글을 불러왔습니다. 계속해서 작성하실 수 있습니다.</p>
+                    </div>
+                </div>
+                <button class="toss-notification-close" onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            document.body.appendChild(notification);
+
+            // 3초 후 자동으로 닫히도록 설정
+            setTimeout(() => {
+                notification.classList.add('fade-out');
+                setTimeout(() => notification.remove(), 500);
+            }, 5000);
+
+            // 임시저장 시간 표시 (서버에서 제공한다면)
+            const lastSaved = [[${post?.updatedAt
+        }]] ||
+            [[${post?.createdAt
+        }]] ||
+            null;
+            if (lastSaved) {
+                const savedDate = new Date(lastSaved);
+                const savedTimeText = savedDate.toLocaleString();
+                document.getElementById('temp-save-info').innerHTML =
+                    `<small>마지막 저장: ${savedTimeText}</small>`;
+            }
+        }
+
+        // 기존 제목과 내용을 폼에 채우기
+        if (initialTitle) {
+            document.getElementById('post-title').value = initialTitle;
+        }
+
+        if (initialContent && editor) {
+            editor.value(initialContent);
+        }
+
+        // 서버에서 전달받은 데이터
+        postStatus = [[${postStatus}]] || "TEMP";
+        postId = [[${postId}]] || null;
+        initialTitle = [[${post?.title }]] || "";
+        initialContent = [[${post?.content}]] || "";
+        initialHashtags = [[${post?.hashtags}]] || [];
+        initialThumbnail = [[${post?.thumbnail}]] ||"";
+        initialLocations = [[${post?.locations}]] ||[];
+
+        // 데이터가 하나라도 있는지 확인 (제목, 내용, 해시태그, 썸네일, 장소)
+        hasPreviousData = postId && (
+            initialTitle.trim() !== "" ||
+            initialContent.trim() !== "" ||
+            initialHashtags.length > 0 ||
+            initialThumbnail !== "" ||
+            initialLocations.length > 0
+        );
+
+        // 임시글이 있는 경우 메시지 표시
+        if (postStatus === "TEMP" && hasPreviousData) {
+            showToast("이전에 작성 중이던 임시글을 불러왔습니다.", "info");
+
+            // 더 눈에 띄는 알림창 사용
+            const notification = document.createElement('div');
+            notification.className = 'toss-notification';
+            notification.innerHTML = `
+                <div class="toss-notification-content">
+                    <i class="fas fa-info-circle"></i>
+                    <div>
+                        <strong>임시글 불러오기 성공</strong>
+                        <p>이전에 작성 중이던 임시글을 불러왔습니다. 계속해서 편집하실 수 있습니다.</p>
+                    </div>
+                </div>
+                <button class="toss-notification-close" onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            document.body.appendChild(notification);
+
+            // 5초 후 자동으로 닫히도록 설정
+            setTimeout(() => {
+                notification.classList.add('fade-out');
+                setTimeout(() => notification.remove(), 500);
+            }, 5000);
+        }
+
+        // postId가 없으면 임시 포스트 생성 API 호출
+        if (!postId) {
+            await getOrCreateTempPost();
+        }
     });
-    
+
+    /**
+     * 인증 헤더를 획득하는 함수
+     */
+    async function getAuthHeaders() {
+        const headers = {
+            'Content-Type': 'application/json'
+        };
+
+        // 개발 환경 확인
+        const isDevelopment = window.location.hostname === 'localhost' ||
+            window.location.hostname === '127.0.0.1';
+
+        if (isDevelopment) {
+            try {
+                console.log('개발용 토큰 요청 중...');
+                const tokenResponse = await fetch('/api/v1/dev/token/1');
+
+                if (!tokenResponse.ok) {
+                    const errorText = await tokenResponse.text();
+                    console.error('토큰 응답:', errorText);
+                    throw new Error(`토큰 요청 실패: ${tokenResponse.status}`);
+                }
+
+                const tokenData = await tokenResponse.json();
+
+                if (tokenData.data && tokenData.data.token) {
+                    headers['Authorization'] = `Bearer ${tokenData.data.token}`;
+                    console.log('토큰 설정 완료');
+                } else {
+                    console.error('토큰 데이터 없음:', tokenData);
+                }
+            } catch (tokenError) {
+                console.error('개발용 토큰 요청 중 오류:', tokenError);
+            }
+        }
+
+        return headers;
+    }
+
+    /**
+     * 임시글 조회 또는 새로 생성하는 함수
+     * 1. 먼저 기존 임시글이 있는지 조회
+     * 2. 없으면 새 임시글 생성
+     */
+    async function getOrCreateTempPost() {
+        try {
+            // 인증 헤더 가져오기
+            const headers = await getAuthHeaders();
+            
+            // 1. 먼저 기존 임시글 조회 시도
+            console.log('임시 포스트 조회 시도...');
+            const getTempResponse = await fetch('/api/v1/posts/temp', {
+                method: 'GET',
+                headers: headers
+            });
+            
+            // 조회 성공 시 데이터 사용
+            if (getTempResponse.ok) {
+                const tempPostData = await getTempResponse.json();
+                
+                if (tempPostData.data && tempPostData.data.id) {
+                    console.log('기존 임시글 조회 성공:', tempPostData.data);
+                    
+                    // 임시글 데이터 저장
+                    postId = tempPostData.data.id;
+                    referenceId = postId; // referenceId 업데이트
+                    
+                    // 폼에 데이터 채우기
+                    if (tempPostData.data.title) {
+                        document.getElementById('post-title').value = tempPostData.data.title;
+                    }
+                    
+                    if (tempPostData.data.content && editor) {
+                        editor.value(tempPostData.data.content);
+                    }
+                    
+                    if (tempPostData.data.thumbnail) {
+                        thumbnailUrl = tempPostData.data.thumbnail;
+                        addImageToGallery(thumbnailUrl, true);
+                    }
+                    
+                    // 해시태그 처리 (구현 필요)
+                    
+                    // 상태 업데이트
+                    postStatus = "TEMP";
+                    updatePostIdDisplay(postId, true);
+                    
+                    // 임시글 불러왔다는 알림 표시
+                    if (tempPostData.data.title || tempPostData.data.content) {
+                        showTempPostNotification();
+                    }
+                    
+                    return true;
+                }
+            }
+            
+            // 2. 기존 임시글이 없으면 새로 생성
+            console.log('새 임시 포스트 생성 시도...');
+            const createTempResponse = await fetch('/api/v1/posts/temp', {
+                method: 'POST',
+                headers: headers
+            });
+            
+            if (!createTempResponse.ok) {
+                const errorText = await createTempResponse.text();
+                console.error('서버 응답:', errorText);
+                throw new Error(`임시 포스트 생성에 실패했습니다. 상태 코드: ${createTempResponse.status}`);
+            }
+            
+            const newTempPostResult = await createTempResponse.json();
+            
+            if (newTempPostResult.data) {
+                postId = newTempPostResult.data.id;
+                referenceId = postId; // referenceId 업데이트
+                
+                // 수정된 부분: 제목이나 내용이 있으면 임시 저장된 포스트로 처리
+                if (newTempPostResult.data.title || newTempPostResult.data.content) {
+                    console.log('임시 저장된 포스트 발견:', postId);
+                    
+                    // 폼에 데이터 채우기
+                    if (newTempPostResult.data.title) {
+                        document.getElementById('post-title').value = newTempPostResult.data.title;
+                    }
+                    
+                    if (newTempPostResult.data.content && editor) {
+                        editor.value(newTempPostResult.data.content);
+                    }
+                    
+                    if (newTempPostResult.data.thumbnail) {
+                        thumbnailUrl = newTempPostResult.data.thumbnail;
+                        addImageToGallery(thumbnailUrl, true);
+                    }
+                    
+                    // 상태 업데이트
+                    postStatus = "TEMP";
+                    updatePostIdDisplay(postId, true);
+                    
+                    showToast("임시 저장된 포스트를 가져왔습니다.", "info");
+                    return true;
+                } else {
+                    // 새 임시 포스트 생성된 경우
+                    console.log('새 임시 포스트가 생성되었습니다. ID:', postId);
+                    
+                    // 상태 업데이트
+                    postStatus = "TEMP";
+                    updatePostIdDisplay(postId, false);
+                    
+                    showToast("새 임시 포스트가 생성되었습니다.", "info");
+                    return true;
+                }
+            } else {
+                throw new Error('임시 포스트 ID를 받아오지 못했습니다.');
+            }
+        } catch (error) {
+            console.error('임시 포스트 처리 중 오류:', error);
+            showToast(error.message || '임시 포스트 처리 중 오류가 발생했습니다.', 'error');
+            return false;
+        }
+    }
+
+    /**
+     * 임시글 ID 표시 업데이트 함수
+     * @param {string|number} id - 표시할 포스트 ID
+     * @param {boolean} isExisting - 기존 임시글인지 여부
+     */
+    function updatePostIdDisplay(id, isExisting) {
+        // 1. 헤더 부분의 ID 표시 업데이트
+        const postIdDisplay = document.getElementById('post-id-display');
+        if (postIdDisplay) {
+            postIdDisplay.textContent = `포스트 ID: ${id}`;
+        }
+        
+        // 2. 임시 글 배지 업데이트
+        const tempPostBadge = document.querySelector('.temp-post-badge strong');
+        if (tempPostBadge) {
+            tempPostBadge.textContent = id;
+        }
+        
+        // 별도의 임시글 배지 요소가 없는 경우 생성하여 추가
+        if (!document.querySelector('.temp-post-badge')) {
+            const badge = document.createElement('div');
+            badge.className = 'temp-post-badge';
+            badge.innerHTML = `
+                <i class="fa fa-file-edit"></i>
+                <span>임시 글 ID: <strong>${id}</strong></span>
+            `;
+            
+            // 헤더 또는 적절한 위치에 배지 추가
+            const header = document.querySelector('header') || document.body;
+            header.appendChild(badge);
+        }
+        
+        // 3. 임시글 표시를 위한 클래스 추가
+        document.body.classList.add('has-temp-post');
+        
+        // 4. 임시글 상태에 따라 UI 요소 업데이트
+        const submitButton = document.getElementById('submit-button');
+        if (submitButton) {
+            submitButton.textContent = isExisting ? '임시글 업데이트' : '포스트 저장';
+        }
+    }
+
+    /**
+     * 임시글 알림 표시 함수
+     */
+    function showTempPostNotification() {
+        showToast("이전에 작성 중이던 임시글을 불러왔습니다.", "info");
+
+        const notification = document.createElement('div');
+        notification.className = 'toss-notification';
+        notification.innerHTML = `
+            <div class="toss-notification-content">
+                <i class="fas fa-info-circle"></i>
+                <div>
+                    <strong>임시글 불러오기 성공</strong>
+                    <p>이전에 작성 중이던 임시글을 불러왔습니다. 계속해서 편집하실 수 있습니다.</p>
+                </div>
+            </div>
+            <button class="toss-notification-close" onclick="this.parentElement.remove()">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        document.body.appendChild(notification);
+
+        // 5초 후 자동으로 닫히도록 설정
+        setTimeout(() => {
+            notification.classList.add('fade-out');
+            setTimeout(() => notification.remove(), 500);
+        }, 5000);
+    }
+
     /**
      * 포스트 등록 함수 - 폼 제출 시 호출됨
-     * @param {Event} event - 폼 제출 이벤트
      */
     async function submitPost(event) {
         event.preventDefault();
-        
+
+        if (!postId) {
+            showToast('임시 포스트 ID가 없습니다. 페이지를 새로고침해 주세요.', 'error');
+            return;
+        }
+
         // 폼 데이터 수집
         const title = document.getElementById('post-title').value.trim();
         const content = editor.value(); // 마크다운 에디터 내용
-        
+
         // 유효성 검사
         if (!title) {
             showToast('제목을 입력해주세요.', 'error');
             return;
         }
-        
+
         if (!content || content.trim().length < 10) {
             showToast('내용은 최소 10자 이상 입력해주세요.', 'error');
             return;
         }
-        
+
         // 이미지 URL 수집 (에디터에서 추출 + 갤러리에 있는 이미지)
         const contentImageUrls = extractImageUrls(content);
         const allImageUrls = [...new Set([...uploadedUrls, ...contentImageUrls])];
-        
+
         // 썸네일 URL 확인
         if (!thumbnailUrl && allImageUrls.length > 0) {
             thumbnailUrl = allImageUrls[0]; // 첫 번째 이미지를 썸네일로 사용
             console.log('자동으로 첫 번째 이미지를 썸네일로 설정:', thumbnailUrl);
         }
-        
+
         if (!thumbnailUrl) {
             showToast('썸네일 이미지를 선택해주세요.', 'error');
             return;
         }
-        
+
         // 해시태그 수집 및 DTO 형태로 변환
         const hashtagElements = document.querySelectorAll('.hashtag-item');
         const hashtags = Array.from(hashtagElements).map(el => {
             const tagText = el.dataset.tag || el.textContent.replace('#', '').trim();
-            // HashtagDto 객체 형태로 변환
             return {
-                name: tagText  // HashtagDto의 필드명을 'name'으로 가정 (백엔드 구현에 맞게 조정)
+                name: tagText
             };
         });
-        
+
         // 해시태그가 없으면 기본 해시태그 추가
         if (hashtags.length === 0) {
-            hashtags.push({ name: "스팟파인더" });
+            hashtags.push({name: "스팟파인더"});
         }
-        
+
         // 제출 버튼 비활성화 및 로딩 표시
         const submitButton = document.getElementById('submit-button');
         const originalButtonText = submitButton.textContent;
         submitButton.disabled = true;
         submitButton.textContent = '저장 중...';
-        
+
         try {
-            // LocationDto에 맞는 장소 정보 생성 (배열로 생성)
+            // 고정된 위치 데이터 사용 (Mock Data)
             const locations = [
                 {
                     name: "스팟파인더 카페",
                     address: "서울특별시 강남구 테헤란로 123",
                     latitude: 37.4967,
                     longitude: 127.0254,
-                    sequence: 1  // 필수 필드: 1~20 사이의 값
+                    sequence: 1
+                },
+                {
+                    name: "스팟파인더 공원",
+                    address: "서울특별시 강남구 선릉로 456",
+                    latitude: 37.5045,
+                    longitude: 127.0506,
+                    sequence: 2
                 }
             ];
-            
-            // POST 요청 데이터 준비 - 백엔드 DTO 구조에 정확히 맞춤
+
+            // 포스트 데이터 구성
             const postData = {
                 title: title,
                 content: content,
-                thumbnail: thumbnailUrl,  // 'thumbnailUrl'이 아닌 'thumbnail'로 변경
+                thumbnail: thumbnailUrl,
+                imageUrls: allImageUrls,
                 hashtags: hashtags,
-                locations: locations     // 'location'이 아닌 'locations' 배열로 변경
+                locations: locations
             };
-            
-            console.log('제출할 포스트 데이터:', postData);
-            
-            // 개발 환경 확인
-            const isDevelopment = window.location.hostname === 'localhost' || 
-                                 window.location.hostname === '127.0.0.1';
-            
-            // 헤더 준비
-            let headers = {
-                'Content-Type': 'application/json'
-            };
-            
-            // 개발 환경에서는 JWT 토큰 획득하여 인증 헤더 추가
-            if (isDevelopment) {
-                try {
-                    // 개발용 테스트 토큰 획득 (사용자 ID 1번 사용)
-                    const tokenResponse = await fetch('/api/v1/dev/token/1');
-                    if (tokenResponse.ok) {
-                        const tokenData = await tokenResponse.json();
-                        if (tokenData.data && tokenData.data.token) {
-                            // 획득한 JWT 토큰을 Authorization 헤더에 추가
-                            headers['Authorization'] = `Bearer ${tokenData.data.token}`;
-                            console.log('개발용 JWT 토큰이 발급되었습니다.');
-                        }
-                    } else {
-                        console.warn('개발용 JWT 토큰 획득 실패:', await tokenResponse.text());
-                    }
-                } catch (tokenError) {
-                    console.error('개발용 토큰 요청 중 오류:', tokenError);
-                    // 토큰 획득 실패해도 계속 진행 (JwtFilter에서 쿠키 인증 시도 가능성)
-                }
-            }
-            
-            // API 요청 전 최종 유효성 검사
-            if (!postData.thumbnail) {
-                throw new Error('썸네일 이미지는 필수입니다.');
-            }
-            
-            if (!postData.locations || postData.locations.length === 0) {
-                throw new Error('최소 하나 이상의 장소가 필요합니다.');
-            }
-            
+
+            // 인증 헤더 가져오기
+            const headers = await getAuthHeaders();
+
+            // 업데이트 API 호출 (PUT 메서드)
+            const apiUrl = `/api/v1/posts/${postId}`;
+
+            console.log(`포스트 업데이트 요청: ${apiUrl}`, postData);
+
             // API 요청
-            const response = await fetch('/api/v1/posts', {
-                method: 'POST',
+            const response = await fetch(apiUrl, {
+                method: 'PUT',
                 headers: headers,
                 body: JSON.stringify(postData)
             });
-            
+
             // 응답 처리
             if (!response.ok) {
-                let errorMessage = '포스트 저장 중 오류가 발생했습니다';
+                let errorMessage = `포스트 ${postStatus === "TEMP" ? "등록" : "수정"} 중 오류가 발생했습니다`;
                 try {
                     const errorData = await response.json();
                     if (errorData.message) {
@@ -1325,26 +1742,61 @@
                         errorMessage = JSON.stringify(errorData.data);
                     }
                 } catch (e) {
-                    // JSON 파싱 오류 무시하고 기본 메시지 사용
+                    // JSON 파싱 오류 무시
                 }
                 throw new Error(errorMessage);
             }
-            
+
             const result = await response.json();
-            console.log('포스트 저장 성공:', result);
-            
-            // 성공 메시지를 alert로 표시하고 확인 후 페이지 새로고침
-            alert('포스트가 성공적으로 등록되었습니다.');
-            window.location.reload();
+            console.log(`포스트 ${postStatus === "TEMP" ? "등록" : "수정"} 성공:`, result);
+
+            // 성공 메시지 표시 (토스트 알림)
+            showToast(`포스트가 성공적으로 ${postStatus === "TEMP" ? "등록" : "수정"}되었습니다.`, 'success');
+
+            // 수정 후 상태 변경 (다시 수정할 경우를 위해)
+            if (postStatus === "TEMP") {
+                postStatus = "PUBLISHED";  // 또는 백엔드에서 오는 상태값으로 업데이트
+
+                // 임시글이 아닌 정식 글로 상태 변경되었음을 알림
+                const notification = document.createElement('div');
+                notification.className = 'toss-notification success';
+                notification.innerHTML = `
+                    <div class="toss-notification-content">
+                        <i class="fas fa-check-circle"></i>
+                        <div>
+                            <strong>등록 완료!</strong>
+                            <p>포스트가 성공적으로 등록되었습니다. 계속해서 편집하실 수 있습니다.</p>
+                        </div>
+                    </div>
+                    <button class="toss-notification-close" onclick="this.parentElement.remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                document.body.appendChild(notification);
+
+                // 5초 후 자동으로 닫히도록 설정
+                setTimeout(() => {
+                    notification.classList.add('fade-out');
+                    setTimeout(() => notification.remove(), 500);
+                }, 5000);
+
+                // ID 표시 업데이트
+                updatePostIdDisplay(postId, false);
+            }
+
+            // 새로고침이나 페이지 이동은 하지 않음
         } catch (error) {
-            console.error('포스트 등록 오류:', error);
-            showToast(error.message || '포스트 등록 중 오류가 발생했습니다.', 'error');
+            console.error(`포스트 ${postStatus === "TEMP" ? "등록" : "수정"} 오류:`, error);
+            showToast(error.message || `포스트 ${postStatus === "TEMP" ? "등록" : "수정"} 중 오류가 발생했습니다.`, 'error');
         } finally {
             // 버튼 상태 복원
             submitButton.disabled = false;
             submitButton.textContent = originalButtonText;
         }
     }
+
+    // 페이지 로드 시 초기화 함수 호출
+    document.addEventListener('DOMContentLoaded', initPage);
 </script>
 </body>
 </html>
