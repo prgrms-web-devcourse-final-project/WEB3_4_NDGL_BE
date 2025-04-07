@@ -20,7 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 
 import com.ndgl.spotfinder.domain.comment.dto.PostCommentDto;
-import com.ndgl.spotfinder.domain.comment.dto.PostCommentReqDto;
+import com.ndgl.spotfinder.domain.comment.dto.PostCommentRequestDto;
 import com.ndgl.spotfinder.domain.comment.entity.PostComment;
 import com.ndgl.spotfinder.domain.comment.repository.PostCommentRepository;
 import com.ndgl.spotfinder.domain.post.entity.Post;
@@ -81,7 +81,7 @@ public class PostCommentServiceTest {
 		// Given
 		Long postId = 1L;
 		String content = "댓글 3";
-		PostCommentReqDto reqBody = new PostCommentReqDto(content, null);
+		PostCommentRequestDto reqBody = new PostCommentRequestDto(content, null);
 
 		when(postRepository.findById(postId)).thenReturn(Optional.of(post));
 		when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
