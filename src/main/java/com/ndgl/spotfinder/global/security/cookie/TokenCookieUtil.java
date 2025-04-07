@@ -26,17 +26,13 @@ public class TokenCookieUtil {
 		int maxAge = validationTime.intValue() / 1000;
 
 		String secureFlag = secure ? "; Secure" : "";
-		String domainFlag = (domain != null && !domain.isBlank()) ? "; Domain=" + domain : "";
-
-		log.info("secureFlag: " + secureFlag);
-		log.info("domainFlag: " + domainFlag);
 
 		//  samesite 설정
 		String cookieString = String.format(
-			"accessToken=%s; Max-Age=%d; Path=/;%s%s HttpOnly; SameSite=%s",
+			"accessToken=%s; Max-Age=%d; Path=/; Domain=%s; HttpOnly%s; SameSite=%s",
 			accessToken,
 			maxAge,
-			domainFlag,
+			domain,
 			secureFlag,
 			sameSite
 		);
