@@ -1,6 +1,6 @@
 package com.ndgl.spotfinder.domain.user.entity;
 
-import java.util.Set;
+import java.util.List;
 
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -54,6 +54,6 @@ public class User extends BaseTime {
 	@Builder.Default
 	private boolean isBanned = false;
 
-	@OneToMany(mappedBy = "follower")
-	private Set<Follow> followings;
+	@OneToMany(mappedBy = "followee")
+	private List<Follow> followings;
 }
