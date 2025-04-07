@@ -3,6 +3,7 @@ package com.ndgl.spotfinder.domain.follow.controller;
 import java.security.Principal;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +23,13 @@ public class FollowController {
 	@PostMapping("/{followingId}")
 	public RsData<Void> followUser(@PathVariable Long followingId, Principal principal) {
 		followService.createFollow(principal.getName(), followingId);
+
+		return RsData.success(HttpStatus.OK);
+	}
+
+	@DeleteMapping("/{unfollowingId}")
+	public RsData<Void> unfollowUser(@PathVariable Long unfollowingId, Principal principal) {
+		followService.deleteFollow(principal.getName(), unfollowingId);
 
 		return RsData.success(HttpStatus.OK);
 	}

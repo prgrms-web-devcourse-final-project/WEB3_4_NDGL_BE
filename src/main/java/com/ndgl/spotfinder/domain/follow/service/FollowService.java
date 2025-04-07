@@ -1,6 +1,7 @@
 package com.ndgl.spotfinder.domain.follow.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.ndgl.spotfinder.domain.follow.entity.Follow;
 import com.ndgl.spotfinder.domain.follow.repository.FollowRepository;
@@ -16,11 +17,12 @@ public class FollowService {
 	private final FollowRepository followRepository;
 	private final UserService userService;
 
+	@Transactional
 	public void createFollow(String email, Long followingId) {
 		User follower = userService.findUserByEmail(email);
 		User followee = userService.findUserById(followingId);
 
-		checkIfAlreadyFollowed(follower, followee);
+		checkIfAlreadyFollowing(follower, followee);
 
 		Follow follow = Follow.builder()
 			.follower(follower)
@@ -30,11 +32,28 @@ public class FollowService {
 		followRepository.save(follow);
 	}
 
-	private void checkIfAlreadyFollowed(User follower, User followee) {
-		Boolean isFollowed = followRepository.existsFollowByFollowerAndFollowee(follower, followee);
+	@Transactional
+	public void deleteFollow(String email, Long unfollowingId) {
+		User follower = userService.findUserByEmail(email);
+		User followee = userService.findUserById(unfollowingId);
 
-		if (isFollowed) {
+		checkIfNotFollowing(follower, followee);
+		followRepository.deleteFollowByFollowerAndFollowee(follower, followee);
+	}
+
+	private void checkIfAlreadyFollowing(User follower, User followee) {
+		if (isFollowed(follower, followee)) {
 			ErrorCode.ALREADY_FOLLOWED.throwServiceException();
 		}
+	}
+
+	private void checkIfNotFollowing(User follower, User followee) {
+		if (!isFollowed(follower, followee)) {
+			ErrorCode.NOT_FOLLOWED.throwServiceException();
+		}
+	}
+
+	private Boolean isFollowed(User follower, User followee) {
+		return followRepository.existsFollowByFollowerAndFollowee(follower, followee);
 	}
 }

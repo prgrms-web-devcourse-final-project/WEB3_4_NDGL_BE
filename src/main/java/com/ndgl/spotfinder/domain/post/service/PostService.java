@@ -95,12 +95,7 @@ public class PostService {
 			.orElseThrow(ErrorCode.POST_NOT_FOUND::throwServiceException);
 	}
 
-	private void checkUserPermission(Post post, String email) {
-		if (!post.getUser().getEmail().equals(email)) {
-			ErrorCode.POST_ACCESS_DENIED.throwServiceException();
-		}
-	}
-
+	@Transactional(readOnly = true)
 	public Long getLastPostId(SliceRequest sliceRequest) {
 		if (sliceRequest.lastId() == null) {
 			return postRepository.findTopByOrderByIdDesc()
@@ -108,6 +103,12 @@ public class PostService {
 				.orElse(DEFAULT_LAST_ID);
 		} else {
 			return sliceRequest.lastId();
+		}
+	}
+
+	private void checkUserPermission(Post post, String email) {
+		if (!post.getUser().getEmail().equals(email)) {
+			ErrorCode.POST_ACCESS_DENIED.throwServiceException();
 		}
 	}
 
