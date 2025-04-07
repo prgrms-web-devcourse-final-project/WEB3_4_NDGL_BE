@@ -91,23 +91,23 @@ public class S3Service {
 	 * @param imageUrl 원본 S3 이미지 URL
 	 * @return 지정된 시간 동안 유효한 조회용 서명된 URL
 	 */
-	@Deprecated
-	public URL generatePresignedGetUrl(String imageUrl) {
-		try {
-			String objectKey = S3Util.extractObjectKeyFromUrl(imageUrl);
-
-			GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
-				.getObjectRequest(getObjectRequest -> getObjectRequest
-					.bucket(bucketName)
-					.key(objectKey))
-				.signatureDuration(Duration.ofMinutes(EXPIRATION_MINUTES))
-				.build();
-
-			return s3Presigner.presignGetObject(presignRequest).url();
-		} catch (SdkException e) {
-			throw ErrorCode.S3_PRESIGNED_GENERATION_FAIL.throwS3Exception(e);
-		}
-	}
+	// @Deprecated
+	// public URL generatePresignedGetUrl(String imageUrl) {
+	// 	try {
+	// 		String objectKey = S3Util.extractObjectKeyFromUrl(imageUrl);
+	//
+	// 		GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
+	// 			.getObjectRequest(getObjectRequest -> getObjectRequest
+	// 				.bucket(bucketName)
+	// 				.key(objectKey))
+	// 			.signatureDuration(Duration.ofMinutes(EXPIRATION_MINUTES))
+	// 			.build();
+	//
+	// 		return s3Presigner.presignGetObject(presignRequest).url();
+	// 	} catch (SdkException e) {
+	// 		throw ErrorCode.S3_PRESIGNED_GENERATION_FAIL.throwS3Exception(e);
+	// 	}
+	// }
 
 	/**
 	 * 단일 S3 객체 삭제

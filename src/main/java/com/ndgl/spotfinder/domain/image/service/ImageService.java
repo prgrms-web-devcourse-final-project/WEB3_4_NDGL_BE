@@ -42,28 +42,6 @@ public class ImageService {
 	}
 
 	/**
-	 * 특정 객체의 모든 이미지를 조회하고 Presigned URL을 생성하여 반환
-	 */
-	// @Transactional(readOnly = true)
-	// public PresignedUrlsResponse findImagesWithPresignedUrls(ImageType imageType, long referenceId) {
-	// 	List<Image> images = imageRepository.findByImageTypeAndReferenceId(imageType, referenceId);
-	//
-	// 	List<URL> presignedUrls = images.stream()
-	// 		.map(image -> {
-	// 			try {
-	// 				return s3Service.generatePresignedGetUrl(image.getUrl());
-	// 			} catch (Exception e) {
-	// 				log.error("URL 변환 중 오류 발생: {}", e.getMessage());
-	// 				return null;
-	// 			}
-	// 		})
-	// 		.filter(Objects::nonNull)
-	// 		.collect(Collectors.toList());
-	//
-	// 	return new PresignedUrlsResponse(referenceId, imageType, presignedUrls);
-	// }
-
-	/**
 	 * 이미지 URL 목록을 받아서 DB에 저장
 	 */
 	@Transactional
