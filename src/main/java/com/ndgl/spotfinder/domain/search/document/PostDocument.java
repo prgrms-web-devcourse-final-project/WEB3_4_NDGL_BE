@@ -48,11 +48,14 @@ public class PostDocument {
 	@Field(type = FieldType.Keyword, index = false)
 	private String thumbnail;
 
-	@Field(type = FieldType.Long, index = false)
+	@Field(type = FieldType.Long)
 	private Long viewCount;
 
-	@Field(type = FieldType.Long, index = false)
+	@Field(type = FieldType.Long)
 	private Long likeCount;
+
+	@Field(type = FieldType.Integer, index = false)
+	private Integer commentCount;
 
 	@Field(type = FieldType.Text, analyzer = "test_analyzer")
 	private List<String> hashtags;
@@ -69,6 +72,7 @@ public class PostDocument {
 			.thumbnail(post.getThumbnail())
 			.viewCount(post.getViewCount())
 			.likeCount(post.getLikeCount())
+			.commentCount(post.getComments().size())
 			.hashtags(
 				post.getHashtags().stream()
 					.map(Hashtag::getName)

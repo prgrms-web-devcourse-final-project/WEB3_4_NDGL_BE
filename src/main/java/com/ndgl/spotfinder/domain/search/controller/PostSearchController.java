@@ -1,5 +1,7 @@
 package com.ndgl.spotfinder.domain.search.controller;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -30,5 +32,20 @@ public class PostSearchController {
 		SliceResponse<PostResponseDto> results = postSearchService.searchPosts(sliceRequest, keyword);
 
 		return RsData.success(HttpStatus.OK, results);
+	}
+
+	@GetMapping("/list")
+	public RsData<List<PostResponseDto>> searchPosts(
+		@RequestParam String keyword
+	) {
+		List<PostResponseDto> results = postSearchService.searchPostsToList(keyword);
+
+		return RsData.success(HttpStatus.OK, results);
+	}
+
+	@GetMapping("/index")
+	public RsData<String> indexPosts() {
+		postSearchService.indexPosts();
+		return RsData.success(HttpStatus.OK, "인덱싱 완료");
 	}
 }
