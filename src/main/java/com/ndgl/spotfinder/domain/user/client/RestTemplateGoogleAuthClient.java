@@ -46,7 +46,16 @@ public class RestTemplateGoogleAuthClient implements GoogleAuthClient {
 			redirectUri
 		);
 
-		HttpEntity<GoogleTokenRequestDto> requestEntity = new HttpEntity<>(requestBody, headers);
+		String body = String.format(
+			"grant_type=%s&client_id=%s&client_secret=%s&code=%s&redirect_uri=%s",
+			requestBody.grantType(),
+			requestBody.clientId(),
+			requestBody.clientSecret(),
+			requestBody.code(),
+			requestBody.redirectUri()
+		);
+
+		HttpEntity<String> requestEntity = new HttpEntity<>(body, headers);
 
 		try {
 			ResponseEntity<GoogleTokenResponseDto> responseEntity =
