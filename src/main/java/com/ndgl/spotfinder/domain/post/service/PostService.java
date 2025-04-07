@@ -52,17 +52,11 @@ public class PostService {
 
 	@Transactional
 	public PostTempResponse findOrCreateTempPost(String email) {
-		// 사용자 조회
 		User user = userService.findUserByEmail(email);
 
 		Post post = postRepository.findFirstByUserAndStatus(user, PostStatus.TEMP)
 			.orElseGet(() -> {
-				Post newPost = Post.builder()
-					.title("")
-					.content("")
-					.status(PostStatus.TEMP)
-					.user(user)
-					.build();
+				Post newPost = Post.createTempPost(user);
 				return postRepository.save(newPost);
 			});
 

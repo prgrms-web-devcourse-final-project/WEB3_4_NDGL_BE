@@ -45,7 +45,7 @@ public class PostController implements PostApiSpecification {
 	@PostMapping("/temp")
 	public RsData<PostTempResponse> createTempPost(Principal principal) {
 		PostTempResponse response = postService.findOrCreateTempPost(principal.getName());
-		return RsData.success(HttpStatus.CREATED, response);
+		return RsData.success(HttpStatus.OK, response);
 	}
 
 	@PutMapping("/{id}")

@@ -34,8 +34,7 @@ public class ImageCleanupService {
 	@Async("imageCleanupExecutor")
 	@Transactional
 	public void cleanupUnusedImages(ImageType imageType, long referenceId, Set<String> usedImageUrls) {
-		// TODO 임시 하드코딩
-		List<Image> savedImages = imageRepository.findByImageTypeAndReferenceId(imageType, 999L);
+		List<Image> savedImages = imageRepository.findByImageTypeAndReferenceId(imageType, referenceId);
 
 		List<Image> unusedImages = savedImages.stream()
 			.filter(image -> !usedImageUrls.contains(image.getUrl()))

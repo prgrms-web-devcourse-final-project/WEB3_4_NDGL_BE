@@ -81,7 +81,7 @@ public class Post extends BaseTime {
 
 	public static Post createTempPost(User user) {
 		return Post.builder()
-			.title("임시글")
+			.title("")
 			.content("")
 			.status(PostStatus.TEMP)
 			.user(user)
