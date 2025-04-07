@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ndgl.spotfinder.domain.comment.dto.PostCommentDto;
-import com.ndgl.spotfinder.domain.comment.dto.PostCommentReqDto;
+import com.ndgl.spotfinder.domain.comment.dto.PostCommentRequestDto;
 import com.ndgl.spotfinder.domain.comment.service.PostCommentService;
 import com.ndgl.spotfinder.global.common.dto.SliceRequest;
 import com.ndgl.spotfinder.global.common.dto.SliceResponse;
@@ -51,7 +51,7 @@ public class PostCommentController {
 	@Operation(summary = "댓글 작성", description = "댓글을 작성합니다.")
 	public RsData<Void> write(
 		@PathVariable Long id,
-		@RequestBody @Valid PostCommentReqDto reqBody,
+		@RequestBody @Valid PostCommentRequestDto reqBody,
 		Principal principal
 	) {
 		postCommentService.write(id, reqBody, principal.getName());
@@ -63,7 +63,7 @@ public class PostCommentController {
 	public RsData<Void> modify(
 		@PathVariable Long id,
 		@PathVariable Long commentId,
-		@RequestBody @Valid PostCommentReqDto reqBody,
+		@RequestBody @Valid PostCommentRequestDto reqBody,
 		Principal principal
 	) {
 		postCommentService.modify(id, commentId, reqBody.content(), principal.getName());

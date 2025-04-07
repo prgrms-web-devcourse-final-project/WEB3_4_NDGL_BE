@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ndgl.spotfinder.domain.comment.dto.PostCommentDto;
-import com.ndgl.spotfinder.domain.comment.dto.PostCommentReqDto;
+import com.ndgl.spotfinder.domain.comment.dto.PostCommentRequestDto;
 import com.ndgl.spotfinder.domain.comment.entity.PostComment;
 import com.ndgl.spotfinder.domain.comment.repository.PostCommentRepository;
 import com.ndgl.spotfinder.domain.post.entity.Post;
@@ -60,7 +60,7 @@ public class PostCommentService {
 	}
 
 	@Transactional
-	public void write(Long postId, PostCommentReqDto reqBody, String email) {
+	public void write(Long postId, PostCommentRequestDto reqBody, String email) {
 		String content = reqBody.content();
 		Long parentId = reqBody.parentId();
 
