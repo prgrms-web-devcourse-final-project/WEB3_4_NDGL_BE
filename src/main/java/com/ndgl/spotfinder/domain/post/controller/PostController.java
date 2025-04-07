@@ -22,11 +22,9 @@ import com.ndgl.spotfinder.global.common.dto.SliceRequest;
 import com.ndgl.spotfinder.global.common.dto.SliceResponse;
 import com.ndgl.spotfinder.global.rsdata.RsData;
 
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
-@Tag(name = "포스트")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/posts")
@@ -34,7 +32,7 @@ public class PostController implements PostApiSpecification {
 	private final PostService postService;
 
 	@PostMapping
-	public RsData<String> createPost(
+	public RsData<Void> createPost(
 		@RequestBody @Valid PostCreateRequestDto postCreateRequestDto,
 		Principal principal
 	) {
@@ -44,7 +42,7 @@ public class PostController implements PostApiSpecification {
 	}
 
 	@PutMapping("/{id}")
-	public RsData<String> updatePost(
+	public RsData<Void> updatePost(
 		@PathVariable Long id,
 		@RequestBody @Valid PostUpdateRequestDto postUpdateRequestDto,
 		Principal principal
@@ -55,7 +53,7 @@ public class PostController implements PostApiSpecification {
 	}
 
 	@DeleteMapping("/{id}")
-	public RsData<String> deletePost(
+	public RsData<Void> deletePost(
 		@PathVariable Long id,
 		Principal principal
 	) {
@@ -94,6 +92,16 @@ public class PostController implements PostApiSpecification {
 		Principal principal
 	) {
 		SliceResponse<PostResponseDto> results = postService.getPostsByLike(sliceRequest, principal.getName());
+
+		return RsData.success(HttpStatus.OK, results);
+	}
+
+	@GetMapping("/follow")
+	public RsData<SliceResponse<PostResponseDto>> getPostsByFollow(
+		@ModelAttribute @Valid SliceRequest sliceRequest,
+		Principal principal
+	) {
+		SliceResponse<PostResponseDto> results = postService.getPostsByFollow(sliceRequest, principal.getName());
 
 		return RsData.success(HttpStatus.OK, results);
 	}

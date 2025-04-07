@@ -13,6 +13,7 @@ import lombok.Getter;
 public class PostCommentDto {
 	private final Long id;
 	private final String content;
+	private final Long authorId;
 	private final String authorName;
 	private final Long postId;
 	private final Long parentId;
@@ -24,6 +25,7 @@ public class PostCommentDto {
 	public PostCommentDto(PostComment comment) {
 		this.id = comment.getId();
 		this.content = comment.getContent();
+		this.authorId = comment.getUser().getId();
 		this.authorName = comment.getUser().getNickName();
 		this.postId = comment.getPost().getId();
 		this.parentId = (comment.getParentComment() != null) ? comment.getParentComment().getId() : null;

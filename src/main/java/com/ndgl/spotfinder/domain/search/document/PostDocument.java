@@ -34,6 +34,9 @@ public class PostDocument {
 	private String content;
 
 	@Field(type = FieldType.Keyword, index = false)
+	private Long userId;
+
+	@Field(type = FieldType.Keyword, index = false)
 	private String nickname;
 
 	@Field(type = FieldType.Date, format = DateFormat.date_hour_minute_second)
@@ -59,6 +62,7 @@ public class PostDocument {
 			.id(post.getId())
 			.title(post.getTitle())
 			.content(post.getContent())
+			.userId(post.getUser().getId())
 			.nickname(post.getUser().getNickName())
 			.createdAt(post.getCreatedAt())
 			.updatedAt(post.getUpdatedAt())
