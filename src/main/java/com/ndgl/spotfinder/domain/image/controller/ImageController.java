@@ -6,35 +6,33 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ndgl.spotfinder.domain.image.dto.ImageRequest;
-import com.ndgl.spotfinder.domain.image.dto.PresignedUrlsResponse;
-import com.ndgl.spotfinder.domain.image.dto.UploadCompleteRequest;
+import com.ndgl.spotfinder.domain.image.dto.ImageUrlRequestDto;
+import com.ndgl.spotfinder.domain.image.dto.PresignedUrlsResponseDto;
+import com.ndgl.spotfinder.domain.image.dto.UploadCompleteRequestDto;
 import com.ndgl.spotfinder.domain.image.service.ImageService;
 import com.ndgl.spotfinder.global.rsdata.RsData;
 
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/v1/images")
 @RequiredArgsConstructor
-@Tag(name = "이미지 API", description = "이미지 관련 API")
 public class ImageController implements ImageApiSpecification {
 
 	private final ImageService imageService;
 
 	@PostMapping("/presigned-url")
-	public RsData<PresignedUrlsResponse> createPresignedUrl(
-		@Valid @RequestBody ImageRequest rq
+	public RsData<PresignedUrlsResponseDto> createPresignedUrl(
+		@Valid @RequestBody ImageUrlRequestDto rq
 	) {
-		PresignedUrlsResponse rs = imageService.createImage(rq);
+		PresignedUrlsResponseDto rs = imageService.createImage(rq);
 		return RsData.success(HttpStatus.OK, rs);
 	}
 
 	@PostMapping("/complete")
 	public RsData<String> uploadComplete(
-		@Valid @RequestBody UploadCompleteRequest rq
+		@Valid @RequestBody UploadCompleteRequestDto rq
 	) {
 		imageService.saveImages(rq);
 		return RsData.success(HttpStatus.OK);

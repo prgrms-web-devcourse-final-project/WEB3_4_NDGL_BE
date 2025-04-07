@@ -5,7 +5,7 @@ import java.util.List;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-public record PresignedUrlsResponse(
+public record PresignedUrlsResponseDto(
 	@Schema(
 		description = "S3 등록 URL",
 		example = "[\"https://ndgl-spot-finder-aws.s3.ap-northeast-2.amazonaws.com/{imageType}/${referenceId}\", "

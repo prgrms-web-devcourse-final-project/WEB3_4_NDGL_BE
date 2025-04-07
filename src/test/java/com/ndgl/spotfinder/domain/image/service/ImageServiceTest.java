@@ -18,9 +18,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ActiveProfiles;
 
-import com.ndgl.spotfinder.domain.image.dto.ImageRequest;
-import com.ndgl.spotfinder.domain.image.dto.PresignedUrlsResponse;
-import com.ndgl.spotfinder.domain.image.dto.UploadCompleteRequest;
+import com.ndgl.spotfinder.domain.image.dto.ImageUrlRequestDto;
+import com.ndgl.spotfinder.domain.image.dto.PresignedUrlsResponseDto;
+import com.ndgl.spotfinder.domain.image.dto.UploadCompleteRequestDto;
 import com.ndgl.spotfinder.domain.image.entity.Image;
 import com.ndgl.spotfinder.domain.image.repository.ImageRepository;
 import com.ndgl.spotfinder.domain.image.type.ImageType;
@@ -62,7 +62,7 @@ public class ImageServiceTest {
         // given
         long postId = 10L;
         List<String> extensions = Arrays.asList("jpg", "png");
-        ImageRequest request = new ImageRequest(postId, ImageType.POST, extensions);
+        ImageUrlRequestDto request = new ImageUrlRequestDto(postId, ImageType.POST, extensions);
 
         List<URL> mockUrls = new ArrayList<>();
         mockUrls.add(new URL("https://example.com/image1.jpg"));
@@ -72,7 +72,7 @@ public class ImageServiceTest {
         when(s3Service.generatePresignedUrls(ImageType.POST, postId, extensions))
                 .thenReturn(mockUrls);
 
-        PresignedUrlsResponse response = imageService.createImage(request);
+        PresignedUrlsResponseDto response = imageService.createImage(request);
 
         // then
         assertNotNull(response);
@@ -86,7 +86,7 @@ public class ImageServiceTest {
         // given
         long postId = 10L;
         List<String> extensions = Arrays.asList("jpg", "png");
-        ImageRequest request = new ImageRequest(postId, ImageType.POST, extensions);
+        ImageUrlRequestDto request = new ImageUrlRequestDto(postId, ImageType.POST, extensions);
 
         // when
         when(s3Service.generatePresignedUrls(ImageType.POST, postId, extensions))
@@ -105,7 +105,7 @@ public class ImageServiceTest {
             "posts/10/image1.jpg",
             "posts/10/image2.jpg"
         );
-        UploadCompleteRequest request = new UploadCompleteRequest(postId, ImageType.POST, imageUrls);
+        UploadCompleteRequestDto request = new UploadCompleteRequestDto(postId, ImageType.POST, imageUrls);
 
         // Ut.list.hasValue 모킹 - try-with-resources로 mockStatic 사용
         try (MockedStatic<Ut.list> mockedList = mockStatic(Ut.list.class)) {
@@ -125,7 +125,7 @@ public class ImageServiceTest {
         // given
         long postId = 10L;
         List<String> emptyUrls = new ArrayList<>();
-        UploadCompleteRequest request = new UploadCompleteRequest(postId, ImageType.POST, emptyUrls);
+        UploadCompleteRequestDto request = new UploadCompleteRequestDto(postId, ImageType.POST, emptyUrls);
 
         // Ut.list.hasValue 모킹 - try-with-resources로 mockStatic 사용
         try (MockedStatic<Ut.list> mockedList = mockStatic(Ut.list.class)) {
