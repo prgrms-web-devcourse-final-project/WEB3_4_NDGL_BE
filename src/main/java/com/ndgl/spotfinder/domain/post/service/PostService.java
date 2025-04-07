@@ -1,5 +1,7 @@
 package com.ndgl.spotfinder.domain.post.service;
 
+import java.util.List;
+
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -72,6 +74,13 @@ public class PostService {
 	}
 
 	@Transactional(readOnly = true)
+	public List<Post> getPostsByUser(Long userId) {
+		User user = userService.findUserById(userId);
+
+		return postRepository.findByUser(user);
+	}
+
+	@Transactional(readOnly = true)
 	public PostDetailResponseDto getPost(Long id) {
 		Post post = findPostById(id);
 
@@ -96,7 +105,7 @@ public class PostService {
 		User user = userService.findUserByEmail(email);
 
 		Slice<Post> results = postRepository.findFollowedPostsByUser(user.getId(), lastId, pageRequest);
-		
+
 		return convertToSliceResponse(results);
 	}
 

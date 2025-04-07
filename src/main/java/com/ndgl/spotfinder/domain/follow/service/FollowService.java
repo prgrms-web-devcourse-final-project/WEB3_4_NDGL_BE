@@ -53,7 +53,7 @@ public class FollowService {
 		}
 	}
 
-	private Boolean isFollowed(User follower, User followee) {
+	public Boolean isFollowed(User follower, User followee) {
 		return followRepository.existsFollowByFollowerAndFollowee(follower, followee);
 	}
 }

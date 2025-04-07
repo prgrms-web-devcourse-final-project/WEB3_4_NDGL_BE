@@ -1,5 +1,6 @@
 package com.ndgl.spotfinder.domain.post.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.PageRequest;
@@ -44,4 +45,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 		   + "OR EXISTS (SELECT h FROM p.hashtags h WHERE LOWER(h.name) LIKE LOWER(CONCAT('%', :keyword, '%')))) "
 		   + "AND p.id > :lastId")
 	Slice<Post> searchAll(String keyword, Long lastId, PageRequest pageRequest);
+
+	List<Post> findByUser(User user);
 }
