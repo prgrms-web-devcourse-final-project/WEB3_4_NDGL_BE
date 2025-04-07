@@ -73,6 +73,8 @@ dependencies {
 
     // TODO 지우기
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+    testImplementation 'org.awaitility:awaitility:4.2.0'
 }
 
 tasks.named('test') {
