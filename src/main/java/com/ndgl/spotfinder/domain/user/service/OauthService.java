@@ -19,9 +19,11 @@ import com.ndgl.spotfinder.domain.user.client.GoogleAuthClient;
 import com.ndgl.spotfinder.domain.user.dto.GoogleTokenResponseDto;
 import com.ndgl.spotfinder.domain.user.dto.UserLoginResponseDto;
 import com.ndgl.spotfinder.domain.user.entity.Oauth;
+import com.ndgl.spotfinder.domain.user.entity.Provider;
 import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.domain.user.repository.OauthRepository;
 import com.ndgl.spotfinder.domain.user.repository.UserRepository;
+import com.ndgl.spotfinder.global.exception.ErrorCode;
 import com.ndgl.spotfinder.global.exception.ServiceException;
 import com.ndgl.spotfinder.global.security.jwt.CustomUserDetails;
 import com.ndgl.spotfinder.global.security.jwt.TokenProvider;
@@ -52,7 +54,7 @@ public class OauthService {
 	}
 
 	public UserLoginResponseDto processGoogleLogin(
-		Oauth.Provider provider,
+		Provider provider,
 		String code,
 		String redirectUri,
 		HttpServletResponse response) {
@@ -105,7 +107,7 @@ public class OauthService {
 		);
 
 		if (userInfoResponse.getStatusCode() != HttpStatus.OK || userInfoResponse.getBody() == null) {
-			throw new ServiceException(HttpStatus.BAD_REQUEST, "BAD_REQUEST"); // 500번으로 수정 후 OAUTH ERRORCODE 추가
+			ErrorCode.SERVER_ERROR.throwServiceException();
 		}
 
 		Map<String, Object> responseMap = userInfoResponse.getBody();
@@ -139,13 +141,13 @@ public class OauthService {
 		String email = userInfo.getEmail();
 
 		Optional<Oauth> existingOauthByIdentify = oauthRepository.findByIdentifyAndProvider(googleId,
-			Oauth.Provider.GOOGLE);
+			Provider.GOOGLE);
 
 		if (existingOauthByIdentify.isPresent()) {
 			return UserLoginResponseDto.builder()
 				.message("OK")
 				.code(HttpStatus.OK.value())
-				.provider(Oauth.Provider.GOOGLE.name())
+				.provider(Provider.GOOGLE.name())
 				.identify(googleId)
 				.email(email)
 				.build();
@@ -156,12 +158,12 @@ public class OauthService {
 		if (existingUser.isPresent()) {
 			User nowUser = existingUser.get();
 
-			Optional<Oauth> existingOauth = oauthRepository.findByUserAndProvider(nowUser, Oauth.Provider.GOOGLE);
+			Optional<Oauth> existingOauth = oauthRepository.findByUserAndProvider(nowUser, Provider.GOOGLE);
 
 			if (existingOauth.isEmpty()) {
 				Oauth newOauth = Oauth.builder()
 					.user(nowUser)
-					.provider(Oauth.Provider.GOOGLE)
+					.provider(Provider.GOOGLE)
 					.identify(googleId)
 					.build();
 
@@ -171,7 +173,7 @@ public class OauthService {
 			return UserLoginResponseDto.builder()
 				.message("OK")
 				.code(HttpStatus.OK.value())
-				.provider(Oauth.Provider.GOOGLE.name())
+				.provider(Provider.GOOGLE.name())
 				.identify(googleId)
 				.email(email)
 				.userId(existingOauth.get().getId())
@@ -180,7 +182,7 @@ public class OauthService {
 			return UserLoginResponseDto.builder()
 				.message("OK")
 				.code(HttpStatus.CREATED.value())
-				.provider(Oauth.Provider.GOOGLE.name())
+				.provider(Provider.GOOGLE.name())
 				.identify(googleId)
 				.email(email)
 				.build();

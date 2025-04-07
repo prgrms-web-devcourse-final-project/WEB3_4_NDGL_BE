@@ -60,7 +60,7 @@ public class AuthController {
 		}
 
 		//  refreshToken이 redis에 있는지 확인
-		String userId = tokenProvider.getEmail(accessToken);
+		String userId = tokenProvider.getEmail("accessToken");
 		String refreshToken = authService.getRefreshTokenFromRedis(userId);
 
 		//  새 accessToken 발급
@@ -73,7 +73,7 @@ public class AuthController {
 		Cookie[] cookies = request.getCookies();
 		if (cookies != null) {
 			for (Cookie cookie : cookies) {
-				if ("accessCookie".equals(cookie.getName())) { // ✅ Access Token 쿠키 이름
+				if ("accessToken".equals(cookie.getName())) { // ✅ Access Token 쿠키 이름
 					return cookie.getValue();
 				}
 			}

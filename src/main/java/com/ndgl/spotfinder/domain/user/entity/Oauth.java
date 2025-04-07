@@ -43,11 +43,11 @@ public class Oauth extends BaseTime {
 
 	private String identify;
 
-	@Getter
-	@AllArgsConstructor
-	public enum Provider {
-		GOOGLE,
-		KAKAO,
-		NAVER
-	}
+	// @Getter
+	// @AllArgsConstructor
+	// public enum Provider {
+	// 	GOOGLE,
+	// 	KAKAO,
+	// 	NAVER
+	// }
 }

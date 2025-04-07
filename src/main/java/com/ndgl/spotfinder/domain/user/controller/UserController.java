@@ -17,7 +17,7 @@ import com.ndgl.spotfinder.domain.user.dto.UserJoinRequestDto;
 import com.ndgl.spotfinder.domain.user.dto.UserLoginResponseDto;
 import com.ndgl.spotfinder.domain.user.dto.UserModifiedRequestDto;
 import com.ndgl.spotfinder.domain.user.dto.UserModifiedResponseDto;
-import com.ndgl.spotfinder.domain.user.entity.Oauth;
+import com.ndgl.spotfinder.domain.user.entity.Provider;
 import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.domain.user.service.OauthService;
 import com.ndgl.spotfinder.domain.user.service.UserService;
@@ -61,7 +61,7 @@ public class UserController {
 		HttpServletResponse response
 	) {
 		//  구글 로그인 처리
-		UserLoginResponseDto responseDto = oauthService.processGoogleLogin(Oauth.Provider.GOOGLE, code, redirectUri,
+		UserLoginResponseDto responseDto = oauthService.processGoogleLogin(Provider.GOOGLE, code, redirectUri,
 			response);
 
 		return new RsData<>(responseDto.getCode(), responseDto.getMessage(), responseDto);
@@ -78,10 +78,10 @@ public class UserController {
 			ErrorCode.MISSING_ACCESS_TOKEN.throwServiceException();
 		}
 
-		String userId = tokenProvider.getEmail(accessToken);
+		String userId = tokenProvider.getEmail("accessToken");
 
 		//  로그아웃 처리
-		userService.logout(userId, response, accessToken);
+		userService.logout(userId, response, "accessToken");
 
 		return RsData.success(HttpStatus.OK);
 	}
