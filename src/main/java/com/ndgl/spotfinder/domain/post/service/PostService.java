@@ -90,6 +90,17 @@ public class PostService {
 	}
 
 	@Transactional(readOnly = true)
+	public SliceResponse<PostResponseDto> getPostsByFollow(SliceRequest sliceRequest, String email) {
+		PageRequest pageRequest = PageRequest.of(0, sliceRequest.size());
+		Long lastId = getLastPostId(sliceRequest);
+		User user = userService.findUserByEmail(email);
+
+		Slice<Post> results = postRepository.findFollowedPostsByUser(user.getId(), lastId, pageRequest);
+		
+		return convertToSliceResponse(results);
+	}
+
+	@Transactional(readOnly = true)
 	public Post findPostById(Long id) {
 		return postRepository.findById(id)
 			.orElseThrow(ErrorCode.POST_NOT_FOUND::throwServiceException);

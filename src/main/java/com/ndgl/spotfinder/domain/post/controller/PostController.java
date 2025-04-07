@@ -95,4 +95,14 @@ public class PostController implements PostApiSpecification {
 
 		return RsData.success(HttpStatus.OK, results);
 	}
+
+	@GetMapping("/follow")
+	public RsData<SliceResponse<PostResponseDto>> getPostsByFollow(
+		@ModelAttribute @Valid SliceRequest sliceRequest,
+		Principal principal
+	) {
+		SliceResponse<PostResponseDto> results = postService.getPostsByFollow(sliceRequest, principal.getName());
+
+		return RsData.success(HttpStatus.OK, results);
+	}
 }

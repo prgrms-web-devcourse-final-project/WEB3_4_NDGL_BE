@@ -76,8 +76,14 @@ public interface PostApiSpecification {
 		SliceRequest sliceRequest
 	);
 
-	@Operation(summary = "자신이 좋아요한 포스트 목록 조회")
+	@Operation(summary = "사용자가 좋아요한 포스트 목록 조회")
 	RsData<SliceResponse<PostResponseDto>> getPostsByLike(
+		SliceRequest sliceRequest,
+		@Parameter(hidden = true) Principal principal
+	);
+
+	@Operation(summary = "사용자가 팔로우한 블로그의 포스트 목록 조회")
+	RsData<SliceResponse<PostResponseDto>> getPostsByFollow(
 		SliceRequest sliceRequest,
 		@Parameter(hidden = true) Principal principal
 	);
