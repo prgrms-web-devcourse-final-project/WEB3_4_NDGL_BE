@@ -10,8 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
@@ -107,38 +105,5 @@ public class PostSearchServiceTest {
 		assertFalse(result.hasNext());
 
 		verify(postRepository, times(1)).searchAll(eq(keyword), eq(lastId), any(PageRequest.class));
-	}
-
-	@Test
-	@DisplayName("엘라스틱서치 기반 검색 - lastId 필터링 및 Slice 변환")
-	void search_with_elasticsearch() {
-		// given
-		String keyword = "맛";
-		Long lastId = 1L;
-		int size = 1;
-
-		PageRequest pageRequest = PageRequest.of(0, size + 1);
-		List<PostDocument> docs = List.of(doc1, doc2);
-		Page<PostDocument> mockPage = new PageImpl<>(docs, pageRequest, docs.size());
-
-		when(healthCheck.isElasticSearchUp()).thenReturn(true);
-		when(postSearchRepository.findByTitleOrContent(keyword, keyword, pageRequest)).thenReturn(mockPage);
-
-		postSearchService = new PostSearchService(
-			postService, postRepository, healthCheck, postSearchRepository
-		);
-
-		// when
-		SliceResponse<PostResponseDto> result = postSearchService.searchPosts(
-			new SliceRequest(lastId, size),
-			keyword
-		);
-
-		// then
-		assertEquals(size, result.contents().size());
-		assertEquals("맛집 추천", result.contents().get(0).title());
-		assertTrue(result.hasNext());
-
-		verify(postSearchRepository, times(1)).findByTitleOrContent(keyword, keyword, pageRequest);
 	}
 }

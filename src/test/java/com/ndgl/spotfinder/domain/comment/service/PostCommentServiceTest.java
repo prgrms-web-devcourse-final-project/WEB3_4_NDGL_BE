@@ -24,9 +24,9 @@ import com.ndgl.spotfinder.domain.comment.dto.PostCommentRequestDto;
 import com.ndgl.spotfinder.domain.comment.entity.PostComment;
 import com.ndgl.spotfinder.domain.comment.repository.PostCommentRepository;
 import com.ndgl.spotfinder.domain.post.entity.Post;
-import com.ndgl.spotfinder.domain.post.repository.PostRepository;
+import com.ndgl.spotfinder.domain.post.service.PostService;
 import com.ndgl.spotfinder.domain.user.entity.User;
-import com.ndgl.spotfinder.domain.user.repository.UserRepository;
+import com.ndgl.spotfinder.domain.user.service.UserService;
 import com.ndgl.spotfinder.global.common.dto.SliceResponse;
 import com.ndgl.spotfinder.global.exception.ServiceException;
 
@@ -37,13 +37,13 @@ public class PostCommentServiceTest {
 	private PostCommentService postCommentService;
 
 	@Mock
-	private PostRepository postRepository;
-
-	@Mock
 	private PostCommentRepository postCommentRepository;
 
 	@Mock
-	private UserRepository userRepository;
+	private PostService postService;
+
+	@Mock
+	private UserService userService;
 
 	private final User user = User.builder()
 		.id(1L)
@@ -83,8 +83,8 @@ public class PostCommentServiceTest {
 		String content = "댓글 3";
 		PostCommentRequestDto reqBody = new PostCommentRequestDto(content, null);
 
-		when(postRepository.findById(postId)).thenReturn(Optional.of(post));
-		when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
+		when(postService.findPostById(postId)).thenReturn(post);
+		when(userService.findUserByEmail(user.getEmail())).thenReturn(user);
 
 		ArgumentCaptor<PostComment> captor = ArgumentCaptor.forClass(PostComment.class);
 		doAnswer(invocation -> invocation.getArgument(0))
@@ -114,7 +114,7 @@ public class PostCommentServiceTest {
 
 		// When
 		when(postCommentRepository.findById(commentId)).thenReturn(java.util.Optional.ofNullable(comment));
-		when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
+		when(userService.findUserByEmail(user.getEmail())).thenReturn(user);
 		postCommentService.modify(postId, commentId, content, user.getEmail());
 
 		// Then
@@ -150,7 +150,7 @@ public class PostCommentServiceTest {
 
 		// When
 		when(postCommentRepository.findById(commentId)).thenReturn(java.util.Optional.ofNullable(comment));
-		when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
+		when(userService.findUserByEmail(user.getEmail())).thenReturn(user);
 		postCommentService.delete(postId, commentId, user.getEmail());
 
 		// Then
