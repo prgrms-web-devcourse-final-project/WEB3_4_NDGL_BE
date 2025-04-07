@@ -1,5 +1,6 @@
 package com.ndgl.spotfinder.domain.post.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -51,4 +52,14 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 	Slice<Post> searchAll(String keyword, Long lastId, PageRequest pageRequest);
 
 	List<Post> findByUser(User user);
+
+	@Query("SELECT DISTINCT p FROM Post p "
+    	+ "JOIN FETCH p.user "
+    	+ "LEFT JOIN FETCH p.hashtags")
+	List<Post> findAllWithAssociations();
+
+	@Query("SELECT DISTINCT p FROM Post p "
+		+ "JOIN FETCH p.user LEFT JOIN FETCH p.hashtags "
+		+ "WHERE p.updatedAt > :updatedAt")
+	List<Post> findByUpdatedAtAfter(LocalDateTime updatedAt);
 }
