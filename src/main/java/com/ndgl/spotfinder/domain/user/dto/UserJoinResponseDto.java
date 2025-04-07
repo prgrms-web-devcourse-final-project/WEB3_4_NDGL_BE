@@ -5,11 +5,12 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class UserLoginResponseDTO {
+public class UserJoinResponseDto {
 	private final String message;
 	private final Integer code;
-	private final String provider;
+	private final String provide;
 	private final String identify;
 	private final String email;
-	private final Long userId;
+	private final String nickName;
+	private final String blogName;
 }

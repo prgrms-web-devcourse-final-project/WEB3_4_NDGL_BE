@@ -2,14 +2,14 @@ package com.ndgl.spotfinder.domain.user.dto;
 
 import com.ndgl.spotfinder.domain.user.entity.User;
 
-public record UserModifiedResponseDTO(
+public record UserModifiedResponseDto(
 	Integer code,
 	String message,
 	String nickName,
 	String blogName
 ) {
-	public static UserModifiedResponseDTO success(Integer code, String message, User user) {
-		return new UserModifiedResponseDTO(
+	public static UserModifiedResponseDto success(Integer code, String message, User user) {
+		return new UserModifiedResponseDto(
 			code,
 			message,
 			user.getNickName(),

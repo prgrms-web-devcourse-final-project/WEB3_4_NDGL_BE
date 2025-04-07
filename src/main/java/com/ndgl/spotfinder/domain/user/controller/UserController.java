@@ -12,11 +12,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ndgl.spotfinder.domain.user.dto.UserInfoResponseDTO;
-import com.ndgl.spotfinder.domain.user.dto.UserJoinRequestDTO;
-import com.ndgl.spotfinder.domain.user.dto.UserLoginResponseDTO;
-import com.ndgl.spotfinder.domain.user.dto.UserModifiedRequestDTO;
-import com.ndgl.spotfinder.domain.user.dto.UserModifiedResponseDTO;
+import com.ndgl.spotfinder.domain.user.dto.UserInfoResponseDto;
+import com.ndgl.spotfinder.domain.user.dto.UserJoinRequestDto;
+import com.ndgl.spotfinder.domain.user.dto.UserLoginResponseDto;
+import com.ndgl.spotfinder.domain.user.dto.UserModifiedRequestDto;
+import com.ndgl.spotfinder.domain.user.dto.UserModifiedResponseDto;
 import com.ndgl.spotfinder.domain.user.entity.Oauth;
 import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.domain.user.service.OauthService;
@@ -47,7 +47,7 @@ public class UserController {
 	//  Void 로 바꿀수 없는 이유 >> nickname 및 blogname 입력 시 중복 체크 있음
 	//  추가로 request측 입력 체크 때문에 RsData<Void> >> void 변경 시  체크처리 안함.
 	public RsData<Void> join(
-		@Valid @RequestBody UserJoinRequestDTO userJoinRequestDTO) {
+		@Valid @RequestBody UserJoinRequestDto userJoinRequestDTO) {
 
 		userService.join(userJoinRequestDTO);
 
@@ -61,7 +61,7 @@ public class UserController {
 		HttpServletResponse response
 	) {
 		//  구글 로그인 처리
-		UserLoginResponseDTO responseDto = oauthService.processGoogleLogin(Oauth.Provider.GOOGLE, code, redirectUri,
+		UserLoginResponseDto responseDto = oauthService.processGoogleLogin(Oauth.Provider.GOOGLE, code, redirectUri,
 			response);
 
 		return new RsData<>(responseDto.getCode(), responseDto.getMessage(), responseDto);
@@ -87,17 +87,17 @@ public class UserController {
 	}
 
 	@GetMapping("/info")
-	public RsData<UserInfoResponseDTO> userInfo(@AuthenticationPrincipal User user) {
-		UserInfoResponseDTO targetUser = userService.getUserInfo(user);
+	public RsData<UserInfoResponseDto> userInfo(@AuthenticationPrincipal User user) {
+		UserInfoResponseDto targetUser = userService.getUserInfo(user);
 
 		return RsData.success(HttpStatus.OK, targetUser);
 	}
 
 	@PutMapping
-	public RsData<UserModifiedResponseDTO> update(
-		@RequestBody UserModifiedRequestDTO request,
+	public RsData<UserModifiedResponseDto> update(
+		@RequestBody UserModifiedRequestDto request,
 		@AuthenticationPrincipal User user) {
-		UserModifiedResponseDTO response = userService.updateUser(request, user);
+		UserModifiedResponseDto response = userService.updateUser(request, user);
 
 		return RsData.success(HttpStatus.OK, response);
 	}

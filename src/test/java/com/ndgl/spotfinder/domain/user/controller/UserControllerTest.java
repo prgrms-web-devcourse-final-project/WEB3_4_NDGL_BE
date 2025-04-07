@@ -16,7 +16,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ndgl.spotfinder.domain.user.dto.UserJoinRequestDTO;
+import com.ndgl.spotfinder.domain.user.dto.UserJoinRequestDto;
 import com.ndgl.spotfinder.domain.user.entity.Oauth;
 import com.ndgl.spotfinder.domain.user.service.OauthService;
 
@@ -49,7 +49,7 @@ public class UserControllerTest {
 	@Test
 	@DisplayName("회원가입 테스트")
 	void join_success() throws Exception {
-		UserJoinRequestDTO request = UserJoinRequestDTO.builder()
+		UserJoinRequestDto request = UserJoinRequestDto.builder()
 			.provider(Oauth.Provider.GOOGLE)
 			.identify("123456789")
 			.email("testman001@gmail.com")

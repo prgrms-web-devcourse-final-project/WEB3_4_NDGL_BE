@@ -8,11 +8,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ndgl.spotfinder.domain.user.dto.UserInfoResponseDTO;
-import com.ndgl.spotfinder.domain.user.dto.UserJoinRequestDTO;
-import com.ndgl.spotfinder.domain.user.dto.UserJoinResponseDTO;
-import com.ndgl.spotfinder.domain.user.dto.UserModifiedRequestDTO;
-import com.ndgl.spotfinder.domain.user.dto.UserModifiedResponseDTO;
+import com.ndgl.spotfinder.domain.user.dto.UserInfoResponseDto;
+import com.ndgl.spotfinder.domain.user.dto.UserJoinRequestDto;
+import com.ndgl.spotfinder.domain.user.dto.UserJoinResponseDto;
+import com.ndgl.spotfinder.domain.user.dto.UserModifiedRequestDto;
+import com.ndgl.spotfinder.domain.user.dto.UserModifiedResponseDto;
 import com.ndgl.spotfinder.domain.user.entity.Oauth;
 import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.domain.user.repository.OauthRepository;
@@ -53,7 +53,7 @@ public class UserService {
 
 	// 유저 등록
 	@Transactional
-	public UserJoinResponseDTO join(@Valid UserJoinRequestDTO userJoinRequestDTO) {
+	public UserJoinResponseDto join(@Valid UserJoinRequestDto userJoinRequestDTO) {
 		/*
 		 *  1.  oauth테이블의 provider, identify 항목 취득 항목 삭제.
 		 *    사유 : 지금은 소셜 로그인 플랫폼은 Google 만 이용하는데,
@@ -76,7 +76,7 @@ public class UserService {
 
 		// 최초 로그인이 아니면 로그인
 		if (existingUser.isPresent()) {
-			return UserJoinResponseDTO.builder()
+			return UserJoinResponseDto.builder()
 				.code(HttpStatus.OK.value())
 				.message("OK")
 				.build();
@@ -95,7 +95,7 @@ public class UserService {
 				.build();
 			oauthRepository.save(newOauth);
 
-			return UserJoinResponseDTO.builder()
+			return UserJoinResponseDto.builder()
 				.message("ok")
 				.code(HttpStatus.OK.value())
 				.build();
@@ -118,20 +118,20 @@ public class UserService {
 		tokenCookieUtil.cleanTokenCookies(response, accessToken);
 	}
 
-	public UserInfoResponseDTO getUserInfo(User user) {
+	public UserInfoResponseDto getUserInfo(User user) {
 		User targetUser = findUserByEmail(user.getEmail());
 
-		return UserInfoResponseDTO.from(targetUser);
+		return UserInfoResponseDto.from(targetUser);
 	}
 
 	@Transactional
-	public UserModifiedResponseDTO updateUser(UserModifiedRequestDTO request, User user) {
+	public UserModifiedResponseDto updateUser(UserModifiedRequestDto request, User user) {
 		User targetUser = findUserByEmail(user.getEmail());
 
 		targetUser.setNickName(request.nickName());
 		targetUser.setBlogName(request.blogName());
 
-		return UserModifiedResponseDTO.success(
+		return UserModifiedResponseDto.success(
 			HttpStatus.OK.value(),
 			"OK",
 			targetUser
