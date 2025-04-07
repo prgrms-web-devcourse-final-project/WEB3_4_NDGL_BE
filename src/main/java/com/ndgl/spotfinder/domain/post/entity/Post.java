@@ -7,6 +7,9 @@ import java.util.List;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import com.ndgl.spotfinder.domain.comment.entity.PostComment;
+import com.ndgl.spotfinder.domain.post.dto.HashtagDto;
+import com.ndgl.spotfinder.domain.post.dto.LocationDto;
+import com.ndgl.spotfinder.domain.post.dto.PostUpdateRequestDto;
 import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.global.base.BaseTime;
 
@@ -104,6 +107,27 @@ public class Post extends BaseTime {
 
 	public void addLocations(List<Location> locations) {
 		locations.forEach(this::addLocation);
+	}
+
+	public Post updatePost(PostUpdateRequestDto requestDto) {
+		title = requestDto.title();
+		content = requestDto.content();
+		thumbnail = requestDto.thumbnail();
+		status = PostStatus.PUBLIC;
+
+		List<Hashtag> newHashtags = requestDto.hashtags()
+			.stream()
+			.map(HashtagDto::toHashtag)
+			.toList();
+		updateHashtags(newHashtags);
+
+		List<Location> newLocations = requestDto.locations()
+			.stream()
+			.map(LocationDto::toLocation)
+			.toList();
+		updateLocations(newLocations);
+
+		return this;
 	}
 
 	public void updateHashtags(List<Hashtag> newHashtags) {
