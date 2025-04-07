@@ -9,10 +9,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.context.ActiveProfiles;
 
 import com.ndgl.spotfinder.domain.post.dto.PostResponseDto;
@@ -70,6 +72,8 @@ public class PostSearchServiceTest {
 		.title("여행 후기")
 		.content("풍경이 좋아요")
 		.build();
+	@Autowired
+	private RedisTemplate<String, List<Long>> redisTemplate;
 
 	@Test
 	@DisplayName("JPA 기반 like 검색")
@@ -84,12 +88,12 @@ public class PostSearchServiceTest {
 		Slice<Post> postSlice = new SliceImpl<>(posts, pageRequest, false);
 
 		when(healthCheck.isElasticSearchUp()).thenReturn(false);
-		when(postService.getLastPostId(any(SliceRequest.class))).thenReturn(lastId); // ✅ 추가!
+		when(postService.getLastPostId(any(SliceRequest.class))).thenReturn(lastId);
 		when(postRepository.searchAll(eq(keyword), eq(lastId), any(PageRequest.class)))
 			.thenReturn(postSlice);
 
 		postSearchService = new PostSearchService(
-			postService, postRepository, healthCheck, null // ES 비활성화
+			postService, postRepository, healthCheck, null, redisTemplate // ES 비활성화
 		);
 
 		// when

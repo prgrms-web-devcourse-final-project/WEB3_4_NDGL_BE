@@ -1,7 +1,5 @@
 package com.ndgl.spotfinder.domain.search.repository;
 
-import java.util.List;
-
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,6 +11,4 @@ import com.ndgl.spotfinder.domain.search.document.PostDocument;
 @Repository
 public interface PostSearchRepositoryCustom {
 	Page<PostDocument> searchByKeyword(String keyword, Pageable pageable);
-
-	List<PostDocument> searchAllByKeyword(String keyword);
 }

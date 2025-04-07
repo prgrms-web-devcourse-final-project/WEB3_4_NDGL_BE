@@ -41,19 +41,4 @@ public class PostSearchRepositoryImpl implements PostSearchRepositoryCustom {
 
 		return new PageImpl<>(results, pageable, searchHits.getTotalHits());
 	}
-
-	@Override
-	public List<PostDocument> searchAllByKeyword(String keyword) {
-		Criteria criteria = Criteria.where("title").matches(keyword)
-			.or("content").matches(keyword)
-			.or("nickname").matches(keyword)
-			.or("hashtags.name").matches(keyword);
-
-		CriteriaQuery query = new CriteriaQuery(criteria);
-		SearchHits<PostDocument> searchHits = elasticsearchOperations.search(query, PostDocument.class);
-
-		return searchHits.getSearchHits().stream()
-			.map(SearchHit::getContent)
-			.toList();
-	}
 }
