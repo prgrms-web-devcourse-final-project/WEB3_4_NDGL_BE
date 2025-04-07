@@ -7,27 +7,53 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.ndgl.spotfinder.domain.image.type.ImageType;
+import com.ndgl.spotfinder.domain.post.dto.PostTempResponse;
+import com.ndgl.spotfinder.domain.post.service.PostService;
+import com.ndgl.spotfinder.domain.user.entity.User;
+import com.ndgl.spotfinder.domain.user.service.UserService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Controller
 @RequestMapping("/view-example/images")
 @RequiredArgsConstructor
 @Profile("dev")
 public class ImageViewController {
 
+	private final PostService postService;
+	private final UserService userService;
+
+	private static final String TEST_USER_EMAIL = "test1@example.com";
+
 	/**
-	 * 새 포스트 생성 페이지 - 실제로 연동되는 업로드 예시
+	 * 글 작성 페이지 목록 - 글쓰기 버튼이 포함된 인덱스 페이지
+	 */
+	@GetMapping
+	public String showImageIndex() {
+		return "image-index";
+	}
+
+	/**
+	 * 새 포스트 생성 페이지 - 임시글 생성 후 업로드 예시
 	 */
 	@GetMapping("/post-upload")
 	public String showPostWithUpload(Model model) {
-		model.addAttribute("id", 999L);  // 신규 포스트는 임시 ID 사용
+		User testUser = userService.findUserByEmail(TEST_USER_EMAIL);
+
+		PostTempResponse tempPost = postService.findOrCreateTempPost(testUser.getEmail());
+
+		model.addAttribute("id", tempPost.id());
+		model.addAttribute("title", tempPost.title());
+		model.addAttribute("content", tempPost.content());
+
 		model.addAttribute("imageType", ImageType.POST);
 		model.addAttribute("pageTitle", "새 포스트 작성");
 		model.addAttribute("maxImageCount", 10);
 		model.addAttribute("allowedTypes", "image/jpeg, image/png, image/gif, image/webp");
 		model.addAttribute("maxFileSize", 5);
 
-		return "post-with-upload";  // 새로운 템플릿 사용 (아래에서 생성)
+		return "post-with-upload";
 	}
 }

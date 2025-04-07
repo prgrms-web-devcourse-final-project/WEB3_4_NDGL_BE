@@ -17,8 +17,10 @@ import com.ndgl.spotfinder.domain.image.type.ImageType;
 import com.ndgl.spotfinder.domain.post.dto.PostCreateRequestDto;
 import com.ndgl.spotfinder.domain.post.dto.PostDetailResponseDto;
 import com.ndgl.spotfinder.domain.post.dto.PostResponseDto;
+import com.ndgl.spotfinder.domain.post.dto.PostTempResponse;
 import com.ndgl.spotfinder.domain.post.dto.PostUpdateRequestDto;
 import com.ndgl.spotfinder.domain.post.entity.Post;
+import com.ndgl.spotfinder.domain.post.entity.PostStatus;
 import com.ndgl.spotfinder.domain.post.repository.PostRepository;
 import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.domain.user.service.UserService;
@@ -46,6 +48,25 @@ public class PostService {
 
 		Set<String> usedImageUrls = extractImageUrlsFromContent(post.getContent());
 		imageCleanupService.cleanupUnusedImages(ImageType.POST, post.getId(), usedImageUrls);
+	}
+
+	@Transactional
+	public PostTempResponse findOrCreateTempPost(String email) {
+		// 사용자 조회
+		User user = userService.findUserByEmail(email);
+
+		Post post = postRepository.findFirstByUserAndStatus(user, PostStatus.TEMP)
+			.orElseGet(() -> {
+				Post newPost = Post.builder()
+					.title("")
+					.content("")
+					.status(PostStatus.TEMP)
+					.user(user)
+					.build();
+				return postRepository.save(newPost);
+			});
+
+		return PostTempResponse.from(post);
 	}
 
 	@Transactional
