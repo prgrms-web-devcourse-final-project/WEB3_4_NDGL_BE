@@ -20,7 +20,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
 
 @Configuration
-@EnableAspectJAutoProxy
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -83,8 +82,6 @@ public class SecurityConfig {
                                 "/v3/api-docs/**"
                         )
                         .permitAll()
-                        .requestMatchers(HttpMethod.OPTIONS, "/**")// Preflight 요청(CORS)을 허용하여 브라우저의 사전 요청 차단 문제 해결
-                        .permitAll()
                         .requestMatchers(HttpMethod.GET,
                                 "/api/v1/posts/**",
                                 "/api/v1/posts/*/comments",
@@ -126,11 +123,11 @@ public class SecurityConfig {
 
         // 허용할 오리진 설정
         configuration.setAllowedOrigins(Arrays.asList(
-                "https://cdpn.io",
                 "http://localhost:8080",
                 "https://localhost:8080",
                 "http://localhost:3000",
                 "https://localhost:3000",
+                "https://cdpn.io",
                 "https://api.ndgl.shop",
                 "https://www.ndgl.shop"
         ));
