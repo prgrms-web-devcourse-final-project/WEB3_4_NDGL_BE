@@ -29,7 +29,7 @@ public class LikeController {
 	/**
 	 * 댓글 좋아요
 	 */
-	@PostMapping("/comment/{commentId}")
+	@PostMapping("/comments/{commentId}")
 	@Operation(
 		summary = "댓글 좋아요", 
 		description = "누른 댓글의 좋아요를 추가, 삭제합니다. true는 추가, false는 삭제를 의미합니다.",
@@ -47,7 +47,7 @@ public class LikeController {
 	/**
 	 * 포스트 좋아요
 	 */
-	@PostMapping("/post/{postId}")
+	@PostMapping("/posts/{postId}")
 	@Operation(
 		summary = "포스트 좋아요", 
 		description = "누른 포스트의 좋아요를 추가, 삭제합니다. true는 추가, false는 삭제를 의미합니다.",
