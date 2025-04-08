@@ -17,7 +17,7 @@ public interface AdminApiSpecification {
 
 	@Operation(summary = "관리자 가입")
 	RsData<AdminCreateResponseDto> joinAdmin(
-		@Parameter(description = "가입할 id, password") AdminCreateRequestDto adminCreateRequestDto
+		AdminCreateRequestDto adminCreateRequestDto
 	);
 
 	@Operation(
@@ -29,7 +29,7 @@ public interface AdminApiSpecification {
 		))
 	})
 	RsData<Void> resignAdmin(
-		@Parameter(hidden = true)Principal principal,
+		@Parameter(hidden = true) Principal principal,
 		@Parameter(hidden = true) HttpServletResponse response
 	);
 }
