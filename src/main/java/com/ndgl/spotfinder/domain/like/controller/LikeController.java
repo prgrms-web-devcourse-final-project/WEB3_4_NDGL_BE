@@ -7,17 +7,16 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ndgl.spotfinder.domain.like.entity.Like;
 import com.ndgl.spotfinder.domain.like.service.LikeService;
 import com.ndgl.spotfinder.global.rsdata.RsData;
 import com.ndgl.spotfinder.global.security.jwt.CustomUserDetails;
 
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/v1/like")
 @RequiredArgsConstructor
-@Tag(name = "좋아요 API", description = "좋아요 관련 API")
 public class LikeController implements LikeApiSpecification {
 
 	private final LikeService likeService;
@@ -31,7 +30,7 @@ public class LikeController implements LikeApiSpecification {
 		@PathVariable Integer commentId
 	) {
 		long userId = ((CustomUserDetails)userDetails).getUser().getId();
-		boolean isAdded = likeService.toggleCommentLike(userId, commentId);
+		boolean isAdded = likeService.toggleLike(userId, commentId, Like.TargetType.COMMENT);
 		return RsData.success(HttpStatus.OK, isAdded);
 	}
 
@@ -43,7 +42,7 @@ public class LikeController implements LikeApiSpecification {
 		@PathVariable Integer postId
 	) {
 		long userId = ((CustomUserDetails)userDetails).getUser().getId();
-		boolean isAdded = likeService.togglePostLike(userId, postId);
+		boolean isAdded = likeService.toggleLike(userId, postId, Like.TargetType.POST);
 		return RsData.success(HttpStatus.OK, isAdded);
 	}
 
