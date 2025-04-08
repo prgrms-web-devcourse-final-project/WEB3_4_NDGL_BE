@@ -3,8 +3,8 @@ package com.ndgl.spotfinder.domain.admin.service;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.ndgl.spotfinder.domain.admin.dto.CreateAdminRequest;
-import com.ndgl.spotfinder.domain.admin.dto.CreateAdminResponse;
+import com.ndgl.spotfinder.domain.admin.dto.AdminCreateRequestDto;
+import com.ndgl.spotfinder.domain.admin.dto.AdminCreateResponseDto;
 import com.ndgl.spotfinder.domain.admin.entity.Admin;
 import com.ndgl.spotfinder.domain.admin.repository.AdminRepository;
 import com.ndgl.spotfinder.global.exception.ErrorCode;
@@ -17,18 +17,18 @@ public class AdminService {
 	private final AdminRepository adminRepository;
 	private final PasswordEncoder passwordEncoder;
 
-	public CreateAdminResponse join(CreateAdminRequest createAdminRequest) {
-		if(adminRepository.existsAdminByUsername(createAdminRequest.username())) {
+	public AdminCreateResponseDto join(AdminCreateRequestDto adminCreateRequestDto) {
+		if(adminRepository.existsAdminByUsername(adminCreateRequestDto.username())) {
 			throw ErrorCode.ADMIN_ALREADY_EXISTS_USERNAME.throwServiceException();
 		}
 
 		Admin admin = Admin.builder()
-			.username(createAdminRequest.username())
-			.password(passwordEncoder.encode(createAdminRequest.password()))
+			.username(adminCreateRequestDto.username())
+			.password(passwordEncoder.encode(adminCreateRequestDto.password()))
 			.build();
 
 		Admin savedAdmin = adminRepository.save(admin);
-		return new CreateAdminResponse(savedAdmin.getId());
+		return new AdminCreateResponseDto(savedAdmin.getId());
 	}
 
 	public void resign(String username) {

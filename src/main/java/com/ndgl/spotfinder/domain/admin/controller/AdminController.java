@@ -9,28 +9,30 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ndgl.spotfinder.domain.admin.dto.CreateAdminRequest;
-import com.ndgl.spotfinder.domain.admin.dto.CreateAdminResponse;
+import com.ndgl.spotfinder.domain.admin.dto.AdminCreateRequestDto;
+import com.ndgl.spotfinder.domain.admin.dto.AdminCreateResponseDto;
 import com.ndgl.spotfinder.domain.admin.service.AdminService;
 import com.ndgl.spotfinder.global.rsdata.RsData;
 import com.ndgl.spotfinder.global.security.cookie.TokenCookieUtil;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+@Tag(name = "관리자")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/admin")
-public class AdminController {
+public class AdminController implements AdminApiSpecification {
 	private final AdminService adminService;
 	private final TokenCookieUtil tokenCookieUtil;
 
 	@PostMapping("/join")
-	public RsData<CreateAdminResponse> joinAdmin(@RequestBody @Valid CreateAdminRequest createAdminRequest) {
-		CreateAdminResponse createAdminResponse = adminService.join(createAdminRequest);
+	public RsData<AdminCreateResponseDto> joinAdmin(@RequestBody @Valid AdminCreateRequestDto adminCreateRequestDto) {
+		AdminCreateResponseDto adminCreateResponseDto = adminService.join(adminCreateRequestDto);
 
-		return RsData.success(HttpStatus.OK, createAdminResponse);
+		return RsData.success(HttpStatus.OK, adminCreateResponseDto);
 	}
 
 	@PostMapping("/resign")
