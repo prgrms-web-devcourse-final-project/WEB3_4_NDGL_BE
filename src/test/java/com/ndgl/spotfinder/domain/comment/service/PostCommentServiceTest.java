@@ -19,7 +19,7 @@ import org.springframework.data.domain.SliceImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 
-import com.ndgl.spotfinder.domain.comment.dto.PostCommentDto;
+import com.ndgl.spotfinder.domain.comment.dto.PostCommentResponseDto;
 import com.ndgl.spotfinder.domain.comment.dto.PostCommentRequestDto;
 import com.ndgl.spotfinder.domain.comment.entity.PostComment;
 import com.ndgl.spotfinder.domain.comment.repository.PostCommentRepository;
@@ -182,13 +182,13 @@ public class PostCommentServiceTest {
 
 		// When
 		when(postCommentRepository.findById(commentId)).thenReturn(Optional.of(comment));
-		PostCommentDto result = postCommentService.getComment(postId, commentId);
+		PostCommentResponseDto result = postCommentService.getComment(postId, commentId);
 
 		// Then
 		assertNotNull(result);
-		assertEquals(commentId, result.getId());
-		assertEquals(postId, result.getPostId());
-		assertEquals(comment.getContent(), result.getContent());
+		assertEquals(commentId, result.id());
+		assertEquals(postId, result.postId());
+		assertEquals(comment.getContent(), result.content());
 	}
 
 	@Test
@@ -237,7 +237,7 @@ public class PostCommentServiceTest {
 			.thenReturn(commentSlice);
 
 		// When
-		SliceResponse<PostCommentDto> response = postCommentService.getComments(postId, lastId, size);
+		SliceResponse<PostCommentResponseDto> response = postCommentService.getComments(postId, lastId, size);
 
 		// Then
 		assertNotNull(response);
@@ -266,7 +266,7 @@ public class PostCommentServiceTest {
 			.thenReturn(commentSlice);
 
 		// When
-		SliceResponse<PostCommentDto> response = postCommentService.getComments(postId, lastId, size);
+		SliceResponse<PostCommentResponseDto> response = postCommentService.getComments(postId, lastId, size);
 
 		// Then
 		assertNotNull(response);
@@ -292,7 +292,7 @@ public class PostCommentServiceTest {
 			.thenReturn(emptySlice);
 
 		// When
-		SliceResponse<PostCommentDto> response = postCommentService.getComments(postId, lastId, size);
+		SliceResponse<PostCommentResponseDto> response = postCommentService.getComments(postId, lastId, size);
 
 		// Then
 		assertNotNull(response);

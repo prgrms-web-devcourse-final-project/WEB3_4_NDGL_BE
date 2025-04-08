@@ -6,7 +6,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ndgl.spotfinder.domain.comment.dto.PostCommentDto;
+import com.ndgl.spotfinder.domain.comment.dto.PostCommentResponseDto;
 import com.ndgl.spotfinder.domain.comment.dto.PostCommentRequestDto;
 import com.ndgl.spotfinder.domain.comment.entity.PostComment;
 import com.ndgl.spotfinder.domain.comment.repository.PostCommentRepository;
@@ -27,7 +27,7 @@ public class PostCommentService {
 	private final PostService postService;
 
 	@Transactional(readOnly = true)
-	public SliceResponse<PostCommentDto> getComments(Long postId, Long lastId, int size) {
+	public SliceResponse<PostCommentResponseDto> getComments(Long postId, Long lastId, int size) {
 		Pageable pageable = PageRequest.of(0, size);
 		long startId = (lastId != null) ? lastId : Long.MAX_VALUE;
 
@@ -36,7 +36,7 @@ public class PostCommentService {
 
 		return new SliceResponse<>(
 			comments.stream()
-				.map(PostCommentDto::new)
+				.map(PostCommentResponseDto::new)
 				.toList(),
 			comments.hasNext()
 		);
@@ -54,9 +54,9 @@ public class PostCommentService {
 	}
 
 	@Transactional(readOnly = true)
-	public PostCommentDto getComment(Long postId, Long commentId) {
+	public PostCommentResponseDto getComment(Long postId, Long commentId) {
 		PostComment comment = findCommentAndVerifyPost(commentId, postId);
-		return new PostCommentDto(comment);
+		return new PostCommentResponseDto(comment);
 	}
 
 	@Transactional
