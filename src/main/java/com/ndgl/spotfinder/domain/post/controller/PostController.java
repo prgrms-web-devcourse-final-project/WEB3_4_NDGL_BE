@@ -50,7 +50,10 @@ public class PostController implements PostApiSpecification {
 	}
 
 	@PutMapping("/temp/{id}")
-	public RsData<String> updateTempPost(Long id, PostTempUpdateRequestDto requestDto, Principal principal) {
+	public RsData<String> updateTempPost(
+		@PathVariable Long id,
+		@RequestBody PostTempUpdateRequestDto requestDto,
+		Principal principal) {
 		postService.updatePost(id, requestDto, principal.getName(), true);
 
 		return RsData.success(HttpStatus.OK);

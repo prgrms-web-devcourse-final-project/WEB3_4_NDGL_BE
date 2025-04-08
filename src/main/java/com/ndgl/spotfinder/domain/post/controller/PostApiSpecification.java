@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "포스트")
@@ -31,13 +32,15 @@ public interface PostApiSpecification {
 
 	@PostMapping("/temp")
 	@Operation(
-		summary = "임시글 생성",
-		description = "새로운 임시글을 생성합니다."
+		summary = "임시글 조회 및 생성",
+		security = {@SecurityRequirement(name = "JWT")},
+		description = "새로운 임시글을 조회합니다. 없다면 생성합니다."
 	)
 	public RsData<PostTempResponse> createTempPost(Principal principal);
 
 	@Operation(
 		summary = "포스트 임시 저장",
+		security = {@SecurityRequirement(name = "JWT")},
 		responses = {
 			@ApiResponse(responseCode = "200", description = "성공", content = @Content(
 				mediaType = "application/json",
