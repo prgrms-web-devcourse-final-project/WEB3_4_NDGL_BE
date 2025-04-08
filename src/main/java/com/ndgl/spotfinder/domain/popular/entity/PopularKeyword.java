@@ -9,11 +9,13 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "popular_keywords")
 @NoArgsConstructor
+@Getter
 public class PopularKeyword extends BaseTime {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
