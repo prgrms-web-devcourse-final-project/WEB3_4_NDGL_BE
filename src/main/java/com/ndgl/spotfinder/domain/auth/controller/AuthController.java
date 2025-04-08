@@ -51,7 +51,8 @@ public class AuthController {
 	@PostMapping("/token/refresh")
 	RsData<String> refreshAccessToken(
 		HttpServletRequest request,
-		HttpServletResponse response) {
+		HttpServletResponse response
+	) {
 		String accessToken = extractAccessTokenFromCookies(request);
 
 		//  accessToken 유무 확인
@@ -60,8 +61,9 @@ public class AuthController {
 		}
 
 		//  refreshToken이 redis에 있는지 확인
-		String userId = tokenProvider.getEmail("accessToken");
-		String refreshToken = authService.getRefreshTokenFromRedis(userId);
+		String userId = tokenProvider.getEmail(accessToken);
+		
+		authService.getRefreshTokenFromRedis(userId);
 
 		//  새 accessToken 발급
 		tokenProvider.createTokenAndSetCookiesByEmail(userId, response);

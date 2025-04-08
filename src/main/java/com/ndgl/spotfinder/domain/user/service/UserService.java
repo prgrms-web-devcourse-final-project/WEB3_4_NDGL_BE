@@ -1,9 +1,9 @@
 package com.ndgl.spotfinder.domain.user.service;
 
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Slice;
 import java.util.Optional;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,11 +21,14 @@ import com.ndgl.spotfinder.global.common.dto.SliceRequest;
 import com.ndgl.spotfinder.global.exception.ErrorCode;
 import com.ndgl.spotfinder.global.security.cookie.TokenCookieUtil;
 import com.ndgl.spotfinder.global.security.redis.repository.RefreshTokenRepository;
+import com.ndgl.spotfinder.global.security.redis.service.RefreshTokenService;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -33,6 +36,7 @@ public class UserService {
 	private final OauthRepository oauthRepository;
 	private final RefreshTokenRepository refreshTokenRepository;
 	private final TokenCookieUtil tokenCookieUtil;
+	private final RefreshTokenService refreshTokenService;
 
 	public Slice<User> findUsers(SliceRequest sliceRequest) {
 		PageRequest pageRequest = PageRequest.of(0, sliceRequest.size());
@@ -113,8 +117,7 @@ public class UserService {
 	}
 
 	public void logout(String userId, HttpServletResponse response, String accessToken) {
-		refreshTokenRepository.deleteById(userId);
-
+		refreshTokenService.deleteRefreshToken(userId);
 		tokenCookieUtil.cleanTokenCookies(response, accessToken);
 	}
 

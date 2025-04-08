@@ -27,7 +27,9 @@ import com.ndgl.spotfinder.global.security.jwt.TokenProvider;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/users")
 public class UserController {
@@ -78,10 +80,10 @@ public class UserController {
 			ErrorCode.MISSING_ACCESS_TOKEN.throwServiceException();
 		}
 
-		String userId = tokenProvider.getEmail("accessToken");
+		String userId = tokenProvider.getEmail(accessToken);
 
 		//  로그아웃 처리
-		userService.logout(userId, response, "accessToken");
+		userService.logout(userId, response, accessToken);
 
 		return RsData.success(HttpStatus.OK);
 	}

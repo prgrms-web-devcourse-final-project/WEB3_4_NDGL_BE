@@ -150,6 +150,7 @@ public class OauthService {
 				.provider(Provider.GOOGLE.name())
 				.identify(googleId)
 				.email(email)
+				.userId(existingOauthByIdentify.get().getId())
 				.build();
 		}
 
