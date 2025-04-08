@@ -21,7 +21,7 @@ public enum ErrorCode {
 	CONFLICTED_BLOG_NAME(HttpStatus.CONFLICT, "이미 사용중인 블로그 명 입니다."),
 	USER_NOT_FOUND(HttpStatus.NOT_FOUND, "대상 유저가 없습니다."),
 	NO_APPLIED_SOCIAL_PLATFORM(HttpStatus.BAD_REQUEST, "지원하지 않는 소셜 플랫폼입니다"),
-	SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "클라이언트 통신 에러"),
+	SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 통신 에러"),
 
 	POST_ACCESS_DENIED(HttpStatus.FORBIDDEN, "작성자만 수정 또는 삭제할 수 있습니다."),
 	POST_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 포스트입니다."),
