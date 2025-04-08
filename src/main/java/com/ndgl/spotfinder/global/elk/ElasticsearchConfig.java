@@ -1,4 +1,4 @@
-package com.ndgl.spotfinder.global.elasticsearch;
+package com.ndgl.spotfinder.global.elk;
 
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
