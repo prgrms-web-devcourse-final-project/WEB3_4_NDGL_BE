@@ -57,9 +57,9 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/",
-                                "/test-set-cookie",
-                                "/test-get-cookie",
+                                "/api",
+                                "/api/test-set-cookie",
+                                "/api/test-get-cookie",
                                 "/api/v1/users/join",
                                 "/login/callback",
                                 "oauth2/**",
