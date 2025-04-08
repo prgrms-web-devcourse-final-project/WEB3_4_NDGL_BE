@@ -68,11 +68,11 @@ public class PostService {
 	}
 
 	@Transactional
-	public void updatePost(Long id, PostUpdateRequestDto requestDto, String email) {
+	public void updatePost(Long id, PostUpdateRequestDto requestDto, String email, boolean temp) {
 		Post post = findPostById(id);
 
 		checkUserPermission(post, email);
-		postRepository.save(post.updatePost(requestDto));
+		postRepository.save(post.updatePost(requestDto, temp));
 
 		Set<String> usedImageUrls = extractImageUrlsFromContent(post.getContent());
 		imageCleanupService.cleanupUnusedImages(ImageType.POST, post.getId(), usedImageUrls);

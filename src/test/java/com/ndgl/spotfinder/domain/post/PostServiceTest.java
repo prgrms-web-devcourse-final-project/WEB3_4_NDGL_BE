@@ -17,6 +17,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.ndgl.spotfinder.domain.image.service.ImageCleanupService;
+import com.ndgl.spotfinder.domain.image.service.ImageService;
 import com.ndgl.spotfinder.domain.post.dto.HashtagDto;
 import com.ndgl.spotfinder.domain.post.dto.LocationDto;
 import com.ndgl.spotfinder.domain.post.dto.PostCreateRequestDto;
@@ -45,6 +46,9 @@ public class PostServiceTest {
 
 	@Mock
 	private UserService userService;
+
+	@Mock
+	private ImageService imageService;
 
 	private final User user1 = User.builder()
 		.id(1L)
@@ -166,7 +170,7 @@ public class PostServiceTest {
 		// when
 		when(userService.findUserByEmail("이메일1")).thenReturn(user1);
 		when(postRepository.findById(1L)).thenReturn(Optional.of(samplePost));
-		postService.updatePost(1L, requestDto, "이메일1");
+		postService.updatePost(1L, requestDto, "이메일1", false);
 
 		// then
 		verify(postRepository, times(1)).save(any());
@@ -195,7 +199,7 @@ public class PostServiceTest {
 
 		// then
 		ServiceException exception = assertThrows(ServiceException.class,
-			() -> postService.updatePost(1L, any(PostUpdateRequestDto.class), "이메일1"));
+			() -> postService.updatePost(1L, any(PostUpdateRequestDto.class), "이메일1", false));
 		assertEquals(HttpStatus.NOT_FOUND, exception.getCode());
 	}
 
@@ -207,7 +211,7 @@ public class PostServiceTest {
 
 		// then
 		ServiceException exception = assertThrows(ServiceException.class,
-			() -> postService.updatePost(1L, any(PostUpdateRequestDto.class), "이메일2"));
+			() -> postService.updatePost(1L, any(PostUpdateRequestDto.class), "이메일2", false));
 		assertEquals(HttpStatus.FORBIDDEN, exception.getCode());
 	}
 

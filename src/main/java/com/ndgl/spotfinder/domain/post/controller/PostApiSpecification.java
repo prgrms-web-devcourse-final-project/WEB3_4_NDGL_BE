@@ -3,6 +3,7 @@ package com.ndgl.spotfinder.domain.post.controller;
 import java.security.Principal;
 
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.ndgl.spotfinder.domain.post.dto.PostCreateRequestDto;
 import com.ndgl.spotfinder.domain.post.dto.PostDetailResponseDto;
@@ -47,6 +48,7 @@ public interface PostApiSpecification {
 	RsData<Void> updatePost(
 		@Parameter(description = "게시물의 ID") Long id,
 		PostUpdateRequestDto postUpdateRequestDto,
+		@RequestParam(required = false, defaultValue = "false") boolean temp,
 		@Parameter(hidden = true) Principal principal
 	);
 
