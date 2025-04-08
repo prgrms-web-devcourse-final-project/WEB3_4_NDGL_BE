@@ -32,7 +32,7 @@ public record PostUpdateRequestDto(
 
 	@NotNull(message = "썸네일 이미지는 필수입니다.")
 	String thumbnail
-) {
+) implements PostCommonUpdateRequestDto {
 	public Post toUpdatedPost(Post post) {
 		post.setTitle(title);
 		post.setContent(content);
@@ -52,4 +52,5 @@ public record PostUpdateRequestDto(
 
 		return post;
 	}
+)
 }

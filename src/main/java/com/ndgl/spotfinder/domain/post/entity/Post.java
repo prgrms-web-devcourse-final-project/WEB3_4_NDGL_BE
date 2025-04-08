@@ -9,7 +9,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import com.ndgl.spotfinder.domain.comment.entity.PostComment;
 import com.ndgl.spotfinder.domain.post.dto.HashtagDto;
 import com.ndgl.spotfinder.domain.post.dto.LocationDto;
-import com.ndgl.spotfinder.domain.post.dto.PostUpdateRequestDto;
+import com.ndgl.spotfinder.domain.post.dto.PostCommonUpdateRequestDto;
 import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.global.base.BaseTime;
 
@@ -109,11 +109,11 @@ public class Post extends BaseTime {
 		locations.forEach(this::addLocation);
 	}
 
-	public Post updatePost(PostUpdateRequestDto requestDto, boolean temp) {
+	public Post updatePost(PostCommonUpdateRequestDto requestDto, boolean temp) {
 		title = requestDto.title();
 		content = requestDto.content();
 		thumbnail = requestDto.thumbnail();
-		status = !temp ? PostStatus.PUBLIC : PostStatus.TEMP;
+		this.status = temp ? PostStatus.TEMP : PostStatus.PUBLIC;
 
 		List<Hashtag> newHashtags = requestDto.hashtags()
 			.stream()
