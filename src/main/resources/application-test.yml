@@ -6,14 +6,17 @@ app:
     frontend-origin: http://localhost:3000
 
 server:
-  port: 8081
+  port: 8080
 
 spring:
+  config:
+    import:
+      optional:file:.env[.properties]
   datasource:
-    url: ${DB_URL_TEST}
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    username: ${DB_USERNAME_TEST}
-    password: ${DB_PASSWORD_TEST}
+    url: jdbc:h2:./db_dev;MODE=MySQL
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
 
   jpa:
     hibernate:
@@ -50,15 +53,6 @@ spring:
     redis:
       host: redis_1
       port: 6379
-
-  logging:
-    level:
-      org.hibernate.SQL: ERROR
-      org.hibernate.orm.jdbc.bind: ERROR
-      org.hibernate.orm.jdbc.extract: ERROR
-      org.springframework.data.redis: INFO
-      root: INFO
-
 jwt:
   secret:
     key: ${JWT_SECRET_KEY}
@@ -82,3 +76,11 @@ auth:
 
 springdoc:
   default-produces-media-type: application/json;charset=UTF-8
+
+logging:
+  level:
+    com.ndgl.spotfinder: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
+    org.hibernate.orm.jdbc.extract: TRACE
+    org.springframework.transaction.interceptor: TRACE

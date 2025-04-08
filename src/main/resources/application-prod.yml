@@ -1,8 +1,8 @@
 app:
   cookie:
-    secure: true
+    secure: false
     sameSite: None
-    domain: .ndgl.shop
+    domain:
     frontend-origin: https://www.ndgl.shop
 
 server:
@@ -25,7 +25,7 @@ spring:
 
   h2:
     console:
-      enabled: true
+      enabled: false
 
   security:
     oauth2:
@@ -51,14 +51,6 @@ spring:
       host: redis_1
       port: 6379
 
-  logging:
-    level:
-      org.hibernate.SQL: ERROR
-      org.hibernate.orm.jdbc.bind: ERROR
-      org.hibernate.orm.jdbc.extract: ERROR
-      org.springframework.data.redis: INFO
-      root: INFO
-
 jwt:
   secret:
     key: ${JWT_SECRET_KEY}
@@ -82,3 +74,11 @@ auth:
 
 springdoc:
   default-produces-media-type: application/json;charset=UTF-8
+
+logging:
+  level:
+    com.ndgl.spotfinder: INFO
+    org.hibernate.SQL: INFO
+    org.hibernate.orm.jdbc.bind: INFO
+    org.hibernate.orm.jdbc.extract: INFO
+    org.springframework.transaction.interceptor: INFO
