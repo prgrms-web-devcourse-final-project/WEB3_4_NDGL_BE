@@ -52,5 +52,4 @@ public record PostUpdateRequestDto(
 
 		return post;
 	}
-)
 }
