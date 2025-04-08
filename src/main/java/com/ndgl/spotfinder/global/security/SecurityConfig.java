@@ -2,21 +2,22 @@ package com.ndgl.spotfinder.global.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ndgl.spotfinder.global.security.handler.*;
+import com.ndgl.spotfinder.global.security.jwt.JwtFilter;
 import com.ndgl.spotfinder.global.security.jwt.TokenProvider;
 import com.ndgl.spotfinder.global.security.jwt.service.AdminUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
-
-import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 @Configuration
 @EnableAspectJAutoProxy
@@ -32,109 +33,91 @@ public class SecurityConfig {
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
+    /*
+     * 일반 유저용 SecurityFilterChain
+     * */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
         http
                 .formLogin(
-                        formLogin -> formLogin.disable()
+                        form -> form
+                                .loginProcessingUrl("/api/*/admin/login")
+                                .successHandler(successHandler)
                 )
+                .logout(logout -> logout
+                        .logoutUrl("/api/*/admin/logout")
+                        .addLogoutHandler(customLogoutHandler)
+                        .logoutSuccessHandler(customLogoutSuccessHandler)
+                        .clearAuthentication(true)
+                )
+                .userDetailsService(adminUserDetailsService)
                 .csrf(csrf -> csrf.disable())
-                .sessionManagement(
-                        sessionManagement -> sessionManagement
-                                .sessionCreationPolicy(STATELESS)
+                .cors(
+                        cors -> cors.configurationSource(corsConfigurationSource())
                 )
-                .authorizeHttpRequests(
-                        authorizeHttpRequests ->
-                                authorizeHttpRequests.requestMatchers("/**").permitAll()
-                );
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/",
+                                "/api/v1/users/join",
+                                "/login/callback",
+                                "oauth2/**",
+                                "/api/v1/users/google/login/process",
+                                "/api/v1/users",
+                                "/api/v1/users/logout",
+                                "/api/v1/users/resign",
+                                "/api/v1/users/info",
+                                "/api/v1/auth/status",
+                                "/api/v1/auth/token/refresh",
+                                "/api/v1/users/google/login/process",
+                                "/api/*/admin/login",
+                                "/api/*/admin/join",
+                                "/api/v1/dev/**"
+                        )
+                        .permitAll() // 로그인 경로는 모두 허용
+                        .requestMatchers(
+                                "/h2-console/**",
+                                "/error",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**"
+                        )
+                        .permitAll()
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/v1/posts/**",
+                                "/api/v1/posts/*/comments",
+                                "/api/v1/posts/*/comments/*"
+                        )
+                        .permitAll()
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/*/reports/posts/{id}",
+                                "/api/*/reports/comments/{id}"
+                        )
+                        .authenticated()
+                        .requestMatchers(
+                                "/api/*/admin/**",
+                                "/api/*/reports/**"
+                        )
+                        .hasAuthority("ROLE_ADMIN")
+                        .anyRequest()
+                        .authenticated()
+                )
+                .headers(headers ->
+                        headers.frameOptions(frameOptions ->
+                                frameOptions.sameOrigin()
+                        )
+                )
+                .addFilterBefore(new JwtFilter(tokenProvider),
+                        org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(exceptionHandling -> {
+                    exceptionHandling
+                            .authenticationEntryPoint(customAuthenticationEntryPoint) // 401 에러
+                            .accessDeniedHandler(customAccessDeniedHandler); // 403 에러
+                });
 
         return http.build();
     }
-
-//    /*
-//     * 일반 유저용 SecurityFilterChain
-//     * */
-//    @Bean
-//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//
-//        http
-//                .formLogin(
-//                        form -> form
-//                                .loginProcessingUrl("/api/*/admin/login")
-//                                .successHandler(successHandler)
-//                )
-//                .logout(logout -> logout
-//                        .logoutUrl("/api/*/admin/logout")
-//                        .addLogoutHandler(customLogoutHandler)
-//                        .logoutSuccessHandler(customLogoutSuccessHandler)
-//                        .clearAuthentication(true)
-//                )
-//                .userDetailsService(adminUserDetailsService)
-//                .csrf(csrf -> csrf.disable())
-//                .sessionManagement(session ->
-//                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-//                .authorizeHttpRequests(auth -> auth
-//                        .requestMatchers(
-//                                "/api",
-//                                "/api/test-set-cookie",
-//                                "/api/test-get-cookie",
-//                                "/api/v1/users/join",
-//                                "/login/callback",
-//                                "oauth2/**",
-//                                "/api/v1/users/google/login/process",
-//                                "/api/v1/users",
-//                                "/api/v1/users/logout",
-//                                "/api/v1/users/resign",
-//                                "/api/v1/users/info",
-//                                "/api/v1/auth/status",
-//                                "/api/v1/auth/token/refresh",
-//                                "/api/v1/users/google/login/process",
-//                                "/api/*/admin/login",
-//                                "/api/*/admin/join",
-//                                "/api/v1/dev/**"
-//                        )
-//                        .permitAll() // 로그인 경로는 모두 허용
-//                        .requestMatchers(
-//                                "/h2-console/**",
-//                                "/error",
-//                                "/swagger-ui/**",
-//                                "/v3/api-docs/**"
-//                        )
-//                        .permitAll()
-//                        .requestMatchers(HttpMethod.GET,
-//                                "/api/v1/posts/**",
-//                                "/api/v1/posts/*/comments",
-//                                "/api/v1/posts/*/comments/*"
-//                        )
-//                        .permitAll()
-//                        .requestMatchers(HttpMethod.POST,
-//                                "/api/*/reports/posts/{id}",
-//                                "/api/*/reports/comments/{id}"
-//                        )
-//                        .authenticated()
-//                        .requestMatchers(
-//                                "/api/*/admin/**",
-//                                "/api/*/reports/**"
-//                        )
-//                        .hasAuthority("ROLE_ADMIN")
-//                        .anyRequest()
-//                        .authenticated()
-//                )
-//                .headers(headers ->
-//                        headers.frameOptions(frameOptions ->
-//                                frameOptions.sameOrigin()
-//                        )
-//                )
-//                .addFilterBefore(new JwtFilter(tokenProvider),
-//                        org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class)
-//                .exceptionHandling(exceptionHandling -> {
-//                    exceptionHandling
-//                            .authenticationEntryPoint(customAuthenticationEntryPoint) // 401 에러
-//                            .accessDeniedHandler(customAccessDeniedHandler); // 403 에러
-//                });
-//
-//        return http.build();
-//    }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
@@ -162,19 +145,8 @@ public class SecurityConfig {
 
         // CORS 설정을 특정 경로에 적용
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/api/**", configuration);
-
-        System.out.println("corsConfigurationSource 설정됨!");
+        source.registerCorsConfiguration("/**", configuration);
 
         return source;
     }
-
-//	@Bean
-//	public WebServerFactoryCustomizer<TomcatServletWebServerFactory> cookieProcessorCustomizer() {
-//		return factory -> factory.addContextCustomizers(context -> {
-//			final Rfc6265CookieProcessor cookieProcessor = new Rfc6265CookieProcessor();
-//			cookieProcessor.setSameSiteCookies("None");
-//			context.setCookieProcessor(cookieProcessor);
-//		});
-//	}
 }
