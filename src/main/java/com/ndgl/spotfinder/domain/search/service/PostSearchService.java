@@ -146,15 +146,4 @@ public class PostSearchService {
 
 		return new SliceResponse<>(results, hasNext);
 	}
-
-	@Transactional(readOnly = true)
-	public void indexPosts() {
-		List<Post> posts = postRepository.findAll();
-		List<PostDocument> documents = posts.stream()
-			.map(PostDocument::from)
-			.toList();
-
-		postSearchRepository.deleteAll();
-		postSearchRepository.saveAll(documents);
-	}
 }
