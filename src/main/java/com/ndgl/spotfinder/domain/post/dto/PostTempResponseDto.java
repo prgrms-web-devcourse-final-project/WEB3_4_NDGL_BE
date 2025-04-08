@@ -7,7 +7,7 @@ import com.ndgl.spotfinder.domain.post.entity.PostStatus;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-public record PostTempResponse(
+public record PostTempResponseDto(
 	@Schema(description = "ID", example = "1")
 	Long id,
 
@@ -30,15 +30,14 @@ public record PostTempResponse(
 	PostStatus status
 ) {
 
-	public static PostTempResponse from(Post post) {
-		return new PostTempResponse(
+	public static PostTempResponseDto from(Post post) {
+		return new PostTempResponseDto(
 			post.getId(),
 			post.getTitle(),
 			post.getContent(),
 			post.getThumbnail(),
 			post.getHashtags()
 				.stream()
-				.limit(3)
 				.map(HashtagDto::new)
 				.toList(),
 			post.getLocations()

@@ -77,6 +77,7 @@ public class Post extends BaseTime {
 	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Location> locations = new ArrayList<>();
 
+	@Setter
 	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
 	@Builder.Default

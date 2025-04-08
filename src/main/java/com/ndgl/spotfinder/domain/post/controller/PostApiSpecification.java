@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import com.ndgl.spotfinder.domain.post.dto.PostCreateRequestDto;
 import com.ndgl.spotfinder.domain.post.dto.PostDetailResponseDto;
 import com.ndgl.spotfinder.domain.post.dto.PostResponseDto;
-import com.ndgl.spotfinder.domain.post.dto.PostTempResponse;
+import com.ndgl.spotfinder.domain.post.dto.PostTempResponseDto;
 import com.ndgl.spotfinder.domain.post.dto.PostTempUpdateRequestDto;
 import com.ndgl.spotfinder.domain.post.dto.PostUpdateRequestDto;
 import com.ndgl.spotfinder.global.common.dto.SliceRequest;
@@ -36,7 +36,7 @@ public interface PostApiSpecification {
 		security = {@SecurityRequirement(name = "JWT")},
 		description = "새로운 임시글을 조회합니다. 없다면 생성합니다."
 	)
-	public RsData<PostTempResponse> createTempPost(Principal principal);
+	public RsData<PostTempResponseDto> createTempPost(Principal principal);
 
 	@Operation(
 		summary = "포스트 임시 저장",

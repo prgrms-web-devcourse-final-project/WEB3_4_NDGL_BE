@@ -1,11 +1,10 @@
 package com.ndgl.spotfinder.domain.post.service;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import java.util.List;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
@@ -19,7 +18,7 @@ import com.ndgl.spotfinder.domain.post.dto.PostCommonUpdateRequestDto;
 import com.ndgl.spotfinder.domain.post.dto.PostCreateRequestDto;
 import com.ndgl.spotfinder.domain.post.dto.PostDetailResponseDto;
 import com.ndgl.spotfinder.domain.post.dto.PostResponseDto;
-import com.ndgl.spotfinder.domain.post.dto.PostTempResponse;
+import com.ndgl.spotfinder.domain.post.dto.PostTempResponseDto;
 import com.ndgl.spotfinder.domain.post.entity.Post;
 import com.ndgl.spotfinder.domain.post.entity.PostStatus;
 import com.ndgl.spotfinder.domain.post.repository.PostRepository;
@@ -55,7 +54,7 @@ public class PostService {
 	}
 
 	@Transactional
-	public PostTempResponse findOrCreateTempPost(String email) {
+	public PostTempResponseDto findOrCreateTempPost(String email) {
 		User user = userService.findUserByEmail(email);
 
 		Post post = postRepository.findFirstByUserAndStatus(user, PostStatus.TEMP)
@@ -64,7 +63,7 @@ public class PostService {
 				return postRepository.save(newPost);
 			});
 
-		return PostTempResponse.from(post);
+		return PostTempResponseDto.from(post);
 	}
 
 	@Transactional
@@ -72,7 +71,7 @@ public class PostService {
 		Post post = findPostById(id);
 
 		checkUserPermission(post, email);
-		postRepository.save(post.updatePost(requestDto, temp));
+		postRepository.save(requestDto.toUpdatedPost(post, temp));
 
 		Set<String> usedImageUrls = extractImageUrlsFromContent(post.getContent());
 		imageCleanupService.cleanupUnusedImages(ImageType.POST, post.getId(), usedImageUrls);

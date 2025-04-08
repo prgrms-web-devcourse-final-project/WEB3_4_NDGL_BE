@@ -22,7 +22,7 @@ import com.ndgl.spotfinder.domain.image.service.ImageService;
 import com.ndgl.spotfinder.domain.post.dto.HashtagDto;
 import com.ndgl.spotfinder.domain.post.dto.LocationDto;
 import com.ndgl.spotfinder.domain.post.dto.PostCreateRequestDto;
-import com.ndgl.spotfinder.domain.post.dto.PostTempResponse;
+import com.ndgl.spotfinder.domain.post.dto.PostTempResponseDto;
 import com.ndgl.spotfinder.domain.post.dto.PostUpdateRequestDto;
 import com.ndgl.spotfinder.domain.post.entity.Hashtag;
 import com.ndgl.spotfinder.domain.post.entity.Location;
@@ -269,7 +269,7 @@ public class PostServiceTest {
 		when(postRepository.findFirstByUserAndStatus(user1, PostStatus.TEMP))
 			.thenReturn(Optional.of(tempPost));
 
-		PostTempResponse response = postService.findOrCreateTempPost("이메일1");
+		PostTempResponseDto response = postService.findOrCreateTempPost("이메일1");
 
 		// then
 		assertEquals(3L, response.id());
@@ -290,7 +290,7 @@ public class PostServiceTest {
 			.thenReturn(Optional.empty());
 		when(postRepository.save(any(Post.class))).thenReturn(newTempPost);
 
-		PostTempResponse response = postService.findOrCreateTempPost("이메일1");
+		PostTempResponseDto response = postService.findOrCreateTempPost("이메일1");
 
 		// then
 		assertEquals(3L, response.id());

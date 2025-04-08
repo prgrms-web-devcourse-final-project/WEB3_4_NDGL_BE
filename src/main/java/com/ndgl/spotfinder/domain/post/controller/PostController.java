@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ndgl.spotfinder.domain.post.dto.PostCreateRequestDto;
 import com.ndgl.spotfinder.domain.post.dto.PostDetailResponseDto;
 import com.ndgl.spotfinder.domain.post.dto.PostResponseDto;
-import com.ndgl.spotfinder.domain.post.dto.PostTempResponse;
+import com.ndgl.spotfinder.domain.post.dto.PostTempResponseDto;
 import com.ndgl.spotfinder.domain.post.dto.PostTempUpdateRequestDto;
 import com.ndgl.spotfinder.domain.post.dto.PostUpdateRequestDto;
 import com.ndgl.spotfinder.domain.post.service.PostService;
@@ -34,8 +34,8 @@ public class PostController implements PostApiSpecification {
 	private final PostService postService;
 
 	@PostMapping("/temp")
-	public RsData<PostTempResponse> createTempPost(Principal principal) {
-		PostTempResponse response = postService.findOrCreateTempPost(principal.getName());
+	public RsData<PostTempResponseDto> createTempPost(Principal principal) {
+		PostTempResponseDto response = postService.findOrCreateTempPost(principal.getName());
 		return RsData.success(HttpStatus.OK, response);
 	}
 
@@ -52,7 +52,7 @@ public class PostController implements PostApiSpecification {
 	@PutMapping("/temp/{id}")
 	public RsData<String> updateTempPost(
 		@PathVariable Long id,
-		@RequestBody PostTempUpdateRequestDto requestDto,
+		@RequestBody @Valid PostTempUpdateRequestDto requestDto,
 		Principal principal) {
 		postService.updatePost(id, requestDto, principal.getName(), true);
 
