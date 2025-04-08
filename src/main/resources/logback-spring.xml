@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration>
+    <!-- 로그 파일 경로 -->
+    <springProperty name="env" source="spring.profiles.active" defaultValue="dev"/>
+    <property name="LOG_DIR" value="logs/${env}"/>
+    <property name="INFO_LOG_FILE_NAME" value="info/info"/>
+    <property name="WARN_LOG_FILE_NAME" value="warn/warn"/>
+    <property name="ERROR_LOG_FILE_NAME" value="error/error"/>
+
+    <!-- 적용할 로그 패턴 -->
+    <property name="FILE_LOG_PATTERN"
+              value="[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%thread] %-5level [%C.%M:%L] - %msg %ex{5}%n"/>
+    <property name="CONSOLE_LOG_PATTERN"
+              value="[%d{yyyy-MM-dd HH:mm:ss.SSS}] %green([%thread]) %highlight(%-5level) %boldWhite([%C.%M:%yellow(%L)]) - %msg %ex{5}%n"/>
+
+    <!-- dev 환경에 적용할 로그 -->
+    <springProfile name="dev">
+        <include resource="console-appender.xml"/>
+
+        <!-- ERROR 레벨 로깅 -->
+        <include resource="logs/error/authentication-exception-appender.xml"/>
+        <include resource="logs/error/authorization-exception-appender.xml"/>
+        <include resource="logs/error/admin-login-fail-appender.xml"/>
+        <include resource="logs/error/service-exception-appender.xml"/>
+        <include resource="logs/error/request-exception-appender.xml"/>
+
+        <!-- WARN 레벨 로깅 -->
+        <include resource="logs/warn/service-exception-appender.xml"/>
+        <include resource="logs/warn/request-exception-appender.xml"/>
+
+        <!-- INFO 레벨 로깅 -->
+        <include resource="logs/info/admin-auth-appender.xml"/>
+        <include resource="logs/info/user-auth-appender.xml"/>
+        <include resource="logs/info/http-transaction-appender.xml"/>
+        <include resource="logs/info/post-view-appender.xml"/>
+        <include resource="logs/info/search-appender.xml"/>
+
+
+        <!-- ERROR 레벨 로깅 -->
+        <logger name="CONSOLE_ERROR_LOGGER" level="ERROR" additivity="false">
+            <appender-ref ref="CONSOLE"/>
+        </logger>
+
+        <logger name="com.ndgl.spotfinder.global.aspect.logging.AuthenticationExceptionLoggingAspect" level="ERROR" additivity="false">
+            <appender-ref ref="ERROR-AUTHENTICATION-EXCEPTION"/>
+        </logger>
+
+        <logger name="com.ndgl.spotfinder.global.aspect.logging.AuthorizationExceptionLoggingAspect" level="ERROR" additivity="false">
+            <appender-ref ref="ERROR-AUTHORIZATION-EXCEPTION"/>
+        </logger>
+
+        <logger name="com.ndgl.spotfinder.global.aspect.logging.AdminLoginFailLoggingAspect" level="ERROR" additivity="false">
+            <appender-ref ref="ERROR-ADMIN-LOGIN-FAIL"/>
+        </logger>
+
+        <logger name="REQUEST_EXCEPTION_LOGGER" level="ERROR" additivity="false">
+            <appender-ref ref="ERROR-REQUEST-EXCEPTION"/>
+        </logger>
+
+        <logger name="SERVICE_EXCEPTION_LOGGER" level="ERROR" additivity="false">
+            <appender-ref ref="ERROR-SERVICE-EXCEPTION"/>
+        </logger>
+
+        <!-- WARN 레벨 로깅 -->
+        <logger name="REQUEST_EXCEPTION_LOGGER" level="WARN" additivity="false">
+            <appender-ref ref="WARN-REQUEST-EXCEPTION"/>
+        </logger>
+
+        <logger name="SERVICE_EXCEPTION_LOGGER" level="WARN" additivity="false">
+            <appender-ref ref="WARN-SERVICE-EXCEPTION"/>
+        </logger>
+
+        <!-- INFO 레벨 로깅 -->
+        <logger name="com.ndgl.spotfinder.global.aspect.logging.AdminAuthLoggingAspect" level="INFO" additivity="false">
+            <appender-ref ref="INFO-ADMIN-AUTH"/>
+        </logger>
+
+        <logger name="com.ndgl.spotfinder.global.aspect.logging.UserAuthLoggingAspect" level="INFO" additivity="false">
+            <appender-ref ref="INFO-USER-AUTH"/>
+        </logger>
+
+        <logger name="com.ndgl.spotfinder.global.aspect.logging.PostViewLoggingAspect" level="INFO" additivity="false">
+            <appender-ref ref="INFO-POST-VIEW"/>
+        </logger>
+
+        <logger name="com.ndgl.spotfinder.global.aspect.logging.SearchLoggingAspect" level="INFO" additivity="false">
+            <appender-ref ref="INFO-SEARCH"/>
+        </logger>
+
+        <logger name="com.ndgl.spotfinder.global.aspect.logging.ControllerLoggingAspect" level="INFO" additivity="false">
+            <appender-ref ref="INFO-HTTP-TRANSACTION"/>
+        </logger>
+
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
+
+</configuration>
