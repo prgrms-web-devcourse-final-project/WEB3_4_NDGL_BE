@@ -20,6 +20,7 @@ import com.ndgl.spotfinder.domain.post.entity.Location;
 import com.ndgl.spotfinder.domain.post.entity.Post;
 import com.ndgl.spotfinder.domain.post.repository.PostRepository;
 import com.ndgl.spotfinder.domain.user.entity.Oauth;
+import com.ndgl.spotfinder.domain.user.entity.Provider;
 import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.domain.user.repository.OauthRepository;
 import com.ndgl.spotfinder.domain.user.repository.UserRepository;
@@ -98,7 +99,7 @@ public class ReportTestInit {
 
 		Oauth oauth = Oauth.builder()
 			.user(savedUser)
-			.provider(Oauth.Provider.GOOGLE)
+			.provider(Provider.GOOGLE)
 			.identify("google_" + savedUser.getId())
 			.build();
 

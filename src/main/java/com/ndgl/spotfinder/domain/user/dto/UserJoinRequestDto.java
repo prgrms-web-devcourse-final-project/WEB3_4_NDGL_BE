@@ -1,6 +1,6 @@
 package com.ndgl.spotfinder.domain.user.dto;
 
-import com.ndgl.spotfinder.domain.user.entity.Oauth;
+import com.ndgl.spotfinder.domain.user.entity.Provider;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -10,9 +10,9 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class UserJoinRequest {
+public class UserJoinRequestDto {
 	@NotNull(message = "provider 값이 없습니다. ")
-	private Oauth.Provider provider;
+	private Provider provider;
 
 	@NotNull(message = "identify 값이 필요합니다.")
 	private String identify;

@@ -1,0 +1,84 @@
+app:
+  cookie:
+    secure: true
+    sameSite: None
+    domain:
+    frontend-origin: https://www.ndgl.shop
+
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: ${DB_URL}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+
+  h2:
+    console:
+      enabled: false
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${SPRING_SECURITY_GOOGLE_CLIENT_ID}
+            client_secret: ${SPRING_SECURITY_GOOGLE_CLIENT_SECRET}
+            redirect-uri: ${SPRING_SECURITY_GOOGLE_REDIRECT_URI}
+            authorization-grant-type: authorization_code
+            scope: email
+            client-name: Google
+            provider: google
+        provider:
+          google:
+            authorization-uri: https://accounts.google.com/o/oauth2/auth
+            token-uri: https://oauth2.googleapis.com/token
+            #user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+            user-info-uri: https://www.googleapis.com/oauth2/v2/userinfo
+            user-name-attribute: sub
+  data:
+    redis:
+      host: redis_1
+      port: 6379
+
+jwt:
+  secret:
+    key: ${JWT_SECRET_KEY}
+
+  expiration:
+    time: ${JWT_VALIDATION_TIME}
+
+  refresh-token:
+    expiration-time: ${JWT_REFRESH_VALIDATION_TIME}
+
+  auth:
+    key: ${AUTHORIZATION_KEY}
+
+aes:
+  secret:
+    key: ${AES_SECRET_KEY}
+
+auth:
+  header:
+    prefix: Bearer
+
+springdoc:
+  default-produces-media-type: application/json;charset=UTF-8
+
+logging:
+  level:
+    com.ndgl.spotfinder: INFO
+    org.hibernate.SQL: INFO
+    org.hibernate.orm.jdbc.bind: INFO
+    org.hibernate.orm.jdbc.extract: INFO
+    org.springframework.transaction.interceptor: INFO

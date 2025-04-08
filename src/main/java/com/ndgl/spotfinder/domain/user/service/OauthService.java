@@ -9,18 +9,17 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import com.ndgl.spotfinder.domain.user.dto.GoogleTokenResponse;
-import com.ndgl.spotfinder.domain.user.dto.UserLoginResponse;
+import com.ndgl.spotfinder.domain.user.client.GoogleAuthClient;
+import com.ndgl.spotfinder.domain.user.dto.GoogleTokenResponseDto;
+import com.ndgl.spotfinder.domain.user.dto.UserLoginResponseDto;
 import com.ndgl.spotfinder.domain.user.entity.Oauth;
+import com.ndgl.spotfinder.domain.user.entity.Provider;
 import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.domain.user.repository.OauthRepository;
 import com.ndgl.spotfinder.domain.user.repository.UserRepository;
@@ -32,39 +31,41 @@ import com.ndgl.spotfinder.global.security.jwt.TokenProvider;
 import jakarta.servlet.http.HttpServletResponse;
 
 @Service
-public class UserLoginService {
-	@Value("${spring.security.oauth2.client.registration.google.client-id}")
-	private String googleClientId;
+public class OauthService {
+	@Value("${spring.security.oauth2.client.provider.google.user-info-uri}")
+	private String userInfoUri;
 
-	@Value("${spring.security.oauth2.client.registration.google.client_secret}")
-	private String googleClientSecret;
-
-	@Value("${spring.security.oauth2.client.registration.google.redirect-uri}")
-	private String googleRedirectUri;
+	@Value("${auth.header.prefix}")
+	private String authHeaderPrefix;
 
 	private final OauthRepository oauthRepository;
 	private final UserRepository userRepository;
 	private final TokenProvider tokenProvider;
+	private final GoogleAuthClient googleAuthClient;
 
-	public UserLoginService(OauthRepository oauthRepository,
+	public OauthService(OauthRepository oauthRepository,
 		UserRepository userRepository,
-		TokenProvider tokenProvider) {
+		TokenProvider tokenProvider,
+		GoogleAuthClient googleAuthClient) {
 		this.oauthRepository = oauthRepository;
 		this.userRepository = userRepository;
 		this.tokenProvider = tokenProvider;
+		this.googleAuthClient = googleAuthClient;
 	}
 
-	public UserLoginResponse processGoogleLogin(
-		Oauth.Provider provider,
+	public UserLoginResponseDto processGoogleLogin(
+		Provider provider,
 		String code,
 		String redirectUri,
 		HttpServletResponse response) {
 		// 1. 토큰 발급 : 구글
-		String googleAccessToken = getAccessToken(provider, code, redirectUri);
+		GoogleTokenResponseDto googleToken = googleAuthClient.fetchToken(code, redirectUri);
 
-		UserLoginResponse googleUserInfo = getGoogleUserInfo(googleAccessToken);
+		//  2.  구글 유저 정보 조회
+		UserLoginResponseDto googleUserInfo = getGoogleUserInfo(googleToken.getAccessToken());
 
-		UserLoginResponse googleUser = saveOrUpdateGoogleUser(googleUserInfo);
+		//  3.  유저 저장 또는 회원가입 유도
+		UserLoginResponseDto googleUser = saveOrUpdateGoogleUser(googleUserInfo);
 
 		if (googleUser.getCode() == HttpStatus.CREATED.value()) {
 			// 회원가입 폼으로 이동할 유저이므로, 토큰 발급 X
@@ -89,49 +90,13 @@ public class UserLoginService {
 
 	}
 
-	private String getAccessToken(
-		Oauth.Provider provider,
-		String code,
-		String redirectUri) {
-		String tokenRequestUrl;
-		if (provider == Oauth.Provider.GOOGLE) {
-			tokenRequestUrl = "https://oauth2.googleapis.com/token";
+	private UserLoginResponseDto getGoogleUserInfo(String accessToken) {
 
-			HttpHeaders headers = new HttpHeaders();
-			headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-
-			MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>();
-			requestBody.add("grant_type", "authorization_code");
-			requestBody.add("client_id", googleClientId);
-			requestBody.add("client_secret", googleClientSecret);
-			requestBody.add("code", code);
-			requestBody.add("redirect_uri", redirectUri);
-
-			System.out.println(requestBody);
-
-			HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(requestBody, headers);
-			RestTemplate restTemplate = new RestTemplate();
-
-			ResponseEntity<GoogleTokenResponse> tokenResponse = restTemplate.postForEntity(
-				tokenRequestUrl, requestEntity, GoogleTokenResponse.class
-			);
-
-			if (tokenResponse.getStatusCode() != HttpStatus.OK || tokenResponse.getBody() == null) {
-				ErrorCode.UNAUTHORIZED.throwServiceException();
-			}
-
-			return tokenResponse.getBody().getAccessToken();
-		} else {
-			ErrorCode.NO_APPLIED_SOCIAL_PLATFORM.throwServiceException();
-			return null;
-		}
-	}
-
-	private UserLoginResponse getGoogleUserInfo(String accessToken) {
-		String userInfoUrl = "https://www.googleapis.com/oauth2/v2/userinfo";
+		String userInfoUrl = userInfoUri;
+		String prefix = authHeaderPrefix + " ";
 
 		HttpHeaders headers = new HttpHeaders();
-		headers.add("Authorization", "Bearer " + accessToken);
+		headers.add(HttpHeaders.AUTHORIZATION, prefix + accessToken);
 
 		HttpEntity<?> entity = new HttpEntity<>(headers);
 		RestTemplate restTemplate = new RestTemplate();
@@ -142,7 +107,7 @@ public class UserLoginService {
 		);
 
 		if (userInfoResponse.getStatusCode() != HttpStatus.OK || userInfoResponse.getBody() == null) {
-			throw new ServiceException(HttpStatus.BAD_REQUEST, "BAD_REQUEST"); // 500번으로 수정 후 OAUTH ERRORCODE 추가
+			ErrorCode.SERVER_ERROR.throwServiceException();
 		}
 
 		Map<String, Object> responseMap = userInfoResponse.getBody();
@@ -165,26 +130,27 @@ public class UserLoginService {
 
 		}
 
-		return UserLoginResponse.builder()
+		return UserLoginResponseDto.builder()
 			.identify(identify)
 			.email(email)
 			.build();
 	}
 
-	private UserLoginResponse saveOrUpdateGoogleUser(UserLoginResponse userInfo) {
+	private UserLoginResponseDto saveOrUpdateGoogleUser(UserLoginResponseDto userInfo) {
 		String googleId = userInfo.getIdentify();
 		String email = userInfo.getEmail();
 
 		Optional<Oauth> existingOauthByIdentify = oauthRepository.findByIdentifyAndProvider(googleId,
-			Oauth.Provider.GOOGLE);
+			Provider.GOOGLE);
 
 		if (existingOauthByIdentify.isPresent()) {
-			return UserLoginResponse.builder()
+			return UserLoginResponseDto.builder()
 				.message("OK")
 				.code(HttpStatus.OK.value())
-				.provider(Oauth.Provider.GOOGLE.name())
+				.provider(Provider.GOOGLE.name())
 				.identify(googleId)
 				.email(email)
+				.userId(existingOauthByIdentify.get().getId())
 				.build();
 		}
 
@@ -193,30 +159,31 @@ public class UserLoginService {
 		if (existingUser.isPresent()) {
 			User nowUser = existingUser.get();
 
-			Optional<Oauth> existingOauth = oauthRepository.findByUserAndProvider(nowUser, Oauth.Provider.GOOGLE);
+			Optional<Oauth> existingOauth = oauthRepository.findByUserAndProvider(nowUser, Provider.GOOGLE);
 
 			if (existingOauth.isEmpty()) {
 				Oauth newOauth = Oauth.builder()
 					.user(nowUser)
-					.provider(Oauth.Provider.GOOGLE)
+					.provider(Provider.GOOGLE)
 					.identify(googleId)
 					.build();
 
 				oauthRepository.save(newOauth);
 			}
 
-			return UserLoginResponse.builder()
+			return UserLoginResponseDto.builder()
 				.message("OK")
 				.code(HttpStatus.OK.value())
-				.provider(Oauth.Provider.GOOGLE.name())
+				.provider(Provider.GOOGLE.name())
 				.identify(googleId)
 				.email(email)
+				.userId(existingOauth.get().getId())
 				.build();
 		} else {
-			return UserLoginResponse.builder()
+			return UserLoginResponseDto.builder()
 				.message("OK")
 				.code(HttpStatus.CREATED.value())
-				.provider(Oauth.Provider.GOOGLE.name())
+				.provider(Provider.GOOGLE.name())
 				.identify(googleId)
 				.email(email)
 				.build();

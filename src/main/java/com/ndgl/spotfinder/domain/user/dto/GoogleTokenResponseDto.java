@@ -2,10 +2,12 @@ package com.ndgl.spotfinder.domain.user.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-public class GoogleTokenResponse {
+@Builder
+public class GoogleTokenResponseDto {
 	@JsonProperty("access_token")
 	private String accessToken;
 
