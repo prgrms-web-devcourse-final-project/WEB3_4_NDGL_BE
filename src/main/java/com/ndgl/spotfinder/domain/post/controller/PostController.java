@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ndgl.spotfinder.domain.post.dto.PostCreateRequestDto;
@@ -32,6 +33,12 @@ import lombok.RequiredArgsConstructor;
 public class PostController implements PostApiSpecification {
 	private final PostService postService;
 
+	@PostMapping("/save-temp")
+	public RsData<PostTempResponse> createTempPost(Principal principal) {
+		PostTempResponse response = postService.findOrCreateTempPost(principal.getName());
+		return RsData.success(HttpStatus.OK, response);
+	}
+
 	@PostMapping
 	public RsData<Void> createPost(
 		@RequestBody @Valid PostCreateRequestDto postCreateRequestDto,
@@ -42,19 +49,14 @@ public class PostController implements PostApiSpecification {
 		return RsData.success(HttpStatus.OK);
 	}
 
-	@PostMapping("/temp")
-	public RsData<PostTempResponse> createTempPost(Principal principal) {
-		PostTempResponse response = postService.findOrCreateTempPost(principal.getName());
-		return RsData.success(HttpStatus.OK, response);
-	}
-
 	@PutMapping("/{id}")
 	public RsData<Void> updatePost(
 		@PathVariable Long id,
 		@RequestBody @Valid PostUpdateRequestDto postUpdateRequestDto,
+		@RequestParam(required = false, defaultValue = "false") boolean temp,
 		Principal principal
 	) {
-		postService.updatePost(id, postUpdateRequestDto, principal.getName());
+		postService.updatePost(id, postUpdateRequestDto, principal.getName(), temp);
 
 		return RsData.success(HttpStatus.OK);
 	}

@@ -84,7 +84,7 @@ public class ImageCleanupServiceTest {
         usedImageUrls.add("https://example.com/image1.jpg");
 
         // 스레드 이름 확인용 변수
-        final AtomicBoolean asyncExecuted = new AtomicBoolean(false);
+        final AtomicBoolean asyncExecuted = new AtomicBoolean(false); // 비동기 작업 실행 여부
         final String[] asyncThreadName = new String[1];
 
         // S3 서비스 모의 설정

@@ -109,11 +109,11 @@ public class Post extends BaseTime {
 		locations.forEach(this::addLocation);
 	}
 
-	public Post updatePost(PostUpdateRequestDto requestDto) {
+	public Post updatePost(PostUpdateRequestDto requestDto, boolean temp) {
 		title = requestDto.title();
 		content = requestDto.content();
 		thumbnail = requestDto.thumbnail();
-		status = PostStatus.PUBLIC;
+		status = !temp ? PostStatus.PUBLIC : PostStatus.TEMP;
 
 		List<Hashtag> newHashtags = requestDto.hashtags()
 			.stream()
