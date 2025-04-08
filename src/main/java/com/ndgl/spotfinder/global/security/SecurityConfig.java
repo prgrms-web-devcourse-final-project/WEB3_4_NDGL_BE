@@ -128,7 +128,9 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(Arrays.asList(
                 "https://cdpn.io",
                 "http://localhost:8080",
+                "https://localhost:8080",
                 "http://localhost:3000",
+                "https://localhost:3000",
                 "https://api.ndgl.shop",
                 "https://www.ndgl.shop"
         ));
