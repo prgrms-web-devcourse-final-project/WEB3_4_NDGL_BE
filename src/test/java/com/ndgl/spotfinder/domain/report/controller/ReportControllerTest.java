@@ -30,7 +30,7 @@ import com.ndgl.spotfinder.domain.admin.service.AdminService;
 import com.ndgl.spotfinder.domain.post.service.PostService;
 import com.ndgl.spotfinder.domain.report.dto.PostCommentReportDto;
 import com.ndgl.spotfinder.domain.report.dto.PostReportDto;
-import com.ndgl.spotfinder.domain.report.dto.ReportCreateRequest;
+import com.ndgl.spotfinder.domain.report.dto.ReportCreateRequestDto;
 import com.ndgl.spotfinder.domain.report.entity.PostCommentReport;
 import com.ndgl.spotfinder.domain.report.entity.PostReport;
 import com.ndgl.spotfinder.domain.report.entity.ReportStatus;
@@ -106,7 +106,7 @@ public class ReportControllerTest {
 
 		setUpUserAuth(reporterId);
 
-		ReportCreateRequest request = new ReportCreateRequest(reportType, reason);
+		ReportCreateRequestDto request = new ReportCreateRequestDto(reportType, reason);
 
 		ResultActions resultActions = mvc.perform(
 			post("/api/v1/reports/posts/{id}", postId)
@@ -131,7 +131,7 @@ public class ReportControllerTest {
 		ReportType reportType = ReportType.SPAM;
 		String reason = "스팸 신고";
 
-		ReportCreateRequest request = new ReportCreateRequest(reportType, reason);
+		ReportCreateRequestDto request = new ReportCreateRequestDto(reportType, reason);
 
 		ResultActions resultActions = mvc.perform(
 			post("/api/v1/reports/posts/{id}", postId)
@@ -183,7 +183,7 @@ public class ReportControllerTest {
 
 		setUpUserAuth(reporterId);
 
-		ReportCreateRequest request = new ReportCreateRequest(reportType, reason);
+		ReportCreateRequestDto request = new ReportCreateRequestDto(reportType, reason);
 
 		ResultActions resultActions = mvc.perform(
 			post("/api/v1/reports/comments/{id}", postCommentId)
@@ -208,7 +208,7 @@ public class ReportControllerTest {
 		ReportType reportType = ReportType.SPAM;
 		String reason = "스팸 신고";
 
-		ReportCreateRequest request = new ReportCreateRequest(reportType, reason);
+		ReportCreateRequestDto request = new ReportCreateRequestDto(reportType, reason);
 
 		ResultActions resultActions = mvc.perform(
 			post("/api/v1/reports/comments/{id}", postId)
@@ -255,7 +255,7 @@ public class ReportControllerTest {
 		ReportType reportType = ReportType.SPAM;
 		String reason = "스팸 신고";
 
-		ReportCreateRequest request = new ReportCreateRequest(reportType, reason);
+		ReportCreateRequestDto request = new ReportCreateRequestDto(reportType, reason);
 
 		// 유저 1,2 가 글 1,2,3,4 에 대한 댓글 총 8개 남긴다
 		List<PostReportDto> reports = new ArrayList<>();
@@ -287,7 +287,7 @@ public class ReportControllerTest {
 		ReportType reportType = ReportType.SPAM;
 		String reason = "스팸 신고";
 
-		ReportCreateRequest request = new ReportCreateRequest(reportType, reason);
+		ReportCreateRequestDto request = new ReportCreateRequestDto(reportType, reason);
 
 		// 유저 1,2,3이 글 1,2,3,4에 대한 신고 총 12개 생성
 		List<PostReportDto> reports = new ArrayList<>();
@@ -413,7 +413,7 @@ public class ReportControllerTest {
 		ReportType reportType = ReportType.SPAM;
 		String reason = "스팸 신고";
 
-		ReportCreateRequest request = new ReportCreateRequest(reportType, reason);
+		ReportCreateRequestDto request = new ReportCreateRequestDto(reportType, reason);
 
 		// 유저 1,2 가 글 1,2,3,4 에 대한 댓글 총 8개 남긴다
 		List<PostCommentReportDto> reports = new ArrayList<>();
@@ -445,7 +445,7 @@ public class ReportControllerTest {
 		ReportType reportType = ReportType.SPAM;
 		String reason = "스팸 신고";
 
-		ReportCreateRequest request = new ReportCreateRequest(reportType, reason);
+		ReportCreateRequestDto request = new ReportCreateRequestDto(reportType, reason);
 
 		// 유저 1,2,3 이 글 1,2,3,4 에 대한 댓글 총 12개 남긴다
 		List<PostCommentReportDto> reports = new ArrayList<>();
@@ -568,7 +568,7 @@ public class ReportControllerTest {
 
 		ReportType reportType = ReportType.SPAM;
 		String reason = "스팸 신고";
-		ReportCreateRequest request = new ReportCreateRequest(reportType, reason);
+		ReportCreateRequestDto request = new ReportCreateRequestDto(reportType, reason);
 		long postId = 1L;
 
 		PostReportDto postReportDto = reportService.createPostReport(request, "test1@example.com", postId);
@@ -611,7 +611,7 @@ public class ReportControllerTest {
 
 		ReportType reportType = ReportType.SPAM;
 		String reason = "스팸 신고";
-		ReportCreateRequest request = new ReportCreateRequest(reportType, reason);
+		ReportCreateRequestDto request = new ReportCreateRequestDto(reportType, reason);
 		long postId = 1L;
 
 		PostReportDto postReportDto = reportService.createPostReport(request, "test1@example.com", postId);
@@ -668,7 +668,7 @@ public class ReportControllerTest {
 
 		ReportType reportType = ReportType.SPAM;
 		String reason = "스팸 신고";
-		ReportCreateRequest request = new ReportCreateRequest(reportType, reason);
+		ReportCreateRequestDto request = new ReportCreateRequestDto(reportType, reason);
 		long postCommentId = 1L;
 
 		PostCommentReportDto postCommentReportDto = reportService.createPostCommentReport(request, "test1@example.com", postCommentId);
@@ -711,7 +711,7 @@ public class ReportControllerTest {
 
 		ReportType reportType = ReportType.SPAM;
 		String reason = "스팸 신고";
-		ReportCreateRequest request = new ReportCreateRequest(reportType, reason);
+		ReportCreateRequestDto request = new ReportCreateRequestDto(reportType, reason);
 		long postId = 1L;
 
 		PostCommentReportDto postcommentReportDto = reportService.createPostCommentReport(request, "test1@example.com", postId);
@@ -769,7 +769,7 @@ public class ReportControllerTest {
 
 		ReportType reportType = ReportType.SPAM;
 		String reason = "스팸 신고";
-		ReportCreateRequest request = new ReportCreateRequest(reportType, reason);
+		ReportCreateRequestDto request = new ReportCreateRequestDto(reportType, reason);
 		long postId = 1L;
 
 		PostReportDto postReportDto = reportService.createPostReport(request, "test1@example.com", postId);
@@ -844,7 +844,7 @@ public class ReportControllerTest {
 
 		ReportType reportType = ReportType.SPAM;
 		String reason = "스팸 신고";
-		ReportCreateRequest request = new ReportCreateRequest(reportType, reason);
+		ReportCreateRequestDto request = new ReportCreateRequestDto(reportType, reason);
 		long postCommentId = 1L;
 
 		PostCommentReportDto postCommentReportDto = reportService.createPostCommentReport(request, "test1@example.com", postCommentId);

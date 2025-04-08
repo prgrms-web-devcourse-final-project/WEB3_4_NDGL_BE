@@ -6,13 +6,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import com.ndgl.spotfinder.domain.report.dto.PostCommentReportResponse;
+import com.ndgl.spotfinder.domain.report.dto.PostCommentReportResponseDto;
 import com.ndgl.spotfinder.domain.report.entity.PostCommentReport;
 
 @Repository
 public interface PostCommentReportRepository extends JpaRepository<PostCommentReport, Long> {
 
-	@Query("SELECT new com.ndgl.spotfinder.domain.report.dto.PostCommentReportResponse(" +
+	@Query("SELECT new com.ndgl.spotfinder.domain.report.dto.PostCommentReportResponseDto(" +
 		"cmt.content, " +
 		"cr.reporter.id, " +
 		"cr.reportedUser.id, " +
@@ -22,6 +22,6 @@ public interface PostCommentReportRepository extends JpaRepository<PostCommentRe
 		"FROM PostCommentReport cr " +
 		"JOIN cr.postComment cmt " +
 		"WHERE cr.id < :lastId")
-	Slice<PostCommentReportResponse> findPostCommentReports(long lastId, Pageable pageable);
+	Slice<PostCommentReportResponseDto> findPostCommentReports(long lastId, Pageable pageable);
 
 }

@@ -14,10 +14,10 @@ import com.ndgl.spotfinder.domain.post.entity.Post;
 import com.ndgl.spotfinder.domain.post.service.PostService;
 import com.ndgl.spotfinder.domain.report.dto.BanDto;
 import com.ndgl.spotfinder.domain.report.dto.PostCommentReportDto;
-import com.ndgl.spotfinder.domain.report.dto.PostCommentReportResponse;
+import com.ndgl.spotfinder.domain.report.dto.PostCommentReportResponseDto;
 import com.ndgl.spotfinder.domain.report.dto.PostReportDto;
-import com.ndgl.spotfinder.domain.report.dto.PostReportResponse;
-import com.ndgl.spotfinder.domain.report.dto.ReportCreateRequest;
+import com.ndgl.spotfinder.domain.report.dto.PostReportResponseDto;
+import com.ndgl.spotfinder.domain.report.dto.ReportCreateRequestDto;
 import com.ndgl.spotfinder.domain.report.entity.Ban;
 import com.ndgl.spotfinder.domain.report.entity.BanDuration;
 import com.ndgl.spotfinder.domain.report.entity.PostCommentReport;
@@ -49,7 +49,7 @@ public class ReportService {
 
 	// 포스트 신고 생성
 	public PostReportDto createPostReport(
-		ReportCreateRequest reportCreateRequest,
+		ReportCreateRequestDto reportCreateRequestDto,
 		String reporterEmail,
 		Long postId) {
 
@@ -61,8 +61,8 @@ public class ReportService {
 		PostReport report = PostReport.builder()
 			.reporter(reporter)
 			.reportedUser(reportedUser)
-			.reason(reportCreateRequest.reason())
-			.reportType(reportCreateRequest.reportType())
+			.reason(reportCreateRequestDto.reason())
+			.reportType(reportCreateRequestDto.reportType())
 			.post(post)
 			.build();
 
@@ -71,7 +71,7 @@ public class ReportService {
 
 	// 댓글 신고 생성
 	public PostCommentReportDto createPostCommentReport(
-		ReportCreateRequest reportCreateRequest,
+		ReportCreateRequestDto reportCreateRequestDto,
 		String reporterEmail,
 		Long postCommentId) {
 
@@ -83,8 +83,8 @@ public class ReportService {
 		PostCommentReport report = PostCommentReport.builder()
 			.reporter(reporter)
 			.reportedUser(reportedUser)
-			.reason(reportCreateRequest.reason())
-			.reportType(reportCreateRequest.reportType())
+			.reason(reportCreateRequestDto.reason())
+			.reportType(reportCreateRequestDto.reportType())
 			.postComment(postComment)
 			.build();
 
@@ -92,10 +92,10 @@ public class ReportService {
 	}
 
 	// 포스트 신고 목록 조회
-	public SliceResponse<PostReportResponse> getPostReportSlice(long lastId, int size) {
+	public SliceResponse<PostReportResponseDto> getPostReportSlice(long lastId, int size) {
 
 		Pageable pageable = PageRequest.of(0, size, Sort.by(Sort.Direction.DESC, "id"));
-		Slice<PostReportResponse> postReportSlice = postReportRepository.findPostReports(lastId, pageable);
+		Slice<PostReportResponseDto> postReportSlice = postReportRepository.findPostReports(lastId, pageable);
 
 		if(postReportSlice.isEmpty()) {
 			ErrorCode.EMPTY_POST_REPORT_SLICE.throwServiceException();
@@ -105,10 +105,10 @@ public class ReportService {
 	}
 
 	// 댓글 신고 목록 조회
-	public SliceResponse<PostCommentReportResponse> getPostCommentReportSlice(long lastId, int size) {
+	public SliceResponse<PostCommentReportResponseDto> getPostCommentReportSlice(long lastId, int size) {
 
 		Pageable pageable = PageRequest.of(0, size, Sort.by(Sort.Direction.DESC, "id"));
-		Slice<PostCommentReportResponse> postCommentReportSlice = postCommentReportRepository.findPostCommentReports(lastId, pageable);
+		Slice<PostCommentReportResponseDto> postCommentReportSlice = postCommentReportRepository.findPostCommentReports(lastId, pageable);
 
 		if(postCommentReportSlice.isEmpty()) {
 			ErrorCode.EMPTY_COMMENT_REPORT_SLICE.throwServiceException();
