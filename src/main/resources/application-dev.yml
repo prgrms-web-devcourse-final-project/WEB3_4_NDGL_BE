@@ -1,3 +1,14 @@
+app:
+  cookie:
+    secure: true
+    sameSite: None
+    domain:
+    frontend-origin: https://www.ndgl.shop
+
+auth:
+  header:
+    prefix: Bearer
+
 spring:
   config:
     import:
@@ -9,10 +20,6 @@ spring:
     password:
     hikari:
       auto-commit: false
-
-  jpa:
-    hibernate:
-      ddl-auto: create-drop
 
   jpa:
     show-sql: true
