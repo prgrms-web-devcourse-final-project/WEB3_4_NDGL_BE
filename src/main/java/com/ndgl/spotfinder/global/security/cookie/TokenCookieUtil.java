@@ -57,8 +57,7 @@ public class TokenCookieUtil {
 		}
 
 		String cookieString = String.format(
-			"%s=; Max-Age=0; Path=/;%s HttpOnly%s; SameSite=%s",
-			cookieName,
+			"accessToken=; Max-Age=0; Path=/;%s HttpOnly%s; SameSite=%s",
 			domainInCookie,
 			secureFlag,
 			sameSite
