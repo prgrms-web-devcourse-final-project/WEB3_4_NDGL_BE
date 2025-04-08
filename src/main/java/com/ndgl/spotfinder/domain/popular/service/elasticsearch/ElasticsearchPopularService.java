@@ -10,8 +10,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.ndgl.spotfinder.domain.popular.dto.KeywordCount;
-import com.ndgl.spotfinder.domain.popular.dto.PostCount;
+import com.ndgl.spotfinder.domain.popular.dto.KeywordCountDto;
+import com.ndgl.spotfinder.domain.popular.dto.PostCountDto;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.aggregations.LongTermsBucket;
@@ -33,7 +33,7 @@ public class ElasticsearchPopularService {
 	private static final String POST_VIEW_INDEX = "dev-post-view-";
 
 	// 인기 검색어 Top N 조회
-	public List<KeywordCount> findTopKeywords(long startTime, long endTime, int size) throws IOException {
+	public List<KeywordCountDto> findTopKeywords(long startTime, long endTime, int size) throws IOException {
 		String[] indices = getIndicesForTimeRange(startTime, endTime, KEYWORD_SEARCH_INDEX);
 
 		for (String index : indices) {
@@ -63,11 +63,11 @@ public class ElasticsearchPopularService {
 			Void.class
 		);
 
-		List<KeywordCount> result = new ArrayList<>();
+		List<KeywordCountDto> result = new ArrayList<>();
 		List<StringTermsBucket> buckets = response.aggregations().get("top_keywords").sterms().buckets().array();
 
 		for(StringTermsBucket bucket : buckets) {
-			result.add(new KeywordCount(bucket.key().stringValue(), bucket.docCount()));
+			result.add(new KeywordCountDto(bucket.key().stringValue(), bucket.docCount()));
 		}
 
 		log.info("Elasticsearch 인기 검색어 조회 완료: {} 개 키워드", buckets.size());
@@ -76,7 +76,7 @@ public class ElasticsearchPopularService {
 	}
 
 	// 인기 포스트 Top N 조회
-	public List<PostCount> findTopPosts(long startTime, long endTime, int size) throws IOException {
+	public List<PostCountDto> findTopPosts(long startTime, long endTime, int size) throws IOException {
 		String[] indices = getIndicesForTimeRange(startTime, endTime, POST_VIEW_INDEX);
 
 		for (String index : indices) {
@@ -106,11 +106,11 @@ public class ElasticsearchPopularService {
 			Void.class
 		);
 
-		List<PostCount> result = new ArrayList<>();
+		List<PostCountDto> result = new ArrayList<>();
 		List<LongTermsBucket> buckets = response.aggregations().get("top_posts").lterms().buckets().array();
 
 		for(LongTermsBucket bucket : buckets) {
-			result.add(new PostCount(bucket.key(), bucket.docCount()));
+			result.add(new PostCountDto(bucket.key(), bucket.docCount()));
 		}
 
 		log.info("Elasticsearch 인기 게시물 조회 완료: {} 개 키워드", buckets.size());

@@ -5,8 +5,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
-import com.ndgl.spotfinder.domain.popular.dto.KeywordCount;
-import com.ndgl.spotfinder.domain.popular.dto.PostCount;
+import com.ndgl.spotfinder.domain.popular.dto.KeywordCountDto;
+import com.ndgl.spotfinder.domain.popular.dto.PostCountDto;
 import com.ndgl.spotfinder.domain.popular.service.PopularService;
 import com.ndgl.spotfinder.domain.popular.service.elasticsearch.ElasticsearchPopularService;
 import com.ndgl.spotfinder.domain.popular.service.redis.RedisPopularService;
@@ -34,8 +34,8 @@ public class PopularTrendsScheduler {
 			long startTime = endTime - (30 * 60 * 1000);
 
 			// Elasticsearch 에서 인기 검색어 / 인기 포스트 조회
-			List<KeywordCount> topKeywords = elasticsearchPopularService.findTopKeywords(startTime, endTime, TOP_SIZE);
-			List<PostCount> topPosts = elasticsearchPopularService.findTopPosts(startTime, endTime, TOP_SIZE);
+			List<KeywordCountDto> topKeywords = elasticsearchPopularService.findTopKeywords(startTime, endTime, TOP_SIZE);
+			List<PostCountDto> topPosts = elasticsearchPopularService.findTopPosts(startTime, endTime, TOP_SIZE);
 
 			// 레디스 업데이트
 			redisPopularService.updateRedisPopularKeywords(topKeywords);
@@ -47,11 +47,11 @@ public class PopularTrendsScheduler {
 
 			// 레디스 조회
 			// TODO: 안정화되면 지워야 함
-			List<KeywordCount> keywordCounts = redisPopularService.getPopularKeywords(10);
-			List<PostCount> postCounts = redisPopularService.getPopularPosts(10);
+			List<KeywordCountDto> keywordCountDtos = redisPopularService.getPopularKeywords(10);
+			List<PostCountDto> postCountDtos = redisPopularService.getPopularPosts(10);
 
-			for(int i=0; i< keywordCounts.size(); i++) {
-				log.info("{}위 - 인기 검색어 : {}, 인기 키워드 : {}", i+1, keywordCounts.get(i).keyword(), postCounts.get(i).postId());
+			for(int i = 0; i< keywordCountDtos.size(); i++) {
+				log.info("{}위 - 인기 검색어 : {}, 인기 키워드 : {}", i+1, keywordCountDtos.get(i).keyword(), postCountDtos.get(i).postId());
 			}
 
 			log.info("인기 검색어 및 게시물 업데이트 완료");

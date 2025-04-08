@@ -1,6 +1,6 @@
 package com.ndgl.spotfinder.domain.popular.dto;
 
-public record PostCount (
+public record PostCountDto(
 	long postId,
 	long count
 ){

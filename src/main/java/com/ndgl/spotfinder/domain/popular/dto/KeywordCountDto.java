@@ -1,6 +1,6 @@
 package com.ndgl.spotfinder.domain.popular.dto;
 
-public record KeywordCount (
+public record KeywordCountDto(
 	String keyword,
 	long count
 ){

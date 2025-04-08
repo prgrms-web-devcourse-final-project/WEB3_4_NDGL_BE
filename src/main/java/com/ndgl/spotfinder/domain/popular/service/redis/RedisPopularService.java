@@ -7,8 +7,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 
-import com.ndgl.spotfinder.domain.popular.dto.KeywordCount;
-import com.ndgl.spotfinder.domain.popular.dto.PostCount;
+import com.ndgl.spotfinder.domain.popular.dto.KeywordCountDto;
+import com.ndgl.spotfinder.domain.popular.dto.PostCountDto;
 import com.ndgl.spotfinder.global.exception.ErrorCode;
 
 import lombok.RequiredArgsConstructor;
@@ -23,14 +23,14 @@ public class RedisPopularService {
 	private static final String POPULAR_POSTS_KEY = "popular:posts";
 
 	// Top N 키워드 순서대로 저장
-	public void updateRedisPopularKeywords(List<KeywordCount> keywords) {
+	public void updateRedisPopularKeywords(List<KeywordCountDto> keywords) {
 		ZSetOperations<String, String> zSetOps = redisTemplate.opsForZSet();
 
 		// 기존 ZSET 데이터 삭제
 		redisTemplate.delete(POPULAR_KEYWORDS_KEY);
 
 		// 새로운 데이터 추가
-		for (KeywordCount keyword : keywords) {
+		for (KeywordCountDto keyword : keywords) {
 			zSetOps.add(POPULAR_KEYWORDS_KEY, keyword.keyword(), keyword.count());
 		}
 
@@ -38,14 +38,14 @@ public class RedisPopularService {
 	}
 
 	// Top N 포스트 순서대로 저장
-	public void updateRedisPopularPosts(List<PostCount> posts) {
+	public void updateRedisPopularPosts(List<PostCountDto> posts) {
 		ZSetOperations<String, String> zSetOps = redisTemplate.opsForZSet();
 
 		// 기존 ZSET 데이터 삭제
 		redisTemplate.delete(POPULAR_POSTS_KEY);
 
 		// 새로운 데이터 추가
-		for (PostCount post : posts) {
+		for (PostCountDto post : posts) {
 			zSetOps.add(POPULAR_POSTS_KEY, String.valueOf(post.postId()), post.count());
 		}
 
@@ -53,7 +53,7 @@ public class RedisPopularService {
 	}
 
 	// Top N 인기 검색어 조회
-	public List<KeywordCount> getPopularKeywords(int size) {
+	public List<KeywordCountDto> getPopularKeywords(int size) {
 		ZSetOperations<String, String> zSetOps = redisTemplate.opsForZSet();
 
 		// ZSET에서 상위 N개 항목 조회 (내림차순, 0부터 N-1까지)
@@ -64,8 +64,8 @@ public class RedisPopularService {
 		}
 
 		// KeywordCount 리스트로 변환
-		List<KeywordCount> result = keywordSet.stream()
-			.map(this::toKeywordCount)
+		List<KeywordCountDto> result = keywordSet.stream()
+			.map(this::toKeywordCountDto)
 			.toList();
 
 		log.info("Redis에서 인기 검색어 Top 10 조회 완료: {} 개", result.size());
@@ -73,7 +73,7 @@ public class RedisPopularService {
 	}
 
 	// Top N 인기 게시물 조회
-	public List<PostCount> getPopularPosts(int size) {
+	public List<PostCountDto> getPopularPosts(int size) {
 		ZSetOperations<String, String> zSetOps = redisTemplate.opsForZSet();
 
 		// ZSET에서 상위 N개 항목 조회 (내림차순, 0부터 N-1까지)
@@ -84,8 +84,8 @@ public class RedisPopularService {
 		}
 
 		// PostCount 리스트로 변환
-		List<PostCount> result = postSet.stream()
-			.map(this::toPostCount)
+		List<PostCountDto> result = postSet.stream()
+			.map(this::toPostCountDto)
 			.toList();
 
 		log.info("Redis에서 인기 게시물 Top 10 조회 완료: {} 개", result.size());
@@ -96,23 +96,23 @@ public class RedisPopularService {
 		return tuple == null || tuple.getValue() == null || tuple.getScore() == null;
 	}
 
-	private KeywordCount toKeywordCount(ZSetOperations.TypedTuple<String> tuple) {
+	private KeywordCountDto toKeywordCountDto(ZSetOperations.TypedTuple<String> tuple) {
 		if(isInvalidTuple(tuple))
 			ErrorCode.REDIS_INVALID_ZSET_TUPLE.throwServiceException();
 
 		String keyword = tuple.getValue();
 		long score = tuple.getScore().longValue();
-		return new KeywordCount(keyword, score);
+		return new KeywordCountDto(keyword, score);
 	}
 
-	private PostCount toPostCount(ZSetOperations.TypedTuple<String> tuple) {
+	private PostCountDto toPostCountDto(ZSetOperations.TypedTuple<String> tuple) {
 		if(isInvalidTuple(tuple))
 			ErrorCode.REDIS_INVALID_ZSET_TUPLE.throwServiceException();
 
 		try {
 			long postId = Long.parseLong(tuple.getValue());
 			long score = tuple.getScore().longValue();
-			return new PostCount(postId, score);
+			return new PostCountDto(postId, score);
 		} catch(NumberFormatException e) {
 			throw ErrorCode.REDIS_INVALID_ZSET_TUPLE.throwServiceException(e);
 		}

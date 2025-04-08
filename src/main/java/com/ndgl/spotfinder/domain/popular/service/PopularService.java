@@ -5,8 +5,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.ndgl.spotfinder.domain.popular.dto.KeywordCount;
-import com.ndgl.spotfinder.domain.popular.dto.PostCount;
+import com.ndgl.spotfinder.domain.popular.dto.KeywordCountDto;
+import com.ndgl.spotfinder.domain.popular.dto.PostCountDto;
 import com.ndgl.spotfinder.domain.popular.entity.PopularKeyword;
 import com.ndgl.spotfinder.domain.popular.entity.PopularPost;
 import com.ndgl.spotfinder.domain.popular.repository.PopularKeywordRepository;
@@ -23,11 +23,11 @@ public class PopularService {
 	private final PopularKeywordRepository popularKeywordRepository;
 	private final PopularPostRepository popularPostRepository;
 
-	public void savePopularKeywords(List<KeywordCount> keywords) {
+	public void savePopularKeywords(List<KeywordCountDto> keywords) {
 		List<PopularKeyword> entities = new ArrayList<>();
 
 		for (int i = 0; i < keywords.size(); i++) {
-			KeywordCount kc = keywords.get(i);
+			KeywordCountDto kc = keywords.get(i);
 			entities.add(PopularKeyword.builder()
 				.keyword(kc.keyword())
 				.searchCount(kc.count())
@@ -39,11 +39,11 @@ public class PopularService {
 		log.info("MySQL 인기 검색어 저장 완료");
 	}
 
-	public void savePopularPosts(List<PostCount> posts) {
+	public void savePopularPosts(List<PostCountDto> posts) {
 		List<PopularPost> entities = new ArrayList<>();
 
 		for (int i = 0; i < posts.size(); i++) {
-			PostCount pc = posts.get(i);
+			PostCountDto pc = posts.get(i);
 			entities.add(PopularPost.builder()
 				.postId(pc.postId())
 				.viewCount(pc.count())
