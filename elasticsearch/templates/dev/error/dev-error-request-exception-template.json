@@ -1,0 +1,57 @@
+{
+  "index_patterns": ["dev-error-request-exception-*"],
+  "template": {
+    "settings": {
+      "number_of_shards": 1,
+      "number_of_replicas": 1
+    },
+    "mappings": {
+      "properties": {
+        "@timestamp": {
+          "type": "date"
+        },
+        "logger_name": {
+          "type": "keyword",
+          "index": false
+        },
+        "thread_name": {
+          "type": "keyword",
+          "index": false
+        },
+
+        "stack_trace": {
+          "type": "text",
+          "index": false
+        },
+        "httpMethod": {
+          "type": "keyword",
+          "index": false
+        },
+        "requestURI": {
+          "type": "keyword"
+        },
+        "httpBody": {
+          "type": "object",
+          "enabled": false
+        },
+        "ipAddress": {
+          "type": "ip",
+          "index": false
+        },
+        "className": {
+          "type": "keyword"
+        },
+        "methodName": {
+          "type": "keyword"
+        },
+        "statusCode": {
+          "type": "integer"
+        },
+        "exceptionMessage": {
+          "type": "text",
+          "index": false
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "index_patterns": ["prod-http-transaction-*"],
+  "template": {
+    "settings": {
+      "number_of_shards": 1,
+      "number_of_replicas": 1
+    },
+    "mappings": {
+      "properties": {
+        "@timestamp": {
+          "type": "date"
+        },
+        "logger_name": {
+          "type": "keyword",
+          "index": false
+        },
+        "thread_name": {
+          "type": "keyword",
+          "index": false
+        },
+        "className": {
+          "type": "keyword"
+        },
+        "methodName": {
+          "type": "keyword"
+        },
+        "httpMethod": {
+          "type": "keyword",
+          "index": false
+        },
+        "requestURI": {
+          "type": "keyword"
+        },
+        "httpBody": {
+          "type": "object",
+          "enabled": false
+        },
+        "ipAddress": {
+          "type": "ip",
+          "index": false
+        },
+        "statusCode": {
+          "type": "integer",
+          "index": false
+        },
+        "elapsedTime": {
+          "type": "integer"
+        }
+      }
+    }
+  }
+}

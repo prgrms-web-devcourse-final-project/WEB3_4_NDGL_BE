@@ -1,0 +1,42 @@
+{
+  "index_patterns": ["dev-error-service-exception-*"],
+  "template": {
+    "settings": {
+      "number_of_shards": 1,
+      "number_of_replicas": 1
+    },
+    "mappings": {
+      "properties": {
+        "@timestamp": {
+          "type": "date"
+        },
+        "logger_name": {
+          "type": "keyword",
+          "index": false
+        },
+        "thread_name": {
+          "type": "keyword",
+          "index": false
+        },
+
+        "stack_trace": {
+          "type": "text",
+          "index": false
+        },
+        "className": {
+          "type": "keyword"
+        },
+        "methodName": {
+          "type": "keyword"
+        },
+        "statusCode": {
+          "type": "integer"
+        },
+        "exceptionMessage": {
+          "type": "text",
+          "index": false
+        }
+      }
+    }
+  }
+}
