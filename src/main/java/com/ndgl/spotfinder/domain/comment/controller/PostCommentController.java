@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ndgl.spotfinder.domain.comment.dto.PostCommentResponseDto;
 import com.ndgl.spotfinder.domain.comment.dto.PostCommentRequestDto;
+import com.ndgl.spotfinder.domain.comment.dto.PostCommentResponseDto;
 import com.ndgl.spotfinder.domain.comment.service.PostCommentService;
 import com.ndgl.spotfinder.global.common.dto.SliceRequest;
 import com.ndgl.spotfinder.global.common.dto.SliceResponse;

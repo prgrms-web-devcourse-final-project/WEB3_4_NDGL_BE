@@ -14,7 +14,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @EnableRedisRepositories(basePackages = "com.ndgl.spotfinder.global.security.redis.repository")
 public class RedisConfig {
 	@Bean
-	public RedisTemplate<String, List<Long>> redisTemplate(RedisConnectionFactory connectionFactory) {
+	public RedisTemplate<String, List<Long>> postCachdRedisTemplate(RedisConnectionFactory connectionFactory) {
 		RedisTemplate<String, List<Long>> template = new RedisTemplate<>();
 
 		template.setConnectionFactory(connectionFactory);
