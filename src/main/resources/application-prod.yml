@@ -1,6 +1,6 @@
 app:
   cookie:
-    secure: false
+    secure: true
     sameSite: None
     domain:
     frontend-origin: https://www.ndgl.shop
