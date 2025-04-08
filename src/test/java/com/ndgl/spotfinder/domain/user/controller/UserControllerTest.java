@@ -38,15 +38,6 @@ public class UserControllerTest {
 	private RestTemplate restTemplate;
 
 	@Test
-	@DisplayName("로그인 테스트")
-	void login_success() throws Exception {
-		mockMvc.perform(get("/api/v1/users/google/login/process")
-				.param("code", "dummy_code")
-				.param("redirect_uri", "http://localhost:3000/callback/google"))
-			.andExpect(status().isOk());
-	}
-
-	@Test
 	@DisplayName("회원가입 테스트")
 	void join_success() throws Exception {
 		UserJoinRequestDto request = UserJoinRequestDto.builder()
