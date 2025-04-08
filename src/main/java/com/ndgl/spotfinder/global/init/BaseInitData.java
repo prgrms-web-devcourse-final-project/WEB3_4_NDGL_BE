@@ -63,6 +63,8 @@ public class BaseInitData {
 		createAndSaveUser("test1@example.com", "테스트유저1", "테스트블로그1");
 		createAndSaveUser("test2@example.com", "테스트유저2", "테스트블로그2");
 		createAndSaveUser("test3@example.com", "테스트유저3", "테스트블로그3");
+		createAndSaveUser("test4@example.com", "테스트유저4", "테스트블로그4");
+		createAndSaveUser("test5@example.com", "테스트유저5", "테스트블로그5");
 
 		log.debug("사용자 {} 명 생성 완료", userRepository.count());
 	}
@@ -106,7 +108,9 @@ public class BaseInitData {
 			{"남산타워", "서울특별시 용산구 남산공원길 105", "37.5511", "126.9882"},
 			{"한강공원", "서울특별시 영등포구 여의동로 330", "37.5284", "126.9336"},
 			{"북촌한옥마을", "서울특별시 종로구 계동길 37", "37.5825", "126.9856"},
-			{"인사동", "서울특별시 종로구 인사동길", "37.5749", "126.9839"}
+			{"인사동", "서울특별시 종로구 인사동길", "37.5749", "126.9839"},
+			{"롯데월드타워", "서울특별시 송파구 올림픽로 300", "37.5128", "127.1025"},
+			{"경희궁", "서울특별시 종로구 세종대로 161", "37.5712", "126.9751"}
 		};
 
 		// 해시태그 데이터
@@ -116,7 +120,7 @@ public class BaseInitData {
 			String theme = user.getNickName().equals("테스트유저1") ? "역사 탐방" :
 				user.getNickName().equals("테스트유저2") ? "맛집 탐방" : "자연 탐방";
 
-			for (int i = 1; i <= 2; i++) {
+			for (int i = 1; i <= 3; i++) {
 				Post post = Post.builder()
 					.title(user.getNickName() + "의 " + theme + " 코스 " + i)
 					.content(theme + "을 소개합니다. 서울의 아름다운 명소들을 방문해보세요.")
@@ -134,7 +138,7 @@ public class BaseInitData {
 				}
 
 				// 장소 추가 (사용자별 일관된 장소 선택)
-				// 사용자1: 0,1,2 / 사용자2: 1,2,3 / 사용자3: 2,3,4
+				// 사용자1: 0,1,2 / 사용자2: 1,2,3 / 사용자3: 2,3,4 / 사용자4: 3,4,5 / 사용자5: 4,5,6
 				int startIdx = Math.min(users.indexOf(user), places.length - 3);
 				for (int j = 0; j < 3; j++) {
 					int placeIdx = startIdx + j;
