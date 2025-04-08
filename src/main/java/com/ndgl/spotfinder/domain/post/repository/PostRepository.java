@@ -47,9 +47,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 		+ "OR LOWER(p.content) LIKE LOWER(CONCAT('%', :keyword, '%')) "
 		+ "OR LOWER(p.user.nickName) LIKE LOWER(CONCAT('%', :keyword, '%')) "
 		+ "OR EXISTS (SELECT h FROM p.hashtags h WHERE LOWER(h.name) LIKE LOWER(CONCAT('%', :keyword, '%')))) "
-		+ "AND p.id < :lastId "
 		+ "ORDER BY p.createdAt DESC")
-	Slice<Post> searchAll(String keyword, Long lastId, PageRequest pageRequest);
+	Slice<Post> searchAll(String keyword, PageRequest pageRequest);
 
 	List<Post> findByUser(User user);
 

@@ -2,6 +2,7 @@ package com.ndgl.spotfinder.domain.search.service;
 
 import java.time.Duration;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -54,37 +55,25 @@ public class PostSearchService {
 
 	@Transactional(readOnly = true)
 	public SliceResponse<PostResponseDto> searchPosts(SliceRequest request, String keyword) {
-		if (healthCheck.isElasticSearchUp()) {
-			return searchWithElasticsearch(request, keyword);
+		boolean esAvailable = healthCheck.isElasticSearchUp() && postSearchRepository != null;
+
+		if (esAvailable) {
+			return searchWith(SearchType.ELASTICSEARCH, request, keyword);
 		} else {
-			return searchWithJpa(request, keyword);
-		}
-	}
-
-	private SliceResponse<PostResponseDto> searchWithElasticsearch(SliceRequest request, String keyword) {
-		if (postSearchRepository == null) {
 			log.info("엘라스틱서치 서버 비활성화 - JPA 검색으로 대체");
-			return searchWithJpa(request, keyword);
+			return searchWith(SearchType.JPA, request, keyword);
 		}
-
-		String redisKey = "search:post:" + keyword;
-		List<Long> cachedIds = getCachedIds(redisKey);
-
-		if (cachedIds == null || cachedIds.isEmpty()) {
-			log.info("검색어 [{}]에 대한 캐시 없음 - Elasticsearch 검색 수행", keyword);
-			cachedIds = fetchAndCacheSearchResults(keyword, redisKey, SearchType.ELASTICSEARCH);
-		}
-
-		return sliceCachedResults(cachedIds, request);
 	}
 
-	private SliceResponse<PostResponseDto> searchWithJpa(SliceRequest request, String keyword) {
-		String redisKey = "searchJpa:post:" + keyword;
+	private SliceResponse<PostResponseDto> searchWith(SearchType type, SliceRequest request, String keyword) {
+		String prefix = type == SearchType.ELASTICSEARCH ? "search:post:" : "searchJpa:post:";
+		String redisKey = prefix + keyword;
+
 		List<Long> cachedIds = getCachedIds(redisKey);
 
 		if (cachedIds == null || cachedIds.isEmpty()) {
-			log.info("검색어 [{}]에 대한 캐시 없음 - JPA 검색 수행", keyword);
-			cachedIds = fetchAndCacheSearchResults(keyword, redisKey, SearchType.JPA);
+			log.info("검색어 [{}]에 대한 캐시 없음 - {} 검색 수행", keyword, type);
+			cachedIds = fetchAndCacheSearchResults(keyword, redisKey, type);
 		}
 
 		return sliceCachedResults(cachedIds, request);
@@ -114,9 +103,10 @@ public class PostSearchService {
 
 		} else { // JPA
 			PageRequest pageRequest = PageRequest.of(0, 1000);
-			Slice<Post> posts = postRepository.searchAll(keyword, Long.MAX_VALUE, pageRequest);
+			Slice<Post> posts = postRepository.searchAll(keyword, pageRequest);
 
 			ids = posts.getContent().stream()
+				.sorted(Comparator.comparing(Post::getId).reversed())
 				.map(Post::getId)
 				.toList();
 

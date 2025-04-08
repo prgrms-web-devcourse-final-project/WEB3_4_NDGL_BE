@@ -11,6 +11,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
@@ -89,7 +91,7 @@ public class PostSearchServiceTest {
 
 		when(healthCheck.isElasticSearchUp()).thenReturn(false);
 		when(postService.getLastPostId(any(SliceRequest.class))).thenReturn(lastId);
-		when(postRepository.searchAll(eq(keyword), eq(lastId), any(PageRequest.class)))
+		when(postRepository.searchAll(eq(keyword), any(PageRequest.class)))
 			.thenReturn(postSlice);
 
 		postSearchService = new PostSearchService(
@@ -108,6 +110,76 @@ public class PostSearchServiceTest {
 		assertEquals("별명1", result.contents().get(0).authorName());
 		assertFalse(result.hasNext());
 
-		verify(postRepository, times(1)).searchAll(eq(keyword), eq(lastId), any(PageRequest.class));
+		verify(postRepository, times(1)).searchAll(eq(keyword), any(PageRequest.class));
+	}
+
+	@Test
+	@DisplayName("Elasticsearch 기반 검색 수행")
+	void search_with_elasticsearch() {
+		// given
+		String keyword = "여행";
+		Long lastId = Long.MAX_VALUE;
+		int size = 2;
+
+		List<PostDocument> docs = List.of(doc1, doc2); // 2개의 문서 (id: 2, 3)
+		Page<PostDocument> esPage = new PageImpl<>(docs);
+
+		when(healthCheck.isElasticSearchUp()).thenReturn(true);
+		when(postSearchRepository.searchByKeyword(eq(keyword), any(PageRequest.class)))
+			.thenReturn(esPage);
+		when(postService.getLastPostId(any(SliceRequest.class))).thenReturn(lastId);
+		when(postRepository.findAllById(anyList())).thenReturn(
+			List.of(Post.builder().id(2L).title("맛집 추천").build(),
+				Post.builder().id(3L).title("여행 후기").build())
+		);
+
+		postSearchService = new PostSearchService(
+			postService, postRepository, healthCheck, postSearchRepository, redisTemplate
+		);
+
+		// when
+		SliceResponse<PostResponseDto> result = postSearchService.searchPosts(
+			new SliceRequest(lastId, size),
+			keyword
+		);
+
+		// then
+		assertEquals(2, result.contents().size());
+		assertEquals("맛집 추천", result.contents().get(0).title());
+		assertEquals("여행 후기", result.contents().get(1).title());
+		assertFalse(result.hasNext());
+	}
+
+	@Test
+	@DisplayName("Elasticsearch 사용 중 예외로 JPA 검색으로 fallback")
+	void search_elasticsearch_fallback_to_jpa() {
+		// given
+		String keyword = "맛";
+		Long lastId = Long.MAX_VALUE;
+		int size = 3;
+
+		when(healthCheck.isElasticSearchUp()).thenReturn(true);
+		when(postSearchRepository.searchByKeyword(eq(keyword), any(PageRequest.class)))
+			.thenThrow(new RuntimeException("Elasticsearch down"));
+		when(postService.getLastPostId(any(SliceRequest.class))).thenReturn(lastId);
+		when(postRepository.searchAll(eq(keyword), any(PageRequest.class)))
+			.thenReturn(new SliceImpl<>(List.of(samplePost), PageRequest.of(0, size + 1), false));
+
+		postSearchService = new PostSearchService(
+			postService, postRepository, healthCheck, postSearchRepository, redisTemplate
+		);
+
+		// when
+		SliceResponse<PostResponseDto> result = postSearchService.searchPosts(
+			new SliceRequest(lastId, size),
+			keyword
+		);
+
+		// then
+		assertEquals(1, result.contents().size());
+		assertEquals("제목1", result.contents().get(0).title());
+		assertFalse(result.hasNext());
+
+		verify(postRepository, times(1)).searchAll(eq(keyword), any(PageRequest.class));
 	}
 }
