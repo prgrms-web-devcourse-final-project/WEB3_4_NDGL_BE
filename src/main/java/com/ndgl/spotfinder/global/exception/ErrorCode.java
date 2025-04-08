@@ -63,6 +63,7 @@ public enum ErrorCode {
 
 	ALREADY_FOLLOWED(HttpStatus.CONFLICT, "이미 팔로우한 유저입니다."),
 	NOT_FOLLOWED(HttpStatus.NOT_FOUND, "팔로우한 유저가 아닙니다."),
+	FOLLOWER_EQUALS_FOLLOWEE(HttpStatus.BAD_REQUEST, "자기 자신은 팔로우, 언팔로우할 수 없습니다."),
 
 	SEARCH_FAIL(HttpStatus.BAD_REQUEST, "엘라스틱서치 검색에 실패했습니다.");
 

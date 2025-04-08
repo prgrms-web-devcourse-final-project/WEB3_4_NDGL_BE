@@ -22,6 +22,7 @@ public class FollowService {
 		User follower = userService.findUserByEmail(email);
 		User followee = userService.findUserById(followingId);
 
+		checkIfFollowerEqualsFollowee(follower, followee);
 		checkIfAlreadyFollowing(follower, followee);
 
 		Follow follow = Follow.builder()
@@ -37,8 +38,16 @@ public class FollowService {
 		User follower = userService.findUserByEmail(email);
 		User followee = userService.findUserById(unfollowingId);
 
+		checkIfFollowerEqualsFollowee(follower, followee);
 		checkIfNotFollowing(follower, followee);
+		
 		followRepository.deleteFollowByFollowerAndFollowee(follower, followee);
+	}
+
+	private void checkIfFollowerEqualsFollowee(User follower, User followee) {
+		if (follower.equals(followee)) {
+			ErrorCode.FOLLOWER_EQUALS_FOLLOWEE.throwServiceException();
+		}
 	}
 
 	private void checkIfAlreadyFollowing(User follower, User followee) {
