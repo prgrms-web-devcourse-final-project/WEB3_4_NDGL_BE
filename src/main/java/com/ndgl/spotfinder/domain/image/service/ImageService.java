@@ -13,7 +13,7 @@ import com.ndgl.spotfinder.domain.image.dto.PresignedUrlsResponseDto;
 import com.ndgl.spotfinder.domain.image.dto.UploadCompleteRequestDto;
 import com.ndgl.spotfinder.domain.image.entity.Image;
 import com.ndgl.spotfinder.domain.image.repository.ImageRepository;
-import com.ndgl.spotfinder.domain.image.type.ImageType;
+import com.ndgl.spotfinder.domain.image.type.ImageUsage;
 import com.ndgl.spotfinder.global.aws.s3.S3Service;
 import com.ndgl.spotfinder.global.exception.ErrorCode;
 import com.ndgl.spotfinder.global.util.Ut;
@@ -34,7 +34,7 @@ public class ImageService {
 	 */
 	public PresignedUrlsResponseDto createImage(ImageUrlRequestDto rq) {
 		try {
-			List<URL> urls = s3Service.generatePresignedUrls(rq.imageType(), rq.referenceId(), rq.imageExtensions());
+			List<URL> urls = s3Service.generatePresignedUrls(rq.imageUsage(), rq.referenceId(), rq.imageExtensions());
 			return new PresignedUrlsResponseDto(urls);
 		} catch (DataIntegrityViolationException e) {
 			throw ErrorCode.S3_OBJECT_UPLOAD_FAIL.throwServiceException();
@@ -49,9 +49,9 @@ public class ImageService {
 		if (Ut.list.hasValue(rq.imageUrl())) {
 			List<Image> images = rq.imageUrl().stream()
 				.map(url -> Image.builder()
-					.imageType(ImageType.POST)
+					.imageUsage(ImageUsage.POST)
 					.url(url)
-					.imageType(rq.imageType())
+					.imageUsage(rq.imageUsage())
 					.referenceId(rq.id())
 					.build())
 				.collect(Collectors.toList());
@@ -75,7 +75,8 @@ public class ImageService {
 	 * 해당 객체의 모든 이미지 삭제 (이미지 엔티티, S3 객체)
 	 */
 	@Transactional
-	public void deletePostWithAllImages(ImageType imageType, long referenceId) {
-		imageRepository.deleteAllByImageTypeAndReferenceId(imageType, referenceId);
+	public void deletePostWithAllImages(ImageUsage imageUsage, long referenceId) {
+		s3Service.deleteAllObjectsById(imageUsage, referenceId);
+		imageRepository.deleteAllByImageUsageAndReferenceId(imageUsage, referenceId);
 	}
 }

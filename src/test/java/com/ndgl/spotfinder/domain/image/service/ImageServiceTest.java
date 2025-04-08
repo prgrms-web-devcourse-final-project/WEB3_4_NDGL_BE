@@ -23,7 +23,7 @@ import com.ndgl.spotfinder.domain.image.dto.PresignedUrlsResponseDto;
 import com.ndgl.spotfinder.domain.image.dto.UploadCompleteRequestDto;
 import com.ndgl.spotfinder.domain.image.entity.Image;
 import com.ndgl.spotfinder.domain.image.repository.ImageRepository;
-import com.ndgl.spotfinder.domain.image.type.ImageType;
+import com.ndgl.spotfinder.domain.image.type.ImageUsage;
 import com.ndgl.spotfinder.global.aws.s3.S3Service;
 import com.ndgl.spotfinder.global.exception.ServiceException;
 import com.ndgl.spotfinder.global.util.Ut;
@@ -44,14 +44,14 @@ public class ImageServiceTest {
     // 테스트 이미지 데이터
     private final Image testImage1 = Image.builder()
             .id(1L)
-            .imageType(ImageType.POST)
+            .imageUsage(ImageUsage.POST)
             .referenceId(10L)
             .url("posts/10/image1.jpg")
             .build();
 
     private final Image testImage2 = Image.builder()
             .id(2L)
-            .imageType(ImageType.POST)
+            .imageUsage(ImageUsage.POST)
             .referenceId(10L)
             .url("posts/10/image2.jpg")
             .build();
@@ -62,14 +62,14 @@ public class ImageServiceTest {
         // given
         long postId = 10L;
         List<String> extensions = Arrays.asList("jpg", "png");
-        ImageUrlRequestDto request = new ImageUrlRequestDto(postId, ImageType.POST, extensions);
+        ImageUrlRequestDto request = new ImageUrlRequestDto(postId, ImageUsage.POST, extensions);
 
         List<URL> mockUrls = new ArrayList<>();
         mockUrls.add(new URL("https://example.com/image1.jpg"));
         mockUrls.add(new URL("https://example.com/image2.png"));
 
         // when
-        when(s3Service.generatePresignedUrls(ImageType.POST, postId, extensions))
+        when(s3Service.generatePresignedUrls(ImageUsage.POST, postId, extensions))
                 .thenReturn(mockUrls);
 
         PresignedUrlsResponseDto response = imageService.createImage(request);
@@ -77,7 +77,7 @@ public class ImageServiceTest {
         // then
         assertNotNull(response);
         assertEquals(2, response.presignedUrls().size());
-        verify(s3Service).generatePresignedUrls(ImageType.POST, postId, extensions);
+        verify(s3Service).generatePresignedUrls(ImageUsage.POST, postId, extensions);
     }
 
     @Test
@@ -86,10 +86,10 @@ public class ImageServiceTest {
         // given
         long postId = 10L;
         List<String> extensions = Arrays.asList("jpg", "png");
-        ImageUrlRequestDto request = new ImageUrlRequestDto(postId, ImageType.POST, extensions);
+        ImageUrlRequestDto request = new ImageUrlRequestDto(postId, ImageUsage.POST, extensions);
 
         // when
-        when(s3Service.generatePresignedUrls(ImageType.POST, postId, extensions))
+        when(s3Service.generatePresignedUrls(ImageUsage.POST, postId, extensions))
                 .thenThrow(new DataIntegrityViolationException("DB 제약조건 위반"));
 
         // then
@@ -105,7 +105,7 @@ public class ImageServiceTest {
             "posts/10/image1.jpg",
             "posts/10/image2.jpg"
         );
-        UploadCompleteRequestDto request = new UploadCompleteRequestDto(postId, ImageType.POST, imageUrls);
+        UploadCompleteRequestDto request = new UploadCompleteRequestDto(postId, ImageUsage.POST, imageUrls);
 
         // Ut.list.hasValue 모킹 - try-with-resources로 mockStatic 사용
         try (MockedStatic<Ut.list> mockedList = mockStatic(Ut.list.class)) {
@@ -125,7 +125,7 @@ public class ImageServiceTest {
         // given
         long postId = 10L;
         List<String> emptyUrls = new ArrayList<>();
-        UploadCompleteRequestDto request = new UploadCompleteRequestDto(postId, ImageType.POST, emptyUrls);
+        UploadCompleteRequestDto request = new UploadCompleteRequestDto(postId, ImageUsage.POST, emptyUrls);
 
         // Ut.list.hasValue 모킹 - try-with-resources로 mockStatic 사용
         try (MockedStatic<Ut.list> mockedList = mockStatic(Ut.list.class)) {
@@ -178,9 +178,9 @@ public class ImageServiceTest {
         long postId = 10L;
 
         // when
-        imageService.deletePostWithAllImages(ImageType.POST, postId);
+        imageService.deletePostWithAllImages(ImageUsage.POST, postId);
 
         // then
-        verify(imageRepository).deleteAllByImageTypeAndReferenceId(ImageType.POST, postId);
+        verify(imageRepository).deleteAllByImageUsageAndReferenceId(ImageUsage.POST, postId);
     }
 }

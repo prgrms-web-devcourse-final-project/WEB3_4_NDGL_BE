@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.ndgl.spotfinder.domain.image.service.ImageCleanupService;
 import com.ndgl.spotfinder.domain.image.service.ImageService;
-import com.ndgl.spotfinder.domain.image.type.ImageType;
+import com.ndgl.spotfinder.domain.image.type.ImageUsage;
 import com.ndgl.spotfinder.domain.post.dto.PostCommonUpdateRequestDto;
 import com.ndgl.spotfinder.domain.post.dto.PostCreateRequestDto;
 import com.ndgl.spotfinder.domain.post.dto.PostDetailResponseDto;
@@ -50,7 +50,7 @@ public class PostService {
 		postRepository.save(post);
 
 		Set<String> usedImageUrls = extractImageUrlsFromContent(post.getContent());
-		imageCleanupService.cleanupUnusedImages(ImageType.POST, post.getId(), usedImageUrls);
+		imageCleanupService.cleanupUnusedImages(ImageUsage.POST, post.getId(), usedImageUrls);
 	}
 
 	@Transactional
@@ -74,7 +74,7 @@ public class PostService {
 		postRepository.save(requestDto.toUpdatedPost(post, temp));
 
 		Set<String> usedImageUrls = extractImageUrlsFromContent(post.getContent());
-		imageCleanupService.cleanupUnusedImages(ImageType.POST, post.getId(), usedImageUrls);
+		imageCleanupService.cleanupUnusedImages(ImageUsage.POST, post.getId(), usedImageUrls);
 	}
 
 	@Transactional
@@ -82,7 +82,7 @@ public class PostService {
 		Post post = findPostById(id);
 		checkUserPermission(post, email);
 		postRepository.delete(post);
-		imageService.deletePostWithAllImages(ImageType.POST, post.getId());
+		imageService.deletePostWithAllImages(ImageUsage.POST, post.getId());
 	}
 
 	@Transactional(readOnly = true)
@@ -175,7 +175,7 @@ public class PostService {
 	/**
 	 * 컨텐츠에서 이미지 URL을 추출하는 헬퍼 메서드
 	 */
-	private Set<String> extractImageUrlsFromContent(String content) {
+	public Set<String> extractImageUrlsFromContent(String content) {
 		Set<String> urls = new HashSet<>();
 
 		Pattern markdownPattern = Pattern.compile("!\\[\\]\\((https?://[^\\)]+)\\)");

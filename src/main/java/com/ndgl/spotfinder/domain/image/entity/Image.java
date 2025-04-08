@@ -1,6 +1,6 @@
 package com.ndgl.spotfinder.domain.image.entity;
 
-import com.ndgl.spotfinder.domain.image.type.ImageType;
+import com.ndgl.spotfinder.domain.image.type.ImageUsage;
 import com.ndgl.spotfinder.global.base.BaseTime;
 
 import jakarta.persistence.Column;
@@ -32,7 +32,7 @@ public class Image extends BaseTime {
 
 	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
-	private ImageType imageType;
+	private ImageUsage imageUsage;
 
 	@Column(nullable = false)
 	private long referenceId;

@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.ndgl.spotfinder.domain.image.entity.Image;
 import com.ndgl.spotfinder.domain.image.repository.ImageRepository;
-import com.ndgl.spotfinder.domain.image.type.ImageType;
+import com.ndgl.spotfinder.domain.image.type.ImageUsage;
 import com.ndgl.spotfinder.global.aws.s3.S3Service;
 
 import lombok.RequiredArgsConstructor;
@@ -27,15 +27,15 @@ public class ImageCleanupService {
 	/**
 	 * 포스트 내용에서 사용되지 않는 이미지를 비동기적으로 삭제
 	 *
-	 * @param imageType     이미지 타입 (POST 등)
+	 * @param imageUsage     이미지 타입 (POST 등)
 	 * @param referenceId   참조 ID (포스트 ID 등)
 	 * @param usedImageUrls 컨텐츠에서 실제 사용 중인 이미지 URL 목록
 	 */
 	@Async("imageCleanupExecutor")
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	public void cleanupUnusedImages(ImageType imageType, long referenceId, Set<String> usedImageUrls) {
+	public void cleanupUnusedImages(ImageUsage imageUsage, long referenceId, Set<String> usedImageUrls) {
 		try {
-			List<Image> savedImages = imageRepository.findByImageTypeAndReferenceId(imageType, referenceId);
+			List<Image> savedImages = imageRepository.findByImageUsageAndReferenceId(imageUsage, referenceId);
 
 			List<Image> unusedImages = savedImages.stream()
 				.filter(image -> !usedImageUrls.contains(image.getUrl()))

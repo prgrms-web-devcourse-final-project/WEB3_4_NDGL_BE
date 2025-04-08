@@ -8,7 +8,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.ndgl.spotfinder.domain.image.type.ImageType;
+import com.ndgl.spotfinder.domain.image.type.ImageUsage;
 import com.ndgl.spotfinder.global.exception.ErrorCode;
 import com.ndgl.spotfinder.global.util.Ut;
 
@@ -23,7 +23,6 @@ import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 import software.amazon.awssdk.services.s3.model.S3Object;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
-import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 
 @Service
@@ -42,18 +41,18 @@ public class S3Service {
 	/**
 	 * 여러 파일에 대한 업로드용 Presigned URL 목록 생성
 	 *
-	 * @param imageType      이미지 유형
+	 * @param imageUsage      이미지 유형
 	 * @param id             이미지와 연관된 객체 ID
 	 * @param fileExtensions 파일 확장자 목록 (jpg, png 등)
 	 * @return 생성된 Presigned URL 목록
 	 */
-	public List<URL> generatePresignedUrls(ImageType imageType, long id, List<String> fileExtensions) {
+	public List<URL> generatePresignedUrls(ImageUsage imageUsage, long id, List<String> fileExtensions) {
 		if (!Ut.list.hasValue(fileExtensions))
 			return List.of();
 
 		try {
 			return fileExtensions.stream()
-				.map(fileExtension -> generatePresignedUrl(imageType, id, fileExtension))
+				.map(fileExtension -> generatePresignedUrl(imageUsage, id, fileExtension))
 				.toList();
 		} catch (SdkException e) {
 			throw ErrorCode.S3_PRESIGNED_GENERATION_FAIL.throwS3Exception(e);
@@ -63,13 +62,13 @@ public class S3Service {
 	/**
 	 * 단일 파일에 대한 업로드용 Presigned URL 생성
 	 *
-	 * @param imageType     이미지 유형 (POST, PROFILE 등)
+	 * @param imageUsage     이미지 유형 (POST, PROFILE 등)
 	 * @param id            이미지와 연관된 객체 ID (게시글 ID 등)
 	 * @param fileExtension 파일 확장자 (jpg, png 등)
 	 * @return 생성된 Presigned URL
 	 */
-	public URL generatePresignedUrl(ImageType imageType, long id, String fileExtension) {
-		String key = S3Util.buildS3Key(imageType, id, fileExtension);
+	public URL generatePresignedUrl(ImageUsage imageUsage, long id, String fileExtension) {
+		String key = S3Util.buildS3Key(imageUsage, id, fileExtension);
 
 		try {
 			PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(builder -> builder
@@ -161,12 +160,12 @@ public class S3Service {
 	/**
 	 * S3의 폴더의 모든 Object 들 삭제
 	 *
-	 * @param imageType 타입
+	 * @param imageUsage 타입
 	 * @param id        ID
 	 */
-	public void deleteAllObjectsById(ImageType imageType, long id) {
+	public void deleteAllObjectsById(ImageUsage imageUsage, long id) {
 		// folderPath 로 변환
-		String folderPath = S3Util.getFolderPath(imageType, id);
+		String folderPath = S3Util.getFolderPath(imageUsage, id);
 
 		try {
 			// 폴더 내 모든 객체 목록 조회

@@ -22,7 +22,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import com.ndgl.spotfinder.domain.image.entity.Image;
 import com.ndgl.spotfinder.domain.image.repository.ImageRepository;
-import com.ndgl.spotfinder.domain.image.type.ImageType;
+import com.ndgl.spotfinder.domain.image.type.ImageUsage;
 import com.ndgl.spotfinder.global.aws.s3.S3Service;
 
 @SpringBootTest
@@ -47,21 +47,21 @@ public class ImageCleanupServiceTest {
     void setUp() {
         Image image1 = Image.builder()
             .id(1L)
-            .imageType(ImageType.POST)
+            .imageUsage(ImageUsage.POST)
             .referenceId(100L)
             .url("https://example.com/image1.jpg")
             .build();
 
         Image image2 = Image.builder()
             .id(2L)
-            .imageType(ImageType.POST)
+            .imageUsage(ImageUsage.POST)
             .referenceId(100L)
             .url("https://example.com/image2.jpg")
             .build();
 
         Image image3 = Image.builder()
             .id(3L)
-            .imageType(ImageType.POST)
+            .imageUsage(ImageUsage.POST)
             .referenceId(100L)
             .url("https://example.com/image3.jpg")
             .build();
@@ -69,14 +69,14 @@ public class ImageCleanupServiceTest {
         mockImages = Arrays.asList(image1, image2, image3);
 
         // Mock 설정
-        when(imageRepository.findByImageTypeAndReferenceId(ImageType.POST, 100L))
+        when(imageRepository.findByImageUsageAndReferenceId(ImageUsage.POST, 100L))
                 .thenReturn(mockImages);
     }
 
     @Test
     public void testAsyncImageCleanupExecution() {
         // Given
-        ImageType imageType = ImageType.POST;
+        ImageUsage imageUsage = ImageUsage.POST;
         long referenceId = 100L;
         
         // 사용 중인 이미지 URL (image1만 사용 중)
@@ -96,7 +96,7 @@ public class ImageCleanupServiceTest {
 
         // When
         System.out.println("메인 스레드: " + Thread.currentThread().getName());
-        imageCleanupService.cleanupUnusedImages(imageType, referenceId, usedImageUrls);
+        imageCleanupService.cleanupUnusedImages(imageUsage, referenceId, usedImageUrls);
         System.out.println("비동기 메서드 호출 직후 - 메인 스레드는 계속 진행");
 
         // Then
@@ -124,7 +124,7 @@ public class ImageCleanupServiceTest {
     @Test
     public void testAsyncImageCleanupWithException() {
         // Given
-        ImageType imageType = ImageType.POST;
+        ImageUsage imageUsage = ImageUsage.POST;
         long referenceId = 100L;
         Set<String> usedImageUrls = new HashSet<>();
         
@@ -132,7 +132,7 @@ public class ImageCleanupServiceTest {
         doThrow(new RuntimeException("S3 오류 시뮬레이션")).when(s3Service).deleteFile(anyString());
         
         // When (예외가 발생해도 비동기 메서드는 예외를 잡아서 처리)
-        imageCleanupService.cleanupUnusedImages(imageType, referenceId, usedImageUrls);
+        imageCleanupService.cleanupUnusedImages(imageUsage, referenceId, usedImageUrls);
         
         // Then (메인 스레드는 계속 진행되고, 예외는 로그만 남김)
         await().atMost(5, TimeUnit.SECONDS).untilAsserted(() -> {

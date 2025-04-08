@@ -2,7 +2,7 @@ package com.ndgl.spotfinder.global.aws.s3;
 
 import java.util.UUID;
 
-import com.ndgl.spotfinder.domain.image.type.ImageType;
+import com.ndgl.spotfinder.domain.image.type.ImageUsage;
 
 public class S3Util {
 
@@ -14,16 +14,16 @@ public class S3Util {
 		return null;
 	}
 
-	public static String buildS3Key(ImageType imageType, long id, String fileType) {
+	public static String buildS3Key(ImageUsage imageUsage, long id, String fileType) {
 		String fileName = UUID.randomUUID() + "." + fileType;
 
-		return switch (imageType) {
-			case POST -> imageType.name() + "/" + id + "/" + fileName;
+		return switch (imageUsage) {
+			case POST -> imageUsage.name() + "/" + id + "/" + fileName;
 		};
 	}
 
-	public static String getFolderPath(ImageType imageType, long id) {
-		String type = imageType.name();
+	public static String getFolderPath(ImageUsage imageUsage, long id) {
+		String type = imageUsage.name();
 		return type + "/" + id + "/";
 	}
 

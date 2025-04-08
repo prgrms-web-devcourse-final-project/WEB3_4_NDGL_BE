@@ -2,7 +2,7 @@ package com.ndgl.spotfinder.domain.image.dto;
 
 import java.util.List;
 
-import com.ndgl.spotfinder.domain.image.type.ImageType;
+import com.ndgl.spotfinder.domain.image.type.ImageUsage;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
@@ -19,7 +19,7 @@ public record UploadCompleteRequestDto(
 
 	@Schema(description = "이미지 참조 타입", example = "POST")
 	@NotNull(message = "imageType은 필수입니다.")
-	ImageType imageType,
+	ImageUsage imageUsage,
 
 	@Schema(
 		description = "업로드된 이미지 URL 목록",

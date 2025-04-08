@@ -1,5 +1,5 @@
 package com.ndgl.spotfinder.domain.image.type;
 
-public enum ImageType {
+public enum ImageUsage {
     POST
 }
