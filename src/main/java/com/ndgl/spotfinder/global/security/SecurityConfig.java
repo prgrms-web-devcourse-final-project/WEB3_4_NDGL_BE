@@ -146,7 +146,9 @@ public class SecurityConfig {
 
         // CORS 설정을 특정 경로에 적용
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
+        source.registerCorsConfiguration("/api/**", configuration);
+
+        System.out.println("corsConfigurationSource 설정됨!");
 
         return source;
     }

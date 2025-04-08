@@ -14,12 +14,12 @@ import java.util.Arrays;
 public class HomeController {
     private final TokenCookieUtil tokenCookieUtil;
 
-    @GetMapping("/")
+    @GetMapping("/api")
     String showMain() {
         return "Hello, NDGL!";
     }
 
-    @GetMapping("/test-set-cookie")
+    @GetMapping("/api/test-set-cookie")
     String testSetCookie(HttpServletResponse response) {
         String accessToken = "abc";
         tokenCookieUtil.setTokenCookies(response, accessToken);
@@ -27,7 +27,7 @@ public class HomeController {
         return "쿠키 : accessToken=%s".formatted(accessToken);
     }
 
-    @GetMapping("/test-get-cookie")
+    @GetMapping("/api/test-get-cookie")
     String testGetCookie(HttpServletRequest request) {
         if (request.getCookies() == null) return "";
 
