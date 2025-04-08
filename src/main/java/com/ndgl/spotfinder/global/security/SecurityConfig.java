@@ -58,6 +58,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/",
+                                "/test-set-cookie",
+                                "/test-get-cookie",
                                 "/api/v1/users/join",
                                 "/login/callback",
                                 "oauth2/**",
