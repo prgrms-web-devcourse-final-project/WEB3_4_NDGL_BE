@@ -62,7 +62,9 @@ public enum ErrorCode {
 	UNREADABLE_REQUEST_PAYLOAD(HttpStatus.BAD_REQUEST, "요청 데이터 파싱을 실패하였습니다."),
 
 	ALREADY_FOLLOWED(HttpStatus.CONFLICT, "이미 팔로우한 유저입니다."),
-	NOT_FOLLOWED(HttpStatus.NOT_FOUND, "팔로우한 유저가 아닙니다.");
+	NOT_FOLLOWED(HttpStatus.NOT_FOUND, "팔로우한 유저가 아닙니다."),
+
+	SEARCH_FAIL(HttpStatus.BAD_REQUEST, "엘라스틱서치 검색에 실패했습니다.");
 
 	private final HttpStatus httpStatus;
 	private final String message;
