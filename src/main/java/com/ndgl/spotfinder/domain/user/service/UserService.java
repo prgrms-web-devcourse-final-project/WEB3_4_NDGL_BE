@@ -38,9 +38,12 @@ public class UserService {
 	private final TokenCookieUtil tokenCookieUtil;
 	private final RefreshTokenService refreshTokenService;
 
+	private static final int FIRST_PAGE_NUMBER = 0;
+	private static final Long FIRST_USER_FIND_ID = 0L;
+
 	public Slice<User> findUsers(SliceRequest sliceRequest) {
-		PageRequest pageRequest = PageRequest.of(0, sliceRequest.size());
-		Long lastId = sliceRequest.lastId() == null ? 0 : sliceRequest.lastId();
+		PageRequest pageRequest = PageRequest.of(FIRST_PAGE_NUMBER, sliceRequest.size());
+		Long lastId = sliceRequest.lastId() == null ? FIRST_USER_FIND_ID : sliceRequest.lastId();
 
 		return userRepository.findAllByIdGreaterThan(lastId, pageRequest);
 	}
