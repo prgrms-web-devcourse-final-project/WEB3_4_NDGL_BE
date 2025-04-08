@@ -11,13 +11,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ndgl.spotfinder.domain.post.dto.PostCreateRequestDto;
 import com.ndgl.spotfinder.domain.post.dto.PostDetailResponseDto;
 import com.ndgl.spotfinder.domain.post.dto.PostResponseDto;
 import com.ndgl.spotfinder.domain.post.dto.PostTempResponse;
+import com.ndgl.spotfinder.domain.post.dto.PostTempUpdateRequestDto;
 import com.ndgl.spotfinder.domain.post.dto.PostUpdateRequestDto;
 import com.ndgl.spotfinder.domain.post.service.PostService;
 import com.ndgl.spotfinder.global.common.dto.SliceRequest;
@@ -33,7 +33,7 @@ import lombok.RequiredArgsConstructor;
 public class PostController implements PostApiSpecification {
 	private final PostService postService;
 
-	@PostMapping("/save-temp")
+	@PostMapping("/temp")
 	public RsData<PostTempResponse> createTempPost(Principal principal) {
 		PostTempResponse response = postService.findOrCreateTempPost(principal.getName());
 		return RsData.success(HttpStatus.OK, response);
@@ -49,14 +49,20 @@ public class PostController implements PostApiSpecification {
 		return RsData.success(HttpStatus.OK);
 	}
 
+	@PutMapping("/temp/{id}")
+	public RsData<String> updateTempPost(Long id, PostTempUpdateRequestDto requestDto, Principal principal) {
+		postService.updatePost(id, requestDto, principal.getName(), true);
+
+		return RsData.success(HttpStatus.OK);
+	}
+
 	@PutMapping("/{id}")
 	public RsData<Void> updatePost(
 		@PathVariable Long id,
 		@RequestBody @Valid PostUpdateRequestDto postUpdateRequestDto,
-		@RequestParam(required = false, defaultValue = "false") boolean temp,
 		Principal principal
 	) {
-		postService.updatePost(id, postUpdateRequestDto, principal.getName(), temp);
+		postService.updatePost(id, postUpdateRequestDto, principal.getName(), false);
 
 		return RsData.success(HttpStatus.OK);
 	}

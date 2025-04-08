@@ -15,11 +15,11 @@ import org.springframework.transaction.annotation.Transactional;
 import com.ndgl.spotfinder.domain.image.service.ImageCleanupService;
 import com.ndgl.spotfinder.domain.image.service.ImageService;
 import com.ndgl.spotfinder.domain.image.type.ImageType;
+import com.ndgl.spotfinder.domain.post.dto.PostCommonUpdateRequestDto;
 import com.ndgl.spotfinder.domain.post.dto.PostCreateRequestDto;
 import com.ndgl.spotfinder.domain.post.dto.PostDetailResponseDto;
 import com.ndgl.spotfinder.domain.post.dto.PostResponseDto;
 import com.ndgl.spotfinder.domain.post.dto.PostTempResponse;
-import com.ndgl.spotfinder.domain.post.dto.PostUpdateRequestDto;
 import com.ndgl.spotfinder.domain.post.entity.Post;
 import com.ndgl.spotfinder.domain.post.entity.PostStatus;
 import com.ndgl.spotfinder.domain.post.repository.PostRepository;
@@ -68,7 +68,7 @@ public class PostService {
 	}
 
 	@Transactional
-	public void updatePost(Long id, PostUpdateRequestDto requestDto, String email, boolean temp) {
+	public void updatePost(Long id, PostCommonUpdateRequestDto requestDto, String email, boolean temp) {
 		Post post = findPostById(id);
 
 		checkUserPermission(post, email);

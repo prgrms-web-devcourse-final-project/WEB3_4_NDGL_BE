@@ -5,6 +5,7 @@ import static org.mockito.Mockito.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,10 +22,12 @@ import com.ndgl.spotfinder.domain.image.service.ImageService;
 import com.ndgl.spotfinder.domain.post.dto.HashtagDto;
 import com.ndgl.spotfinder.domain.post.dto.LocationDto;
 import com.ndgl.spotfinder.domain.post.dto.PostCreateRequestDto;
+import com.ndgl.spotfinder.domain.post.dto.PostTempResponse;
 import com.ndgl.spotfinder.domain.post.dto.PostUpdateRequestDto;
 import com.ndgl.spotfinder.domain.post.entity.Hashtag;
 import com.ndgl.spotfinder.domain.post.entity.Location;
 import com.ndgl.spotfinder.domain.post.entity.Post;
+import com.ndgl.spotfinder.domain.post.entity.PostStatus;
 import com.ndgl.spotfinder.domain.post.repository.PostRepository;
 import com.ndgl.spotfinder.domain.post.service.PostService;
 import com.ndgl.spotfinder.domain.user.entity.User;
@@ -249,4 +252,104 @@ public class PostServiceTest {
 			() -> postService.deletePost(1L, "이메일2"));
 		assertEquals(HttpStatus.FORBIDDEN, exception.getCode());
 	}
+
+	@Test
+	public void findOrCreateTempPost_findExistingTemp() {
+		// given
+		Post tempPost = Post.builder()
+			.id(3L)
+			.title("임시제목")
+			.content("임시내용")
+			.user(user1)
+			.status(PostStatus.TEMP)
+			.build();
+
+		// when
+		when(userService.findUserByEmail("이메일1")).thenReturn(user1);
+		when(postRepository.findFirstByUserAndStatus(user1, PostStatus.TEMP))
+			.thenReturn(Optional.of(tempPost));
+
+		PostTempResponse response = postService.findOrCreateTempPost("이메일1");
+
+		// then
+		assertEquals(3L, response.id());
+		assertEquals("임시제목", response.title());
+		assertEquals("임시내용", response.content());
+		verify(postRepository, never()).save(any(Post.class));
+	}
+
+	@Test
+	public void findOrCreateTempPost_createNewTemp() {
+		// given
+		Post newTempPost = Post.createTempPost(user1);
+		ReflectionTestUtils.setField(newTempPost, "id", 3L);
+
+		// when
+		when(userService.findUserByEmail("이메일1")).thenReturn(user1);
+		when(postRepository.findFirstByUserAndStatus(user1, PostStatus.TEMP))
+			.thenReturn(Optional.empty());
+		when(postRepository.save(any(Post.class))).thenReturn(newTempPost);
+
+		PostTempResponse response = postService.findOrCreateTempPost("이메일1");
+
+		// then
+		assertEquals(3L, response.id());
+		verify(postRepository, times(1)).save(any(Post.class));
+	}
+
+	@Test
+	public void updatePost_withTempStatus() {
+		// given
+		HashtagDto hashtagDto = new HashtagDto("태그2");
+		LocationDto locationDto = new LocationDto(
+			"장소2",
+			"주소2",
+			35.5,
+			126.5,
+			1
+		);
+		PostUpdateRequestDto requestDto = new PostUpdateRequestDto(
+			"임시제목",
+			"임시내용",
+			List.of(hashtagDto),
+			List.of(locationDto),
+			""
+		);
+
+		// when
+		when(userService.findUserByEmail("이메일1")).thenReturn(user1);
+		when(postRepository.findById(1L)).thenReturn(Optional.of(samplePost));
+		postService.updatePost(1L, requestDto, "이메일1", true);
+
+		// then
+		verify(postRepository, times(1)).save(any());
+
+		ArgumentCaptor<Post> postCaptor = ArgumentCaptor.forClass(Post.class);
+		verify(postRepository).save(postCaptor.capture());
+
+		Post savedPost = postCaptor.getValue();
+		assertEquals("임시제목", savedPost.getTitle());
+		assertEquals("임시내용", savedPost.getContent());
+		assertEquals(PostStatus.TEMP, savedPost.getStatus());
+	}
+
+	@Test
+	public void extractImageUrlsFromContent_success() throws Exception {
+		// 비공개 메서드 테스트를 위해 리플렉션 사용
+		String content = "이미지 테스트 ![](https://example.com/image1.jpg) 추가 이미지 ![](https://example.com/image2.png)";
+
+		// extractImageUrlsFromContent 메서드에 접근
+		java.lang.reflect.Method method = PostService.class.getDeclaredMethod("extractImageUrlsFromContent",
+			String.class);
+		method.setAccessible(true);
+
+		@SuppressWarnings("unchecked")
+		Set<String> urls = (Set<String>)method.invoke(postService, content);
+
+		// then
+		assertEquals(2, urls.size());
+		assertTrue(urls.contains("https://example.com/image1.jpg"));
+		assertTrue(urls.contains("https://example.com/image2.png"));
+	}
+
 }

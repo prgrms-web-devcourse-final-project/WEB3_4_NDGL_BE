@@ -3,12 +3,12 @@ package com.ndgl.spotfinder.domain.post.controller;
 import java.security.Principal;
 
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import com.ndgl.spotfinder.domain.post.dto.PostCreateRequestDto;
 import com.ndgl.spotfinder.domain.post.dto.PostDetailResponseDto;
 import com.ndgl.spotfinder.domain.post.dto.PostResponseDto;
 import com.ndgl.spotfinder.domain.post.dto.PostTempResponse;
+import com.ndgl.spotfinder.domain.post.dto.PostTempUpdateRequestDto;
 import com.ndgl.spotfinder.domain.post.dto.PostUpdateRequestDto;
 import com.ndgl.spotfinder.global.common.dto.SliceRequest;
 import com.ndgl.spotfinder.global.common.dto.SliceResponse;
@@ -37,6 +37,21 @@ public interface PostApiSpecification {
 	public RsData<PostTempResponse> createTempPost(Principal principal);
 
 	@Operation(
+		summary = "포스트 임시 저장",
+		responses = {
+			@ApiResponse(responseCode = "200", description = "성공", content = @Content(
+				mediaType = "application/json",
+				examples = @ExampleObject("{\"code\": 200, \"message\": \"OK\"}")
+			))
+		}
+	)
+	RsData<String> updateTempPost(
+		@Parameter(description = "게시물의 ID") Long id,
+		PostTempUpdateRequestDto postTempUpdateRequestDto,
+		@Parameter(hidden = true) Principal principal
+	);
+
+	@Operation(
 		summary = "포스트 수정",
 		responses = {
 			@ApiResponse(responseCode = "200", description = "성공", content = @Content(
@@ -48,7 +63,6 @@ public interface PostApiSpecification {
 	RsData<Void> updatePost(
 		@Parameter(description = "게시물의 ID") Long id,
 		PostUpdateRequestDto postUpdateRequestDto,
-		@RequestParam(required = false, defaultValue = "false") boolean temp,
 		@Parameter(hidden = true) Principal principal
 	);
 
