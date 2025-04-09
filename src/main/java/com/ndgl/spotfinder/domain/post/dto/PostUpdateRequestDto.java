@@ -2,10 +2,6 @@ package com.ndgl.spotfinder.domain.post.dto;
 
 import java.util.List;
 
-import com.ndgl.spotfinder.domain.post.entity.Hashtag;
-import com.ndgl.spotfinder.domain.post.entity.Location;
-import com.ndgl.spotfinder.domain.post.entity.Post;
-
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -32,24 +28,5 @@ public record PostUpdateRequestDto(
 
 	@NotNull(message = "썸네일 이미지는 필수입니다.")
 	String thumbnail
-) {
-	public Post toUpdatedPost(Post post) {
-		post.setTitle(title);
-		post.setContent(content);
-		post.setThumbnail(thumbnail);
-
-		List<Hashtag> newHashtags = hashtags
-			.stream()
-			.map(HashtagDto::toHashtag)
-			.toList();
-		post.updateHashtags(newHashtags);
-
-		List<Location> newLocations = locations
-			.stream()
-			.map(LocationDto::toLocation)
-			.toList();
-		post.updateLocations(newLocations);
-
-		return post;
-	}
+) implements PostCommonUpdateRequestDto {
 }

@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 
 @Getter
 @AllArgsConstructor
@@ -42,6 +43,17 @@ public enum ErrorCode {
 	EMPTY_COMMENT_REPORT_SLICE(HttpStatus.NOT_FOUND, "조회된 댓글 신고 데이터가 없습니다."),
 	INVALID_BAN_DURATION(HttpStatus.BAD_REQUEST, "유효하지 않은 제재 일자 옵션입니다."),
 
+	// S3
+	S3_PRESIGNED_GENERATION_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "Presigned URL 생성 실패"),
+	S3_OBJECT_DELETE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "S3 객체 삭제 실패"),
+	S3_OBJECT_ACCESS_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "S3 객체 조회 실패"),
+	S3_OBJECT_UPLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "S3 업로드 실패"),
+	S3_INVALID_URL(HttpStatus.INTERNAL_SERVER_ERROR, "옳지 않은 URL"),
+
+	// IMAGE
+	UNSUPPORTED_IMAGE_TYPE(HttpStatus.NOT_FOUND, "지원하지 않는 이미지 유형입니다."),
+	IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 이미지가 존재하지 않습니다."),
+
 	MISSING_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "Refresh Token 이 유효하지 않습니다."),
 	EXPIRED_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "Refresh Token 이 만료되었습니다."),
 	MISSING_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "Access Token 이 유효하지 않습니다."),
@@ -57,6 +69,10 @@ public enum ErrorCode {
 
 	public ServiceException throwServiceException() {
 		throw new ServiceException(httpStatus, message);
+	}
+
+	public S3Exception throwS3Exception(Throwable cause) {
+		throw new CustomS3Exception(httpStatus, message, cause);
 	}
 
 	public ServiceException throwServiceException(Throwable cause) {

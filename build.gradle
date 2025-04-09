@@ -70,6 +70,9 @@ dependencies {
 
     //elasticSearch
     implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch:3.0.0'
+
+    // 비동기 테스트
+    testImplementation 'org.awaitility:awaitility:4.2.0'
 }
 
 tasks.named('test') {

@@ -1,4 +1,4 @@
-package com.ndgl.spotfinder.global.init;
+package com.ndgl.spotfinder.global.initData;
 
 import java.util.List;
 import java.util.Random;
@@ -18,6 +18,7 @@ import com.ndgl.spotfinder.domain.like.repository.LikeRepository;
 import com.ndgl.spotfinder.domain.post.entity.Hashtag;
 import com.ndgl.spotfinder.domain.post.entity.Location;
 import com.ndgl.spotfinder.domain.post.entity.Post;
+import com.ndgl.spotfinder.domain.post.entity.PostStatus;
 import com.ndgl.spotfinder.domain.post.repository.PostRepository;
 import com.ndgl.spotfinder.domain.user.entity.Oauth;
 import com.ndgl.spotfinder.domain.user.entity.Provider;
@@ -31,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
-@Profile("dev") // 로컬, 개발 환경에서만 실행
+@Profile("dev")
 public class BaseInitData {
 
 	private final UserRepository userRepository;
@@ -124,12 +125,14 @@ public class BaseInitData {
 
 			for (int i = 1; i <= 2; i++) {
 				Post post = Post.builder()
-					.title(user.getNickName() + "의 " + theme + " 코스 " + i)
+					// .title(user.getNickName() + "의 " + theme + " 코스 " + i)
+					.title("임시글")
 					.content(theme + "을 소개합니다. 서울의 아름다운 명소들을 방문해보세요.")
 					.user(user)
-					.thumbnail("https://example.com/" + user.getId() + "_thumbnail" + i + ".jpg")
+					// .thumbnail("https://example.com/" + user.getId() + "_thumbnail" + i + ".jpg")
 					.viewCount((long)(i * 10)) // 조회수 설정
 					.likeCount(0L)
+					.status(PostStatus.PUBLIC)
 					.build();
 
 				for (String tag : tags) {

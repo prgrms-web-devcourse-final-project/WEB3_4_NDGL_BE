@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ndgl.spotfinder.domain.post.dto.PostCreateRequestDto;
 import com.ndgl.spotfinder.domain.post.dto.PostDetailResponseDto;
 import com.ndgl.spotfinder.domain.post.dto.PostResponseDto;
+import com.ndgl.spotfinder.domain.post.dto.PostTempResponseDto;
+import com.ndgl.spotfinder.domain.post.dto.PostTempUpdateRequestDto;
 import com.ndgl.spotfinder.domain.post.dto.PostUpdateRequestDto;
 import com.ndgl.spotfinder.domain.post.service.PostService;
 import com.ndgl.spotfinder.global.common.dto.SliceRequest;
@@ -31,6 +33,12 @@ import lombok.RequiredArgsConstructor;
 public class PostController implements PostApiSpecification {
 	private final PostService postService;
 
+	@PostMapping("/temp")
+	public RsData<PostTempResponseDto> createTempPost(Principal principal) {
+		PostTempResponseDto response = postService.findOrCreateTempPost(principal.getName());
+		return RsData.success(HttpStatus.OK, response);
+	}
+
 	@PostMapping
 	public RsData<Void> createPost(
 		@RequestBody @Valid PostCreateRequestDto postCreateRequestDto,
@@ -41,13 +49,23 @@ public class PostController implements PostApiSpecification {
 		return RsData.success(HttpStatus.OK);
 	}
 
+	@PutMapping("/temp/{id}")
+	public RsData<String> updateTempPost(
+		@PathVariable Long id,
+		@RequestBody @Valid PostTempUpdateRequestDto requestDto,
+		Principal principal) {
+		postService.updatePost(id, requestDto, principal.getName(), true);
+
+		return RsData.success(HttpStatus.OK);
+	}
+
 	@PutMapping("/{id}")
 	public RsData<Void> updatePost(
 		@PathVariable Long id,
 		@RequestBody @Valid PostUpdateRequestDto postUpdateRequestDto,
 		Principal principal
 	) {
-		postService.updatePost(id, postUpdateRequestDto, principal.getName());
+		postService.updatePost(id, postUpdateRequestDto, principal.getName(), false);
 
 		return RsData.success(HttpStatus.OK);
 	}

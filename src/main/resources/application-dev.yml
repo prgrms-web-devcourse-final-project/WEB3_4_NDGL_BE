@@ -3,10 +3,11 @@ app:
     secure: true
     sameSite: None
     domain:
-    frontend-origin: https://localhost:3000
+    frontend-origin: https://www.ndgl.shop
 
-server:
-  port: 8080
+auth:
+  header:
+    prefix: Bearer
 
 spring:
   config:
@@ -14,17 +15,21 @@ spring:
       optional:file:.env[.properties]
   datasource:
     url: jdbc:h2:./db_dev;MODE=MySQL
+    driver-class-name: org.h2.Driver
     username: sa
     password:
-    driver-class-name: org.h2.Driver
+    hikari:
+      auto-commit: false
 
   jpa:
+    show-sql: true
     hibernate:
-      ddl-auto: update
-    show-sql: false
+      ddl-auto: create-drop
     properties:
       hibernate:
-        format_sql: false
+        default_batch_fetch_size: 100
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
 
   h2:
     console:
@@ -46,17 +51,27 @@ spring:
           google:
             authorization-uri: https://accounts.google.com/o/oauth2/auth
             token-uri: https://oauth2.googleapis.com/token
-            #user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
-            user-info-uri: https://www.googleapis.com/oauth2/v2/userinfo
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
             user-name-attribute: sub
   data:
     redis:
       host: localhost
       port: 6379
 
-jwt:
-  secret:
-    key: ${JWT_SECRET_KEY}
+    profiles:
+      active: oauth
+
+  logging:
+    level:
+      root: INFO
+      org.hibernate.SQL: ERROR
+      org.hibernate.orm.jdbc.bind: ERROR
+      org.hibernate.orm.jdbc.extract: ERROR
+      org.springframework.data.redis: INFO
+
+  jwt:
+    secret:
+      key: ${JWT_SECRET_KEY}
 
   expiration:
     time: ${JWT_VALIDATION_TIME}
@@ -67,21 +82,21 @@ jwt:
   auth:
     key: ${AUTHORIZATION_KEY}
 
-aes:
-  secret:
-    key: ${AES_SECRET_KEY}
+  aes:
+    secret:
+      key: ${AES_SECRET_KEY}
 
-auth:
-  header:
-    prefix: Bearer
+  springdoc:
+    default-produces-media-type: application/json;charset=UTF-8
 
-springdoc:
-  default-produces-media-type: application/json;charset=UTF-8
+  cloud:
+    aws:
+      s3:
+        bucket: ${AWS_BUCKET_NAME}
+      credentials:
+        access-key: ${AWS_ACCESS_KEY_ID}
+        secret-key: ${AWS_SECRET_ACCESS_KEY}
+      region:
+        static: ${AWS_REGION}
 
-logging:
-  level:
-    com.ndgl.spotfinder: DEBUG
-    org.hibernate.SQL: DEBUG
-    org.hibernate.orm.jdbc.bind: TRACE
-    org.hibernate.orm.jdbc.extract: TRACE
-    org.springframework.transaction.interceptor: TRACE
+
