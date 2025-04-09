@@ -39,9 +39,12 @@ public record PostDetailResponseDto(
 	List<HashtagDto> hashtags,
 
 	@Schema(description = "장소 목록")
-	List<LocationDto> locations
+	List<LocationDto> locations,
+
+	@Schema(description = "좋아요 여부", example = "false")
+	Boolean isLiked
 ) {
-	public PostDetailResponseDto(Post post) {
+	public PostDetailResponseDto(Post post, Boolean isLiked) {
 		this(
 			post.getId(),
 			post.getTitle(),
@@ -59,7 +62,8 @@ public record PostDetailResponseDto(
 			post.getLocations()
 				.stream()
 				.map(LocationDto::new)
-				.toList()
+				.toList(),
+			isLiked
 		);
 	}
 }

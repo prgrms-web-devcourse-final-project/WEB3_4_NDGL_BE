@@ -97,7 +97,8 @@ public class PostController implements PostApiSpecification {
 		@AuthenticationPrincipal CustomUserDetails customUserDetails,
 		@PathVariable Long id
 	) {
-		PostDetailResponseDto result = postService.getPost(id);
+		long userId = customUserDetails.getUser().getId();
+		PostDetailResponseDto result = postService.getPost(userId, id);
 
 		return RsData.success(HttpStatus.OK, result);
 	}

@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.ndgl.spotfinder.domain.image.service.ImageCleanupService;
 import com.ndgl.spotfinder.domain.image.service.ImageService;
 import com.ndgl.spotfinder.domain.image.type.ImageUsage;
+import com.ndgl.spotfinder.domain.like.entity.Like;
 import com.ndgl.spotfinder.domain.like.service.LikeService;
 import com.ndgl.spotfinder.domain.post.dto.PostCommonUpdateRequestDto;
 import com.ndgl.spotfinder.domain.post.dto.PostCreateRequestDto;
@@ -117,10 +118,11 @@ public class PostService {
 	}
 
 	@Transactional(readOnly = true)
-	public PostDetailResponseDto getPost(Long id) {
+	public PostDetailResponseDto getPost(Long userId, Long id) {
 		Post post = findPostById(id);
+		Boolean isLiked = likeService.getLikeStatus(userId, id, Like.TargetType.POST);
 
-		return new PostDetailResponseDto(post);
+		return new PostDetailResponseDto(post, isLiked);
 	}
 
 	@Transactional(readOnly = true)
