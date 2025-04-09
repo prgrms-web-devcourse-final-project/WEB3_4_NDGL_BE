@@ -17,22 +17,13 @@ jobs:
 
     env:
       SPRING_PROFILES_ACTIVE: test
-      JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
-      JWT_VALIDATION_TIME: ${{ secrets.JWT_VALIDATION_TIME }}
-      JWT_REFRESH_VALIDATION_TIME: ${{ secrets.JWT_REFRESH_VALIDATION_TIME }}
-      AUTHORIZATION_KEY: ${{ secrets.AUTHORIZATION_KEY }}
-      AES_SECRET_KEY: ${{ secrets.AES_SECRET_KEY }}
-
-      SPRING_SECURITY_GOOGLE_CLIENT_ID: ${{ secrets.SPRING_SECURITY_GOOGLE_CLIENT_ID }}
-      SPRING_SECURITY_GOOGLE_CLIENT_SECRET: ${{ secrets.SPRING_SECURITY_GOOGLE_CLIENT_SECRET }}
-      SPRING_SECURITY_GOOGLE_REDIRECT_URI: ${{ secrets.SPRING_SECURITY_GOOGLE_REDIRECT_URI }}
-
-      AWS_BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_REGION: ${{ secrets.AWS_REGION }}
 
     steps:
+      - name: application-secret.yml 생성
+        env:
+          APPLICATION_SECRET: ${{ secrets.APPLICATION_SECRET_YML }}
+        run: echo "$APPLICATION_SECRET" > src/main/resources/application-secret.yml
+
       - name: Checkout code
         uses: actions/checkout@v3
 
