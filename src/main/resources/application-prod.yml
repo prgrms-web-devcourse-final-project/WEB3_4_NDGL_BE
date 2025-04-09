@@ -22,6 +22,15 @@ spring:
       host: redis_1
       port: 6379
 
+    elasticsearch:
+      repositories:
+        enabled: true
+
+  elasticsearch:
+    uris: http://localhost:9200
+    ssl:
+      verification-mode: none
+
 logging:
   level:
     com.ndgl.spotfinder: INFO
