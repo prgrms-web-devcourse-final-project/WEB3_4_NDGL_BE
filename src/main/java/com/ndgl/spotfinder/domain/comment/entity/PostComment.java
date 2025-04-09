@@ -61,6 +61,7 @@ public class PostComment extends BaseTime {
 	@JoinColumn(name = "parent_id")
 	private PostComment parentComment;
 
+	@Builder.Default
 	@OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<PostComment> childrenComments = new ArrayList<>();
 
