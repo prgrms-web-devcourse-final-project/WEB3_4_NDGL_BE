@@ -51,6 +51,16 @@ spring:
       host: redis_1
       port: 6379
 
+  cloud:
+    aws:
+      s3:
+        bucket: ${AWS_BUCKET_NAME}
+      credentials:
+        access-key: ${AWS_ACCESS_KEY_ID}
+        secret-key: ${AWS_SECRET_ACCESS_KEY}
+      region:
+        static: ${AWS_REGION}
+
 jwt:
   secret:
     key: ${JWT_SECRET_KEY}
