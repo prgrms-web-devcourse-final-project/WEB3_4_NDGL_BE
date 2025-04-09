@@ -3,6 +3,7 @@ package com.ndgl.spotfinder.global.elk;
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -16,6 +17,7 @@ import co.elastic.clients.transport.ElasticsearchTransport;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
 
 @Configuration
+@ConditionalOnProperty(name = "spring.elasticsearch.uris", matchIfMissing = false)
 public class ElasticSearchConfig {
 	@Value("${spring.elasticsearch.uris}")
 	private String elasticsearchUri;
