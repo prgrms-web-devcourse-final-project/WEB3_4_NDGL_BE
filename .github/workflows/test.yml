@@ -24,7 +24,7 @@ jobs:
           APPLICATION_SECRET: ${{ secrets.APPLICATION_SECRET_YML }}
         run: |
           mkdir -p src/main/resources
-          echo "$APPLICATION_SECRET_" > src/main/resources/application-secret.yml
+          echo "$APPLICATION_SECRET" > src/main/resources/application-secret.yml
 
       - name: Checkout code
         uses: actions/checkout@v3
