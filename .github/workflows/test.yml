@@ -31,8 +31,7 @@ jobs:
       - name: application-secret.yml 생성
         env:
           APPLICATION_SECRET: ${{ secrets.APPLICATION_SECRET_YML }}
-        run: |
-          mkdir -p src/main/resources
+        run: |          
           echo "$APPLICATION_SECRET" > src/main/resources/application-secret.yml
 
       - name: Grant execute permission for gradlew
