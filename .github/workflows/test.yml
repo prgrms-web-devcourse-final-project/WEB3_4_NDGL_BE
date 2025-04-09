@@ -19,13 +19,6 @@ jobs:
       SPRING_PROFILES_ACTIVE: test
 
     steps:
-      - name: application-secret.yml 생성
-        env:
-          APPLICATION_SECRET: ${{ secrets.APPLICATION_SECRET_YML }}
-        run: |
-          mkdir -p src/main/resources
-          echo "$APPLICATION_SECRET_" > src/main/resources/application-secret.yml
-
       - name: Checkout code
         uses: actions/checkout@v3
 
@@ -34,6 +27,12 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
+
+      - name: application-secret.yml 생성
+        env:
+          APPLICATION_SECRET: ${{ secrets.APPLICATION_SECRET_YML }}
+        run: |          
+          echo "$APPLICATION_SECRET" > src/main/resources/application-secret.yml
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
