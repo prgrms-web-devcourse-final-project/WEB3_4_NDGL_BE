@@ -3,6 +3,7 @@ package com.ndgl.spotfinder.domain.like.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,7 +24,7 @@ public class LikeController implements LikeApiSpecification {
 	/**
 	 * 댓글 좋아요
 	 */
-	@Override
+	@PostMapping("/comments/{commentId}")
 	public RsData<Boolean> toggleCommentLike(
 		@AuthenticationPrincipal CustomUserDetails customUserDetails,
 		@PathVariable Integer commentId
@@ -36,6 +37,7 @@ public class LikeController implements LikeApiSpecification {
 	/**
 	 * 포스트 좋아요
 	 */
+	@PostMapping("/posts/{postId}")
 	public RsData<Boolean> togglePostLike(
 		@AuthenticationPrincipal CustomUserDetails customUserDetails,
 		@PathVariable Integer postId
