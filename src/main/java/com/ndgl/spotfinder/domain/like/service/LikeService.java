@@ -27,10 +27,12 @@ public class LikeService {
 
 	/**
 	 * 좋아요 추가 또는 삭제
+	 *
+	 * @return true: 좋아요 추가됨, false: 좋아요 취소됨
 	 */
 	@Transactional
 	public boolean toggleLike(long userId, long targetId, TargetType targetType) {
-		validateTargetId(targetId);
+		validateLikeTarget(targetId, targetType);
 
 		return likeRepository.findByUserIdAndTargetIdAndTargetType(userId, targetId, targetType)
 			.map(like -> {
@@ -44,29 +46,22 @@ public class LikeService {
 	}
 
 	/**
-	 * 타겟 ID의 유효성을 검증
-	 */
-	private void validateTargetId(long targetId) {
-		if (targetId <= 0) {
-			ErrorCode.UNSUPPORTED_TARGET_TYPE.throwServiceException();
-		}
-	}
-
-	/**
 	 * 대상의 좋아요 수 조회
 	 */
 	@Transactional(readOnly = true)
 	public Long getLikeCount(long targetId, TargetType targetType) {
-		validateTargetId(targetId);
+		validateLikeTarget(targetId, targetType);
 		return likeRepository.countByTargetIdAndTargetType(targetId, targetType);
 	}
 
 	/**
-	 * 사용자가 특정 대상에 좋아요를 눌렀는지 상태 조회
+	 * 특정 대상에 대해 사용자가 좋아요를 눌렀는지 여부를 확인합니다.
+	 *
+	 * @return true - 좋아요를 눌렀음, false - 좋아요를 누르지 않음
 	 */
 	@Transactional(readOnly = true)
 	public Boolean getLikeStatus(long userId, long targetId, TargetType targetType) {
-		validateTargetId(targetId);
+		validateLikeTarget(targetId, targetType);
 		return likeRepository.existsByUserIdAndTargetIdAndTargetType(userId, targetId, targetType);
 	}
 
@@ -75,8 +70,23 @@ public class LikeService {
 	 */
 	@Transactional
 	public void deleteAllLikes(long targetId, TargetType targetType) {
-		validateTargetId(targetId);
+		validateLikeTarget(targetId, targetType);
 		likeRepository.deleteByTargetIdAndTargetType(targetId, targetType);
+	}
+
+	/**
+	 * 좋아요 대상 유효성 검증
+	 */
+	private void validateLikeTarget(long targetId, TargetType targetType) {
+		if (targetId <= 0) {
+			ErrorCode.INVALID_TARGET_ID.throwServiceException();
+		}
+
+		switch (targetType) {
+			case POST -> postService.existsById(targetId);
+			case COMMENT -> postCommentService.existsById(targetId);
+			default -> ErrorCode.UNSUPPORTED_TARGET_TYPE.throwServiceException();
+		}
 	}
 
 	/**

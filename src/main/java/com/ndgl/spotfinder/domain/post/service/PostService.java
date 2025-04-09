@@ -160,6 +160,13 @@ public class PostService {
 		}
 	}
 
+	@Transactional(readOnly = true)
+	public void existsById(long postId) {
+		if (!postRepository.existsById(postId)) {
+			ErrorCode.POST_NOT_FOUND.throwServiceException();
+		}
+	}
+
 	private void checkUserPermission(Post post, String email) {
 		if (!post.getUser().getEmail().equals(email)) {
 			ErrorCode.POST_ACCESS_DENIED.throwServiceException();

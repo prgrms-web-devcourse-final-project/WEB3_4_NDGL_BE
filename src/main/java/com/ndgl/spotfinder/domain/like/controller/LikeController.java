@@ -22,7 +22,7 @@ public class LikeController implements LikeApiSpecification {
 	private final LikeService likeService;
 
 	/**
-	 * 댓글 좋아요
+	 * 댓글 좋아요 토글
 	 */
 	@PostMapping("/comments/{commentId}")
 	public RsData<Boolean> toggleCommentLike(
@@ -35,7 +35,7 @@ public class LikeController implements LikeApiSpecification {
 	}
 
 	/**
-	 * 포스트 좋아요
+	 * 포스트 좋아요 토글
 	 */
 	@PostMapping("/posts/{postId}")
 	public RsData<Boolean> togglePostLike(
