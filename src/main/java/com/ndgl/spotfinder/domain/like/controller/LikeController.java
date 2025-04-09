@@ -15,8 +15,8 @@ import com.ndgl.spotfinder.global.security.jwt.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/v1/like")
 @RequiredArgsConstructor
+@RequestMapping("/api/v1/like")
 public class LikeController implements LikeApiSpecification {
 
 	private final LikeService likeService;

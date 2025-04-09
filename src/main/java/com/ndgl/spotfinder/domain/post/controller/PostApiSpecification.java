@@ -2,6 +2,7 @@ package com.ndgl.spotfinder.domain.post.controller;
 
 import java.security.Principal;
 
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import com.ndgl.spotfinder.domain.post.dto.PostCreateRequestDto;
@@ -13,6 +14,7 @@ import com.ndgl.spotfinder.domain.post.dto.PostUpdateRequestDto;
 import com.ndgl.spotfinder.global.common.dto.SliceRequest;
 import com.ndgl.spotfinder.global.common.dto.SliceResponse;
 import com.ndgl.spotfinder.global.rsdata.RsData;
+import com.ndgl.spotfinder.global.security.jwt.CustomUserDetails;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -88,11 +90,13 @@ public interface PostApiSpecification {
 		description = "요청한 사이즈만큼 최신순으로 조회"
 	)
 	RsData<SliceResponse<PostResponseDto>> getPosts(
+		@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
 		SliceRequest sliceRequest
 	);
 
 	@Operation(summary = "포스트 1건 조회")
 	RsData<PostDetailResponseDto> getPost(
+		@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
 		@Parameter(description = "게시물의 ID") Long id
 	);
 
@@ -101,18 +105,23 @@ public interface PostApiSpecification {
 		description = "요청한 사이즈만큼 최신순으로 조회"
 	)
 	RsData<SliceResponse<PostResponseDto>> getPostsByUserId(
+		@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
 		@Parameter(description = "사용자의 ID") Long userId,
 		SliceRequest sliceRequest
 	);
 
-	@Operation(summary = "사용자가 좋아요한 포스트 목록 조회")
+	@Operation(
+		summary = "사용자가 좋아요한 포스트 목록 조회"
+	)
 	RsData<SliceResponse<PostResponseDto>> getPostsByLike(
+		@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
 		SliceRequest sliceRequest,
 		@Parameter(hidden = true) Principal principal
 	);
 
 	@Operation(summary = "사용자가 팔로우한 블로그의 포스트 목록 조회")
 	RsData<SliceResponse<PostResponseDto>> getPostsByFollow(
+		@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
 		SliceRequest sliceRequest,
 		@Parameter(hidden = true) Principal principal
 	);

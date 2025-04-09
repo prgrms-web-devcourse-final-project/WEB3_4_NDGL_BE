@@ -3,6 +3,7 @@ package com.ndgl.spotfinder.domain.post.controller;
 import java.security.Principal;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -23,6 +24,7 @@ import com.ndgl.spotfinder.domain.post.service.PostService;
 import com.ndgl.spotfinder.global.common.dto.SliceRequest;
 import com.ndgl.spotfinder.global.common.dto.SliceResponse;
 import com.ndgl.spotfinder.global.rsdata.RsData;
+import com.ndgl.spotfinder.global.security.jwt.CustomUserDetails;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -81,14 +83,20 @@ public class PostController implements PostApiSpecification {
 	}
 
 	@GetMapping
-	public RsData<SliceResponse<PostResponseDto>> getPosts(@ModelAttribute @Valid SliceRequest sliceRequest) {
+	public RsData<SliceResponse<PostResponseDto>> getPosts(
+		@AuthenticationPrincipal CustomUserDetails customUserDetails,
+		@ModelAttribute @Valid SliceRequest sliceRequest
+	) {
 		SliceResponse<PostResponseDto> results = postService.getPosts(sliceRequest);
 
 		return RsData.success(HttpStatus.OK, results);
 	}
 
 	@GetMapping("/{id}")
-	public RsData<PostDetailResponseDto> getPost(@PathVariable Long id) {
+	public RsData<PostDetailResponseDto> getPost(
+		@AuthenticationPrincipal CustomUserDetails customUserDetails,
+		@PathVariable Long id
+	) {
 		PostDetailResponseDto result = postService.getPost(id);
 
 		return RsData.success(HttpStatus.OK, result);
@@ -96,6 +104,7 @@ public class PostController implements PostApiSpecification {
 
 	@GetMapping("/users/{userId}")
 	public RsData<SliceResponse<PostResponseDto>> getPostsByUserId(
+		@AuthenticationPrincipal CustomUserDetails customUserDetails,
 		@PathVariable Long userId,
 		@ModelAttribute @Valid SliceRequest sliceRequest
 	) {
@@ -106,6 +115,7 @@ public class PostController implements PostApiSpecification {
 
 	@GetMapping("/like")
 	public RsData<SliceResponse<PostResponseDto>> getPostsByLike(
+		@AuthenticationPrincipal CustomUserDetails customUserDetails,
 		@ModelAttribute @Valid SliceRequest sliceRequest,
 		Principal principal
 	) {
@@ -116,6 +126,7 @@ public class PostController implements PostApiSpecification {
 
 	@GetMapping("/follow")
 	public RsData<SliceResponse<PostResponseDto>> getPostsByFollow(
+		@AuthenticationPrincipal CustomUserDetails customUserDetails,
 		@ModelAttribute @Valid SliceRequest sliceRequest,
 		Principal principal
 	) {
