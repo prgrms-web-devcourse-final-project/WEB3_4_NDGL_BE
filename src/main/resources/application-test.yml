@@ -28,6 +28,11 @@ spring:
       host: localhost
       port: 6379
 
+  elasticsearch:
+    uris: http://localhost:9200
+    ssl:
+      verification-mode: none
+
 logging:
   level:
     com.ndgl.spotfinder: DEBUG
