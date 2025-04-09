@@ -19,7 +19,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(indexes = @Index(name = "idx_reference", columnList = "referenceId, imageUsage"))
+@Table(indexes = @Index(name = "idx_reference", columnList = "reference_id, image_usage"))
 @Getter
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
