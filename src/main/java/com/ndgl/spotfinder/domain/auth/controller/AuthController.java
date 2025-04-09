@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,7 +20,9 @@ import com.ndgl.spotfinder.global.security.jwt.TokenProvider;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/auth")
 public class AuthController {
@@ -52,8 +55,10 @@ public class AuthController {
 	@PostMapping("/token/refresh")
 	RsData<String> refreshAccessToken(
 		HttpServletResponse response,
-		@RequestParam("email") String email
+		@RequestBody Map<String, String> body
 	) {
+		String email = body.get("email");
+
 		try {
 			// 대상 유저의 email 정보를 가지고 redis에 refreshToken이 있나 확인
 			authService.getRefreshTokenFromRedis(email);
