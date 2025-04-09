@@ -82,11 +82,6 @@ public class LikeService {
 			ErrorCode.INVALID_TARGET_ID.throwServiceException();
 		}
 
-		switch (targetType) {
-			case POST -> postService.existsById(targetId);
-			case COMMENT -> postCommentService.existsById(targetId);
-			default -> ErrorCode.UNSUPPORTED_TARGET_TYPE.throwServiceException();
-		}
 	}
 
 	/**
@@ -122,7 +117,7 @@ public class LikeService {
 				post.updateLikeCount(delta);
 			}
 			case COMMENT -> {
-				PostComment comment = postCommentService.findById(targetId);
+				PostComment comment = postCommentService.findCommentById(targetId);
 				comment.updateLikeCount(delta);
 			}
 			default -> ErrorCode.UNSUPPORTED_TARGET_TYPE.throwServiceException();

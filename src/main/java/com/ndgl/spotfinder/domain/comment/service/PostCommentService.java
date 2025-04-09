@@ -98,4 +98,5 @@ public class PostCommentService {
 		comment.checkAuthorCanModify(author);
 		comment.setContent(content);
 	}
+
 }
