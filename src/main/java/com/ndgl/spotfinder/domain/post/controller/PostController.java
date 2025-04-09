@@ -87,7 +87,8 @@ public class PostController implements PostApiSpecification {
 		@AuthenticationPrincipal CustomUserDetails customUserDetails,
 		@ModelAttribute @Valid SliceRequest sliceRequest
 	) {
-		SliceResponse<PostResponseDto> results = postService.getPosts(sliceRequest);
+		long userId = customUserDetails.getUser().getId();
+		SliceResponse<PostResponseDto> results = postService.getPosts(userId, sliceRequest);
 
 		return RsData.success(HttpStatus.OK, results);
 	}
@@ -105,7 +106,6 @@ public class PostController implements PostApiSpecification {
 
 	@GetMapping("/users/{userId}")
 	public RsData<SliceResponse<PostResponseDto>> getPostsByUserId(
-		@AuthenticationPrincipal CustomUserDetails customUserDetails,
 		@PathVariable Long userId,
 		@ModelAttribute @Valid SliceRequest sliceRequest
 	) {
@@ -116,7 +116,6 @@ public class PostController implements PostApiSpecification {
 
 	@GetMapping("/like")
 	public RsData<SliceResponse<PostResponseDto>> getPostsByLike(
-		@AuthenticationPrincipal CustomUserDetails customUserDetails,
 		@ModelAttribute @Valid SliceRequest sliceRequest,
 		Principal principal
 	) {
@@ -127,7 +126,6 @@ public class PostController implements PostApiSpecification {
 
 	@GetMapping("/follow")
 	public RsData<SliceResponse<PostResponseDto>> getPostsByFollow(
-		@AuthenticationPrincipal CustomUserDetails customUserDetails,
 		@ModelAttribute @Valid SliceRequest sliceRequest,
 		Principal principal
 	) {

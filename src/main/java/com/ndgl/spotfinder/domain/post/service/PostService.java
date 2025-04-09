@@ -53,8 +53,7 @@ public class PostService {
 		Post post = requestDto.toPost(user);
 		postRepository.save(post);
 
-		Set<String> usedImageUrls = extractImageUrlsFromContent(post.getContent());
-		imageCleanupService.cleanupUnusedImages(ImageUsage.POST, post.getId(), usedImageUrls);
+		cleanupImages(post);
 	}
 
 	@Transactional
@@ -77,8 +76,7 @@ public class PostService {
 		checkUserPermission(post, email);
 		postRepository.save(requestDto.toUpdatedPost(post, temp));
 
-		Set<String> usedImageUrls = extractImageUrlsFromContent(post.getContent());
-		imageCleanupService.cleanupUnusedImages(ImageUsage.POST, post.getId(), usedImageUrls);
+		cleanupImages(post);
 	}
 
 	@Transactional
@@ -90,13 +88,13 @@ public class PostService {
 	}
 
 	@Transactional(readOnly = true)
-	public SliceResponse<PostResponseDto> getPosts(SliceRequest sliceRequest) {
+	public SliceResponse<PostResponseDto> getPosts(Long userId, SliceRequest sliceRequest) {
 		PageRequest pageRequest = PageRequest.of(FIRST_PAGE_NUMBER, sliceRequest.size());
 		Long lastId = getLastPostId(sliceRequest);
 
 		Slice<Post> results = postRepository.findByIdLessThanOrderByCreatedAtDesc(lastId, pageRequest);
 
-		return convertToSliceResponse(results);
+		return convertToSliceResponse(userId, results);
 	}
 
 	@Transactional(readOnly = true)
@@ -107,7 +105,7 @@ public class PostService {
 
 		Slice<Post> results = postRepository.findByUserAndIdLessThanOrderByCreatedAtDesc(user, lastId, pageRequest);
 
-		return convertToSliceResponse(results);
+		return convertToSliceResponse(userId, results);
 	}
 
 	@Transactional(readOnly = true)
@@ -133,7 +131,7 @@ public class PostService {
 
 		Slice<Post> results = postRepository.findLikedPostsByUser(user.getId(), lastId, pageRequest);
 
-		return convertToSliceResponse(results);
+		return convertToSliceResponse(user.getId(), results);
 	}
 
 	@Transactional(readOnly = true)
@@ -144,7 +142,7 @@ public class PostService {
 
 		Slice<Post> results = postRepository.findFollowedPostsByUser(user.getId(), lastId, pageRequest);
 
-		return convertToSliceResponse(results);
+		return convertToSliceResponse(user.getId(), results);
 	}
 
 	@Transactional(readOnly = true)
@@ -170,25 +168,26 @@ public class PostService {
 		}
 	}
 
-	private SliceResponse<PostResponseDto> convertToSliceResponse(Slice<Post> results) {
+	private void cleanupImages(Post post) {
+		Set<String> usedImageUrls = extractImageUrlsFromContent(post.getContent());
+		imageCleanupService.cleanupUnusedImages(ImageUsage.POST, post.getId(), usedImageUrls);
+	}
+
+	private SliceResponse<PostResponseDto> convertToSliceResponse(long userId, Slice<Post> results) {
 		return new SliceResponse<>(
-			results.map(PostResponseDto::new).toList(),
+			results.map(post ->
+				new PostResponseDto(post, likeService.getLikeStatus(userId, post.getId(), Like.TargetType.POST)
+				)).toList(),
 			results.hasNext()
 		);
 	}
 
-	/**
-	 * 컨텐츠에서 이미지 URL을 추출하는 헬퍼 메서드
-	 */
 	public Set<String> extractImageUrlsFromContent(String content) {
 		Set<String> urls = new HashSet<>();
-
-		Pattern markdownPattern = Pattern.compile("!\\[\\]\\((https?://[^\\)]+)\\)");
-		Matcher markdownMatcher = markdownPattern.matcher(content);
+		Matcher markdownMatcher = Pattern.compile("!\\[\\]\\((https?://[^\\)]+)\\)").matcher(content);
 		while (markdownMatcher.find()) {
 			urls.add(markdownMatcher.group(1));
 		}
-
 		return urls;
 	}
 }

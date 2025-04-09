@@ -110,7 +110,6 @@ public interface PostApiSpecification {
 		security = {@SecurityRequirement(name = "JWT")}
 	)
 	RsData<SliceResponse<PostResponseDto>> getPostsByUserId(
-		@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
 		@Parameter(description = "사용자의 ID") Long userId,
 		SliceRequest sliceRequest
 	);
@@ -120,7 +119,6 @@ public interface PostApiSpecification {
 		security = {@SecurityRequirement(name = "JWT")}
 	)
 	RsData<SliceResponse<PostResponseDto>> getPostsByLike(
-		@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
 		SliceRequest sliceRequest,
 		@Parameter(hidden = true) Principal principal
 	);
@@ -130,7 +128,6 @@ public interface PostApiSpecification {
 		security = {@SecurityRequirement(name = "JWT")}
 	)
 	RsData<SliceResponse<PostResponseDto>> getPostsByFollow(
-		@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
 		SliceRequest sliceRequest,
 		@Parameter(hidden = true) Principal principal
 	);

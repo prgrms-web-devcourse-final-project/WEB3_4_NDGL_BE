@@ -63,18 +63,22 @@ public record PostResponseDto(
 		);
 	}
 
-	public PostResponseDto withIsLiked(Boolean isLiked) {
-		return new PostResponseDto(
-			this.id,
-			this.title,
-			this.content,
-			this.authorId,
-			this.authorName,
-			this.thumbnail,
-			this.likeCount,
-			this.commentCount,
-			this.createdAt,
-			this.hashtags,
+	public PostResponseDto(Post post, Boolean isLiked) {
+		this(
+			post.getId(),
+			post.getTitle(),
+			post.getContent(),
+			post.getUser().getId(),
+			post.getUser().getNickName(),
+			post.getThumbnail(),
+			post.getLikeCount(),
+			post.getComments().size(),
+			post.getCreatedAt(),
+			post.getHashtags()
+				.stream()
+				.limit(POST_LIST_HASHTAG_COUNT)
+				.map(HashtagDto::new)
+				.toList(),
 			isLiked
 		);
 	}
