@@ -7,10 +7,12 @@ import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ndgl.spotfinder.domain.auth.service.AuthService;
 import com.ndgl.spotfinder.global.exception.ErrorCode;
+import com.ndgl.spotfinder.global.exception.ServiceException;
 import com.ndgl.spotfinder.global.rsdata.RsData;
 import com.ndgl.spotfinder.global.security.jwt.TokenProvider;
 
@@ -35,51 +37,34 @@ public class AuthController {
 		@CookieValue(value = "accessToken", required = false) String accessToken
 	) {
 		if (accessToken == null) {
-			ErrorCode.MISSING_ACCESS_TOKEN.throwServiceException();
+			return RsData.success(HttpStatus.OK, Map.of("isLoggedIn", false));
 		}
 
 		boolean isValid = authService.tokenStatusCheck(accessToken);
 
 		if (!isValid) {
-			ErrorCode.EXPIRED_ACCESS_TOKEN.throwServiceException();
+			return RsData.success(HttpStatus.OK, Map.of("isLoggedIn", false));
 		}
 
 		return RsData.success(HttpStatus.OK, Map.of("isLoggedIn", true));
-
 	}
 
 	@PostMapping("/token/refresh")
 	RsData<String> refreshAccessToken(
-		HttpServletRequest request,
-		HttpServletResponse response
+		HttpServletResponse response,
+		@RequestParam("email") String email
 	) {
-		String accessToken = extractAccessTokenFromCookies(request);
+		try {
+			// 대상 유저의 email 정보를 가지고 redis에 refreshToken이 있나 확인
+			authService.getRefreshTokenFromRedis(email);
 
-		//  accessToken 유무 확인
-		if (accessToken == null) {
-			ErrorCode.MISSING_ACCESS_TOKEN.throwServiceException();
+			//  새 accessToken 발급
+			tokenProvider.createTokenAndSetCookiesByEmail(email, response);
+
+		} catch (ServiceException e) {
+			ErrorCode.EXPIRED_ACCESS_TOKEN.throwServiceException();
 		}
-
-		//  refreshToken이 redis에 있는지 확인
-		String userId = tokenProvider.getEmail(accessToken);
-		
-		authService.getRefreshTokenFromRedis(userId);
-
-		//  새 accessToken 발급
-		tokenProvider.createTokenAndSetCookiesByEmail(userId, response);
 
 		return RsData.success(HttpStatus.OK);
-	}
-
-	private String extractAccessTokenFromCookies(HttpServletRequest request) {
-		Cookie[] cookies = request.getCookies();
-		if (cookies != null) {
-			for (Cookie cookie : cookies) {
-				if ("accessToken".equals(cookie.getName())) { // ✅ Access Token 쿠키 이름
-					return cookie.getValue();
-				}
-			}
-		}
-		return null;
 	}
 }
