@@ -87,14 +87,18 @@ public interface PostApiSpecification {
 
 	@Operation(
 		summary = "전체 포스트 조회",
-		description = "요청한 사이즈만큼 최신순으로 조회"
+		description = "요청한 사이즈만큼 최신순으로 조회",
+		security = {@SecurityRequirement(name = "JWT")}
 	)
 	RsData<SliceResponse<PostResponseDto>> getPosts(
 		@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
 		SliceRequest sliceRequest
 	);
 
-	@Operation(summary = "포스트 1건 조회")
+	@Operation(
+		summary = "포스트 1건 조회",
+		security = {@SecurityRequirement(name = "JWT")}
+	)
 	RsData<PostDetailResponseDto> getPost(
 		@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
 		@Parameter(description = "게시물의 ID") Long id
@@ -102,7 +106,8 @@ public interface PostApiSpecification {
 
 	@Operation(
 		summary = "사용자가 작성한 포스트 목록 조회",
-		description = "요청한 사이즈만큼 최신순으로 조회"
+		description = "요청한 사이즈만큼 최신순으로 조회",
+		security = {@SecurityRequirement(name = "JWT")}
 	)
 	RsData<SliceResponse<PostResponseDto>> getPostsByUserId(
 		@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
@@ -111,7 +116,8 @@ public interface PostApiSpecification {
 	);
 
 	@Operation(
-		summary = "사용자가 좋아요한 포스트 목록 조회"
+		summary = "사용자가 좋아요한 포스트 목록 조회",
+		security = {@SecurityRequirement(name = "JWT")}
 	)
 	RsData<SliceResponse<PostResponseDto>> getPostsByLike(
 		@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
@@ -119,7 +125,10 @@ public interface PostApiSpecification {
 		@Parameter(hidden = true) Principal principal
 	);
 
-	@Operation(summary = "사용자가 팔로우한 블로그의 포스트 목록 조회")
+	@Operation(
+		summary = "사용자가 팔로우한 블로그의 포스트 목록 조회",
+		security = {@SecurityRequirement(name = "JWT")}
+	)
 	RsData<SliceResponse<PostResponseDto>> getPostsByFollow(
 		@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
 		SliceRequest sliceRequest,
