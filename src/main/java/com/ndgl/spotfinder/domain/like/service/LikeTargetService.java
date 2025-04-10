@@ -36,7 +36,7 @@ public class LikeTargetService {
 					.orElseThrow(ErrorCode.COMMENT_NOT_FOUND::throwServiceException);
 				comment.updateLikeCount(delta);
 			}
-			default -> com.ndgl.spotfinder.global.exception.ErrorCode.UNSUPPORTED_TARGET_TYPE.throwServiceException();
+			default -> ErrorCode.UNSUPPORTED_TARGET_TYPE.throwServiceException();
 		}
 	}
 } 

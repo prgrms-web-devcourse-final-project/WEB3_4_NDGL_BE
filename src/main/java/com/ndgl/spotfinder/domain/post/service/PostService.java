@@ -88,13 +88,16 @@ public class PostService {
 	}
 
 	@Transactional(readOnly = true)
-	public SliceResponse<PostResponseDto> getPosts(Long userId, SliceRequest sliceRequest) {
+	public SliceResponse<PostResponseDto> getPosts(String email, SliceRequest sliceRequest) {
 		PageRequest pageRequest = PageRequest.of(FIRST_PAGE_NUMBER, sliceRequest.size());
 		Long lastId = getLastPostId(sliceRequest);
 
 		Slice<Post> results = postRepository.findByIdLessThanOrderByCreatedAtDesc(lastId, pageRequest);
 
-		return convertToSliceResponse(userId, results);
+		return Optional.ofNullable(email)
+			.map(userService::findUserByEmail)
+			.map(user -> convertToSliceResponse(user.getId(), results))
+			.orElseGet(() -> convertToSliceResponse(results));
 	}
 
 	@Transactional(readOnly = true)
@@ -116,9 +119,12 @@ public class PostService {
 	}
 
 	@Transactional(readOnly = true)
-	public PostDetailResponseDto getPost(Long userId, Long id) {
-		Post post = findPostById(id);
-		Boolean isLiked = likeService.getLikeStatus(userId, id, Like.TargetType.POST);
+	public PostDetailResponseDto getPost(String email, Long postId) {
+		Post post = findPostById(postId);
+		boolean isLiked = Optional.ofNullable(email)
+			.map(userService::findUserByEmail)
+			.map(user -> likeService.getLikeStatus(user.getId(), postId, Like.TargetType.POST))
+			.orElse(false);
 
 		return new PostDetailResponseDto(post, isLiked);
 	}
@@ -178,6 +184,13 @@ public class PostService {
 			results.map(post ->
 				new PostResponseDto(post, likeService.getLikeStatus(userId, post.getId(), Like.TargetType.POST)
 				)).toList(),
+			results.hasNext()
+		);
+	}
+
+	private SliceResponse<PostResponseDto> convertToSliceResponse(Slice<Post> results) {
+		return new SliceResponse<>(
+			results.map(post -> new PostResponseDto(post, false)).toList(),
 			results.hasNext()
 		);
 	}

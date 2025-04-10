@@ -26,8 +26,8 @@ public class LikeService {
 	 * @return true: 좋아요 추가됨, false: 좋아요 취소됨
 	 */
 	@Transactional
-	public boolean toggleLike(long userId, long targetId, TargetType targetType) {
-		validateLikeTarget(targetId, targetType);
+	public boolean toggleLike(Long userId, Long targetId, TargetType targetType) {
+		validateLikeTarget(targetId);
 
 		return likeRepository.findByUserIdAndTargetIdAndTargetType(userId, targetId, targetType)
 			.map(like -> {
@@ -44,8 +44,8 @@ public class LikeService {
 	 * 대상의 좋아요 수 조회
 	 */
 	@Transactional(readOnly = true)
-	public Long getLikeCount(long targetId, TargetType targetType) {
-		validateLikeTarget(targetId, targetType);
+	public Long getLikeCount(Long targetId, TargetType targetType) {
+		validateLikeTarget(targetId);
 		return likeRepository.countByTargetIdAndTargetType(targetId, targetType);
 	}
 
@@ -55,8 +55,10 @@ public class LikeService {
 	 * @return true - 좋아요를 눌렀음, false - 좋아요를 누르지 않음
 	 */
 	@Transactional(readOnly = true)
-	public Boolean getLikeStatus(long userId, long targetId, TargetType targetType) {
-		validateLikeTarget(targetId, targetType);
+	public Boolean getLikeStatus(Long userId, Long targetId, TargetType targetType) {
+		validateLikeTarget(targetId);
+		if (userId == null)
+			return false;
 		return likeRepository.existsByUserIdAndTargetIdAndTargetType(userId, targetId, targetType);
 	}
 
@@ -64,15 +66,15 @@ public class LikeService {
 	 * 대상의 모든 좋아요 삭제 (대상이 삭제될 때 호출)
 	 */
 	@Transactional
-	public void deleteAllLikes(long targetId, TargetType targetType) {
-		validateLikeTarget(targetId, targetType);
+	public void deleteAllLikes(Long targetId, TargetType targetType) {
+		validateLikeTarget(targetId);
 		likeRepository.deleteByTargetIdAndTargetType(targetId, targetType);
 	}
 
 	/**
 	 * 좋아요 대상 유효성 검증
 	 */
-	private void validateLikeTarget(long targetId, TargetType targetType) {
+	private void validateLikeTarget(Long targetId) {
 		if (targetId <= 0) {
 			ErrorCode.INVALID_TARGET_ID.throwServiceException();
 		}
@@ -82,7 +84,7 @@ public class LikeService {
 	/**
 	 * 좋아요 삭제 및 대상 좋아요 카운트 감소
 	 */
-	private void deleteLike(Like like, long targetId, TargetType targetType) {
+	private void deleteLike(Like like, Long targetId, TargetType targetType) {
 		likeTargetService.updateLikeCount(targetId, targetType, -1);
 		likeRepository.delete(like);
 	}
@@ -90,7 +92,7 @@ public class LikeService {
 	/**
 	 * 좋아요 생성 및 대상 좋아요 카운트 증가
 	 */
-	private void createLike(long userId, long targetId, TargetType targetType) {
+	private void createLike(Long userId, Long targetId, TargetType targetType) {
 		User user = userService.findUserById(userId);
 		Like like = Like.builder()
 			.user(user)

@@ -21,7 +21,7 @@ public interface LikeApiSpecification {
 	)
 	RsData<Boolean> toggleCommentLike(
 		@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-		@Parameter(description = "댓글 ID", example = "1") @PathVariable Integer commentId
+		@Parameter(description = "댓글 ID", example = "1") @PathVariable Long commentId
 	);
 
 	@Operation(
@@ -31,6 +31,6 @@ public interface LikeApiSpecification {
 	)
 	RsData<Boolean> togglePostLike(
 		@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-		@Parameter(description = "포스트 ID", example = "1") @PathVariable Integer postId
+		@Parameter(description = "포스트 ID", example = "1") @PathVariable Long postId
 	);
 }

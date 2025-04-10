@@ -1,9 +1,9 @@
 package com.ndgl.spotfinder.domain.post.controller;
 
 import java.security.Principal;
+import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -24,7 +24,6 @@ import com.ndgl.spotfinder.domain.post.service.PostService;
 import com.ndgl.spotfinder.global.common.dto.SliceRequest;
 import com.ndgl.spotfinder.global.common.dto.SliceResponse;
 import com.ndgl.spotfinder.global.rsdata.RsData;
-import com.ndgl.spotfinder.global.security.jwt.CustomUserDetails;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -84,22 +83,26 @@ public class PostController implements PostApiSpecification {
 
 	@GetMapping
 	public RsData<SliceResponse<PostResponseDto>> getPosts(
-		@AuthenticationPrincipal CustomUserDetails customUserDetails,
-		@ModelAttribute @Valid SliceRequest sliceRequest
+		@ModelAttribute @Valid SliceRequest sliceRequest,
+		Principal principal
 	) {
-		long userId = customUserDetails.getUser().getId();
-		SliceResponse<PostResponseDto> results = postService.getPosts(userId, sliceRequest);
+		String email = Optional.ofNullable(principal)
+			.map(Principal::getName)
+			.orElse(null);
+		SliceResponse<PostResponseDto> results = postService.getPosts(email, sliceRequest);
 
 		return RsData.success(HttpStatus.OK, results);
 	}
 
 	@GetMapping("/{id}")
 	public RsData<PostDetailResponseDto> getPost(
-		@AuthenticationPrincipal CustomUserDetails customUserDetails,
-		@PathVariable Long id
+		@PathVariable Long id,
+		Principal principal
 	) {
-		long userId = customUserDetails.getUser().getId();
-		PostDetailResponseDto result = postService.getPost(userId, id);
+		String email = Optional.ofNullable(principal)
+			.map(Principal::getName)
+			.orElse(null);
+		PostDetailResponseDto result = postService.getPost(email, id);
 
 		return RsData.success(HttpStatus.OK, result);
 	}

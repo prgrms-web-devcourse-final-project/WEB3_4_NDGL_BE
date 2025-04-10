@@ -2,7 +2,6 @@ package com.ndgl.spotfinder.domain.post.controller;
 
 import java.security.Principal;
 
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import com.ndgl.spotfinder.domain.post.dto.PostCreateRequestDto;
@@ -14,7 +13,6 @@ import com.ndgl.spotfinder.domain.post.dto.PostUpdateRequestDto;
 import com.ndgl.spotfinder.global.common.dto.SliceRequest;
 import com.ndgl.spotfinder.global.common.dto.SliceResponse;
 import com.ndgl.spotfinder.global.rsdata.RsData;
-import com.ndgl.spotfinder.global.security.jwt.CustomUserDetails;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -91,8 +89,8 @@ public interface PostApiSpecification {
 		security = {@SecurityRequirement(name = "JWT")}
 	)
 	RsData<SliceResponse<PostResponseDto>> getPosts(
-		@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-		SliceRequest sliceRequest
+		SliceRequest sliceRequest,
+		@Parameter(hidden = true) Principal principal
 	);
 
 	@Operation(
@@ -100,8 +98,8 @@ public interface PostApiSpecification {
 		security = {@SecurityRequirement(name = "JWT")}
 	)
 	RsData<PostDetailResponseDto> getPost(
-		@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-		@Parameter(description = "게시물의 ID") Long id
+		@Parameter(description = "게시물의 ID") Long id,
+		@Parameter(hidden = true) Principal principal
 	);
 
 	@Operation(

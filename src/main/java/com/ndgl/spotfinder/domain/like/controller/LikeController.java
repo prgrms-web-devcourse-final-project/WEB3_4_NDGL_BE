@@ -27,7 +27,7 @@ public class LikeController implements LikeApiSpecification {
 	@PostMapping("/comments/{commentId}")
 	public RsData<Boolean> toggleCommentLike(
 		@AuthenticationPrincipal CustomUserDetails customUserDetails,
-		@PathVariable Integer commentId
+		@PathVariable Long commentId
 	) {
 		long userId = customUserDetails.getUser().getId();
 		boolean isAdded = likeService.toggleLike(userId, commentId, Like.TargetType.COMMENT);
@@ -40,7 +40,7 @@ public class LikeController implements LikeApiSpecification {
 	@PostMapping("/posts/{postId}")
 	public RsData<Boolean> togglePostLike(
 		@AuthenticationPrincipal CustomUserDetails customUserDetails,
-		@PathVariable Integer postId
+		@PathVariable Long postId
 	) {
 		long userId = customUserDetails.getUser().getId();
 		boolean isAdded = likeService.toggleLike(userId, postId, Like.TargetType.POST);
