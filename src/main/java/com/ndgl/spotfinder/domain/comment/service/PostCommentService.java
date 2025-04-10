@@ -39,15 +39,10 @@ public class PostCommentService {
 		Slice<PostComment> comments = postCommentRepository
 			.findByPostIdAndParentCommentIsNullAndIdLessThanOrderByIdDesc(postId, startId, pageable);
 
-		Long loginUserId = userService.findUserByEmail(email).getId();
-
-		return new SliceResponse<>(
-			comments.stream()
-				.map(it -> new PostCommentResponseDto(it,
-					likeService.getLikeStatus(loginUserId, it.getId(), Like.TargetType.COMMENT)))
-				.toList(),
-			comments.hasNext()
-		);
+		return Optional.ofNullable(email)
+			.map(userService::findUserByEmail)
+			.map(loginUser -> convertToSliceResponse(loginUser.getId(), comments))
+			.orElseGet(() -> convertToSliceResponse(comments));
 	}
 
 	private PostComment findCommentAndVerifyPost(Long commentId, Long postId) {
@@ -56,6 +51,7 @@ public class PostCommentService {
 		return comment;
 	}
 
+	@Transactional(readOnly = true)
 	public PostComment findCommentById(Long id) {
 		return postCommentRepository.findById(id)
 			.orElseThrow(ErrorCode.COMMENT_NOT_FOUND::throwServiceException);
@@ -112,4 +108,20 @@ public class PostCommentService {
 		comment.setContent(content);
 	}
 
+	private SliceResponse<PostCommentResponseDto> convertToSliceResponse(long userId, Slice<PostComment> results) {
+		return new SliceResponse<>(
+			results.map(comment ->
+				new PostCommentResponseDto(comment,
+					likeService.getLikeStatus(userId, comment.getId(), Like.TargetType.COMMENT)
+				)).toList(),
+			results.hasNext()
+		);
+	}
+
+	private SliceResponse<PostCommentResponseDto> convertToSliceResponse(Slice<PostComment> results) {
+		return new SliceResponse<>(
+			results.map(comment -> new PostCommentResponseDto(comment, false)).toList(),
+			results.hasNext()
+		);
+	}
 }

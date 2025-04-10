@@ -335,7 +335,7 @@ public class PostServiceTest {
 		method.setAccessible(true);
 
 		@SuppressWarnings("unchecked")
-		Set<String> urls = (Set<String>) method.invoke(postService, content);
+		Set<String> urls = (Set<String>)method.invoke(postService, content);
 
 		assertEquals(2, urls.size());
 		assertTrue(urls.contains("https://example.com/image1.jpg"));
@@ -346,11 +346,11 @@ public class PostServiceTest {
 	public void getPost_withLoggedInUser_success() {
 		// given
 		when(postRepository.findById(1L)).thenReturn(Optional.of(samplePost));
-		when(userService.findUserByEmail("test@email.com")).thenReturn(user1);
-		when(likeService.getLikeStatus(1L, 1L, Like.TargetType.POST)).thenReturn(true);
+		when(userService.findUserByEmail(user1.getEmail())).thenReturn(user1);
+		when(likeService.getLikeStatus(user1.getId(), 1L, Like.TargetType.POST)).thenReturn(true);
 
 		// when
-		PostDetailResponseDto dto = postService.getPost("test@email.com", 1L);
+		PostDetailResponseDto dto = postService.getPost(user1.getEmail(), 1L);
 
 		// then
 		assertEquals(1L, dto.id());
@@ -376,16 +376,15 @@ public class PostServiceTest {
 		verify(likeService, never()).getLikeStatus(anyLong(), anyLong(), any());
 	}
 
-
 	@Test
 	public void getPost_withLoggedInUserNotLiked_success() {
 		// given
 		when(postRepository.findById(1L)).thenReturn(Optional.of(samplePost));
-		when(userService.findUserByEmail("test@email.com")).thenReturn(user1);
-		when(likeService.getLikeStatus(1L, 1L, Like.TargetType.POST)).thenReturn(false);
+		when(userService.findUserByEmail(user1.getEmail())).thenReturn(user1);
+		when(likeService.getLikeStatus(user1.getId(), 1L, Like.TargetType.POST)).thenReturn(false);
 
 		// when
-		PostDetailResponseDto dto = postService.getPost("test@email.com", 1L);
+		PostDetailResponseDto dto = postService.getPost(user1.getEmail(), 1L);
 
 		// then
 		assertEquals(1L, dto.id());

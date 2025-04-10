@@ -92,7 +92,6 @@ public class PostService {
 	public SliceResponse<PostResponseDto> getPosts(String email, SliceRequest sliceRequest) {
 		PageRequest pageRequest = PageRequest.of(FIRST_PAGE_NUMBER, sliceRequest.size());
 		Long lastId = getLastPostId(sliceRequest);
-
 		Slice<Post> results = postRepository.findByIdLessThanOrderByCreatedAtDesc(lastId, pageRequest);
 
 		return Optional.ofNullable(email)
@@ -108,9 +107,9 @@ public class PostService {
 		User user = userService.findUserById(userId);
 
 		Slice<Post> results = postRepository.findByUserAndIdLessThanOrderByCreatedAtDesc(user, lastId, pageRequest);
-		User loginUser = userService.findUserByEmail(email);
+		Long loginUserId = userService.findUserByEmail(email).getId();
 
-		return convertToSliceResponse(loginUser.getId(), results);
+		return convertToSliceResponse(loginUserId, results);
 	}
 
 	@Transactional(readOnly = true)

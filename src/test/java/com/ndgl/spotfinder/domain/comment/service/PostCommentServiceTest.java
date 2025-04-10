@@ -29,6 +29,8 @@ import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.domain.user.service.UserService;
 import com.ndgl.spotfinder.global.common.dto.SliceResponse;
 import com.ndgl.spotfinder.global.exception.ServiceException;
+import com.ndgl.spotfinder.domain.like.entity.Like;
+import com.ndgl.spotfinder.domain.like.service.LikeService;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -44,6 +46,9 @@ public class PostCommentServiceTest {
 
 	@Mock
 	private UserService userService;
+
+	@Mock
+	private LikeService likeService;
 
 	private final User user = User.builder()
 		.id(1L)
@@ -303,5 +308,105 @@ public class PostCommentServiceTest {
 		assertFalse(response.hasNext());
 		verify(postCommentRepository, times(1))
 			.findByPostIdAndParentCommentIsNullAndIdLessThanOrderByIdDesc(postId, lastId, pageRequest);
+	}
+
+	@Test
+	@DisplayName("댓글 조회 - 좋아요 상태 확인 (좋아요 O)")
+	void getComment_WithLikeStatus_True() {
+		// Given
+		Long postId = 1L;
+		Long commentId = 1L;
+		Long userId = 1L;
+
+		// When
+		when(postCommentRepository.findById(commentId)).thenReturn(Optional.of(comment));
+		when(userService.findUserByEmail(user.getEmail())).thenReturn(user);
+		when(likeService.getLikeStatus(userId, commentId, Like.TargetType.COMMENT)).thenReturn(true);
+		
+		PostCommentResponseDto result = postCommentService.getComment(user.getEmail(), postId, commentId);
+
+		// Then
+		assertNotNull(result);
+		assertEquals(commentId, result.id());
+		assertEquals("댓글 1", result.content());
+		assertTrue(result.likeStatus());
+		verify(likeService, times(1)).getLikeStatus(userId, commentId, Like.TargetType.COMMENT);
+	}
+
+	@Test
+	@DisplayName("댓글 조회 - 좋아요 상태 확인 (좋아요 X)")
+	void getComment_WithLikeStatus_False() {
+		// Given
+		Long postId = 1L;
+		Long commentId = 1L;
+		Long userId = 1L;
+
+		// When
+		when(postCommentRepository.findById(commentId)).thenReturn(Optional.of(comment));
+		when(userService.findUserByEmail(user.getEmail())).thenReturn(user);
+		when(likeService.getLikeStatus(userId, commentId, Like.TargetType.COMMENT)).thenReturn(false);
+		
+		PostCommentResponseDto result = postCommentService.getComment(user.getEmail(), postId, commentId);
+
+		// Then
+		assertNotNull(result);
+		assertEquals(commentId, result.id());
+		assertEquals("댓글 1", result.content());
+		assertFalse(result.likeStatus());
+		verify(likeService, times(1)).getLikeStatus(userId, commentId, Like.TargetType.COMMENT);
+	}
+
+	@Test
+	@DisplayName("댓글 조회 - 비로그인 상태")
+	void getComment_WithoutLogin() {
+		// Given
+		Long postId = 1L;
+		Long commentId = 1L;
+		String email = null;
+
+		// When
+		when(postCommentRepository.findById(commentId)).thenReturn(Optional.of(comment));
+		
+		PostCommentResponseDto result = postCommentService.getComment(email, postId, commentId);
+
+		// Then
+		assertNotNull(result);
+		assertEquals(commentId, result.id());
+		assertEquals("댓글 1", result.content());
+		assertFalse(result.likeStatus());
+		verify(likeService, never()).getLikeStatus(anyLong(), anyLong(), any());
+	}
+
+	@Test
+	@DisplayName("댓글 목록 조회 - 좋아요 상태 확인")
+	void getComments_WithLikeStatus() {
+		// Given
+		Long postId = 1L;
+		long lastId = 0L;
+		int size = 2;
+		Long userId = 1L;
+
+		List<PostComment> comments = List.of(comment, comment2);
+		PageRequest pageRequest = PageRequest.of(0, size);
+		Slice<PostComment> commentSlice = new SliceImpl<>(comments, pageRequest, false);
+
+		// Repository Stub 설정
+		when(postCommentRepository.findByPostIdAndParentCommentIsNullAndIdLessThanOrderByIdDesc(postId, lastId, pageRequest))
+			.thenReturn(commentSlice);
+		when(userService.findUserByEmail(user.getEmail())).thenReturn(user);
+		
+		// 첫 번째 댓글은 좋아요 O, 두 번째 댓글은 좋아요 X
+		when(likeService.getLikeStatus(userId, 1L, Like.TargetType.COMMENT)).thenReturn(true);
+		when(likeService.getLikeStatus(userId, 2L, Like.TargetType.COMMENT)).thenReturn(false);
+
+		// When
+		SliceResponse<PostCommentResponseDto> response = postCommentService.getComments(user.getEmail(), postId, lastId, size);
+
+		// Then
+		assertNotNull(response);
+		assertEquals(2, response.contents().size());
+		assertTrue(response.contents().get(0).likeStatus());
+		assertFalse(response.contents().get(1).likeStatus());
+		verify(likeService, times(2)).getLikeStatus(anyLong(), anyLong(), any());
 	}
 }
