@@ -19,7 +19,7 @@ public class TokenCookieUtil {
 	@Value("${app.cookie.domain}")
 	private String domain;
 
-	@Value("${jwt.expiration.time}")
+	@Value("${jwt.cookie.expiration-time}")
 	private Long validationTime;
 
 	public void setTokenCookies(HttpServletResponse response, String accessToken) {
