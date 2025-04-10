@@ -61,7 +61,7 @@ public class AuthController {
 			authService.getRefreshTokenFromRedis(email);
 
 			//  새 accessToken 발급
-			tokenProvider.createTokenAndSetCookiesByEmail(email, response);
+			tokenProvider.refreshAccessToken(email, response);
 
 		} catch (ServiceException e) {
 			ErrorCode.EXPIRED_ACCESS_TOKEN.throwServiceException();

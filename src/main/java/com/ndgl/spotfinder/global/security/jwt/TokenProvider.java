@@ -172,7 +172,7 @@ public class TokenProvider {
 			.getSubject();
 	}
 
-	public void createTokenAndSetCookiesByEmail(String email, HttpServletResponse response) {
+	public void refreshAccessToken(String email, HttpServletResponse response) {
 		User user = userRepository.findByEmail(email)
 			.orElseThrow(ErrorCode.USER_NOT_FOUND::throwServiceException);
 
@@ -182,7 +182,11 @@ public class TokenProvider {
 			customUserDetails, null, customUserDetails.getAuthorities()
 		);
 
-		createTokenAndSetCookies(authentication, response);
+		String authorities = authentication.getAuthorities().stream()
+			.map(GrantedAuthority::getAuthority)
+			.collect(Collectors.joining(","));
+
+		createAccessToken(email,authorities, response);
 	}
 
 	public SecretKey getKey() {
