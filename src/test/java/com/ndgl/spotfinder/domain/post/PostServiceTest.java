@@ -356,7 +356,7 @@ public class PostServiceTest {
 		assertEquals(1L, dto.id());
 		assertEquals("제목1", dto.title());
 		assertEquals("내용1", dto.content());
-		assertTrue(dto.isLiked());
+		assertTrue(dto.likeStatus());
 		verify(likeService, times(1)).getLikeStatus(anyLong(), anyLong(), any());
 	}
 
@@ -372,7 +372,7 @@ public class PostServiceTest {
 		assertEquals(1L, dto.id());
 		assertEquals("제목1", dto.title());
 		assertEquals("내용1", dto.content());
-		assertFalse(dto.isLiked());
+		assertFalse(dto.likeStatus());
 		verify(likeService, never()).getLikeStatus(anyLong(), anyLong(), any());
 	}
 
@@ -391,7 +391,7 @@ public class PostServiceTest {
 		assertEquals(1L, dto.id());
 		assertEquals("제목1", dto.title());
 		assertEquals("내용1", dto.content());
-		assertFalse(dto.isLiked());
+		assertFalse(dto.likeStatus());
 		verify(likeService, times(1)).getLikeStatus(anyLong(), anyLong(), any());
 	}
 }

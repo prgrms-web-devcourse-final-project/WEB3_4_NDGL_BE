@@ -39,7 +39,7 @@ public record PostResponseDto(
 	List<HashtagDto> hashtags,
 
 	@Schema(description = "좋아요 여부", example = "false")
-	Boolean isLiked
+	Boolean likeStatus
 ) {
 	private static final Long POST_LIST_HASHTAG_COUNT = 3L;
 

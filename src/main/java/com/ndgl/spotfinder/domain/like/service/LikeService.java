@@ -1,5 +1,7 @@
 package com.ndgl.spotfinder.domain.like.service;
 
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,9 +59,9 @@ public class LikeService {
 	@Transactional(readOnly = true)
 	public Boolean getLikeStatus(Long userId, Long targetId, TargetType targetType) {
 		validateLikeTarget(targetId);
-		if (userId == null)
-			return false;
-		return likeRepository.existsByUserIdAndTargetIdAndTargetType(userId, targetId, targetType);
+		return Optional.ofNullable(userId)
+			.map(id -> likeRepository.existsByUserIdAndTargetIdAndTargetType(id, targetId, targetType))
+			.orElse(false);
 	}
 
 	/**

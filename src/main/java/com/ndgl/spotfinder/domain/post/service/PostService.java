@@ -2,6 +2,7 @@ package com.ndgl.spotfinder.domain.post.service;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -96,19 +97,20 @@ public class PostService {
 
 		return Optional.ofNullable(email)
 			.map(userService::findUserByEmail)
-			.map(user -> convertToSliceResponse(user.getId(), results))
+			.map(loginUser -> convertToSliceResponse(loginUser.getId(), results))
 			.orElseGet(() -> convertToSliceResponse(results));
 	}
 
 	@Transactional(readOnly = true)
-	public SliceResponse<PostResponseDto> getPostsByUser(SliceRequest sliceRequest, Long userId) {
+	public SliceResponse<PostResponseDto> getPostsByUser(SliceRequest sliceRequest, Long userId, String email) {
 		PageRequest pageRequest = PageRequest.of(FIRST_PAGE_NUMBER, sliceRequest.size());
 		Long lastId = getLastPostId(sliceRequest);
 		User user = userService.findUserById(userId);
 
 		Slice<Post> results = postRepository.findByUserAndIdLessThanOrderByCreatedAtDesc(user, lastId, pageRequest);
+		User loginUser = userService.findUserByEmail(email);
 
-		return convertToSliceResponse(userId, results);
+		return convertToSliceResponse(loginUser.getId(), results);
 	}
 
 	@Transactional(readOnly = true)
@@ -123,7 +125,7 @@ public class PostService {
 		Post post = findPostById(postId);
 		boolean isLiked = Optional.ofNullable(email)
 			.map(userService::findUserByEmail)
-			.map(user -> likeService.getLikeStatus(user.getId(), postId, Like.TargetType.POST))
+			.map(loginUser -> likeService.getLikeStatus(loginUser.getId(), postId, Like.TargetType.POST))
 			.orElse(false);
 
 		return new PostDetailResponseDto(post, isLiked);

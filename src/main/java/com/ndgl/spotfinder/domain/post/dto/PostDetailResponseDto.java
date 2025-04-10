@@ -42,7 +42,7 @@ public record PostDetailResponseDto(
 	List<LocationDto> locations,
 
 	@Schema(description = "좋아요 여부", example = "false")
-	Boolean isLiked
+	Boolean likeStatus
 ) {
 	public PostDetailResponseDto(Post post, Boolean isLiked) {
 		this(

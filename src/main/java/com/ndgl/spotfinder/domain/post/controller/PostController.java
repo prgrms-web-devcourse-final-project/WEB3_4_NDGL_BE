@@ -86,9 +86,7 @@ public class PostController implements PostApiSpecification {
 		@ModelAttribute @Valid SliceRequest sliceRequest,
 		Principal principal
 	) {
-		String email = Optional.ofNullable(principal)
-			.map(Principal::getName)
-			.orElse(null);
+		String email = getEmail(principal);
 		SliceResponse<PostResponseDto> results = postService.getPosts(email, sliceRequest);
 
 		return RsData.success(HttpStatus.OK, results);
@@ -99,9 +97,7 @@ public class PostController implements PostApiSpecification {
 		@PathVariable Long id,
 		Principal principal
 	) {
-		String email = Optional.ofNullable(principal)
-			.map(Principal::getName)
-			.orElse(null);
+		String email = getEmail(principal);
 		PostDetailResponseDto result = postService.getPost(email, id);
 
 		return RsData.success(HttpStatus.OK, result);
@@ -110,9 +106,11 @@ public class PostController implements PostApiSpecification {
 	@GetMapping("/users/{userId}")
 	public RsData<SliceResponse<PostResponseDto>> getPostsByUserId(
 		@PathVariable Long userId,
-		@ModelAttribute @Valid SliceRequest sliceRequest
+		@ModelAttribute @Valid SliceRequest sliceRequest,
+		Principal principal
 	) {
-		SliceResponse<PostResponseDto> results = postService.getPostsByUser(sliceRequest, userId);
+		String email = getEmail(principal);
+		SliceResponse<PostResponseDto> results = postService.getPostsByUser(sliceRequest, userId, email);
 
 		return RsData.success(HttpStatus.OK, results);
 	}
@@ -135,5 +133,11 @@ public class PostController implements PostApiSpecification {
 		SliceResponse<PostResponseDto> results = postService.getPostsByFollow(sliceRequest, principal.getName());
 
 		return RsData.success(HttpStatus.OK, results);
+	}
+
+	private static String getEmail(Principal principal) {
+		return Optional.ofNullable(principal)
+			.map(Principal::getName)
+			.orElse(null); // 익명 사용자
 	}
 }

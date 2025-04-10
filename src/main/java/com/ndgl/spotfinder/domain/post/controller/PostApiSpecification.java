@@ -85,7 +85,8 @@ public interface PostApiSpecification {
 
 	@Operation(
 		summary = "전체 포스트 조회",
-		description = "요청한 사이즈만큼 최신순으로 조회"
+		description = "요청한 사이즈만큼 최신순으로 조회",
+		security = {@SecurityRequirement(name = "JWT")}
 	)
 	RsData<SliceResponse<PostResponseDto>> getPosts(
 		SliceRequest sliceRequest,
@@ -93,7 +94,8 @@ public interface PostApiSpecification {
 	);
 
 	@Operation(
-		summary = "포스트 1건 조회"
+		summary = "포스트 1건 조회",
+		security = {@SecurityRequirement(name = "JWT")}
 	)
 	RsData<PostDetailResponseDto> getPost(
 		@Parameter(description = "게시물의 ID") Long id,
@@ -107,7 +109,8 @@ public interface PostApiSpecification {
 	)
 	RsData<SliceResponse<PostResponseDto>> getPostsByUserId(
 		@Parameter(description = "사용자의 ID") Long userId,
-		SliceRequest sliceRequest
+		SliceRequest sliceRequest,
+		Principal principal
 	);
 
 	@Operation(
