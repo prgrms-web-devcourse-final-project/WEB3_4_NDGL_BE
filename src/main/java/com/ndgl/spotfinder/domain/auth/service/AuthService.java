@@ -10,6 +10,7 @@ import com.ndgl.spotfinder.global.security.jwt.TokenProvider;
 import com.ndgl.spotfinder.global.security.redis.entity.RefreshToken;
 import com.ndgl.spotfinder.global.security.redis.repository.RefreshTokenRepository;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -28,7 +29,9 @@ public class AuthService {
 		return tokenProvider.validateToken(token);
 	}
 
-	public String getRefreshTokenFromRedis(String userId) {
+	public String getRefreshTokenFromRedis(
+		String userId,
+		HttpServletResponse response) {
 		String key = "refreshToken:" + userId;
 		Object refreshToken_obj = redisTemplate.opsForHash().get(key, "token");
 
@@ -47,6 +50,9 @@ public class AuthService {
 
 			log.info("Refresh token 갱신 완료");
 		}
+
+		//  새 accessToken 발급
+		tokenProvider.refreshAccessToken(userId, response);
 
 		return refreshToken;
 	}

@@ -58,10 +58,7 @@ public class AuthController {
 
 		try {
 			// 대상 유저의 email 정보를 가지고 redis에 refreshToken이 있나 확인
-			authService.getRefreshTokenFromRedis(email);
-
-			//  새 accessToken 발급
-			tokenProvider.refreshAccessToken(email, response);
+			authService.getRefreshTokenFromRedis(email,response);
 
 		} catch (ServiceException e) {
 			ErrorCode.EXPIRED_ACCESS_TOKEN.throwServiceException();
