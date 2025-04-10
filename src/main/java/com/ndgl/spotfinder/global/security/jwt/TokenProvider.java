@@ -20,8 +20,6 @@ import org.springframework.stereotype.Component;
 import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.domain.user.repository.UserRepository;
 import com.ndgl.spotfinder.global.exception.ErrorCode;
-import com.ndgl.spotfinder.global.exception.ErrorCode;
-import com.ndgl.spotfinder.global.exception.ServiceException;
 import com.ndgl.spotfinder.global.security.cookie.TokenCookieUtil;
 import com.ndgl.spotfinder.global.security.jwt.service.AdminUserDetailsService;
 import com.ndgl.spotfinder.global.security.jwt.service.CustomUserDetailsService;
@@ -64,37 +62,54 @@ public class TokenProvider {
 		this.key = new SecretKeySpec(Base64.getDecoder().decode(secret), SignatureAlgorithm.HS512.getJcaName());
 	}
 
+	//  AccessToken 생성
+	public String createAccessToken(String email, String authentication, HttpServletResponse response) {
+		long now = System.currentTimeMillis();
+
+		String accessToken = Jwts.builder()
+			.setSubject(email)
+			.setExpiration(new Date(now + validationTime))
+			.claim("auth", authentication)
+			.signWith(this.key, SignatureAlgorithm.HS512)
+			.compact();
+
+		tokenCookieUtil.setTokenCookies(response, accessToken);
+
+		return accessToken;
+	}
+
+	//  RefreshToken 생성
+	public String createRefreshToken(String email, String authentication) {
+		long now = System.currentTimeMillis();
+
+		String refreshToken = Jwts.builder()
+			.setSubject(email)
+			.setExpiration(new Date(now + refreshValidationTime))
+			.claim("auth", authentication)
+			.signWith(this.key, SignatureAlgorithm.HS512)
+			.compact();
+
+		refreshTokenService.saveRefreshToken(email, refreshToken);
+
+		return refreshToken;
+	}
+
+	//  로그인 시, accessToken이랑 refreshToken을 같이 생성.
 	public void createTokenAndSetCookies(Authentication authentication, HttpServletResponse response) {
 		if (authentication == null || authentication.getName() == null) {
 			log.error("createToken: Authentication 또는 사용자 이름이 null입니다.");
 			ErrorCode.UNAUTHORIZED.throwServiceException();
 		}
 
-		long now = System.currentTimeMillis();
+		String email = authentication.getName();
 		String authorities = authentication.getAuthorities().stream()
 			.map(GrantedAuthority::getAuthority)
 			.collect(Collectors.joining(","));
 
-		String subject = authentication.getName();
-
-		String accessToken = Jwts.builder()
-			.setSubject(subject)
-			.setExpiration(new Date(now + validationTime))
-			.claim("auth", authorities)
-			.signWith(this.key, SignatureAlgorithm.HS512)
-			.compact();
-
-		String refreshToken = Jwts.builder()
-			.setSubject(subject)
-			.setExpiration(new Date(now + refreshValidationTime))
-			.claim("auth", authorities)
-			.signWith(this.key, SignatureAlgorithm.HS512)
-			.compact();
+		createAccessToken(email, authorities, response);
+		createRefreshToken(email, authorities);
 
 		log.info("AccessToken / RefreshToken 생성 완료");
-
-		tokenCookieUtil.setTokenCookies(response, accessToken);
-		refreshTokenService.saveRefreshToken(subject, refreshToken);
 	}
 
 	//  JWT 토큰 유효성 검증
@@ -126,18 +141,6 @@ public class TokenProvider {
 		} catch (Exception e) {
 			return null;
 		}
-	}
-
-	//  주어진 Access Token의 남은 유효 시간을 밀리초 단위로 반환합니다.
-	public Long getExpiration(String accessToken) {
-		Date expiration = Jwts.parserBuilder()
-			.setSigningKey(key)
-			.setAllowedClockSkewSeconds(10)
-			.build()
-			.parseClaimsJws(accessToken)
-			.getBody()
-			.getExpiration();
-		return expiration.getTime() - System.currentTimeMillis();
 	}
 
 	//  토큰에서 권한 추출
@@ -188,5 +191,23 @@ public class TokenProvider {
 
 	public long getValidationTime() {
 		return this.validationTime;
+	}
+
+	//  refreshToken 만료 시 만료된 refreshToken에서 auth 정보 취득
+	public String extractAuthoritiesEvenIfExpired (String refreshToken) {
+		Claims claims;
+
+		try {
+			claims = Jwts.parserBuilder()
+				.setSigningKey(this.key)
+				.build()
+				.parseClaimsJws(refreshToken)
+				.getBody();
+		} catch (ExpiredJwtException e) {
+			log.warn("만료된 Token에서 claims 추출");
+			claims = e.getClaims();
+		}
+
+		return claims.get("auth", String.class);
 	}
 }

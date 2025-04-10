@@ -24,18 +24,30 @@ public class AuthService {
 		this.redisTemplate = redisTemplate;
 	}
 
-	public boolean tokenStatusCheck(String accessToken) {
-		return tokenProvider.validateToken(accessToken);
+	public boolean tokenStatusCheck(String token) {
+		return tokenProvider.validateToken(token);
 	}
 
 	public String getRefreshTokenFromRedis(String userId) {
 		String key = "refreshToken:" + userId;
-		Object refreshToken = redisTemplate.opsForHash().get(key, "token");
+		Object refreshToken_obj = redisTemplate.opsForHash().get(key, "token");
 
-		if (refreshToken == null) {
-			ErrorCode.EXPIRED_REFRESH_TOKEN.throwServiceException();
+		if (refreshToken_obj == null) {
+			ErrorCode.MISSING_REFRESH_TOKEN.throwServiceException();
 		}
 
-		return refreshToken.toString();
+		String refreshToken = refreshToken_obj.toString();
+
+		boolean isValid = tokenStatusCheck(refreshToken);
+
+		//  refreshToken 체크. 만약 refreshToken이 만료 되었다면 갱신 처리 진행.
+		if (!isValid) {
+			String authorities = tokenProvider.extractAuthoritiesEvenIfExpired(refreshToken);
+			refreshToken = tokenProvider.createRefreshToken(userId,authorities);
+
+			log.info("Refresh token 갱신 완료");
+		}
+
+		return refreshToken;
 	}
 }
