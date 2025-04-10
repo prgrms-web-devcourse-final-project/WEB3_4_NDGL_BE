@@ -29,9 +29,7 @@ import com.ndgl.spotfinder.global.security.jwt.CustomUserDetails;
 import com.ndgl.spotfinder.global.security.jwt.TokenProvider;
 
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Service
 public class OauthService {
 	@Value("${spring.security.oauth2.client.provider.google.user-info-uri}")
@@ -84,8 +82,6 @@ public class OauthService {
 		Authentication authentication = new UsernamePasswordAuthenticationToken(
 			customUserDetails, null, customUserDetails.getAuthorities()
 		);
-
-		log.info("Authentication: {}", authentication);
 
 		// accessToken, refreshToken 생성 + 쿠키에 저장
 		tokenProvider.createTokenAndSetCookies(authentication, response);
