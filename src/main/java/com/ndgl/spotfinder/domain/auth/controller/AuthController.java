@@ -10,11 +10,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ndgl.spotfinder.domain.auth.dto.CheckAuthStatusResponseDto;
 import com.ndgl.spotfinder.domain.auth.service.AuthService;
-import com.ndgl.spotfinder.global.exception.ErrorCode;
-import com.ndgl.spotfinder.global.exception.ServiceException;
 import com.ndgl.spotfinder.global.rsdata.RsData;
-import com.ndgl.spotfinder.global.security.jwt.TokenProvider;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -25,28 +23,18 @@ import lombok.extern.slf4j.Slf4j;
 public class AuthController {
 
 	private final AuthService authService;
-	private final TokenProvider tokenProvider;
 
-	public AuthController(AuthService authService, TokenProvider tokenProvider) {
+	public AuthController(AuthService authService) {
 		this.authService = authService;
-		this.tokenProvider = tokenProvider;
 	}
 
 	@GetMapping("/status")
-	public RsData<Map<String, Boolean>> checkAuthStatus(
+	public RsData<CheckAuthStatusResponseDto> checkAuthStatus(
 		@CookieValue(value = "accessToken", required = false) String accessToken
 	) {
-		if (accessToken == null) {
-			return RsData.success(HttpStatus.OK, Map.of("isLoggedIn", false));
-		}
+		CheckAuthStatusResponseDto response = authService.tokenStatusCheck(accessToken);
 
-		boolean isValid = authService.tokenStatusCheck(accessToken);
-
-		if (!isValid) {
-			return RsData.success(HttpStatus.OK, Map.of("isLoggedIn", false));
-		}
-
-		return RsData.success(HttpStatus.OK, Map.of("isLoggedIn", true));
+		return RsData.success(HttpStatus.OK, response);
 	}
 
 	@PostMapping("/token/refresh")

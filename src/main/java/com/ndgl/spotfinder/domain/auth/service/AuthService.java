@@ -3,10 +3,13 @@ package com.ndgl.spotfinder.domain.auth.service;
 import java.util.Set;
 
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import com.ndgl.spotfinder.domain.auth.dto.CheckAuthStatusResponseDto;
 import com.ndgl.spotfinder.global.exception.ErrorCode;
 import com.ndgl.spotfinder.global.exception.ServiceException;
+import com.ndgl.spotfinder.global.rsdata.RsData;
 import com.ndgl.spotfinder.global.security.jwt.TokenProvider;
 import com.ndgl.spotfinder.global.security.redis.entity.RefreshToken;
 import com.ndgl.spotfinder.global.security.redis.repository.RefreshTokenRepository;
@@ -26,8 +29,22 @@ public class AuthService {
 		this.redisTemplate = redisTemplate;
 	}
 
-	public boolean tokenStatusCheck(String token) {
+	public boolean tokenCheck(String token) {
 		return tokenProvider.validateToken(token);
+	}
+
+	public CheckAuthStatusResponseDto tokenStatusCheck(String accessToken) {
+		if (accessToken == null) {
+			return new CheckAuthStatusResponseDto(false);
+		}
+
+		boolean isValid = tokenCheck(accessToken);
+
+		if (!isValid) {
+			return new CheckAuthStatusResponseDto(false);
+		}
+
+		return new CheckAuthStatusResponseDto(true);
 	}
 
 	public void tokenRefresh(String email, HttpServletResponse response) {
@@ -52,7 +69,7 @@ public class AuthService {
 
 		String refreshToken = refreshToken_obj.toString();
 
-		boolean isValid = tokenStatusCheck(refreshToken);
+		boolean isValid = tokenCheck(refreshToken);
 
 		//  refreshToken 체크. 만약 refreshToken이 만료 되었다면 갱신 처리 진행.
 		if (!isValid) {
