@@ -128,7 +128,7 @@ public class LikeServiceTest {
 		when(userService.findUserById(userId)).thenReturn(testUser);
 		when(likeRepository.findByUserIdAndTargetIdAndTargetType(userId, commentId, TargetType.COMMENT))
 			.thenReturn(Optional.empty());
-		when(postCommentService.findById(commentId)).thenReturn(comment);
+		when(postCommentService.findCommentById(commentId)).thenReturn(comment);
 		when(likeRepository.save(any(Like.class))).thenReturn(commentLike);
 
 		boolean result = likeService.toggleCommentLike(userId, commentId);
@@ -151,7 +151,7 @@ public class LikeServiceTest {
 		// when
 		when(likeRepository.findByUserIdAndTargetIdAndTargetType(userId, commentId, TargetType.COMMENT))
 			.thenReturn(Optional.of(commentLike));
-		when(postCommentService.findById(commentId)).thenReturn(comment);
+		when(postCommentService.findCommentById(commentId)).thenReturn(comment);
 
 		boolean result = likeService.toggleCommentLike(userId, commentId);
 

@@ -1,5 +1,6 @@
 package com.ndgl.spotfinder.domain.post.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,12 +43,22 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 	Optional<Post> findFirstByUserAndStatus(User user, PostStatus status);
 
 	@Query("SELECT p FROM Post p "
-		   + "WHERE (LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')) "
-		   + "OR LOWER(p.content) LIKE LOWER(CONCAT('%', :keyword, '%')) "
-		   + "OR LOWER(p.user.nickName) LIKE LOWER(CONCAT('%', :keyword, '%')) "
-		   + "OR EXISTS (SELECT h FROM p.hashtags h WHERE LOWER(h.name) LIKE LOWER(CONCAT('%', :keyword, '%')))) "
-		   + "AND p.id > :lastId")
-	Slice<Post> searchAll(String keyword, Long lastId, PageRequest pageRequest);
+		+ "WHERE (LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')) "
+		+ "OR LOWER(p.content) LIKE LOWER(CONCAT('%', :keyword, '%')) "
+		+ "OR LOWER(p.user.nickName) LIKE LOWER(CONCAT('%', :keyword, '%')) "
+		+ "OR EXISTS (SELECT h FROM p.hashtags h WHERE LOWER(h.name) LIKE LOWER(CONCAT('%', :keyword, '%')))) "
+		+ "ORDER BY p.createdAt DESC")
+	Slice<Post> searchAll(String keyword, PageRequest pageRequest);
 
 	List<Post> findByUser(User user);
+
+	@Query("SELECT DISTINCT p FROM Post p "
+    	+ "JOIN FETCH p.user "
+    	+ "LEFT JOIN FETCH p.hashtags")
+	List<Post> findAllWithAssociations();
+
+	@Query("SELECT DISTINCT p FROM Post p "
+		+ "JOIN FETCH p.user LEFT JOIN FETCH p.hashtags "
+		+ "WHERE p.updatedAt > :updatedAt")
+	List<Post> findByUpdatedAtAfter(LocalDateTime updatedAt);
 }

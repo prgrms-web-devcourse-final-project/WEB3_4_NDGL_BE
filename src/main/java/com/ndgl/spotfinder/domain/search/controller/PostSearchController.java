@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/v1/posts/search")
 @RequiredArgsConstructor
-public class PostSearchController {
+public class PostSearchController implements PostSearchApiSpecification {
 	private final PostSearchService postSearchService;
 
 	@GetMapping

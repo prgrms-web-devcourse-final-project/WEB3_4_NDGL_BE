@@ -9,6 +9,8 @@ import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.ndgl.spotfinder.domain.post.entity.Hashtag;
 import com.ndgl.spotfinder.domain.post.entity.Post;
 
@@ -17,7 +19,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Document(indexName = "my_index")
+@Document(indexName = "post_index")
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
@@ -27,34 +30,39 @@ public class PostDocument {
 	@Field(type = FieldType.Long, index = false)
 	private Long id;
 
-	@Field(type = FieldType.Text, analyzer = "test_analyzer")
+	@Field(type = FieldType.Text, analyzer = "post_analyzer")
 	private String title;
 
-	@Field(type = FieldType.Text, analyzer = "test_analyzer")
+	@Field(type = FieldType.Text, analyzer = "post_analyzer")
 	private String content;
 
 	@Field(type = FieldType.Keyword, index = false)
 	private Long userId;
 
-	@Field(type = FieldType.Keyword, index = false)
+	@Field(type = FieldType.Text, analyzer = "post_analyzer")
 	private String nickname;
 
 	@Field(type = FieldType.Date, format = DateFormat.date_hour_minute_second)
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
 	private LocalDateTime createdAt;
 
 	@Field(type = FieldType.Date, format = DateFormat.date_hour_minute_second)
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
 	private LocalDateTime updatedAt;
 
 	@Field(type = FieldType.Keyword, index = false)
 	private String thumbnail;
 
-	@Field(type = FieldType.Long, index = false)
+	@Field(type = FieldType.Long)
 	private Long viewCount;
 
-	@Field(type = FieldType.Long, index = false)
+	@Field(type = FieldType.Long)
 	private Long likeCount;
 
-	@Field(type = FieldType.Keyword)
+	@Field(type = FieldType.Integer, index = false)
+	private Integer commentCount;
+
+	@Field(type = FieldType.Text, analyzer = "post_analyzer")
 	private List<String> hashtags;
 
 	public static PostDocument from(Post post) {
@@ -69,6 +77,7 @@ public class PostDocument {
 			.thumbnail(post.getThumbnail())
 			.viewCount(post.getViewCount())
 			.likeCount(post.getLikeCount())
+			.commentCount(post.getComments().size())
 			.hashtags(
 				post.getHashtags().stream()
 					.map(Hashtag::getName)
