@@ -22,8 +22,9 @@ public class TokenCookieUtil {
 	@Value("${jwt.cookie.expiration-time}")
 	private Long validationTime;
 
-	public void setTokenCookies(HttpServletResponse response, String accessToken) {
+	public void setTokenCookies(HttpServletResponse response, String accessToken,String refreshToken) {
 		int maxAge = validationTime.intValue() / 1000;
+
 
 		String secureFlag = secure ? "; Secure" : "";
 
@@ -33,8 +34,8 @@ public class TokenCookieUtil {
 			domainInCookie = String.format(" Domain=%s;", domain);
 		}
 
-		//  samesite 설정
-		String cookieString = String.format(
+		//  cookie에 accessToken 설정
+		String accessCookie = String.format(
 			"accessToken=%s; Max-Age=%d; Path=/;%s HttpOnly%s; SameSite=%s",
 			accessToken,
 			maxAge,
@@ -43,7 +44,18 @@ public class TokenCookieUtil {
 			sameSite
 		);
 
-		response.addHeader("Set-Cookie", cookieString);
+		//  cookie에 refreshToken 설정 
+		String refreshCookie = String.format(
+			"refreshToken=%s; Max-Age=%d; Path=/;%s HttpOnly%s; SameSite=%s",
+			refreshToken,
+			maxAge,
+			domainInCookie,
+			secureFlag,
+			sameSite
+		);
+
+		response.addHeader("Set-Cookie", accessCookie);
+		response.addHeader("Set-Cookie", refreshCookie);
 	}
 
 	public void cleanTokenCookies(HttpServletResponse response, String cookieName) {
@@ -56,13 +68,23 @@ public class TokenCookieUtil {
 			domainInCookie = String.format(" Domain=%s;", domain);
 		}
 
-		String cookieString = String.format(
+		//  cookie에 accessToken 삭제
+		String accessCookie = String.format(
 			"accessToken=; Max-Age=0; Path=/;%s HttpOnly%s; SameSite=%s",
 			domainInCookie,
 			secureFlag,
 			sameSite
 		);
 
-		response.addHeader("Set-Cookie", cookieString);
+		//  cookie에 refreshToken 삭제
+		String refreshToken = String.format(
+			"refreshToken=; Max-Age=0; Path=/;%s HttpOnly%s; SameSite=%s",
+			domainInCookie,
+			secureFlag,
+			sameSite
+		);
+
+		response.addHeader("Set-Cookie", accessCookie);
+		response.addHeader("Set-Cookie", refreshToken);
 	}
 }

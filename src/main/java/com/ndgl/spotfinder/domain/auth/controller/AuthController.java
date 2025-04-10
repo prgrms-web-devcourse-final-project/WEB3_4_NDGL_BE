@@ -30,21 +30,22 @@ public class AuthController {
 
 	@GetMapping("/status")
 	public RsData<CheckAuthStatusResponseDto> checkAuthStatus(
-		@CookieValue(value = "accessToken", required = false) String accessToken
+		@CookieValue(value = "accessToken", required = false) String accessToken,
+		@CookieValue(value = "refreshToken", required = false) String refreshToken,
+		HttpServletResponse response
 	) {
-		CheckAuthStatusResponseDto response = authService.tokenStatusCheck(accessToken);
+		CheckAuthStatusResponseDto responseDto = authService.statusCheck(accessToken,refreshToken,response);
 
-		return RsData.success(HttpStatus.OK, response);
+		return RsData.success(HttpStatus.OK, responseDto);
 	}
 
 	@PostMapping("/token/refresh")
 	RsData<String> refreshAccessToken(
 		HttpServletResponse response,
-		@RequestBody Map<String, String> body
+		@CookieValue(value = "accessToken", required = false) String accessToken,
+		@CookieValue(value = "refreshToken", required = false) String refreshToken
 	) {
-		String email = body.get("email");
-
-		authService.tokenRefresh(email,response);
+		authService.refreshAccessToken(accessToken, refreshToken,response);
 
 		return RsData.success(HttpStatus.OK);
 	}
