@@ -239,7 +239,7 @@ public class PostCommentServiceTest {
 			.thenReturn(commentSlice);
 
 		// When
-		SliceResponse<PostCommentResponseDto> response = postCommentService.getComments(postId, lastId, size);
+		SliceResponse<PostCommentResponseDto> response = postCommentService.getComments(null, postId, lastId, size);
 
 		// Then
 		assertNotNull(response);
@@ -269,7 +269,7 @@ public class PostCommentServiceTest {
 			.thenReturn(commentSlice);
 
 		// When
-		SliceResponse<PostCommentResponseDto> response = postCommentService.getComments(postId, lastId, size);
+		SliceResponse<PostCommentResponseDto> response = postCommentService.getComments(null, postId, lastId, size);
 
 		// Then
 		assertNotNull(response);
@@ -295,7 +295,7 @@ public class PostCommentServiceTest {
 			.thenReturn(emptySlice);
 
 		// When
-		SliceResponse<PostCommentResponseDto> response = postCommentService.getComments(postId, lastId, size);
+		SliceResponse<PostCommentResponseDto> response = postCommentService.getComments(null, postId, lastId, size);
 
 		// Then
 		assertNotNull(response);

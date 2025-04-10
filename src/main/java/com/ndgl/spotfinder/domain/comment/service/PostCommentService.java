@@ -32,16 +32,19 @@ public class PostCommentService {
 	private final LikeService likeService;
 
 	@Transactional(readOnly = true)
-	public SliceResponse<PostCommentResponseDto> getComments(Long postId, Long lastId, int size) {
+	public SliceResponse<PostCommentResponseDto> getComments(String email, Long postId, Long lastId, int size) {
 		Pageable pageable = PageRequest.of(0, size);
 		long startId = (lastId != null) ? lastId : Long.MAX_VALUE;
 
 		Slice<PostComment> comments = postCommentRepository
 			.findByPostIdAndParentCommentIsNullAndIdLessThanOrderByIdDesc(postId, startId, pageable);
 
+		Long loginUserId = userService.findUserByEmail(email).getId();
+
 		return new SliceResponse<>(
 			comments.stream()
-				.map(PostCommentResponseDto::new)
+				.map(it -> new PostCommentResponseDto(it,
+					likeService.getLikeStatus(loginUserId, it.getId(), Like.TargetType.COMMENT)))
 				.toList(),
 			comments.hasNext()
 		);

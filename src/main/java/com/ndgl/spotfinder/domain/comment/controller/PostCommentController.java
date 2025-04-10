@@ -37,7 +37,10 @@ public class PostCommentController implements PostCommentApiSpecification {
 		@ModelAttribute SliceRequest request,
 		Principal principal
 	) {
-		return RsData.success(HttpStatus.OK, postCommentService.getComments(id, request.lastId(), request.size()));
+		String email = getEmail(principal);
+		return RsData.success(HttpStatus.OK,
+			postCommentService.getComments(email, id, request.lastId(), request.size())
+		);
 	}
 
 	@GetMapping("/{commentId}")
