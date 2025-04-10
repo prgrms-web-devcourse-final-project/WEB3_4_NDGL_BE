@@ -97,6 +97,7 @@ public class PostCommentService {
 		PostComment comment = findCommentAndVerifyPost(commentId, id);
 		comment.checkAuthorCanDelete(author);
 		postCommentRepository.delete(comment);
+		likeService.deleteAllLikes(commentId, Like.TargetType.COMMENT);
 	}
 
 	@Transactional

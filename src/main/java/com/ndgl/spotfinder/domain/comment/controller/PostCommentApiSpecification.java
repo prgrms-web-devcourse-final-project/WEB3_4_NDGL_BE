@@ -76,6 +76,7 @@ public interface PostCommentApiSpecification {
 	@Operation(
 		summary = "포스트 댓글 삭제",
 		description = "댓글 삭제, 작성자 이외 불가능",
+		security = {@SecurityRequirement(name = "JWT")},
 		responses = {
 			@ApiResponse(responseCode = "200", description = "성공", content = @Content(
 				mediaType = "application/json",

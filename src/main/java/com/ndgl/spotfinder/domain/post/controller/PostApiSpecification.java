@@ -76,7 +76,8 @@ public interface PostApiSpecification {
 				mediaType = "application/json",
 				examples = @ExampleObject("{\"code\": 200, \"message\": \"OK\"}")
 			))
-		}
+		},
+		security = {@SecurityRequirement(name = "JWT")}
 	)
 	RsData<Void> deletePost(
 		@Parameter(description = "게시물의 ID") Long id,

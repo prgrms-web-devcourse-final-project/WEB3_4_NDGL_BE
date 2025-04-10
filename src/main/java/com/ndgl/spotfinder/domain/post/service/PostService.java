@@ -86,6 +86,7 @@ public class PostService {
 		checkUserPermission(post, email);
 		postRepository.delete(post);
 		imageService.deletePostWithAllImages(ImageUsage.POST, post.getId());
+		likeService.deleteAllLikes(id, Like.TargetType.POST);
 	}
 
 	@Transactional(readOnly = true)
@@ -97,7 +98,7 @@ public class PostService {
 		return Optional.ofNullable(email)
 			.map(userService::findUserByEmail)
 			.map(loginUser -> convertToSliceResponse(loginUser.getId(), results))
-			.orElseGet(() -> convertToSliceResponse(results));
+			.orElseGet(() -> convertToSliceResponse(null, results));
 	}
 
 	@Transactional(readOnly = true)
@@ -107,9 +108,9 @@ public class PostService {
 		User user = userService.findUserById(userId);
 
 		Slice<Post> results = postRepository.findByUserAndIdLessThanOrderByCreatedAtDesc(user, lastId, pageRequest);
-		Long loginUserId = userService.findUserByEmail(email).getId();
+		User loginUser = userService.findUserByEmail(email);
 
-		return convertToSliceResponse(loginUserId, results);
+		return convertToSliceResponse(loginUser.getId(), results);
 	}
 
 	@Transactional(readOnly = true)
@@ -134,22 +135,22 @@ public class PostService {
 	public SliceResponse<PostResponseDto> getPostsByLike(SliceRequest sliceRequest, String email) {
 		PageRequest pageRequest = PageRequest.of(FIRST_PAGE_NUMBER, sliceRequest.size());
 		Long lastId = getLastPostId(sliceRequest);
-		User user = userService.findUserByEmail(email);
+		User loginUser = userService.findUserByEmail(email);
 
-		Slice<Post> results = postRepository.findLikedPostsByUser(user.getId(), lastId, pageRequest);
+		Slice<Post> results = postRepository.findLikedPostsByUser(loginUser.getId(), lastId, pageRequest);
 
-		return convertToSliceResponse(user.getId(), results);
+		return convertToSliceResponse(loginUser.getId(), results);
 	}
 
 	@Transactional(readOnly = true)
 	public SliceResponse<PostResponseDto> getPostsByFollow(SliceRequest sliceRequest, String email) {
 		PageRequest pageRequest = PageRequest.of(FIRST_PAGE_NUMBER, sliceRequest.size());
 		Long lastId = getLastPostId(sliceRequest);
-		User user = userService.findUserByEmail(email);
+		User loginUser = userService.findUserByEmail(email);
 
-		Slice<Post> results = postRepository.findFollowedPostsByUser(user.getId(), lastId, pageRequest);
+		Slice<Post> results = postRepository.findFollowedPostsByUser(loginUser.getId(), lastId, pageRequest);
 
-		return convertToSliceResponse(user.getId(), results);
+		return convertToSliceResponse(loginUser.getId(), results);
 	}
 
 	@Transactional(readOnly = true)
@@ -180,18 +181,11 @@ public class PostService {
 		imageCleanupService.cleanupUnusedImages(ImageUsage.POST, post.getId(), usedImageUrls);
 	}
 
-	private SliceResponse<PostResponseDto> convertToSliceResponse(long userId, Slice<Post> results) {
+	private SliceResponse<PostResponseDto> convertToSliceResponse(Long userId, Slice<Post> results) {
 		return new SliceResponse<>(
 			results.map(post ->
 				new PostResponseDto(post, likeService.getLikeStatus(userId, post.getId(), Like.TargetType.POST)
 				)).toList(),
-			results.hasNext()
-		);
-	}
-
-	private SliceResponse<PostResponseDto> convertToSliceResponse(Slice<Post> results) {
-		return new SliceResponse<>(
-			results.map(post -> new PostResponseDto(post, false)).toList(),
 			results.hasNext()
 		);
 	}
