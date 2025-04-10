@@ -57,6 +57,7 @@ public class BlogService {
 			.map(post -> new PostSummeryDto(
 				post.getId(),
 				post.getTitle()
-			)).toList();
+			))
+			.toList();
 	}
 }

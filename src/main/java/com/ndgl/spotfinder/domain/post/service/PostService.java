@@ -40,6 +40,7 @@ public class PostService {
 	private final UserService userService;
 	private final ImageCleanupService imageCleanupService;
 
+	private static final int FIRST_PAGE_NUMBER = 0;
 	private static final Long DEFAULT_LAST_ID = 0L;
 
 	@Transactional
@@ -87,7 +88,7 @@ public class PostService {
 
 	@Transactional(readOnly = true)
 	public SliceResponse<PostResponseDto> getPosts(SliceRequest sliceRequest) {
-		PageRequest pageRequest = PageRequest.of(0, sliceRequest.size());
+		PageRequest pageRequest = PageRequest.of(FIRST_PAGE_NUMBER, sliceRequest.size());
 		Long lastId = getLastPostId(sliceRequest);
 
 		Slice<Post> results = postRepository.findByIdLessThanOrderByCreatedAtDesc(lastId, pageRequest);
@@ -97,7 +98,7 @@ public class PostService {
 
 	@Transactional(readOnly = true)
 	public SliceResponse<PostResponseDto> getPostsByUser(SliceRequest sliceRequest, Long userId) {
-		PageRequest pageRequest = PageRequest.of(0, sliceRequest.size());
+		PageRequest pageRequest = PageRequest.of(FIRST_PAGE_NUMBER, sliceRequest.size());
 		Long lastId = getLastPostId(sliceRequest);
 		User user = userService.findUserById(userId);
 
@@ -122,7 +123,7 @@ public class PostService {
 
 	@Transactional(readOnly = true)
 	public SliceResponse<PostResponseDto> getPostsByLike(SliceRequest sliceRequest, String email) {
-		PageRequest pageRequest = PageRequest.of(0, sliceRequest.size());
+		PageRequest pageRequest = PageRequest.of(FIRST_PAGE_NUMBER, sliceRequest.size());
 		Long lastId = getLastPostId(sliceRequest);
 		User user = userService.findUserByEmail(email);
 
@@ -133,7 +134,7 @@ public class PostService {
 
 	@Transactional(readOnly = true)
 	public SliceResponse<PostResponseDto> getPostsByFollow(SliceRequest sliceRequest, String email) {
-		PageRequest pageRequest = PageRequest.of(0, sliceRequest.size());
+		PageRequest pageRequest = PageRequest.of(FIRST_PAGE_NUMBER, sliceRequest.size());
 		Long lastId = getLastPostId(sliceRequest);
 		User user = userService.findUserByEmail(email);
 
