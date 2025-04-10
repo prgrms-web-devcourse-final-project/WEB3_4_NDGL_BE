@@ -1,5 +1,7 @@
 package com.ndgl.spotfinder.domain.comment.controller;
 
+import static com.ndgl.spotfinder.global.util.Ut.*;
+
 import java.security.Principal;
 
 import org.springframework.http.HttpStatus;
@@ -32,14 +34,20 @@ public class PostCommentController implements PostCommentApiSpecification {
 	@GetMapping
 	public RsData<SliceResponse<PostCommentResponseDto>> getComments(
 		@PathVariable Long id,
-		@ModelAttribute SliceRequest request
+		@ModelAttribute SliceRequest request,
+		Principal principal
 	) {
 		return RsData.success(HttpStatus.OK, postCommentService.getComments(id, request.lastId(), request.size()));
 	}
 
 	@GetMapping("/{commentId}")
-	public RsData<PostCommentResponseDto> getComment(@PathVariable Long id, @PathVariable Long commentId) {
-		return RsData.success(HttpStatus.OK, postCommentService.getComment(id, commentId));
+	public RsData<PostCommentResponseDto> getComment(
+		@PathVariable Long id,
+		@PathVariable Long commentId,
+		Principal principal
+	) {
+		String email = getEmail(principal);
+		return RsData.success(HttpStatus.OK, postCommentService.getComment(email, id, commentId));
 	}
 
 	@PostMapping

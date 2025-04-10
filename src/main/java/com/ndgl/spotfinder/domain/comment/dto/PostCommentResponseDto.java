@@ -38,8 +38,31 @@ public record PostCommentResponseDto(
 	LocalDateTime modifiedAt,
 
 	@Schema(description = "대댓글 목록")
-	List<PostCommentResponseDto> replies
+	List<PostCommentResponseDto> replies,
+
+	@Schema(description = "좋아요 여부", example = "false")
+	Boolean likeStatus
 ) {
+	public PostCommentResponseDto(PostComment comment, Boolean isLiked) {
+		this(
+			comment.getId(),
+			comment.getContent(),
+			comment.getUser().getId(),
+			comment.getUser().getNickName(),
+			comment.getPost().getId(),
+			(comment.getParentComment() != null) ? comment.getParentComment().getId() : null,
+			comment.getLikeCount(),
+			comment.getCreatedAt(),
+			comment.getModifiedAt(),
+			comment.getChildrenComments() == null ? new ArrayList<>()
+				: comment.getChildrenComments().stream()
+				.sorted(Comparator.comparing(PostComment::getId).reversed())
+				.map(PostCommentResponseDto::new)
+				.toList(),
+			isLiked
+		);
+	}
+
 	public PostCommentResponseDto(PostComment comment) {
 		this(
 			comment.getId(),
@@ -55,7 +78,8 @@ public record PostCommentResponseDto(
 				: comment.getChildrenComments().stream()
 				.sorted(Comparator.comparing(PostComment::getId).reversed())
 				.map(PostCommentResponseDto::new)
-				.toList()
+				.toList(),
+			false
 		);
 	}
 }

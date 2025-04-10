@@ -19,8 +19,8 @@ import org.springframework.data.domain.SliceImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 
-import com.ndgl.spotfinder.domain.comment.dto.PostCommentResponseDto;
 import com.ndgl.spotfinder.domain.comment.dto.PostCommentRequestDto;
+import com.ndgl.spotfinder.domain.comment.dto.PostCommentResponseDto;
 import com.ndgl.spotfinder.domain.comment.entity.PostComment;
 import com.ndgl.spotfinder.domain.comment.repository.PostCommentRepository;
 import com.ndgl.spotfinder.domain.post.entity.Post;
@@ -103,7 +103,6 @@ public class PostCommentServiceTest {
 		assertNull(savedComment.getParentComment()); // 대댓글이 아닌 경우
 	}
 
-
 	@Test
 	@DisplayName("댓글 수정")
 	void updateComment() {
@@ -182,7 +181,7 @@ public class PostCommentServiceTest {
 
 		// When
 		when(postCommentRepository.findById(commentId)).thenReturn(Optional.of(comment));
-		PostCommentResponseDto result = postCommentService.getComment(postId, commentId);
+		PostCommentResponseDto result = postCommentService.getComment(null, postId, commentId);
 
 		// Then
 		assertNotNull(result);
@@ -200,7 +199,8 @@ public class PostCommentServiceTest {
 
 		// When & Then
 		when(postCommentRepository.findById(commentId)).thenReturn(Optional.empty());
-		assertThrows(ServiceException.class, () -> postCommentService.getComment(postId, commentId), "댓글이 존재하지 않습니다.");
+		assertThrows(ServiceException.class, () -> postCommentService.getComment(null, postId, commentId),
+			"댓글이 존재하지 않습니다.");
 	}
 
 	@Test
@@ -212,7 +212,8 @@ public class PostCommentServiceTest {
 
 		// When & Then
 		when(postCommentRepository.findById(commentId)).thenReturn(Optional.empty());
-		assertThrows(ServiceException.class, () -> postCommentService.getComment(postId, commentId), "해당 포스트의 댓글이 아닙니다.");
+		assertThrows(ServiceException.class, () -> postCommentService.getComment(null, postId, commentId),
+			"해당 포스트의 댓글이 아닙니다.");
 	}
 
 	@Test
@@ -233,7 +234,8 @@ public class PostCommentServiceTest {
 		Slice<PostComment> commentSlice = new SliceImpl<>(comments.subList(0, size), pageRequest, true);
 
 		// Repository Stub 설정
-		when(postCommentRepository.findByPostIdAndParentCommentIsNullAndIdLessThanOrderByIdDesc(postId, lastId, pageRequest))
+		when(postCommentRepository.findByPostIdAndParentCommentIsNullAndIdLessThanOrderByIdDesc(postId, lastId,
+			pageRequest))
 			.thenReturn(commentSlice);
 
 		// When
@@ -262,7 +264,8 @@ public class PostCommentServiceTest {
 		Slice<PostComment> commentSlice = new SliceImpl<>(comments.subList(0, toIndex), pageRequest, false);
 
 		// Repository Stub 설정
-		when(postCommentRepository.findByPostIdAndParentCommentIsNullAndIdLessThanOrderByIdDesc(postId, lastId, pageRequest))
+		when(postCommentRepository.findByPostIdAndParentCommentIsNullAndIdLessThanOrderByIdDesc(postId, lastId,
+			pageRequest))
 			.thenReturn(commentSlice);
 
 		// When
@@ -276,7 +279,6 @@ public class PostCommentServiceTest {
 			.findByPostIdAndParentCommentIsNullAndIdLessThanOrderByIdDesc(postId, lastId, pageRequest);
 	}
 
-
 	@Test
 	@DisplayName("댓글 목록 조회 - 빈 리스트 반환")
 	void getComments_Empty() {
@@ -288,7 +290,8 @@ public class PostCommentServiceTest {
 		PageRequest pageRequest = PageRequest.of(0, size);
 		Slice<PostComment> emptySlice = new SliceImpl<>(Collections.emptyList(), pageRequest, false);
 
-		when(postCommentRepository.findByPostIdAndParentCommentIsNullAndIdLessThanOrderByIdDesc(postId, lastId, pageRequest))
+		when(postCommentRepository.findByPostIdAndParentCommentIsNullAndIdLessThanOrderByIdDesc(postId, lastId,
+			pageRequest))
 			.thenReturn(emptySlice);
 
 		// When

@@ -123,7 +123,7 @@ public class PostService {
 	@Transactional(readOnly = true)
 	public PostDetailResponseDto getPost(String email, Long postId) {
 		Post post = findPostById(postId);
-		boolean isLiked = Optional.ofNullable(email)
+		Boolean isLiked = Optional.ofNullable(email)
 			.map(userService::findUserByEmail)
 			.map(loginUser -> likeService.getLikeStatus(loginUser.getId(), postId, Like.TargetType.POST))
 			.orElse(false);

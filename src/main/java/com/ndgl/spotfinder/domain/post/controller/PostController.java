@@ -1,7 +1,8 @@
 package com.ndgl.spotfinder.domain.post.controller;
 
+import static com.ndgl.spotfinder.global.util.Ut.*;
+
 import java.security.Principal;
-import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -133,11 +134,5 @@ public class PostController implements PostApiSpecification {
 		SliceResponse<PostResponseDto> results = postService.getPostsByFollow(sliceRequest, principal.getName());
 
 		return RsData.success(HttpStatus.OK, results);
-	}
-
-	private static String getEmail(Principal principal) {
-		return Optional.ofNullable(principal)
-			.map(Principal::getName)
-			.orElse(null); // 익명 사용자
 	}
 }

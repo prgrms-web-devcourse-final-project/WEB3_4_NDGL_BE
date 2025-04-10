@@ -1,15 +1,19 @@
 package com.ndgl.spotfinder.domain.comment.service;
 
+import java.util.Optional;
+
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ndgl.spotfinder.domain.comment.dto.PostCommentResponseDto;
 import com.ndgl.spotfinder.domain.comment.dto.PostCommentRequestDto;
+import com.ndgl.spotfinder.domain.comment.dto.PostCommentResponseDto;
 import com.ndgl.spotfinder.domain.comment.entity.PostComment;
 import com.ndgl.spotfinder.domain.comment.repository.PostCommentRepository;
+import com.ndgl.spotfinder.domain.like.entity.Like;
+import com.ndgl.spotfinder.domain.like.service.LikeService;
 import com.ndgl.spotfinder.domain.post.entity.Post;
 import com.ndgl.spotfinder.domain.post.service.PostService;
 import com.ndgl.spotfinder.domain.user.entity.User;
@@ -25,6 +29,7 @@ public class PostCommentService {
 	private final PostCommentRepository postCommentRepository;
 	private final UserService userService;
 	private final PostService postService;
+	private final LikeService likeService;
 
 	@Transactional(readOnly = true)
 	public SliceResponse<PostCommentResponseDto> getComments(Long postId, Long lastId, int size) {
@@ -54,9 +59,14 @@ public class PostCommentService {
 	}
 
 	@Transactional(readOnly = true)
-	public PostCommentResponseDto getComment(Long postId, Long commentId) {
+	public PostCommentResponseDto getComment(String email, Long postId, Long commentId) {
 		PostComment comment = findCommentAndVerifyPost(commentId, postId);
-		return new PostCommentResponseDto(comment);
+		Boolean isLiked = Optional.ofNullable(email)
+			.map(userService::findUserByEmail)
+			.map(loginUser -> likeService.getLikeStatus(loginUser.getId(), commentId, Like.TargetType.COMMENT))
+			.orElse(false);
+
+		return new PostCommentResponseDto(comment, isLiked);
 	}
 
 	@Transactional
