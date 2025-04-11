@@ -12,6 +12,7 @@ import com.ndgl.spotfinder.domain.like.service.LikeService;
 import com.ndgl.spotfinder.global.rsdata.RsData;
 import com.ndgl.spotfinder.global.security.jwt.CustomUserDetails;
 
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -27,7 +28,7 @@ public class LikeController implements LikeApiSpecification {
 	@PostMapping("/comments/{commentId}")
 	public RsData<Boolean> toggleCommentLike(
 		@AuthenticationPrincipal CustomUserDetails customUserDetails,
-		@PathVariable Long commentId
+		@Positive @PathVariable Long commentId
 	) {
 		long userId = customUserDetails.getUser().getId();
 		boolean isAdded = likeService.toggleLike(userId, commentId, Like.TargetType.COMMENT);
@@ -40,7 +41,7 @@ public class LikeController implements LikeApiSpecification {
 	@PostMapping("/posts/{postId}")
 	public RsData<Boolean> togglePostLike(
 		@AuthenticationPrincipal CustomUserDetails customUserDetails,
-		@PathVariable Long postId
+		@Positive @PathVariable Long postId
 	) {
 		long userId = customUserDetails.getUser().getId();
 		boolean isAdded = likeService.toggleLike(userId, postId, Like.TargetType.POST);

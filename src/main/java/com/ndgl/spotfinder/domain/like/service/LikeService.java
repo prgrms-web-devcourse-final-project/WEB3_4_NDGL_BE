@@ -10,7 +10,6 @@ import com.ndgl.spotfinder.domain.like.entity.Like.TargetType;
 import com.ndgl.spotfinder.domain.like.repository.LikeRepository;
 import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.domain.user.service.UserService;
-import com.ndgl.spotfinder.global.exception.ErrorCode;
 
 import lombok.RequiredArgsConstructor;
 
@@ -29,8 +28,6 @@ public class LikeService {
 	 */
 	@Transactional
 	public boolean toggleLike(Long userId, Long targetId, TargetType targetType) {
-		validateLikeTarget(targetId);
-
 		return likeRepository.findByUserIdAndTargetIdAndTargetType(userId, targetId, targetType)
 			.map(like -> {
 				deleteLike(like, targetId, targetType);
@@ -47,7 +44,6 @@ public class LikeService {
 	 */
 	@Transactional(readOnly = true)
 	public Long getLikeCount(Long targetId, TargetType targetType) {
-		validateLikeTarget(targetId);
 		return likeRepository.countByTargetIdAndTargetType(targetId, targetType);
 	}
 
@@ -58,7 +54,6 @@ public class LikeService {
 	 */
 	@Transactional(readOnly = true)
 	public Boolean getLikeStatus(Long userId, Long targetId, TargetType targetType) {
-		validateLikeTarget(targetId);
 		return Optional.ofNullable(userId)
 			.map(id -> likeRepository.existsByUserIdAndTargetIdAndTargetType(id, targetId, targetType))
 			.orElse(false);
@@ -69,18 +64,7 @@ public class LikeService {
 	 */
 	@Transactional
 	public void deleteAllLikes(Long targetId, TargetType targetType) {
-		validateLikeTarget(targetId);
 		likeRepository.deleteByTargetIdAndTargetType(targetId, targetType);
-	}
-
-	/**
-	 * 좋아요 대상 유효성 검증
-	 */
-	private void validateLikeTarget(Long targetId) {
-		if (targetId <= 0) {
-			ErrorCode.INVALID_TARGET_ID.throwServiceException();
-		}
-
 	}
 
 	/**
