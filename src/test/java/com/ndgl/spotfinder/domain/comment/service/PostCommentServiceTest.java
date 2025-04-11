@@ -4,7 +4,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
@@ -23,14 +25,14 @@ import com.ndgl.spotfinder.domain.comment.dto.PostCommentRequestDto;
 import com.ndgl.spotfinder.domain.comment.dto.PostCommentResponseDto;
 import com.ndgl.spotfinder.domain.comment.entity.PostComment;
 import com.ndgl.spotfinder.domain.comment.repository.PostCommentRepository;
+import com.ndgl.spotfinder.domain.like.entity.Like;
+import com.ndgl.spotfinder.domain.like.service.LikeService;
 import com.ndgl.spotfinder.domain.post.entity.Post;
 import com.ndgl.spotfinder.domain.post.service.PostService;
 import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.domain.user.service.UserService;
 import com.ndgl.spotfinder.global.common.dto.SliceResponse;
 import com.ndgl.spotfinder.global.exception.ServiceException;
-import com.ndgl.spotfinder.domain.like.entity.Like;
-import com.ndgl.spotfinder.domain.like.service.LikeService;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -322,7 +324,7 @@ public class PostCommentServiceTest {
 		when(postCommentRepository.findById(commentId)).thenReturn(Optional.of(comment));
 		when(userService.findUserByEmail(user.getEmail())).thenReturn(user);
 		when(likeService.getLikeStatus(userId, commentId, Like.TargetType.COMMENT)).thenReturn(true);
-		
+
 		PostCommentResponseDto result = postCommentService.getComment(user.getEmail(), postId, commentId);
 
 		// Then
@@ -345,7 +347,7 @@ public class PostCommentServiceTest {
 		when(postCommentRepository.findById(commentId)).thenReturn(Optional.of(comment));
 		when(userService.findUserByEmail(user.getEmail())).thenReturn(user);
 		when(likeService.getLikeStatus(userId, commentId, Like.TargetType.COMMENT)).thenReturn(false);
-		
+
 		PostCommentResponseDto result = postCommentService.getComment(user.getEmail(), postId, commentId);
 
 		// Then
@@ -366,7 +368,7 @@ public class PostCommentServiceTest {
 
 		// When
 		when(postCommentRepository.findById(commentId)).thenReturn(Optional.of(comment));
-		
+
 		PostCommentResponseDto result = postCommentService.getComment(email, postId, commentId);
 
 		// Then
@@ -390,23 +392,30 @@ public class PostCommentServiceTest {
 		PageRequest pageRequest = PageRequest.of(0, size);
 		Slice<PostComment> commentSlice = new SliceImpl<>(comments, pageRequest, false);
 
-		// Repository Stub 설정
-		when(postCommentRepository.findByPostIdAndParentCommentIsNullAndIdLessThanOrderByIdDesc(postId, lastId, pageRequest))
+		when(postCommentRepository.findByPostIdAndParentCommentIsNullAndIdLessThanOrderByIdDesc(postId, lastId,
+			pageRequest))
 			.thenReturn(commentSlice);
 		when(userService.findUserByEmail(user.getEmail())).thenReturn(user);
-		
-		// 첫 번째 댓글은 좋아요 O, 두 번째 댓글은 좋아요 X
-		when(likeService.getLikeStatus(userId, 1L, Like.TargetType.COMMENT)).thenReturn(true);
-		when(likeService.getLikeStatus(userId, 2L, Like.TargetType.COMMENT)).thenReturn(false);
+
+		List<Long> commentIds = List.of(1L, 2L);
+		Map<Long, Boolean> likeStatusMap = new HashMap<>();
+		likeStatusMap.put(1L, true);
+		likeStatusMap.put(2L, false);
+
+		when(likeService.getAllLikeStatus(userId, commentIds, Like.TargetType.COMMENT))
+			.thenReturn(likeStatusMap);
 
 		// When
-		SliceResponse<PostCommentResponseDto> response = postCommentService.getComments(user.getEmail(), postId, lastId, size);
+		SliceResponse<PostCommentResponseDto> response = postCommentService.getComments(user.getEmail(), postId, lastId,
+			size);
 
 		// Then
 		assertNotNull(response);
 		assertEquals(2, response.contents().size());
 		assertTrue(response.contents().get(0).likeStatus());
 		assertFalse(response.contents().get(1).likeStatus());
-		verify(likeService, times(2)).getLikeStatus(anyLong(), anyLong(), any());
+
+		verify(likeService, times(1)).getAllLikeStatus(anyLong(), anyList(), any());
 	}
+
 }

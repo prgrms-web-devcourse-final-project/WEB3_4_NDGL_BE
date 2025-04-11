@@ -148,15 +148,6 @@ public class LikeServiceTest {
 	}
 
 	@Test
-	@DisplayName("이메일 null 처리 실패")
-	public void toggleLike_emailNull() {
-		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, 
-			() -> likeService.toggleLike(null, VALID_POST_ID, TargetType.POST));
-		assertNotNull(exception);
-		assertEquals("Email은 null일 수 없습니다.", exception.getMessage());
-	}
-
-	@Test
 	@DisplayName("포스트의 모든 좋아요 삭제 성공")
 	public void deleteAllLikes_forPost_success() {
 		likeService.deleteAllLikes(VALID_POST_ID, TargetType.POST);

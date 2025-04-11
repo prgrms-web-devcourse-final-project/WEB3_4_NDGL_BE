@@ -33,6 +33,7 @@ public enum ErrorCode {
 	// LIKE
 	UNSUPPORTED_TARGET_TYPE(HttpStatus.NOT_FOUND, "지원하지 않는 타겟 유형입니다"),
 	INVALID_TARGET_ID(HttpStatus.BAD_REQUEST, "유효하지 않은 대상 ID입니다."),
+	INVALID_EMAIl(HttpStatus.BAD_REQUEST, "유효하지 않은 이메일 입니다."),
 
 	// REPORT
 	REPORTER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 신고자입니다."),

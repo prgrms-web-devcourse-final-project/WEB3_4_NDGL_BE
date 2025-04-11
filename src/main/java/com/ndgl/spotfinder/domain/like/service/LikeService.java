@@ -1,5 +1,9 @@
 package com.ndgl.spotfinder.domain.like.service;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -10,6 +14,7 @@ import com.ndgl.spotfinder.domain.like.entity.Like.TargetType;
 import com.ndgl.spotfinder.domain.like.repository.LikeRepository;
 import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.domain.user.service.UserService;
+import com.ndgl.spotfinder.global.exception.ErrorCode;
 
 import lombok.RequiredArgsConstructor;
 
@@ -31,7 +36,7 @@ public class LikeService {
 		Long userId = Optional.ofNullable(email)
 			.map(userService::findUserByEmail)
 			.map(User::getId)
-			.orElseThrow(() -> new IllegalArgumentException("Email은 null일 수 없습니다."));
+			.orElseThrow(ErrorCode.INVALID_EMAIl::throwServiceException);
 
 		return likeRepository.findByUserIdAndTargetIdAndTargetType(userId, targetId, targetType)
 			.map(like -> {
@@ -75,6 +80,7 @@ public class LikeService {
 	/**
 	 * 좋아요 삭제 및 대상 좋아요 카운트 감소
 	 */
+	@Deprecated
 	private void deleteLike(Like like, Long targetId, TargetType targetType) {
 		likeTargetService.updateLikeCount(targetId, targetType, -1);
 		likeRepository.delete(like);
@@ -83,6 +89,7 @@ public class LikeService {
 	/**
 	 * 좋아요 생성 및 대상 좋아요 카운트 증가
 	 */
+	@Deprecated
 	private void createLike(Long userId, Long targetId, TargetType targetType) {
 		User user = userService.findUserById(userId);
 		Like like = Like.builder()
@@ -95,4 +102,25 @@ public class LikeService {
 		likeRepository.save(like);
 	}
 
+	/**
+	 * 좋아요 상태를 한번에 조회
+	 */
+	@Transactional(readOnly = true)
+	public Map<Long, Boolean> getAllLikeStatus(long userId, List<Long> targetIds, Like.TargetType targetType) {
+		if (targetIds.isEmpty()) {
+			return Collections.emptyMap();
+		}
+
+		List<Long> likedTargetIds = likeRepository.findAllByUserIdAndTargetIdInAndTargetType(
+				userId, targetIds, targetType)
+			.stream()
+			.map(Like::getTargetId)
+			.toList();
+
+		Map<Long, Boolean> result = new HashMap<>();
+		for (Long targetId : targetIds) {
+			result.put(targetId, likedTargetIds.contains(targetId));
+		}
+		return result;
+	}
 }

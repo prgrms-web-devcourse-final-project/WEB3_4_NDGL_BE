@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Positive;
 
 @Tag(name = "좋아요 API", description = "좋아요 관련 API")
 public interface LikeApiSpecification {
@@ -20,7 +21,7 @@ public interface LikeApiSpecification {
 		security = {@SecurityRequirement(name = "JWT")}
 	)
 	RsData<Boolean> toggleCommentLike(
-		@Parameter(description = "댓글 ID", example = "1") @PathVariable Long commentId,
+		@Positive @Parameter(description = "댓글 ID", example = "1") @PathVariable Long commentId,
 		@Parameter(hidden = true) Principal principal
 	);
 
@@ -30,7 +31,7 @@ public interface LikeApiSpecification {
 		security = {@SecurityRequirement(name = "JWT")}
 	)
 	RsData<Boolean> togglePostLike(
-		@Parameter(description = "포스트 ID", example = "1") @PathVariable Long postId,
+		@Positive  @Parameter(description = "포스트 ID", example = "1") @PathVariable Long postId,
 		@Parameter(hidden = true) Principal principal
 	);
 }

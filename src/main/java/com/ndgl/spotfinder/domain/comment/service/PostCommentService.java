@@ -1,5 +1,9 @@
 package com.ndgl.spotfinder.domain.comment.service;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.data.domain.PageRequest;
@@ -109,20 +113,61 @@ public class PostCommentService {
 		comment.setContent(content);
 	}
 
+	// 로그인 사용자
 	private SliceResponse<PostCommentResponseDto> convertToSliceResponse(long userId, Slice<PostComment> results) {
+		List<Long> allCommentIds = collectAllCommentIds(results.getContent());
+		Map<Long, Boolean> likeStatusMap = likeService.getAllLikeStatus(
+			userId, allCommentIds, Like.TargetType.COMMENT);
+
 		return new SliceResponse<>(
-			results.map(comment ->
-				new PostCommentResponseDto(comment,
-					likeService.getLikeStatus(userId, comment.getId(), Like.TargetType.COMMENT)
-				)).toList(),
+			results.map(comment -> createResponseWithLikeStatusMap(comment, likeStatusMap)).toList(),
 			results.hasNext()
 		);
 	}
 
+	// 비 로그인 사용자
 	private SliceResponse<PostCommentResponseDto> convertToSliceResponse(Slice<PostComment> results) {
 		return new SliceResponse<>(
-			results.map(comment -> new PostCommentResponseDto(comment, false)).toList(),
+			results.map(comment -> new PostCommentResponseDto(comment, false))
+				.toList(),
 			results.hasNext()
 		);
 	}
+
+	private List<Long> collectAllCommentIds(List<PostComment> comments) {
+		List<Long> allIds = new ArrayList<>();
+
+		for (PostComment comment : comments) {
+			allIds.add(comment.getId());
+
+			if (comment.getChildrenComments() != null) {
+				comment.getChildrenComments().forEach(child -> allIds.add(child.getId()));
+			}
+		}
+
+		return allIds;
+	}
+
+	private PostCommentResponseDto createResponseWithLikeStatusMap(
+		PostComment comment,
+		Map<Long, Boolean> likeStatusMap
+	) {
+
+		boolean isLiked = likeStatusMap.getOrDefault(comment.getId(), false);
+
+		if (comment.getChildrenComments() == null) {
+			return new PostCommentResponseDto(comment, isLiked);
+		}
+
+		List<PostCommentResponseDto> childrenComments = comment.getChildrenComments().stream()
+			.sorted(Comparator.comparing(PostComment::getId).reversed())
+			.map(child -> new PostCommentResponseDto(
+				child,
+				likeStatusMap.getOrDefault(child.getId(), false)
+			))
+			.toList();
+
+		return new PostCommentResponseDto(comment, isLiked, childrenComments);
+	}
+
 }
