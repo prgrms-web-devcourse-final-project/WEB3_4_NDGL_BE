@@ -27,13 +27,9 @@ spring:
         enabled: true
 
   elasticsearch:
-    uris: http://localhost:9200
+    uris: http://${ELK_HOST}:9200
     ssl:
       verification-mode: none
-
-elasticsearch:
-  port: 9200
-  enabled: false
 
 logging:
   level:
