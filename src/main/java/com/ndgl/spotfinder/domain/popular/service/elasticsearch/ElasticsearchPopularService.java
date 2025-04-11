@@ -8,33 +8,43 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.ndgl.spotfinder.domain.popular.dto.KeywordCountDto;
 import com.ndgl.spotfinder.domain.popular.dto.PostCountDto;
+import com.ndgl.spotfinder.global.app.AppConfig;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.aggregations.LongTermsBucket;
 import co.elastic.clients.elasticsearch._types.aggregations.StringTermsBucket;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.json.JsonData;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class ElasticsearchPopularService {
 
 	private final ElasticsearchClient elasticsearchClient;
+	private final String keywordSearchIndex;
+	private final String postViewIndex;
+
+	@Autowired
+	public ElasticsearchPopularService(ElasticsearchClient elasticsearchClient, AppConfig appConfig) {
+		this.elasticsearchClient = elasticsearchClient;
+
+		String env = appConfig.getActiveProfile();
+		this.keywordSearchIndex = env + "-search-";
+		this.postViewIndex = env + "-post-view-";
+	}
 
 	private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy.MM.dd");
-	private static final String KEYWORD_SEARCH_INDEX = "dev-search-";
-	private static final String POST_VIEW_INDEX = "dev-post-view-";
+
 
 	// 인기 검색어 Top N 조회
 	public List<KeywordCountDto> findTopKeywords(long startTime, long endTime, int size) throws IOException {
-		String[] indices = getIndicesForTimeRange(startTime, endTime, KEYWORD_SEARCH_INDEX);
+		String[] indices = getIndicesForTimeRange(startTime, endTime, keywordSearchIndex);
 
 		for (String index : indices) {
 			log.info("Elasticsearch 조회할 검색 인덱스 : {}", index);
@@ -77,7 +87,7 @@ public class ElasticsearchPopularService {
 
 	// 인기 포스트 Top N 조회
 	public List<PostCountDto> findTopPosts(long startTime, long endTime, int size) throws IOException {
-		String[] indices = getIndicesForTimeRange(startTime, endTime, POST_VIEW_INDEX);
+		String[] indices = getIndicesForTimeRange(startTime, endTime, postViewIndex);
 
 		for (String index : indices) {
 			log.info("Elasticsearch 조회할 게시물 인덱스 : {}", index);

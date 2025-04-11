@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
 
+	private final AppConfig appConfig;
 	private final TokenProvider tokenProvider;
 
 	@Override
@@ -33,7 +34,7 @@ public class JwtFilter extends OncePerRequestFilter {
 		String tokenValue = null;
 
 		// 개발 환경일 경우, Header 인증을 먼저 시도 (for swagger)
-		if (AppConfig.isDev()) {
+		if (appConfig.isDev()) {
 			tokenValue = resolveTokenFromHeader(request);
 		}
 
