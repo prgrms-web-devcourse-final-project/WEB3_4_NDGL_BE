@@ -6,29 +6,39 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ndgl.spotfinder.domain.comment.repository.PostCommentRepository;
+import com.ndgl.spotfinder.domain.comment.service.PostCommentService;
 import com.ndgl.spotfinder.domain.like.entity.Like;
 import com.ndgl.spotfinder.domain.like.entity.Like.TargetType;
 import com.ndgl.spotfinder.domain.like.entity.Likeable;
 import com.ndgl.spotfinder.domain.like.repository.LikeRepository;
-import com.ndgl.spotfinder.domain.post.repository.PostRepository;
+import com.ndgl.spotfinder.domain.post.service.PostService;
 import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.domain.user.service.UserService;
 import com.ndgl.spotfinder.global.exception.ErrorCode;
 
-import lombok.RequiredArgsConstructor;
-
 @Service
-@RequiredArgsConstructor
 public class LikeService {
 
 	private final LikeRepository likeRepository;
 	private final UserService userService;
-	private final PostRepository postRepository;
-	private final PostCommentRepository postCommentRepository;
+	private final PostService postService;
+	private final PostCommentService postCommentService;
+
+	public LikeService(
+		LikeRepository likeRepository,
+		UserService userService,
+		@Lazy PostService postService,
+		@Lazy PostCommentService postCommentService
+	) {
+		this.likeRepository = likeRepository;
+		this.userService = userService;
+		this.postService = postService;
+		this.postCommentService = postCommentService;
+	}
 
 	/**
 	 * 좋아요 추가 또는 삭제
@@ -123,10 +133,8 @@ public class LikeService {
 
 	private Likeable getTarget(Long targetId, TargetType targetType) {
 		return switch (targetType) {
-			case POST -> postRepository.findById(targetId)
-				.orElseThrow(ErrorCode.POST_NOT_FOUND::throwServiceException);
-			case COMMENT -> postCommentRepository.findById(targetId)
-				.orElseThrow(ErrorCode.COMMENT_NOT_FOUND::throwServiceException);
+			case POST -> postService.findPostById(targetId);
+			case COMMENT -> postCommentService.findCommentById(targetId);
 		};
 	}
 }
