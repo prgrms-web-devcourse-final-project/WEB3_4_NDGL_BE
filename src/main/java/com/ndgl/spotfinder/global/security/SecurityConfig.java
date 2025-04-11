@@ -1,8 +1,7 @@
 package com.ndgl.spotfinder.global.security;
 
-import org.apache.tomcat.util.http.Rfc6265CookieProcessor;
-import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
-import org.springframework.boot.web.server.WebServerFactoryCustomizer;
+import java.util.Arrays;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
@@ -12,6 +11,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ndgl.spotfinder.global.security.handler.CustomAccessDeniedHandler;
@@ -63,6 +65,9 @@ public class SecurityConfig {
 			)
 			.userDetailsService(adminUserDetailsService)
 			.csrf(csrf -> csrf.disable())
+			.cors(
+				cors -> cors.configurationSource(corsConfigurationSource())
+			)
 			.sessionManagement(session ->
 				session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.authorizeHttpRequests(auth -> auth
@@ -71,6 +76,10 @@ public class SecurityConfig {
 					"/login/callback",
 					"oauth2/**",
 					"/api/v1/users/google/login/process",
+					"/api/v1/users",
+					"/api/v1/users/logout",
+					"/api/v1/users/resign",
+					"/api/v1/users/info",
 					"/api/v1/auth/status",
 					"/api/v1/auth/token/refresh",
 					"/api/v1/users/google/login/process",
@@ -85,8 +94,6 @@ public class SecurityConfig {
 					"/swagger-ui/**",
 					"/v3/api-docs/**"
 				)
-				.permitAll()
-				.requestMatchers(HttpMethod.OPTIONS, "/**")// Preflight 요청(CORS)을 허용하여 브라우저의 사전 요청 차단 문제 해결
 				.permitAll()
 				.requestMatchers(HttpMethod.GET,
 					"/api/v1/posts/**",
@@ -125,11 +132,32 @@ public class SecurityConfig {
 	}
 
 	@Bean
-	public WebServerFactoryCustomizer<TomcatServletWebServerFactory> cookieProcessorCustomizer() {
-		return factory -> factory.addContextCustomizers(context -> {
-			final Rfc6265CookieProcessor cookieProcessor = new Rfc6265CookieProcessor();
-			cookieProcessor.setSameSiteCookies("None");
-			context.setCookieProcessor(cookieProcessor);
-		});
+	public CorsConfigurationSource corsConfigurationSource() {
+		CorsConfiguration configuration = new CorsConfiguration();
+
+		// 허용할 오리진 설정
+		configuration.setAllowedOrigins(Arrays.asList(
+			"http://localhost:8080",
+			"https://localhost:8080",
+			"http://localhost:3000",
+			"https://localhost:3000",
+			"https://api.ndgl.shop",
+			"https://www.ndgl.shop"
+		));
+
+		// 허용할 HTTP 메서드 설정
+		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
+
+		// 자격 증명 허용 설정 (쿠키 등)
+		configuration.setAllowCredentials(true);
+
+		// 허용할 헤더 설정
+		configuration.setAllowedHeaders(Arrays.asList("*"));
+
+		// CORS 설정을 특정 경로에 적용
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", configuration);
+
+		return source;
 	}
 }

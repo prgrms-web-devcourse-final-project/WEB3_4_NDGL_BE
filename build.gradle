@@ -29,6 +29,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
     // Redis
@@ -77,6 +78,10 @@ dependencies {
 
     // LogStash
     implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
+
+    // 비동기 테스트
+    testImplementation 'org.awaitility:awaitility:4.2.0'
+
 }
 
 tasks.named('test') {

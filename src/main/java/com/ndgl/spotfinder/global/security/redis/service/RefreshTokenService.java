@@ -15,8 +15,8 @@ public class RefreshTokenService {
 	private final RefreshTokenRepository refreshTokenRepository;
 
 	//  refreshToken을 redis에 저장
-	public void saveRefreshToken(String email, String token) {
-		RefreshToken refreshToken = new RefreshToken(email, token);
+	public void saveRefreshToken(String accessToken, String token) {
+		RefreshToken refreshToken = new RefreshToken(accessToken, token);
 		refreshTokenRepository.save(refreshToken);
 	}
 

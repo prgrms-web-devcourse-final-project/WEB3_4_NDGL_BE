@@ -39,7 +39,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
 
-      DOCKER_IMAGE_NAME: app20250330
+      DOCKER_IMAGE_NAME: app20250406
 
     outputs:
       DOCKER_IMAGE_NAME: ${{ env.DOCKER_IMAGE_NAME }}
@@ -50,14 +50,8 @@ jobs:
         env:
           APPLICATION_SECRET: ${{ secrets.APPLICATION_SECRET_YML }}
         run: echo "$APPLICATION_SECRET" > src/main/resources/application-secret.yml
-
-      - name: Gradle 빌드 (jar 생성)
-        run: ./gradlew build --exclude-task test --no-daemon
-
       - name: Docker Buildx 설치
         uses: docker/setup-buildx-action@v2
-
-
       - name: 레지스트리 로그인
         uses: docker/login-action@v2
         with:
@@ -115,5 +109,5 @@ jobs:
             docker pull ghcr.io/${{ env.OWNER_LC }}/${{ env.DOCKER_IMAGE_NAME }}:latest
             docker stop app1 2>/dev/null
             docker rm app1 2>/dev/null
-            docker run -d -v /gen:/gen --name app1 --restart unless-stopped --network common --env-file /root/.env -p 8080:8080 ghcr.io/${{ env.OWNER_LC }}/${{ env.DOCKER_IMAGE_NAME }}:latest
+            docker run -d -v /gen:/gen --name app1 --restart unless-stopped --network common -e TZ=Asia/Seoul  -p 8080:8080 ghcr.io/${{ env.OWNER_LC }}/${{ env.DOCKER_IMAGE_NAME }}:latest
             docker rmi $(docker images -f "dangling=true" -q)

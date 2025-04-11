@@ -39,4 +39,8 @@ logging:
     org.hibernate.SQL: DEBUG
     org.hibernate.orm.jdbc.bind: TRACE
     org.hibernate.orm.jdbc.extract: TRACE
+<<<<<<< HEAD
     org.springframework.transaction.interceptor: TRACE
+=======
+    org.springframework.transaction.interceptor: TRACE
+>>>>>>> 0d935783610ddece00189c3df1f4ed5c2be7b425

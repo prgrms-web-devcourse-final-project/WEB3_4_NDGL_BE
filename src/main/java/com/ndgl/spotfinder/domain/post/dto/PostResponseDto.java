@@ -17,6 +17,9 @@ public record PostResponseDto(
 	@Schema(description = "내용", example = "TV 예능 맛있는 녀석들에 나온 맛집들입니다.")
 	String content,
 
+	@Schema(description = "작성자 아이디", example = "2")
+	Long authorId,
+
 	@Schema(description = "작성자 이름", example = "맛집사냥꾼")
 	String authorName,
 
@@ -35,11 +38,14 @@ public record PostResponseDto(
 	@Schema(description = "해시태그 목록")
 	List<HashtagDto> hashtags
 ) {
+	private static final Long POST_LIST_HASHTAG_COUNT = 3L;
+
 	public PostResponseDto(Post post) {
 		this(
 			post.getId(),
 			post.getTitle(),
 			post.getContent(),
+			post.getUser().getId(),
 			post.getUser().getNickName(),
 			post.getThumbnail(),
 			post.getLikeCount(),
@@ -47,9 +53,10 @@ public record PostResponseDto(
 			post.getCreatedAt(),
 			post.getHashtags()
 				.stream()
-				.limit(3)
+				.limit(POST_LIST_HASHTAG_COUNT)
 				.map(HashtagDto::new)
 				.toList()
 		);
 	}
+
 }

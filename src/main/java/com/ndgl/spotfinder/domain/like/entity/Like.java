@@ -27,7 +27,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(name = "`Like`",
+@Table(
+	name = "\"Like\"",
 	uniqueConstraints = @UniqueConstraint(
 		columnNames = {"user_id", "target_id", "target_type"},
 		name = "uk_like_user_target"
@@ -52,22 +53,6 @@ public class Like extends BaseTime {
 	public enum TargetType {
 		POST,      // 포스트
 		COMMENT,   // 댓글
-	}
-
-	public static Like createPostLike(User user, Long postId) {
-		return builder()
-			.user(user)
-			.targetId(postId)
-			.targetType(TargetType.POST)
-			.build();
-	}
-
-	public static Like createCommentLike(User user, Long commentId) {
-		return builder()
-			.user(user)
-			.targetId(commentId)
-			.targetType(TargetType.COMMENT)
-			.build();
 	}
 
 }

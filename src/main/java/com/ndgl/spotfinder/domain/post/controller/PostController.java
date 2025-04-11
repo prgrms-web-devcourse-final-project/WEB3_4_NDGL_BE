@@ -1,5 +1,7 @@
 package com.ndgl.spotfinder.domain.post.controller;
 
+import static com.ndgl.spotfinder.global.util.Ut.*;
+
 import java.security.Principal;
 
 import org.springframework.http.HttpStatus;
@@ -16,25 +18,31 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ndgl.spotfinder.domain.post.dto.PostCreateRequestDto;
 import com.ndgl.spotfinder.domain.post.dto.PostDetailResponseDto;
 import com.ndgl.spotfinder.domain.post.dto.PostResponseDto;
+import com.ndgl.spotfinder.domain.post.dto.PostTempResponseDto;
+import com.ndgl.spotfinder.domain.post.dto.PostTempUpdateRequestDto;
 import com.ndgl.spotfinder.domain.post.dto.PostUpdateRequestDto;
 import com.ndgl.spotfinder.domain.post.service.PostService;
 import com.ndgl.spotfinder.global.common.dto.SliceRequest;
 import com.ndgl.spotfinder.global.common.dto.SliceResponse;
 import com.ndgl.spotfinder.global.rsdata.RsData;
 
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
-@Tag(name = "포스트")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/posts")
 public class PostController implements PostApiSpecification {
 	private final PostService postService;
 
+	@PostMapping("/temp")
+	public RsData<PostTempResponseDto> createTempPost(Principal principal) {
+		PostTempResponseDto response = postService.findOrCreateTempPost(principal.getName());
+		return RsData.success(HttpStatus.OK, response);
+	}
+
 	@PostMapping
-	public RsData<String> createPost(
+	public RsData<Void> createPost(
 		@RequestBody @Valid PostCreateRequestDto postCreateRequestDto,
 		Principal principal
 	) {
@@ -43,19 +51,30 @@ public class PostController implements PostApiSpecification {
 		return RsData.success(HttpStatus.OK);
 	}
 
+	@PutMapping("/temp/{id}")
+	public RsData<String> updateTempPost(
+		@PathVariable Long id,
+		@RequestBody @Valid PostTempUpdateRequestDto requestDto,
+		Principal principal
+	) {
+		postService.updatePost(id, requestDto, principal.getName(), true);
+
+		return RsData.success(HttpStatus.OK);
+	}
+
 	@PutMapping("/{id}")
-	public RsData<String> updatePost(
+	public RsData<Void> updatePost(
 		@PathVariable Long id,
 		@RequestBody @Valid PostUpdateRequestDto postUpdateRequestDto,
 		Principal principal
 	) {
-		postService.updatePost(id, postUpdateRequestDto, principal.getName());
+		postService.updatePost(id, postUpdateRequestDto, principal.getName(), false);
 
 		return RsData.success(HttpStatus.OK);
 	}
 
 	@DeleteMapping("/{id}")
-	public RsData<String> deletePost(
+	public RsData<Void> deletePost(
 		@PathVariable Long id,
 		Principal principal
 	) {
@@ -65,15 +84,21 @@ public class PostController implements PostApiSpecification {
 	}
 
 	@GetMapping
-	public RsData<SliceResponse<PostResponseDto>> getPosts(@ModelAttribute @Valid SliceRequest sliceRequest) {
+	public RsData<SliceResponse<PostResponseDto>> getPosts(
+		@ModelAttribute @Valid SliceRequest sliceRequest
+	) {
 		SliceResponse<PostResponseDto> results = postService.getPosts(sliceRequest);
 
 		return RsData.success(HttpStatus.OK, results);
 	}
 
 	@GetMapping("/{id}")
-	public RsData<PostDetailResponseDto> getPost(@PathVariable Long id) {
-		PostDetailResponseDto result = postService.getPost(id);
+	public RsData<PostDetailResponseDto> getPost(
+		@PathVariable Long id,
+		Principal principal
+	) {
+		String email = getEmail(principal);
+		PostDetailResponseDto result = postService.getPost(email, id);
 
 		return RsData.success(HttpStatus.OK, result);
 	}
@@ -81,9 +106,11 @@ public class PostController implements PostApiSpecification {
 	@GetMapping("/users/{userId}")
 	public RsData<SliceResponse<PostResponseDto>> getPostsByUserId(
 		@PathVariable Long userId,
-		@ModelAttribute @Valid SliceRequest sliceRequest
+		@ModelAttribute @Valid SliceRequest sliceRequest,
+		Principal principal
 	) {
-		SliceResponse<PostResponseDto> results = postService.getPostsByUser(sliceRequest, userId);
+		String email = getEmail(principal);
+		SliceResponse<PostResponseDto> results = postService.getPostsByUser(sliceRequest, userId, email);
 
 		return RsData.success(HttpStatus.OK, results);
 	}
@@ -94,6 +121,16 @@ public class PostController implements PostApiSpecification {
 		Principal principal
 	) {
 		SliceResponse<PostResponseDto> results = postService.getPostsByLike(sliceRequest, principal.getName());
+
+		return RsData.success(HttpStatus.OK, results);
+	}
+
+	@GetMapping("/follow")
+	public RsData<SliceResponse<PostResponseDto>> getPostsByFollow(
+		@ModelAttribute @Valid SliceRequest sliceRequest,
+		Principal principal
+	) {
+		SliceResponse<PostResponseDto> results = postService.getPostsByFollow(sliceRequest, principal.getName());
 
 		return RsData.success(HttpStatus.OK, results);
 	}

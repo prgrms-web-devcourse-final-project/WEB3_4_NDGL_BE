@@ -17,11 +17,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import com.ndgl.spotfinder.domain.user.entity.User;
-import com.ndgl.spotfinder.domain.user.repository.UserRepository;
 import com.ndgl.spotfinder.global.exception.ErrorCode;
-import com.ndgl.spotfinder.global.exception.ErrorCode;
-import com.ndgl.spotfinder.global.exception.ServiceException;
 import com.ndgl.spotfinder.global.security.cookie.TokenCookieUtil;
 import com.ndgl.spotfinder.global.security.jwt.service.AdminUserDetailsService;
 import com.ndgl.spotfinder.global.security.jwt.service.CustomUserDetailsService;
@@ -54,7 +50,6 @@ public class TokenProvider {
 	private SecretKey key;
 	private final AdminUserDetailsService adminUserDetailsService;
 	private final CustomUserDetailsService customUserDetailsService;
-	private final UserRepository userRepository;
 	private final TokenCookieUtil tokenCookieUtil;
 	private final RefreshTokenService refreshTokenService;
 
@@ -64,43 +59,65 @@ public class TokenProvider {
 		this.key = new SecretKeySpec(Base64.getDecoder().decode(secret), SignatureAlgorithm.HS512.getJcaName());
 	}
 
+	//  AccessToken 생성
+	public String createAccessToken(String email, String authentication) {
+		long now = System.currentTimeMillis();
+
+		String accessToken = Jwts.builder()
+			.setSubject(email)
+			.setExpiration(new Date(now + validationTime))
+			.claim("auth", authentication)
+			.signWith(this.key, SignatureAlgorithm.HS512)
+			.compact();
+
+		return accessToken;
+	}
+
+	//  RefreshToken 생성
+	public String createRefreshToken(String email, String authentication) {
+		long now = System.currentTimeMillis();
+
+		String refreshToken = Jwts.builder()
+			.setSubject(email)
+			.setExpiration(new Date(now + refreshValidationTime))
+			.claim("auth", authentication)
+			.signWith(this.key, SignatureAlgorithm.HS512)
+			.compact();
+
+		refreshTokenService.saveRefreshToken(email, refreshToken);
+
+		return refreshToken;
+	}
+
+	//  로그인 시, accessToken이랑 refreshToken을 같이 생성.
 	public void createTokenAndSetCookies(Authentication authentication, HttpServletResponse response) {
 		if (authentication == null || authentication.getName() == null) {
 			log.error("createToken: Authentication 또는 사용자 이름이 null입니다.");
 			ErrorCode.UNAUTHORIZED.throwServiceException();
 		}
 
-		long now = System.currentTimeMillis();
+		String email = authentication.getName();
 		String authorities = authentication.getAuthorities().stream()
 			.map(GrantedAuthority::getAuthority)
 			.collect(Collectors.joining(","));
 
-		String subject = authentication.getName();
+		String accessToken= createAccessToken(email, authorities);
+		String refreshToken= createRefreshToken(email, authorities);
 
-		String accessToken = Jwts.builder()
-			.setSubject(subject)
-			.setExpiration(new Date(now + validationTime))
-			.claim("auth", authorities)
-			.signWith(this.key, SignatureAlgorithm.HS512)
-			.compact();
+		tokenCookieUtil.setTokenCookies(response, accessToken,refreshToken);
 
-		String refreshToken = Jwts.builder()
-			.setSubject(subject)
-			.setExpiration(new Date(now + refreshValidationTime))
-			.claim("auth", authorities)
-			.signWith(this.key, SignatureAlgorithm.HS512)
-			.compact();
 
 		log.info("AccessToken / RefreshToken 생성 완료");
-
-		tokenCookieUtil.setTokenCookies(response, accessToken);
-		refreshTokenService.saveRefreshToken(subject, refreshToken);
 	}
 
 	//  JWT 토큰 유효성 검증
 	public boolean validateToken(String token) {
+		//  accessToken 및 refreshToken이 없을 때
+		if (token == null || token.isEmpty()) {
+			return false;
+		}
+
 		try {
-			token = token.trim();
 			Jwts.parserBuilder()
 				.setSigningKey(key)
 				.setAllowedClockSkewSeconds(10)
@@ -126,18 +143,6 @@ public class TokenProvider {
 		} catch (Exception e) {
 			return null;
 		}
-	}
-
-	//  주어진 Access Token의 남은 유효 시간을 밀리초 단위로 반환합니다.
-	public Long getExpiration(String accessToken) {
-		Date expiration = Jwts.parserBuilder()
-			.setSigningKey(key)
-			.setAllowedClockSkewSeconds(10)
-			.build()
-			.parseClaimsJws(accessToken)
-			.getBody()
-			.getExpiration();
-		return expiration.getTime() - System.currentTimeMillis();
 	}
 
 	//  토큰에서 권한 추출
@@ -169,17 +174,25 @@ public class TokenProvider {
 			.getSubject();
 	}
 
-	public void createTokenAndSetCookiesByEmail(String email, HttpServletResponse response) {
-		User user = userRepository.findByEmail(email)
-			.orElseThrow(ErrorCode.USER_NOT_FOUND::throwServiceException);
+	public void refreshAccessToken(
+		String refreshToken,
+		String accessToken,
+		HttpServletResponse response
+	) {
+		String authorities = extractAuthoritiesEvenIfExpired(accessToken);
+		String email = getEmailFromTokenEvenIfExpired(accessToken);
 
-		CustomUserDetails customUserDetails = new CustomUserDetails(user);
+		log.info(email);
 
-		Authentication authentication = new UsernamePasswordAuthenticationToken(
-			customUserDetails, null, customUserDetails.getAuthorities()
-		);
+		boolean isValid = validateToken(refreshToken);
 
-		createTokenAndSetCookies(authentication, response);
+		//  refreshToken 만료 확인
+		if(!isValid) {
+			refreshToken = createRefreshToken(email, authorities);
+		}
+
+		accessToken = createAccessToken(email, authorities);
+		tokenCookieUtil.setTokenCookies(response, accessToken,refreshToken);
 	}
 
 	public SecretKey getKey() {
@@ -188,5 +201,44 @@ public class TokenProvider {
 
 	public long getValidationTime() {
 		return this.validationTime;
+	}
+
+	//  token 만료 시 만료된 token auth 정보 취득
+	public String extractAuthoritiesEvenIfExpired (String token) {
+		if (token == null || token.isBlank()) {
+			ErrorCode.UNAUTHORIZED.throwServiceException();
+		}
+
+		Claims claims;
+
+		try {
+			claims = Jwts.parserBuilder()
+				.setSigningKey(this.key)
+				.build()
+				.parseClaimsJws(token)
+				.getBody();
+		} catch (ExpiredJwtException e) {
+			claims = e.getClaims();
+		}
+
+		return claims.get("auth", String.class);
+	}
+
+	// token 만료 시 만료된 token에서 email 정보 취득
+	public String getEmailFromTokenEvenIfExpired(String token) {
+		if (token == null || token.isBlank()) {
+			ErrorCode.UNAUTHORIZED.throwServiceException();
+		}
+
+		try {
+			return Jwts.parserBuilder()
+				.setSigningKey(this.key)
+				.build()
+				.parseClaimsJws(token)
+				.getBody()
+				.getSubject();
+		} catch (ExpiredJwtException e) {
+			return e.getClaims().getSubject();
+		}
 	}
 }
