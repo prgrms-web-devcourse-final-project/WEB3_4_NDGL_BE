@@ -58,4 +58,5 @@ public record PostResponseDto(
 				.toList()
 		);
 	}
+
 }

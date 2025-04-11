@@ -2,6 +2,7 @@ package com.ndgl.spotfinder.domain.post.service;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -14,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.ndgl.spotfinder.domain.image.service.ImageCleanupService;
 import com.ndgl.spotfinder.domain.image.service.ImageService;
 import com.ndgl.spotfinder.domain.image.type.ImageUsage;
+import com.ndgl.spotfinder.domain.like.entity.Like;
+import com.ndgl.spotfinder.domain.like.service.LikeService;
 import com.ndgl.spotfinder.domain.post.dto.PostCommonUpdateRequestDto;
 import com.ndgl.spotfinder.domain.post.dto.PostCreateRequestDto;
 import com.ndgl.spotfinder.domain.post.dto.PostDetailResponseDto;
@@ -39,6 +42,7 @@ public class PostService {
 	private final ImageService imageService;
 	private final UserService userService;
 	private final ImageCleanupService imageCleanupService;
+	private final LikeService likeService;
 
 	private static final int FIRST_PAGE_NUMBER = 0;
 	private static final Long DEFAULT_LAST_ID = 0L;
@@ -50,8 +54,7 @@ public class PostService {
 		Post post = requestDto.toPost(user);
 		postRepository.save(post);
 
-		Set<String> usedImageUrls = extractImageUrlsFromContent(post.getContent());
-		imageCleanupService.cleanupUnusedImages(ImageUsage.POST, post.getId(), usedImageUrls);
+		cleanupImages(post);
 	}
 
 	@Transactional
@@ -74,8 +77,7 @@ public class PostService {
 		checkUserPermission(post, email);
 		postRepository.save(requestDto.toUpdatedPost(post, temp));
 
-		Set<String> usedImageUrls = extractImageUrlsFromContent(post.getContent());
-		imageCleanupService.cleanupUnusedImages(ImageUsage.POST, post.getId(), usedImageUrls);
+		cleanupImages(post);
 	}
 
 	@Transactional
@@ -84,20 +86,19 @@ public class PostService {
 		checkUserPermission(post, email);
 		postRepository.delete(post);
 		imageService.deletePostWithAllImages(ImageUsage.POST, post.getId());
+		likeService.deleteAllLikes(id, Like.TargetType.POST);
 	}
 
 	@Transactional(readOnly = true)
 	public SliceResponse<PostResponseDto> getPosts(SliceRequest sliceRequest) {
 		PageRequest pageRequest = PageRequest.of(FIRST_PAGE_NUMBER, sliceRequest.size());
 		Long lastId = getLastPostId(sliceRequest);
-
 		Slice<Post> results = postRepository.findByIdLessThanOrderByCreatedAtDesc(lastId, pageRequest);
-
 		return convertToSliceResponse(results);
 	}
 
 	@Transactional(readOnly = true)
-	public SliceResponse<PostResponseDto> getPostsByUser(SliceRequest sliceRequest, Long userId) {
+	public SliceResponse<PostResponseDto> getPostsByUser(SliceRequest sliceRequest, Long userId, String email) {
 		PageRequest pageRequest = PageRequest.of(FIRST_PAGE_NUMBER, sliceRequest.size());
 		Long lastId = getLastPostId(sliceRequest);
 		User user = userService.findUserById(userId);
@@ -115,10 +116,14 @@ public class PostService {
 	}
 
 	@Transactional(readOnly = true)
-	public PostDetailResponseDto getPost(Long id) {
-		Post post = findPostById(id);
+	public PostDetailResponseDto getPost(String email, Long postId) {
+		Post post = findPostById(postId);
+		Boolean isLiked = Optional.ofNullable(email)
+			.map(userService::findUserByEmail)
+			.map(loginUser -> likeService.getLikeStatus(loginUser.getId(), postId, Like.TargetType.POST))
+			.orElse(false);
 
-		return new PostDetailResponseDto(post);
+		return new PostDetailResponseDto(post, isLiked);
 	}
 
 	@Transactional(readOnly = true)
@@ -166,6 +171,11 @@ public class PostService {
 		}
 	}
 
+	private void cleanupImages(Post post) {
+		Set<String> usedImageUrls = extractImageUrlsFromContent(post.getContent());
+		imageCleanupService.cleanupUnusedImages(ImageUsage.POST, post.getId(), usedImageUrls);
+	}
+
 	private SliceResponse<PostResponseDto> convertToSliceResponse(Slice<Post> results) {
 		return new SliceResponse<>(
 			results.map(PostResponseDto::new).toList(),
@@ -173,18 +183,12 @@ public class PostService {
 		);
 	}
 
-	/**
-	 * 컨텐츠에서 이미지 URL을 추출하는 헬퍼 메서드
-	 */
 	public Set<String> extractImageUrlsFromContent(String content) {
 		Set<String> urls = new HashSet<>();
-
-		Pattern markdownPattern = Pattern.compile("!\\[\\]\\((https?://[^\\)]+)\\)");
-		Matcher markdownMatcher = markdownPattern.matcher(content);
+		Matcher markdownMatcher = Pattern.compile("!\\[\\]\\((https?://[^\\)]+)\\)").matcher(content);
 		while (markdownMatcher.find()) {
 			urls.add(markdownMatcher.group(1));
 		}
-
 		return urls;
 	}
 }

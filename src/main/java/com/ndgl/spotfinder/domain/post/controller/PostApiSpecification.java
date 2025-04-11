@@ -36,7 +36,9 @@ public interface PostApiSpecification {
 		security = {@SecurityRequirement(name = "JWT")},
 		description = "새로운 임시글을 조회합니다. 없다면 생성합니다."
 	)
-	public RsData<PostTempResponseDto> createTempPost(Principal principal);
+	public RsData<PostTempResponseDto> createTempPost(
+		@Parameter(hidden = true) Principal principal
+	);
 
 	@Operation(
 		summary = "포스트 임시 저장",
@@ -76,7 +78,8 @@ public interface PostApiSpecification {
 				mediaType = "application/json",
 				examples = @ExampleObject("{\"code\": 200, \"message\": \"OK\"}")
 			))
-		}
+		},
+		security = {@SecurityRequirement(name = "JWT")}
 	)
 	RsData<Void> deletePost(
 		@Parameter(description = "게시물의 ID") Long id,
@@ -85,33 +88,46 @@ public interface PostApiSpecification {
 
 	@Operation(
 		summary = "전체 포스트 조회",
-		description = "요청한 사이즈만큼 최신순으로 조회"
+		description = "요청한 사이즈만큼 최신순으로 조회",
+		security = {@SecurityRequirement(name = "JWT")}
 	)
 	RsData<SliceResponse<PostResponseDto>> getPosts(
 		SliceRequest sliceRequest
 	);
 
-	@Operation(summary = "포스트 1건 조회")
+	@Operation(
+		summary = "포스트 1건 조회",
+		security = {@SecurityRequirement(name = "JWT")}
+	)
 	RsData<PostDetailResponseDto> getPost(
-		@Parameter(description = "게시물의 ID") Long id
+		@Parameter(description = "게시물의 ID") Long id,
+		@Parameter(hidden = true) Principal principal
 	);
 
 	@Operation(
 		summary = "사용자가 작성한 포스트 목록 조회",
-		description = "요청한 사이즈만큼 최신순으로 조회"
+		description = "요청한 사이즈만큼 최신순으로 조회",
+		security = {@SecurityRequirement(name = "JWT")}
 	)
 	RsData<SliceResponse<PostResponseDto>> getPostsByUserId(
 		@Parameter(description = "사용자의 ID") Long userId,
-		SliceRequest sliceRequest
+		SliceRequest sliceRequest,
+		@Parameter(hidden = true) Principal principal
 	);
 
-	@Operation(summary = "사용자가 좋아요한 포스트 목록 조회")
+	@Operation(
+		summary = "사용자가 좋아요한 포스트 목록 조회",
+		security = {@SecurityRequirement(name = "JWT")}
+	)
 	RsData<SliceResponse<PostResponseDto>> getPostsByLike(
 		SliceRequest sliceRequest,
 		@Parameter(hidden = true) Principal principal
 	);
 
-	@Operation(summary = "사용자가 팔로우한 블로그의 포스트 목록 조회")
+	@Operation(
+		summary = "사용자가 팔로우한 블로그의 포스트 목록 조회",
+		security = {@SecurityRequirement(name = "JWT")}
+	)
 	RsData<SliceResponse<PostResponseDto>> getPostsByFollow(
 		SliceRequest sliceRequest,
 		@Parameter(hidden = true) Principal principal

@@ -21,6 +21,8 @@ import com.ndgl.spotfinder.global.exception.ErrorCode;
 import com.ndgl.spotfinder.global.rsdata.RsData;
 import com.ndgl.spotfinder.global.security.jwt.TokenProvider;
 
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -57,11 +59,11 @@ public class DevAuthController {
 			.map(GrantedAuthority::getAuthority)
 			.collect(java.util.stream.Collectors.joining(","));
 
-		String token = io.jsonwebtoken.Jwts.builder()
+		String token = Jwts.builder()
 			.setSubject(user.getEmail())
 			.setExpiration(new java.util.Date(now + tokenProvider.getValidationTime()))
 			.claim("auth", authorities)
-			.signWith(tokenProvider.getKey(), io.jsonwebtoken.SignatureAlgorithm.HS512)
+			.signWith(tokenProvider.getKey(), SignatureAlgorithm.HS512)
 			.compact();
 
 		Map<String, String> response = new HashMap<>();

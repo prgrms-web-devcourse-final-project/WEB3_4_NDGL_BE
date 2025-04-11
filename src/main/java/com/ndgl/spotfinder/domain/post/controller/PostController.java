@@ -1,5 +1,7 @@
 package com.ndgl.spotfinder.domain.post.controller;
 
+import static com.ndgl.spotfinder.global.util.Ut.*;
+
 import java.security.Principal;
 
 import org.springframework.http.HttpStatus;
@@ -53,7 +55,8 @@ public class PostController implements PostApiSpecification {
 	public RsData<String> updateTempPost(
 		@PathVariable Long id,
 		@RequestBody @Valid PostTempUpdateRequestDto requestDto,
-		Principal principal) {
+		Principal principal
+	) {
 		postService.updatePost(id, requestDto, principal.getName(), true);
 
 		return RsData.success(HttpStatus.OK);
@@ -81,15 +84,21 @@ public class PostController implements PostApiSpecification {
 	}
 
 	@GetMapping
-	public RsData<SliceResponse<PostResponseDto>> getPosts(@ModelAttribute @Valid SliceRequest sliceRequest) {
+	public RsData<SliceResponse<PostResponseDto>> getPosts(
+		@ModelAttribute @Valid SliceRequest sliceRequest
+	) {
 		SliceResponse<PostResponseDto> results = postService.getPosts(sliceRequest);
 
 		return RsData.success(HttpStatus.OK, results);
 	}
 
 	@GetMapping("/{id}")
-	public RsData<PostDetailResponseDto> getPost(@PathVariable Long id) {
-		PostDetailResponseDto result = postService.getPost(id);
+	public RsData<PostDetailResponseDto> getPost(
+		@PathVariable Long id,
+		Principal principal
+	) {
+		String email = getEmail(principal);
+		PostDetailResponseDto result = postService.getPost(email, id);
 
 		return RsData.success(HttpStatus.OK, result);
 	}
@@ -97,9 +106,11 @@ public class PostController implements PostApiSpecification {
 	@GetMapping("/users/{userId}")
 	public RsData<SliceResponse<PostResponseDto>> getPostsByUserId(
 		@PathVariable Long userId,
-		@ModelAttribute @Valid SliceRequest sliceRequest
+		@ModelAttribute @Valid SliceRequest sliceRequest,
+		Principal principal
 	) {
-		SliceResponse<PostResponseDto> results = postService.getPostsByUser(sliceRequest, userId);
+		String email = getEmail(principal);
+		SliceResponse<PostResponseDto> results = postService.getPostsByUser(sliceRequest, userId, email);
 
 		return RsData.success(HttpStatus.OK, results);
 	}

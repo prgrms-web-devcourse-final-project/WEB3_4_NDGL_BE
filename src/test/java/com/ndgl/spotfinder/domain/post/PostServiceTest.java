@@ -1,8 +1,10 @@
 package com.ndgl.spotfinder.domain.post;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -19,9 +21,12 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import com.ndgl.spotfinder.domain.image.service.ImageCleanupService;
 import com.ndgl.spotfinder.domain.image.service.ImageService;
+import com.ndgl.spotfinder.domain.like.entity.Like;
+import com.ndgl.spotfinder.domain.like.service.LikeService;
 import com.ndgl.spotfinder.domain.post.dto.HashtagDto;
 import com.ndgl.spotfinder.domain.post.dto.LocationDto;
 import com.ndgl.spotfinder.domain.post.dto.PostCreateRequestDto;
+import com.ndgl.spotfinder.domain.post.dto.PostDetailResponseDto;
 import com.ndgl.spotfinder.domain.post.dto.PostTempResponseDto;
 import com.ndgl.spotfinder.domain.post.dto.PostUpdateRequestDto;
 import com.ndgl.spotfinder.domain.post.entity.Hashtag;
@@ -38,6 +43,7 @@ import com.ndgl.spotfinder.global.exception.ServiceException;
 @ActiveProfiles("test")
 @SpringBootTest
 public class PostServiceTest {
+
 	@InjectMocks
 	private PostService postService;
 
@@ -52,6 +58,9 @@ public class PostServiceTest {
 
 	@Mock
 	private ImageService imageService;
+
+	@Mock
+	private LikeService likeService;
 
 	private final User user1 = User.builder()
 		.id(1L)
@@ -97,13 +106,7 @@ public class PostServiceTest {
 	public void createPost_success() {
 		// given
 		HashtagDto hashtagDto = new HashtagDto("태그1");
-		LocationDto locationDto = new LocationDto(
-			"장소1",
-			"주소1",
-			37.0,
-			126.0,
-			1
-		);
+		LocationDto locationDto = new LocationDto("장소1", "주소1", 37.0, 126.0, 1);
 		PostCreateRequestDto requestDto = new PostCreateRequestDto(
 			"제목1",
 			"내용1",
@@ -112,7 +115,6 @@ public class PostServiceTest {
 			""
 		);
 
-		// when
 		when(userService.findUserByEmail("이메일1")).thenReturn(user1);
 		when(postRepository.save(any(Post.class))).thenAnswer(invocation -> {
 			Post post = invocation.getArgument(0);
@@ -120,14 +122,13 @@ public class PostServiceTest {
 			return post;
 		});
 
+		// when
 		postService.createPost(requestDto, "이메일1");
 
 		// then
 		verify(postRepository, times(1)).save(any());
-
 		ArgumentCaptor<Post> postCaptor = ArgumentCaptor.forClass(Post.class);
 		verify(postRepository).save(postCaptor.capture());
-
 		Post savedPost = postCaptor.getValue();
 		assertEquals("제목1", savedPost.getTitle());
 		assertEquals("내용1", savedPost.getContent());
@@ -155,13 +156,7 @@ public class PostServiceTest {
 	public void updatePost_success() {
 		// given
 		HashtagDto hashtagDto = new HashtagDto("태그2");
-		LocationDto locationDto = new LocationDto(
-			"장소2",
-			"주소2",
-			35.5,
-			126.5,
-			1
-		);
+		LocationDto locationDto = new LocationDto("장소2", "주소2", 35.5, 126.5, 1);
 		PostUpdateRequestDto requestDto = new PostUpdateRequestDto(
 			"제목2",
 			"내용2",
@@ -170,17 +165,16 @@ public class PostServiceTest {
 			""
 		);
 
-		// when
 		when(userService.findUserByEmail("이메일1")).thenReturn(user1);
 		when(postRepository.findById(1L)).thenReturn(Optional.of(samplePost));
+
+		// when
 		postService.updatePost(1L, requestDto, "이메일1", false);
 
 		// then
 		verify(postRepository, times(1)).save(any());
-
 		ArgumentCaptor<Post> postCaptor = ArgumentCaptor.forClass(Post.class);
 		verify(postRepository).save(postCaptor.capture());
-
 		Post savedPost = postCaptor.getValue();
 		assertEquals("제목2", savedPost.getTitle());
 		assertEquals("내용2", savedPost.getContent());
@@ -196,7 +190,7 @@ public class PostServiceTest {
 
 	@Test
 	public void updatePost_notFound() {
-		// when
+		// given
 		when(userService.findUserByEmail("이메일1")).thenReturn(user1);
 		when(postRepository.findById(1L)).thenReturn(Optional.empty());
 
@@ -208,7 +202,7 @@ public class PostServiceTest {
 
 	@Test
 	public void updatePost_AuthorMissMatch() {
-		// when
+		// given
 		when(userService.findUserByEmail("이메일2")).thenReturn(user2);
 		when(postRepository.findById(1L)).thenReturn(Optional.of(samplePost));
 
@@ -219,10 +213,41 @@ public class PostServiceTest {
 	}
 
 	@Test
-	public void deletePost_success() {
-		// when
+	public void updatePost_withTempStatus() {
+		// given
+		HashtagDto hashtagDto = new HashtagDto("태그2");
+		LocationDto locationDto = new LocationDto("장소2", "주소2", 35.5, 126.5, 1);
+		PostUpdateRequestDto requestDto = new PostUpdateRequestDto(
+			"임시제목",
+			"임시내용",
+			List.of(hashtagDto),
+			List.of(locationDto),
+			""
+		);
+
 		when(userService.findUserByEmail("이메일1")).thenReturn(user1);
 		when(postRepository.findById(1L)).thenReturn(Optional.of(samplePost));
+
+		// when
+		postService.updatePost(1L, requestDto, "이메일1", true);
+
+		// then
+		verify(postRepository, times(1)).save(any());
+		ArgumentCaptor<Post> postCaptor = ArgumentCaptor.forClass(Post.class);
+		verify(postRepository).save(postCaptor.capture());
+		Post savedPost = postCaptor.getValue();
+		assertEquals("임시제목", savedPost.getTitle());
+		assertEquals("임시내용", savedPost.getContent());
+		assertEquals(PostStatus.TEMP, savedPost.getStatus());
+	}
+
+	@Test
+	public void deletePost_success() {
+		// given
+		when(userService.findUserByEmail("이메일1")).thenReturn(user1);
+		when(postRepository.findById(1L)).thenReturn(Optional.of(samplePost));
+
+		// when
 		postService.deletePost(1L, "이메일1");
 
 		// then
@@ -231,7 +256,7 @@ public class PostServiceTest {
 
 	@Test
 	public void deletePost_notFound() {
-		// when
+		// given
 		when(userService.findUserByEmail("이메일1")).thenReturn(user1);
 		when(postRepository.findById(1L)).thenReturn(Optional.empty());
 
@@ -243,7 +268,7 @@ public class PostServiceTest {
 
 	@Test
 	public void deletePost_AuthorMissMatch() {
-		// when
+		// given
 		when(userService.findUserByEmail("이메일2")).thenReturn(user2);
 		when(postRepository.findById(1L)).thenReturn(Optional.of(samplePost));
 
@@ -264,11 +289,11 @@ public class PostServiceTest {
 			.status(PostStatus.TEMP)
 			.build();
 
-		// when
 		when(userService.findUserByEmail("이메일1")).thenReturn(user1);
 		when(postRepository.findFirstByUserAndStatus(user1, PostStatus.TEMP))
 			.thenReturn(Optional.of(tempPost));
 
+		// when
 		PostTempResponseDto response = postService.findOrCreateTempPost("이메일1");
 
 		// then
@@ -284,12 +309,12 @@ public class PostServiceTest {
 		Post newTempPost = Post.createTempPost(user1);
 		ReflectionTestUtils.setField(newTempPost, "id", 3L);
 
-		// when
 		when(userService.findUserByEmail("이메일1")).thenReturn(user1);
 		when(postRepository.findFirstByUserAndStatus(user1, PostStatus.TEMP))
 			.thenReturn(Optional.empty());
 		when(postRepository.save(any(Post.class))).thenReturn(newTempPost);
 
+		// when
 		PostTempResponseDto response = postService.findOrCreateTempPost("이메일1");
 
 		// then
@@ -298,58 +323,70 @@ public class PostServiceTest {
 	}
 
 	@Test
-	public void updatePost_withTempStatus() {
-		// given
-		HashtagDto hashtagDto = new HashtagDto("태그2");
-		LocationDto locationDto = new LocationDto(
-			"장소2",
-			"주소2",
-			35.5,
-			126.5,
-			1
-		);
-		PostUpdateRequestDto requestDto = new PostUpdateRequestDto(
-			"임시제목",
-			"임시내용",
-			List.of(hashtagDto),
-			List.of(locationDto),
-			""
-		);
-
-		// when
-		when(userService.findUserByEmail("이메일1")).thenReturn(user1);
-		when(postRepository.findById(1L)).thenReturn(Optional.of(samplePost));
-		postService.updatePost(1L, requestDto, "이메일1", true);
-
-		// then
-		verify(postRepository, times(1)).save(any());
-
-		ArgumentCaptor<Post> postCaptor = ArgumentCaptor.forClass(Post.class);
-		verify(postRepository).save(postCaptor.capture());
-
-		Post savedPost = postCaptor.getValue();
-		assertEquals("임시제목", savedPost.getTitle());
-		assertEquals("임시내용", savedPost.getContent());
-		assertEquals(PostStatus.TEMP, savedPost.getStatus());
-	}
-
-	@Test
 	public void extractImageUrlsFromContent_success() throws Exception {
 		// 비공개 메서드 테스트를 위해 리플렉션 사용
 		String content = "이미지 테스트 ![](https://example.com/image1.jpg) 추가 이미지 ![](https://example.com/image2.png)";
 
-		// extractImageUrlsFromContent 메서드에 접근
-		java.lang.reflect.Method method = PostService.class.getDeclaredMethod("extractImageUrlsFromContent",
-			String.class);
+		Method method = PostService.class.getDeclaredMethod("extractImageUrlsFromContent", String.class);
 		method.setAccessible(true);
 
 		@SuppressWarnings("unchecked")
 		Set<String> urls = (Set<String>)method.invoke(postService, content);
 
-		// then
 		assertEquals(2, urls.size());
 		assertTrue(urls.contains("https://example.com/image1.jpg"));
 		assertTrue(urls.contains("https://example.com/image2.png"));
 	}
 
+	@Test
+	public void getPost_withLoggedInUser_success() {
+		// given
+		when(postRepository.findById(1L)).thenReturn(Optional.of(samplePost));
+		when(userService.findUserByEmail(user1.getEmail())).thenReturn(user1);
+		when(likeService.getLikeStatus(user1.getId(), 1L, Like.TargetType.POST)).thenReturn(true);
+
+		// when
+		PostDetailResponseDto dto = postService.getPost(user1.getEmail(), 1L);
+
+		// then
+		assertEquals(1L, dto.id());
+		assertEquals("제목1", dto.title());
+		assertEquals("내용1", dto.content());
+		assertTrue(dto.likeStatus());
+		verify(likeService, times(1)).getLikeStatus(anyLong(), anyLong(), any());
+	}
+
+	@Test
+	public void getPost_withNoUser_success() {
+		// given
+		when(postRepository.findById(1L)).thenReturn(Optional.of(samplePost));
+
+		// when
+		PostDetailResponseDto dto = postService.getPost(null, 1L); // 비로그인 사용자
+
+		// then
+		assertEquals(1L, dto.id());
+		assertEquals("제목1", dto.title());
+		assertEquals("내용1", dto.content());
+		assertFalse(dto.likeStatus());
+		verify(likeService, never()).getLikeStatus(anyLong(), anyLong(), any());
+	}
+
+	@Test
+	public void getPost_withLoggedInUserNotLiked_success() {
+		// given
+		when(postRepository.findById(1L)).thenReturn(Optional.of(samplePost));
+		when(userService.findUserByEmail(user1.getEmail())).thenReturn(user1);
+		when(likeService.getLikeStatus(user1.getId(), 1L, Like.TargetType.POST)).thenReturn(false);
+
+		// when
+		PostDetailResponseDto dto = postService.getPost(user1.getEmail(), 1L);
+
+		// then
+		assertEquals(1L, dto.id());
+		assertEquals("제목1", dto.title());
+		assertEquals("내용1", dto.content());
+		assertFalse(dto.likeStatus());
+		verify(likeService, times(1)).getLikeStatus(anyLong(), anyLong(), any());
+	}
 }
