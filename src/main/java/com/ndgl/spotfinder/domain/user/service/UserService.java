@@ -130,15 +130,12 @@ public class UserService {
 
 	@Transactional
 	public UserModifiedResponseDto updateUser(UserModifiedRequestDto request, User user) {
-		User targetUser = findUserByEmail(user.getEmail());
+		user.setNickName(request.nickName());
+		user.setBlogName(request.blogName());
 
-		targetUser.setNickName(request.nickName());
-		targetUser.setBlogName(request.blogName());
-
-		return UserModifiedResponseDto.success(
-			HttpStatus.OK.value(),
-			"OK",
-			targetUser
+		return new UserModifiedResponseDto(
+			request.nickName(),
+			request.blogName()
 		);
 	}
 
@@ -147,8 +144,7 @@ public class UserService {
 		User user,
 		HttpServletResponse response,
 		String accessToken) {
-		User targetUser = findUserByEmail(user.getEmail());
-		userRepository.delete(targetUser);
+		userRepository.delete(user);
 		tokenCookieUtil.cleanTokenCookies(response, accessToken);
 		refreshTokenService.deleteRefreshToken(user.getEmail());
 	}
