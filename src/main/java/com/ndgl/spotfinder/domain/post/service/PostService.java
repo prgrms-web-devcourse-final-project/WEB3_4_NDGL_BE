@@ -1,11 +1,14 @@
 package com.ndgl.spotfinder.domain.post.service;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
@@ -182,12 +185,30 @@ public class PostService {
 	}
 
 	private SliceResponse<PostResponseDto> convertToSliceResponse(Long userId, Slice<Post> results) {
-		return new SliceResponse<>(
-			results.map(post ->
-				new PostResponseDto(post, likeService.getLikeStatus(userId, post.getId(), Like.TargetType.POST)
-				)).toList(),
-			results.hasNext()
-		);
+		List<Post> posts = results.getContent();
+		Map<Long, Boolean> likeStatusMap = getLikeStatusMap(userId, posts);
+		List<PostResponseDto> responseDtos = createPostResponseDtos(posts, likeStatusMap);
+		return new SliceResponse<>(responseDtos, results.hasNext());
+	}
+
+	private Map<Long, Boolean> getLikeStatusMap(Long userId, List<Post> posts) {
+		if (userId == null || posts.isEmpty()) {
+			return Collections.emptyMap();
+		}
+		
+		List<Long> postIds = posts.stream()
+			.map(Post::getId)
+			.collect(Collectors.toList());
+		return likeService.getAllLikeStatus(userId, postIds, Like.TargetType.POST);
+	}
+
+	private List<PostResponseDto> createPostResponseDtos(List<Post> posts, Map<Long, Boolean> likeStatusMap) {
+		return posts.stream()
+			.map(post -> new PostResponseDto(
+				post,
+				likeStatusMap.getOrDefault(post.getId(), false)
+			))
+			.collect(Collectors.toList());
 	}
 
 	public Set<String> extractImageUrlsFromContent(String content) {
