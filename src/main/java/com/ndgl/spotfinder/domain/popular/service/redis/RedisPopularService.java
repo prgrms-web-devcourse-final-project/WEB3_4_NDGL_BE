@@ -3,6 +3,7 @@ package com.ndgl.spotfinder.domain.popular.service.redis;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,8 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 public class RedisPopularService {
+
+	@Qualifier("redisTemplate")
 	private final RedisTemplate<String, String> redisTemplate;
 	private static final String POPULAR_KEYWORDS_KEY = "popular:keywords";
 	private static final String POPULAR_POSTS_KEY = "popular:posts";

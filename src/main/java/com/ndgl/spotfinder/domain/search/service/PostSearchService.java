@@ -10,6 +10,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
@@ -26,7 +27,7 @@ import com.ndgl.spotfinder.domain.search.document.SearchType;
 import com.ndgl.spotfinder.domain.search.repository.PostSearchRepository;
 import com.ndgl.spotfinder.global.common.dto.SliceRequest;
 import com.ndgl.spotfinder.global.common.dto.SliceResponse;
-import com.ndgl.spotfinder.global.elk.ElasticSearchHealthCheck;
+import com.ndgl.spotfinder.global.elk.ElasticsearchHealthCheck;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,14 +36,16 @@ import lombok.extern.slf4j.Slf4j;
 public class PostSearchService {
 	private final PostService postService;
 	private final PostRepository postRepository;
-	private final ElasticSearchHealthCheck healthCheck;
+	private final ElasticsearchHealthCheck healthCheck;
 	private final PostSearchRepository postSearchRepository;
+
+	@Qualifier("postCachdRedisTemplate")
 	private final RedisTemplate<String, List<Long>> redisTemplate;
 
 	public PostSearchService(
 		PostService postService,
 		PostRepository postJpaRepository,
-		ElasticSearchHealthCheck healthCheck,
+		ElasticsearchHealthCheck healthCheck,
 		@Autowired(required = false) PostSearchRepository postSearchRepository,
 		RedisTemplate<String, List<Long>> redisTemplate
 	) {
