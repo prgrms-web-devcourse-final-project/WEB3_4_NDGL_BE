@@ -2,6 +2,7 @@ package com.ndgl.spotfinder.domain.user.entity;
 
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ndgl.spotfinder.global.base.BaseTime;
 
 import jakarta.persistence.Entity;
@@ -33,6 +34,7 @@ public class Oauth extends BaseTime {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
+	@JsonIgnore
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id", nullable = false)
 	@NonNull
