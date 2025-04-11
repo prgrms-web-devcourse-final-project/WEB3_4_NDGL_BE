@@ -1,8 +1,7 @@
 package com.ndgl.spotfinder.global.common.util;
 
 import com.ndgl.spotfinder.domain.admin.dto.CreateAdminRequest;
-import com.ndgl.spotfinder.domain.user.dto.UserJoinRequest;
-import com.ndgl.spotfinder.domain.user.dto.UserLoginRequest;
+import com.ndgl.spotfinder.domain.user.dto.UserJoinRequestDto;
 
 public final class MaskingUtil {
 
@@ -41,8 +40,8 @@ public final class MaskingUtil {
 			);
 		}
 
-		if (arg instanceof UserJoinRequest request) {
-			return UserJoinRequest.builder()
+		if (arg instanceof UserJoinRequestDto request) {
+			return UserJoinRequestDto.builder()
 				.provider(request.getProvider())
 				.identify(maskFront(request.getIdentify()))
 				.email(maskEmail(request.getEmail()))
@@ -51,12 +50,12 @@ public final class MaskingUtil {
 				.build();
 		}
 
-		if (arg instanceof UserLoginRequest request) {
+		/*if (arg instanceof UserLoginRequest request) {
 			return UserLoginRequest.builder()
 				.authorizationCode(maskFront(request.getAuthorizationCode()))
 				.provider(request.getProvider())
 				.build();
-		}
+		}*/
 
 		return arg;
 	}

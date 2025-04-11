@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ndgl.spotfinder.global.common.util.IpAddressUtil;
+import com.ndgl.spotfinder.global.common.util.JsonUtil;
 import com.ndgl.spotfinder.global.common.util.MaskingUtil;
 import com.ndgl.spotfinder.global.common.util.RequestUtil;
 import com.ndgl.spotfinder.global.logging.context.RequestLogContext;
@@ -61,6 +62,7 @@ public class ControllerLoggingAspect {
 
 		// 중요 정보 마스킹 후 로깅
 		Object[] maskedArgs = Arrays.stream(args)
+			.filter(JsonUtil::isJsonSerializable)
 			.map(MaskingUtil::maskSensitiveData)
 			.toArray();
 
