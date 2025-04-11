@@ -36,7 +36,9 @@ public interface PostApiSpecification {
 		security = {@SecurityRequirement(name = "JWT")},
 		description = "새로운 임시글을 조회합니다. 없다면 생성합니다."
 	)
-	public RsData<PostTempResponseDto> createTempPost(Principal principal);
+	public RsData<PostTempResponseDto> createTempPost(
+		@Parameter(hidden = true) Principal principal
+	);
 
 	@Operation(
 		summary = "포스트 임시 저장",
@@ -111,7 +113,7 @@ public interface PostApiSpecification {
 	RsData<SliceResponse<PostResponseDto>> getPostsByUserId(
 		@Parameter(description = "사용자의 ID") Long userId,
 		SliceRequest sliceRequest,
-		Principal principal
+		@Parameter(hidden = true) Principal principal
 	);
 
 	@Operation(

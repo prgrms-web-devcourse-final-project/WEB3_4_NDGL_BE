@@ -26,7 +26,7 @@ public interface PostCommentApiSpecification {
 	RsData<SliceResponse<PostCommentResponseDto>> getComments(
 		@Parameter(description = "게시물의 ID") Long id,
 		SliceRequest sliceRequest,
-		Principal principal
+		@Parameter(hidden = true) Principal principal
 	);
 
 	@Operation(
@@ -37,7 +37,7 @@ public interface PostCommentApiSpecification {
 	RsData<PostCommentResponseDto> getComment(
 		@Parameter(description = "게시물의 ID") Long id,
 		@Parameter(description = "댓글의 ID") Long commentId,
-		Principal principal
+		@Parameter(hidden = true) Principal principal
 	);
 
 	@Operation(
