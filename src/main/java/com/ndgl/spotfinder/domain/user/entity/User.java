@@ -1,5 +1,6 @@
 package com.ndgl.spotfinder.domain.user.entity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -7,6 +8,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import com.ndgl.spotfinder.domain.follow.entity.Follow;
 import com.ndgl.spotfinder.global.base.BaseTime;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -56,4 +58,7 @@ public class User extends BaseTime {
 
 	@OneToMany(mappedBy = "followee")
 	private List<Follow> followings;
+
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Oauth> oauths = new ArrayList<>();
 }

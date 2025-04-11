@@ -1,7 +1,5 @@
 package com.ndgl.spotfinder.domain.user.dto;
 
-import com.ndgl.spotfinder.domain.user.entity.User;
-
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -23,11 +21,4 @@ public record UserModifiedRequestDto(
 	)
 	String blogName
 ) {
-	public static UserModifiedRequestDto from(User user) {
-		return new UserModifiedRequestDto(
-			user.getNickName(),
-			user.getBlogName()
-		);
-
-	}
 }

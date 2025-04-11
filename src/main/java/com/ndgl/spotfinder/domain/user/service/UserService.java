@@ -20,7 +20,6 @@ import com.ndgl.spotfinder.domain.user.repository.UserRepository;
 import com.ndgl.spotfinder.global.common.dto.SliceRequest;
 import com.ndgl.spotfinder.global.exception.ErrorCode;
 import com.ndgl.spotfinder.global.security.cookie.TokenCookieUtil;
-import com.ndgl.spotfinder.global.security.redis.repository.RefreshTokenRepository;
 import com.ndgl.spotfinder.global.security.redis.service.RefreshTokenService;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -34,7 +33,6 @@ import lombok.extern.slf4j.Slf4j;
 public class UserService {
 	private final UserRepository userRepository;
 	private final OauthRepository oauthRepository;
-	private final RefreshTokenRepository refreshTokenRepository;
 	private final TokenCookieUtil tokenCookieUtil;
 	private final RefreshTokenService refreshTokenService;
 
@@ -132,21 +130,22 @@ public class UserService {
 
 	@Transactional
 	public UserModifiedResponseDto updateUser(UserModifiedRequestDto request, User user) {
-		User targetUser = findUserByEmail(user.getEmail());
+		user.setNickName(request.nickName());
+		user.setBlogName(request.blogName());
 
-		targetUser.setNickName(request.nickName());
-		targetUser.setBlogName(request.blogName());
-
-		return UserModifiedResponseDto.success(
-			HttpStatus.OK.value(),
-			"OK",
-			targetUser
+		return new UserModifiedResponseDto(
+			request.nickName(),
+			request.blogName()
 		);
 	}
 
 	@Transactional
-	public void deleteUser(User user) {
-		User targetUser = findUserByEmail(user.getEmail());
-		userRepository.delete(targetUser);
+	public void deleteUser(
+		User user,
+		HttpServletResponse response,
+		String accessToken) {
+		userRepository.delete(user);
+		tokenCookieUtil.cleanTokenCookies(response, accessToken);
+		refreshTokenService.deleteRefreshToken(user.getEmail());
 	}
 }

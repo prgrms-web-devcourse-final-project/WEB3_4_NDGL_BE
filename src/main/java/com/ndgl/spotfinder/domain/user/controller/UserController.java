@@ -1,7 +1,6 @@
 package com.ndgl.spotfinder.domain.user.controller;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -89,7 +88,10 @@ public class UserController {
 	}
 
 	@GetMapping("/info")
-	public RsData<UserInfoResponseDto> userInfo(@AuthenticationPrincipal User user) {
+	public RsData<UserInfoResponseDto> userInfo(@CookieValue("accessToken") String accessToken) {
+		String email = tokenProvider.getEmail(accessToken);
+		User user = userService.findUserByEmail(email);
+
 		UserInfoResponseDto targetUser = userService.getUserInfo(user);
 
 		return RsData.success(HttpStatus.OK, targetUser);
@@ -98,15 +100,23 @@ public class UserController {
 	@PutMapping
 	public RsData<UserModifiedResponseDto> update(
 		@RequestBody UserModifiedRequestDto request,
-		@AuthenticationPrincipal User user) {
+		@CookieValue("accessToken") String accessToken) {
+		String email = tokenProvider.getEmail(accessToken);
+		User user = userService.findUserByEmail(email);
+
 		UserModifiedResponseDto response = userService.updateUser(request, user);
 
 		return RsData.success(HttpStatus.OK, response);
 	}
 
 	@DeleteMapping("/resign")
-	public RsData<Void> resign(@AuthenticationPrincipal User user) {
-		userService.deleteUser(user);
+	public RsData<Void> resign(
+		@CookieValue("accessToken") String accessToken,
+		HttpServletResponse response) {
+		String email = tokenProvider.getEmail(accessToken);
+		User user = userService.findUserByEmail(email);
+
+		userService.deleteUser(user, response, accessToken);
 		return RsData.success(HttpStatus.OK);
 	}
 }
