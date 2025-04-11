@@ -1,14 +1,11 @@
 package com.ndgl.spotfinder.domain.post.service;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
@@ -93,15 +90,11 @@ public class PostService {
 	}
 
 	@Transactional(readOnly = true)
-	public SliceResponse<PostResponseDto> getPosts(String email, SliceRequest sliceRequest) {
+	public SliceResponse<PostResponseDto> getPosts(SliceRequest sliceRequest) {
 		PageRequest pageRequest = PageRequest.of(FIRST_PAGE_NUMBER, sliceRequest.size());
 		Long lastId = getLastPostId(sliceRequest);
 		Slice<Post> results = postRepository.findByIdLessThanOrderByCreatedAtDesc(lastId, pageRequest);
-
-		return Optional.ofNullable(email)
-			.map(userService::findUserByEmail)
-			.map(loginUser -> convertToSliceResponse(loginUser.getId(), results))
-			.orElseGet(() -> convertToSliceResponse(null, results));
+		return convertToSliceResponse(results);
 	}
 
 	@Transactional(readOnly = true)
@@ -111,9 +104,8 @@ public class PostService {
 		User user = userService.findUserById(userId);
 
 		Slice<Post> results = postRepository.findByUserAndIdLessThanOrderByCreatedAtDesc(user, lastId, pageRequest);
-		User loginUser = userService.findUserByEmail(email);
 
-		return convertToSliceResponse(loginUser.getId(), results);
+		return convertToSliceResponse(results);
 	}
 
 	@Transactional(readOnly = true)
@@ -138,22 +130,22 @@ public class PostService {
 	public SliceResponse<PostResponseDto> getPostsByLike(SliceRequest sliceRequest, String email) {
 		PageRequest pageRequest = PageRequest.of(FIRST_PAGE_NUMBER, sliceRequest.size());
 		Long lastId = getLastPostId(sliceRequest);
-		User loginUser = userService.findUserByEmail(email);
+		User user = userService.findUserByEmail(email);
 
-		Slice<Post> results = postRepository.findLikedPostsByUser(loginUser.getId(), lastId, pageRequest);
+		Slice<Post> results = postRepository.findLikedPostsByUser(user.getId(), lastId, pageRequest);
 
-		return convertToSliceResponse(loginUser.getId(), results);
+		return convertToSliceResponse(results);
 	}
 
 	@Transactional(readOnly = true)
 	public SliceResponse<PostResponseDto> getPostsByFollow(SliceRequest sliceRequest, String email) {
 		PageRequest pageRequest = PageRequest.of(FIRST_PAGE_NUMBER, sliceRequest.size());
 		Long lastId = getLastPostId(sliceRequest);
-		User loginUser = userService.findUserByEmail(email);
+		User user = userService.findUserByEmail(email);
 
-		Slice<Post> results = postRepository.findFollowedPostsByUser(loginUser.getId(), lastId, pageRequest);
+		Slice<Post> results = postRepository.findFollowedPostsByUser(user.getId(), lastId, pageRequest);
 
-		return convertToSliceResponse(loginUser.getId(), results);
+		return convertToSliceResponse(results);
 	}
 
 	@Transactional(readOnly = true)
@@ -184,31 +176,11 @@ public class PostService {
 		imageCleanupService.cleanupUnusedImages(ImageUsage.POST, post.getId(), usedImageUrls);
 	}
 
-	private SliceResponse<PostResponseDto> convertToSliceResponse(Long userId, Slice<Post> results) {
-		List<Post> posts = results.getContent();
-		Map<Long, Boolean> likeStatusMap = getLikeStatusMap(userId, posts);
-		List<PostResponseDto> responseDtos = createPostResponseDtos(posts, likeStatusMap);
-		return new SliceResponse<>(responseDtos, results.hasNext());
-	}
-
-	private Map<Long, Boolean> getLikeStatusMap(Long userId, List<Post> posts) {
-		if (userId == null || posts.isEmpty()) {
-			return Collections.emptyMap();
-		}
-		
-		List<Long> postIds = posts.stream()
-			.map(Post::getId)
-			.collect(Collectors.toList());
-		return likeService.getAllLikeStatus(userId, postIds, Like.TargetType.POST);
-	}
-
-	private List<PostResponseDto> createPostResponseDtos(List<Post> posts, Map<Long, Boolean> likeStatusMap) {
-		return posts.stream()
-			.map(post -> new PostResponseDto(
-				post,
-				likeStatusMap.getOrDefault(post.getId(), false)
-			))
-			.collect(Collectors.toList());
+	private SliceResponse<PostResponseDto> convertToSliceResponse(Slice<Post> results) {
+		return new SliceResponse<>(
+			results.map(PostResponseDto::new).toList(),
+			results.hasNext()
+		);
 	}
 
 	public Set<String> extractImageUrlsFromContent(String content) {

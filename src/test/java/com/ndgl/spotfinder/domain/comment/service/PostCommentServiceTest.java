@@ -313,52 +313,6 @@ public class PostCommentServiceTest {
 	}
 
 	@Test
-	@DisplayName("댓글 조회 - 좋아요 상태 확인 (좋아요 O)")
-	void getComment_WithLikeStatus_True() {
-		// Given
-		Long postId = 1L;
-		Long commentId = 1L;
-		Long userId = 1L;
-
-		// When
-		when(postCommentRepository.findById(commentId)).thenReturn(Optional.of(comment));
-		when(userService.findUserByEmail(user.getEmail())).thenReturn(user);
-		when(likeService.getLikeStatus(userId, commentId, Like.TargetType.COMMENT)).thenReturn(true);
-
-		PostCommentResponseDto result = postCommentService.getComment(user.getEmail(), postId, commentId);
-
-		// Then
-		assertNotNull(result);
-		assertEquals(commentId, result.id());
-		assertEquals("댓글 1", result.content());
-		assertTrue(result.likeStatus());
-		verify(likeService, times(1)).getLikeStatus(userId, commentId, Like.TargetType.COMMENT);
-	}
-
-	@Test
-	@DisplayName("댓글 조회 - 좋아요 상태 확인 (좋아요 X)")
-	void getComment_WithLikeStatus_False() {
-		// Given
-		Long postId = 1L;
-		Long commentId = 1L;
-		Long userId = 1L;
-
-		// When
-		when(postCommentRepository.findById(commentId)).thenReturn(Optional.of(comment));
-		when(userService.findUserByEmail(user.getEmail())).thenReturn(user);
-		when(likeService.getLikeStatus(userId, commentId, Like.TargetType.COMMENT)).thenReturn(false);
-
-		PostCommentResponseDto result = postCommentService.getComment(user.getEmail(), postId, commentId);
-
-		// Then
-		assertNotNull(result);
-		assertEquals(commentId, result.id());
-		assertEquals("댓글 1", result.content());
-		assertFalse(result.likeStatus());
-		verify(likeService, times(1)).getLikeStatus(userId, commentId, Like.TargetType.COMMENT);
-	}
-
-	@Test
 	@DisplayName("댓글 조회 - 비로그인 상태")
 	void getComment_WithoutLogin() {
 		// Given

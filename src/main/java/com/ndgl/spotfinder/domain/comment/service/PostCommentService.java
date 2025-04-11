@@ -64,12 +64,7 @@ public class PostCommentService {
 	@Transactional(readOnly = true)
 	public PostCommentResponseDto getComment(String email, Long postId, Long commentId) {
 		PostComment comment = findCommentAndVerifyPost(commentId, postId);
-		Boolean isLiked = Optional.ofNullable(email)
-			.map(userService::findUserByEmail)
-			.map(loginUser -> likeService.getLikeStatus(loginUser.getId(), commentId, Like.TargetType.COMMENT))
-			.orElse(false);
-
-		return new PostCommentResponseDto(comment, isLiked);
+		return new PostCommentResponseDto(comment);
 	}
 
 	@Transactional

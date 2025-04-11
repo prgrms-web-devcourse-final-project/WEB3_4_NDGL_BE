@@ -92,8 +92,7 @@ public interface PostApiSpecification {
 		security = {@SecurityRequirement(name = "JWT")}
 	)
 	RsData<SliceResponse<PostResponseDto>> getPosts(
-		SliceRequest sliceRequest,
-		@Parameter(hidden = true) Principal principal
+		SliceRequest sliceRequest
 	);
 
 	@Operation(

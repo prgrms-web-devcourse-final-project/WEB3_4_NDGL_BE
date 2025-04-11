@@ -85,11 +85,9 @@ public class PostController implements PostApiSpecification {
 
 	@GetMapping
 	public RsData<SliceResponse<PostResponseDto>> getPosts(
-		@ModelAttribute @Valid SliceRequest sliceRequest,
-		Principal principal
+		@ModelAttribute @Valid SliceRequest sliceRequest
 	) {
-		String email = getEmail(principal);
-		SliceResponse<PostResponseDto> results = postService.getPosts(email, sliceRequest);
+		SliceResponse<PostResponseDto> results = postService.getPosts(sliceRequest);
 
 		return RsData.success(HttpStatus.OK, results);
 	}

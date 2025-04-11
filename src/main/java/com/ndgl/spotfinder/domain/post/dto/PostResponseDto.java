@@ -36,10 +36,7 @@ public record PostResponseDto(
 	LocalDateTime createdAt,
 
 	@Schema(description = "해시태그 목록")
-	List<HashtagDto> hashtags,
-
-	@Schema(description = "좋아요 여부", example = "false")
-	Boolean likeStatus
+	List<HashtagDto> hashtags
 ) {
 	private static final Long POST_LIST_HASHTAG_COUNT = 3L;
 
@@ -58,28 +55,8 @@ public record PostResponseDto(
 				.stream()
 				.limit(POST_LIST_HASHTAG_COUNT)
 				.map(HashtagDto::new)
-				.toList(),
-			false
+				.toList()
 		);
 	}
 
-	public PostResponseDto(Post post, Boolean isLiked) {
-		this(
-			post.getId(),
-			post.getTitle(),
-			post.getContent(),
-			post.getUser().getId(),
-			post.getUser().getNickName(),
-			post.getThumbnail(),
-			post.getLikeCount(),
-			post.getComments().size(),
-			post.getCreatedAt(),
-			post.getHashtags()
-				.stream()
-				.limit(POST_LIST_HASHTAG_COUNT)
-				.map(HashtagDto::new)
-				.toList(),
-			isLiked
-		);
-	}
 }
