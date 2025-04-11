@@ -22,6 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.ndgl.spotfinder.domain.popular.dto.KeywordCountDto;
 import com.ndgl.spotfinder.domain.popular.dto.PostCountDto;
 import com.ndgl.spotfinder.domain.popular.service.elasticsearch.ElasticsearchPopularService;
+import com.ndgl.spotfinder.global.app.AppConfig;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.FieldValue;
@@ -35,6 +36,9 @@ import co.elastic.clients.elasticsearch.core.SearchResponse;
 
 @ExtendWith(MockitoExtension.class)
 class ElasticsearchServiceTest {
+
+	@Mock
+	private AppConfig appConfig;
 
 	@Mock
 	private ElasticsearchClient elasticsearchClient;

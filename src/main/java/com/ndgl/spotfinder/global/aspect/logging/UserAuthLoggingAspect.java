@@ -9,7 +9,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ndgl.spotfinder.domain.user.dto.UserLoginResponse;
+import com.ndgl.spotfinder.domain.user.dto.UserLoginResponseDto;
 import com.ndgl.spotfinder.global.common.util.IpAddressUtil;
 import com.ndgl.spotfinder.global.common.util.MaskingUtil;
 import com.ndgl.spotfinder.global.common.util.RequestUtil;
@@ -35,13 +35,13 @@ public class UserAuthLoggingAspect {
 		if (request == null) return result;
 
 		if (result instanceof RsData<?> rsData && rsData.getCode() == 200) {
-			UserLoginResponse loginResponse = (UserLoginResponse)rsData.getData();
+			UserLoginResponseDto loginResponse = (UserLoginResponseDto)rsData.getData();
 
 			Map<String, Object> logMap = new HashMap<>();
 			logMap.put("event", "Login");
 			logMap.put("oauth", loginResponse.getProvider());
 			logMap.put("user", MaskingUtil.maskEmail(loginResponse.getEmail()));
-			// TODO: logMap.put("userId", loginResponse.getUserId());
+			logMap.put("userId", loginResponse.getUserId());
 			logMap.put("ipAddress", IpAddressUtil.getClientIp(request));
 
 			log.info(objectMapper.writeValueAsString(logMap));
