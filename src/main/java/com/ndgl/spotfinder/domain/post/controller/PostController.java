@@ -55,7 +55,8 @@ public class PostController implements PostApiSpecification {
 	public RsData<String> updateTempPost(
 		@PathVariable Long id,
 		@RequestBody @Valid PostTempUpdateRequestDto requestDto,
-		Principal principal) {
+		Principal principal
+	) {
 		postService.updatePost(id, requestDto, principal.getName(), true);
 
 		return RsData.success(HttpStatus.OK);

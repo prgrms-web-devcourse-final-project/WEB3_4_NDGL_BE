@@ -1,10 +1,10 @@
 package com.ndgl.spotfinder.domain.like.controller;
 
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import java.security.Principal;
+
 import org.springframework.web.bind.annotation.PathVariable;
 
 import com.ndgl.spotfinder.global.rsdata.RsData;
-import com.ndgl.spotfinder.global.security.jwt.CustomUserDetails;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -20,8 +20,8 @@ public interface LikeApiSpecification {
 		security = {@SecurityRequirement(name = "JWT")}
 	)
 	RsData<Boolean> toggleCommentLike(
-		@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-		@Parameter(description = "댓글 ID", example = "1") @PathVariable Long commentId
+		@Parameter(description = "댓글 ID", example = "1") @PathVariable Long commentId,
+		@Parameter(hidden = true) Principal principal
 	);
 
 	@Operation(
@@ -30,7 +30,7 @@ public interface LikeApiSpecification {
 		security = {@SecurityRequirement(name = "JWT")}
 	)
 	RsData<Boolean> togglePostLike(
-		@Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails customUserDetails,
-		@Parameter(description = "포스트 ID", example = "1") @PathVariable Long postId
+		@Parameter(description = "포스트 ID", example = "1") @PathVariable Long postId,
+		@Parameter(hidden = true) Principal principal
 	);
 }

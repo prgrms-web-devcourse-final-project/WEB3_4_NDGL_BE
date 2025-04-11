@@ -1,7 +1,8 @@
 package com.ndgl.spotfinder.domain.like.controller;
 
+import java.security.Principal;
+
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ndgl.spotfinder.domain.like.entity.Like;
 import com.ndgl.spotfinder.domain.like.service.LikeService;
 import com.ndgl.spotfinder.global.rsdata.RsData;
-import com.ndgl.spotfinder.global.security.jwt.CustomUserDetails;
 
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
@@ -27,11 +27,10 @@ public class LikeController implements LikeApiSpecification {
 	 */
 	@PostMapping("/comments/{commentId}")
 	public RsData<Boolean> toggleCommentLike(
-		@AuthenticationPrincipal CustomUserDetails customUserDetails,
-		@Positive @PathVariable Long commentId
+		@Positive @PathVariable Long commentId,
+		Principal principal
 	) {
-		long userId = customUserDetails.getUser().getId();
-		boolean isAdded = likeService.toggleLike(userId, commentId, Like.TargetType.COMMENT);
+		boolean isAdded = likeService.toggleLike(principal.getName(), commentId, Like.TargetType.COMMENT);
 		return RsData.success(HttpStatus.OK, isAdded);
 	}
 
@@ -40,11 +39,10 @@ public class LikeController implements LikeApiSpecification {
 	 */
 	@PostMapping("/posts/{postId}")
 	public RsData<Boolean> togglePostLike(
-		@AuthenticationPrincipal CustomUserDetails customUserDetails,
-		@Positive @PathVariable Long postId
+		@Positive @PathVariable Long postId,
+		Principal principal
 	) {
-		long userId = customUserDetails.getUser().getId();
-		boolean isAdded = likeService.toggleLike(userId, postId, Like.TargetType.POST);
+		boolean isAdded = likeService.toggleLike(principal.getName(), postId, Like.TargetType.POST);
 		return RsData.success(HttpStatus.OK, isAdded);
 	}
 

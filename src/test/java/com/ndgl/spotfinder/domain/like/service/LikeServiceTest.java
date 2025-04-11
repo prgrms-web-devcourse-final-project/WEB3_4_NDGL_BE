@@ -18,7 +18,6 @@ import com.ndgl.spotfinder.domain.like.entity.Like.TargetType;
 import com.ndgl.spotfinder.domain.like.repository.LikeRepository;
 import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.domain.user.service.UserService;
-import com.ndgl.spotfinder.global.exception.ServiceException;
 
 @ActiveProfiles("test")
 @SpringBootTest
@@ -38,6 +37,7 @@ public class LikeServiceTest {
 
 	// 공통 테스트 상수 및 객체
 	private final long VALID_USER_ID = 1L;
+	private final String VALID_USER_EMAIL = "test@example.com";
 	private final long VALID_POST_ID = 10L;
 	private final long VALID_COMMENT_ID = 20L;
 	private final long INVALID_TARGET_ID = -1L;
@@ -67,17 +67,18 @@ public class LikeServiceTest {
 	@DisplayName("포스트 좋아요 추가 성공")
 	public void toggleLike_addPostLike_success() {
 		// given: 좋아요가 아직 존재하지 않음
+		when(userService.findUserByEmail(VALID_USER_EMAIL)).thenReturn(testUser);
 		when(userService.findUserById(VALID_USER_ID)).thenReturn(testUser);
 		when(likeRepository.findByUserIdAndTargetIdAndTargetType(VALID_USER_ID, VALID_POST_ID, TargetType.POST))
 			.thenReturn(Optional.empty());
 		when(likeRepository.save(any(Like.class))).thenReturn(postLike);
 
 		// when
-		boolean result = likeService.toggleLike(VALID_USER_ID, VALID_POST_ID, TargetType.POST);
+		boolean result = likeService.toggleLike(VALID_USER_EMAIL, VALID_POST_ID, TargetType.POST);
 
 		// then
 		assertTrue(result);
-		verify(userService).findUserById(VALID_USER_ID);
+		verify(userService).findUserByEmail(VALID_USER_EMAIL);
 		verify(likeRepository).findByUserIdAndTargetIdAndTargetType(VALID_USER_ID, VALID_POST_ID, TargetType.POST);
 		verify(likeRepository).save(any(Like.class));
 		verify(likeTargetService).updateLikeCount(VALID_POST_ID, TargetType.POST, 1);
@@ -87,14 +88,16 @@ public class LikeServiceTest {
 	@DisplayName("포스트 좋아요 취소 성공")
 	public void toggleLike_removePostLike_success() {
 		// given: 좋아요가 이미 존재함
+		when(userService.findUserByEmail(VALID_USER_EMAIL)).thenReturn(testUser);
 		when(likeRepository.findByUserIdAndTargetIdAndTargetType(VALID_USER_ID, VALID_POST_ID, TargetType.POST))
 			.thenReturn(Optional.of(postLike));
 
 		// when
-		boolean result = likeService.toggleLike(VALID_USER_ID, VALID_POST_ID, TargetType.POST);
+		boolean result = likeService.toggleLike(VALID_USER_EMAIL, VALID_POST_ID, TargetType.POST);
 
 		// then
 		assertFalse(result);
+		verify(userService).findUserByEmail(VALID_USER_EMAIL);
 		verify(likeRepository).findByUserIdAndTargetIdAndTargetType(VALID_USER_ID, VALID_POST_ID, TargetType.POST);
 		verify(likeRepository).delete(postLike);
 		verify(likeTargetService).updateLikeCount(VALID_POST_ID, TargetType.POST, -1);
@@ -104,6 +107,7 @@ public class LikeServiceTest {
 	@DisplayName("댓글 좋아요 추가 성공")
 	public void toggleLike_addCommentLike_success() {
 		// given: 좋아요가 아직 존재하지 않음 (댓글)
+		when(userService.findUserByEmail(VALID_USER_EMAIL)).thenReturn(testUser);
 		when(userService.findUserById(VALID_USER_ID)).thenReturn(testUser);
 		when(likeRepository.findByUserIdAndTargetIdAndTargetType(VALID_USER_ID, VALID_COMMENT_ID,
 			TargetType.COMMENT))
@@ -111,11 +115,11 @@ public class LikeServiceTest {
 		when(likeRepository.save(any(Like.class))).thenReturn(commentLike);
 
 		// when
-		boolean result = likeService.toggleLike(VALID_USER_ID, VALID_COMMENT_ID, TargetType.COMMENT);
+		boolean result = likeService.toggleLike(VALID_USER_EMAIL, VALID_COMMENT_ID, TargetType.COMMENT);
 
 		// then
 		assertTrue(result);
-		verify(userService).findUserById(VALID_USER_ID);
+		verify(userService).findUserByEmail(VALID_USER_EMAIL);
 		verify(likeRepository).findByUserIdAndTargetIdAndTargetType(VALID_USER_ID, VALID_COMMENT_ID,
 			TargetType.COMMENT);
 		verify(likeRepository).save(any(Like.class));
@@ -126,15 +130,17 @@ public class LikeServiceTest {
 	@DisplayName("댓글 좋아요 취소 성공")
 	public void toggleLike_removeCommentLike_success() {
 		// given: 좋아요가 이미 존재함 (댓글)
+		when(userService.findUserByEmail(VALID_USER_EMAIL)).thenReturn(testUser);
 		when(likeRepository.findByUserIdAndTargetIdAndTargetType(VALID_USER_ID, VALID_COMMENT_ID,
 			TargetType.COMMENT))
 			.thenReturn(Optional.of(commentLike));
 
 		// when
-		boolean result = likeService.toggleLike(VALID_USER_ID, VALID_COMMENT_ID, TargetType.COMMENT);
+		boolean result = likeService.toggleLike(VALID_USER_EMAIL, VALID_COMMENT_ID, TargetType.COMMENT);
 
 		// then
 		assertFalse(result);
+		verify(userService).findUserByEmail(VALID_USER_EMAIL);
 		verify(likeRepository).findByUserIdAndTargetIdAndTargetType(VALID_USER_ID, VALID_COMMENT_ID,
 			TargetType.COMMENT);
 		verify(likeRepository).delete(commentLike);
@@ -142,11 +148,12 @@ public class LikeServiceTest {
 	}
 
 	@Test
-	@DisplayName("잘못된 타겟 ID로 인한 좋아요 처리 실패")
-	public void toggleLike_invalidTargetId() {
-		ServiceException exception = assertThrows(ServiceException.class,
-			() -> likeService.toggleLike(VALID_USER_ID, INVALID_TARGET_ID, TargetType.POST));
+	@DisplayName("이메일 null 처리 실패")
+	public void toggleLike_emailNull() {
+		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, 
+			() -> likeService.toggleLike(null, VALID_POST_ID, TargetType.POST));
 		assertNotNull(exception);
+		assertEquals("Email은 null일 수 없습니다.", exception.getMessage());
 	}
 
 	@Test
@@ -185,14 +192,6 @@ public class LikeServiceTest {
 		Long result = likeService.getLikeCount(VALID_COMMENT_ID, TargetType.COMMENT);
 		assertEquals(expectedCount, result);
 		verify(likeRepository).countByTargetIdAndTargetType(VALID_COMMENT_ID, TargetType.COMMENT);
-	}
-
-	@Test
-	@DisplayName("존재하지 않는 타겟 ID로 좋아요 수 조회 실패")
-	public void getLikeCount_invalidTargetId() {
-		ServiceException exception = assertThrows(ServiceException.class,
-			() -> likeService.getLikeCount(INVALID_TARGET_ID, TargetType.POST));
-		assertNotNull(exception);
 	}
 
 	@Test

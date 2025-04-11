@@ -27,7 +27,12 @@ public class LikeService {
 	 * @return true: 좋아요 추가됨, false: 좋아요 취소됨
 	 */
 	@Transactional
-	public boolean toggleLike(Long userId, Long targetId, TargetType targetType) {
+	public boolean toggleLike(String email, Long targetId, TargetType targetType) {
+		Long userId = Optional.ofNullable(email)
+			.map(userService::findUserByEmail)
+			.map(User::getId)
+			.orElseThrow(() -> new IllegalArgumentException("Email은 null일 수 없습니다."));
+
 		return likeRepository.findByUserIdAndTargetIdAndTargetType(userId, targetId, targetType)
 			.map(like -> {
 				deleteLike(like, targetId, targetType);
