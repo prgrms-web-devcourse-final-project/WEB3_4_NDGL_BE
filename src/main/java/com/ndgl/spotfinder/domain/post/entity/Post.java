@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import com.ndgl.spotfinder.domain.comment.entity.PostComment;
+import com.ndgl.spotfinder.domain.like.entity.Likeable;
 import com.ndgl.spotfinder.domain.post.dto.HashtagDto;
 import com.ndgl.spotfinder.domain.post.dto.LocationDto;
 import com.ndgl.spotfinder.domain.post.dto.PostCommonUpdateRequestDto;
@@ -36,7 +37,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 @Entity
-public class Post extends BaseTime {
+public class Post extends BaseTime implements Likeable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -151,5 +152,15 @@ public class Post extends BaseTime {
 
 	public void updateLikeCount(long num) {
 		this.likeCount += num;
+	}
+
+	@Override
+	public void removeLike() {
+		this.likeCount--;
+	}
+
+	@Override
+	public void addLike() {
+		this.likeCount++;
 	}
 }

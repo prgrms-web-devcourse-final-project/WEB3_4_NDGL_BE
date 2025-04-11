@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import com.ndgl.spotfinder.domain.like.entity.Likeable;
 import com.ndgl.spotfinder.domain.post.entity.Post;
 import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.global.base.BaseTime;
@@ -35,7 +36,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Builder
 @EntityListeners(AuditingEntityListener.class)
-public class PostComment extends BaseTime {
+public class PostComment extends BaseTime implements Likeable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -85,5 +86,16 @@ public class PostComment extends BaseTime {
 
 	public void updateLikeCount(long num) {
 		this.likeCount += num;
+	}
+
+	@Override
+	public void removeLike() {
+		this.likeCount--;
+	}
+
+	@Override
+	public void addLike() {
+		this.likeCount++;
+
 	}
 }

@@ -23,7 +23,6 @@ import com.ndgl.spotfinder.domain.image.service.ImageCleanupService;
 import com.ndgl.spotfinder.domain.image.service.ImageService;
 import com.ndgl.spotfinder.domain.like.entity.Like;
 import com.ndgl.spotfinder.domain.like.service.LikeService;
-import com.ndgl.spotfinder.domain.like.service.LikeTargetService;
 import com.ndgl.spotfinder.domain.post.dto.HashtagDto;
 import com.ndgl.spotfinder.domain.post.dto.LocationDto;
 import com.ndgl.spotfinder.domain.post.dto.PostCreateRequestDto;
@@ -62,9 +61,6 @@ public class PostServiceTest {
 
 	@Mock
 	private LikeService likeService;
-
-	@Mock
-	private LikeTargetService likeTargetService;
 
 	private final User user1 = User.builder()
 		.id(1L)

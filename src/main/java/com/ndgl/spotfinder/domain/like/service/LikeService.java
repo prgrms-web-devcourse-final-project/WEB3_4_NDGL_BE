@@ -9,9 +9,12 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ndgl.spotfinder.domain.comment.repository.PostCommentRepository;
 import com.ndgl.spotfinder.domain.like.entity.Like;
 import com.ndgl.spotfinder.domain.like.entity.Like.TargetType;
+import com.ndgl.spotfinder.domain.like.entity.Likeable;
 import com.ndgl.spotfinder.domain.like.repository.LikeRepository;
+import com.ndgl.spotfinder.domain.post.repository.PostRepository;
 import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.domain.user.service.UserService;
 import com.ndgl.spotfinder.global.exception.ErrorCode;
@@ -24,7 +27,8 @@ public class LikeService {
 
 	private final LikeRepository likeRepository;
 	private final UserService userService;
-	private final LikeTargetService likeTargetService;
+	private final PostRepository postRepository;
+	private final PostCommentRepository postCommentRepository;
 
 	/**
 	 * 좋아요 추가 또는 삭제
@@ -40,11 +44,11 @@ public class LikeService {
 
 		return likeRepository.findByUserIdAndTargetIdAndTargetType(userId, targetId, targetType)
 			.map(like -> {
-				deleteLike(like, targetId, targetType);
+				removeLike(like, targetId, targetType);
 				return false;
 			})
 			.orElseGet(() -> {
-				createLike(userId, targetId, targetType);
+				addLike(userId, targetId, targetType);
 				return true;
 			});
 	}
@@ -78,31 +82,6 @@ public class LikeService {
 	}
 
 	/**
-	 * 좋아요 삭제 및 대상 좋아요 카운트 감소
-	 */
-	@Deprecated
-	private void deleteLike(Like like, Long targetId, TargetType targetType) {
-		likeTargetService.updateLikeCount(targetId, targetType, -1);
-		likeRepository.delete(like);
-	}
-
-	/**
-	 * 좋아요 생성 및 대상 좋아요 카운트 증가
-	 */
-	@Deprecated
-	private void createLike(Long userId, Long targetId, TargetType targetType) {
-		User user = userService.findUserById(userId);
-		Like like = Like.builder()
-			.user(user)
-			.targetId(targetId)
-			.targetType(targetType)
-			.build();
-
-		likeTargetService.updateLikeCount(targetId, targetType, 1);
-		likeRepository.save(like);
-	}
-
-	/**
 	 * 좋아요 상태를 한번에 조회
 	 */
 	@Transactional(readOnly = true)
@@ -122,5 +101,32 @@ public class LikeService {
 			result.put(targetId, likedTargetIds.contains(targetId));
 		}
 		return result;
+	}
+
+	private void addLike(Long userId, Long targetId, TargetType targetType) {
+		Likeable target = getTarget(targetId, targetType);
+		target.addLike();
+		User user = userService.findUserById(userId);
+		Like like = Like.builder()
+			.user(user)
+			.targetId(targetId)
+			.targetType(targetType)
+			.build();
+		likeRepository.save(like);
+	}
+
+	private void removeLike(Like like, Long targetId, TargetType targetType) {
+		Likeable target = getTarget(targetId, targetType);
+		target.removeLike();
+		likeRepository.delete(like);
+	}
+
+	private Likeable getTarget(Long targetId, TargetType targetType) {
+		return switch (targetType) {
+			case POST -> postRepository.findById(targetId)
+				.orElseThrow(ErrorCode.POST_NOT_FOUND::throwServiceException);
+			case COMMENT -> postCommentRepository.findById(targetId)
+				.orElseThrow(ErrorCode.COMMENT_NOT_FOUND::throwServiceException);
+		};
 	}
 }

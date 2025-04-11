@@ -13,9 +13,13 @@ import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
+import com.ndgl.spotfinder.domain.comment.entity.PostComment;
+import com.ndgl.spotfinder.domain.comment.repository.PostCommentRepository;
 import com.ndgl.spotfinder.domain.like.entity.Like;
 import com.ndgl.spotfinder.domain.like.entity.Like.TargetType;
 import com.ndgl.spotfinder.domain.like.repository.LikeRepository;
+import com.ndgl.spotfinder.domain.post.entity.Post;
+import com.ndgl.spotfinder.domain.post.repository.PostRepository;
 import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.domain.user.service.UserService;
 
@@ -30,7 +34,10 @@ public class LikeServiceTest {
 	private LikeRepository likeRepository;
 
 	@Mock
-	private LikeTargetService likeTargetService;
+	private PostRepository postRepository;
+
+	@Mock
+	private PostCommentRepository postCommentRepository;
 
 	@Mock
 	private UserService userService;
@@ -73,6 +80,10 @@ public class LikeServiceTest {
 			.thenReturn(Optional.empty());
 		when(likeRepository.save(any(Like.class))).thenReturn(postLike);
 
+		// Mock Post 객체 생성 및 설정
+		Post mockPost = mock(Post.class);
+		when(postRepository.findById(VALID_POST_ID)).thenReturn(Optional.of(mockPost));
+
 		// when
 		boolean result = likeService.toggleLike(VALID_USER_EMAIL, VALID_POST_ID, TargetType.POST);
 
@@ -81,7 +92,8 @@ public class LikeServiceTest {
 		verify(userService).findUserByEmail(VALID_USER_EMAIL);
 		verify(likeRepository).findByUserIdAndTargetIdAndTargetType(VALID_USER_ID, VALID_POST_ID, TargetType.POST);
 		verify(likeRepository).save(any(Like.class));
-		verify(likeTargetService).updateLikeCount(VALID_POST_ID, TargetType.POST, 1);
+		verify(mockPost).addLike();
+		verify(postRepository).findById(VALID_POST_ID);
 	}
 
 	@Test
@@ -92,6 +104,10 @@ public class LikeServiceTest {
 		when(likeRepository.findByUserIdAndTargetIdAndTargetType(VALID_USER_ID, VALID_POST_ID, TargetType.POST))
 			.thenReturn(Optional.of(postLike));
 
+		// Mock Post 객체 생성 및 설정
+		Post mockPost = mock(Post.class);
+		when(postRepository.findById(VALID_POST_ID)).thenReturn(Optional.of(mockPost));
+
 		// when
 		boolean result = likeService.toggleLike(VALID_USER_EMAIL, VALID_POST_ID, TargetType.POST);
 
@@ -100,7 +116,8 @@ public class LikeServiceTest {
 		verify(userService).findUserByEmail(VALID_USER_EMAIL);
 		verify(likeRepository).findByUserIdAndTargetIdAndTargetType(VALID_USER_ID, VALID_POST_ID, TargetType.POST);
 		verify(likeRepository).delete(postLike);
-		verify(likeTargetService).updateLikeCount(VALID_POST_ID, TargetType.POST, -1);
+		verify(mockPost).removeLike();
+		verify(postRepository).findById(VALID_POST_ID);
 	}
 
 	@Test
@@ -114,6 +131,10 @@ public class LikeServiceTest {
 			.thenReturn(Optional.empty());
 		when(likeRepository.save(any(Like.class))).thenReturn(commentLike);
 
+		// Mock Comment 객체 생성 및 설정
+		PostComment mockComment = mock(PostComment.class);
+		when(postCommentRepository.findById(VALID_COMMENT_ID)).thenReturn(Optional.of(mockComment));
+
 		// when
 		boolean result = likeService.toggleLike(VALID_USER_EMAIL, VALID_COMMENT_ID, TargetType.COMMENT);
 
@@ -123,7 +144,8 @@ public class LikeServiceTest {
 		verify(likeRepository).findByUserIdAndTargetIdAndTargetType(VALID_USER_ID, VALID_COMMENT_ID,
 			TargetType.COMMENT);
 		verify(likeRepository).save(any(Like.class));
-		verify(likeTargetService).updateLikeCount(VALID_COMMENT_ID, TargetType.COMMENT, 1);
+		verify(mockComment).addLike();
+		verify(postCommentRepository).findById(VALID_COMMENT_ID);
 	}
 
 	@Test
@@ -135,6 +157,10 @@ public class LikeServiceTest {
 			TargetType.COMMENT))
 			.thenReturn(Optional.of(commentLike));
 
+		// Mock Comment 객체 생성 및 설정
+		PostComment mockComment = mock(PostComment.class);
+		when(postCommentRepository.findById(VALID_COMMENT_ID)).thenReturn(Optional.of(mockComment));
+
 		// when
 		boolean result = likeService.toggleLike(VALID_USER_EMAIL, VALID_COMMENT_ID, TargetType.COMMENT);
 
@@ -144,7 +170,8 @@ public class LikeServiceTest {
 		verify(likeRepository).findByUserIdAndTargetIdAndTargetType(VALID_USER_ID, VALID_COMMENT_ID,
 			TargetType.COMMENT);
 		verify(likeRepository).delete(commentLike);
-		verify(likeTargetService).updateLikeCount(VALID_COMMENT_ID, TargetType.COMMENT, -1);
+		verify(mockComment).removeLike();
+		verify(postCommentRepository).findById(VALID_COMMENT_ID);
 	}
 
 	@Test

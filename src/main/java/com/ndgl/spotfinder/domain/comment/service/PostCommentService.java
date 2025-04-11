@@ -152,8 +152,7 @@ public class PostCommentService {
 		PostComment comment,
 		Map<Long, Boolean> likeStatusMap
 	) {
-
-		boolean isLiked = likeStatusMap.getOrDefault(comment.getId(), false);
+		Boolean isLiked = likeStatusMap.getOrDefault(comment.getId(), false);
 
 		if (comment.getChildrenComments() == null) {
 			return new PostCommentResponseDto(comment, isLiked);
