@@ -1,6 +1,6 @@
 package com.ndgl.spotfinder.global.common.util;
 
-import com.ndgl.spotfinder.domain.admin.dto.CreateAdminRequest;
+import com.ndgl.spotfinder.domain.admin.dto.AdminCreateRequestDto;
 import com.ndgl.spotfinder.domain.user.dto.UserJoinRequestDto;
 
 public final class MaskingUtil {
@@ -33,8 +33,8 @@ public final class MaskingUtil {
 	}
 
 	public static Object maskSensitiveData(Object arg) {
-		if (arg instanceof CreateAdminRequest request) {
-			return new CreateAdminRequest(
+		if (arg instanceof AdminCreateRequestDto request) {
+			return new AdminCreateRequestDto(
 				maskFront(request.username()),
 				maskFront(request.password())
 			);
