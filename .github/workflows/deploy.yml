@@ -38,18 +38,21 @@ jobs:
     needs: makeTagAndRelease
     runs-on: ubuntu-latest
     env:
-
-      DOCKER_IMAGE_NAME: app20250406
-
+      DOCKER_IMAGE_NAME: app20250412
     outputs:
       DOCKER_IMAGE_NAME: ${{ env.DOCKER_IMAGE_NAME }}
       OWNER_LC: ${{ env.OWNER_LC }}
     steps:
       - uses: actions/checkout@v4
-      - name: application-secret.yml 생성
+      - name: application-secret.yml, filebeat.yml, docker-compose.prod.spring.yml 생성
         env:
           APPLICATION_SECRET: ${{ secrets.APPLICATION_SECRET_YML }}
-        run: echo "$APPLICATION_SECRET" > src/main/resources/application-secret.yml
+          FILEBEAT_PROD: ${{ secrets.FILEBEAT_PROD_YML }}
+          DOCKER_COMPOSE_PROD_SPRING: ${{ secrets.DOCKER_COMPOSE_PROD_SPRING_YML }}
+        run: |
+          echo "$APPLICATION_SECRET" > src/main/resources/application-secret.yml
+          echo "$FILEBEAT_PROD" > elk/prod/filebeat.yml
+          echo "$DOCKER_COMPOSE_PROD_SPRING" > elk/prod/docker-compose.prod.spring.yml
       - name: Docker Buildx 설치
         uses: docker/setup-buildx-action@v2
       - name: 레지스트리 로그인
@@ -90,7 +93,6 @@ jobs:
       - name: 인스턴스 ID 가져오기
         id: get_instance_id
         run: |
-
           INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=Team01-api-server" "Name=instance-state-name,Values=running" --query "Reservations[].Instances[].InstanceId" --output text)
 
           echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
@@ -107,7 +109,11 @@ jobs:
           comment: Deploy
           command: |
             docker pull ghcr.io/${{ env.OWNER_LC }}/${{ env.DOCKER_IMAGE_NAME }}:latest
-            docker stop app1 2>/dev/null
-            docker rm app1 2>/dev/null
-            docker run -d -v /gen:/gen --name app1 --restart unless-stopped --network common -e TZ=Asia/Seoul  -p 8080:8080 ghcr.io/${{ env.OWNER_LC }}/${{ env.DOCKER_IMAGE_NAME }}:latest
-            docker rmi $(docker images -f "dangling=true" -q)
+            export ELASTIC_USERNAME=${{ secrets.ELASTIC_USERNAME }}
+            export ELASTIC_PASSWORD=${{ secrets.ELASTIC_PASSWORD }}
+            export ELK_HOST=${{ secrets.ELK_HOST }}
+            export OWNER_LC=${{ env.OWNER_LC }}
+            export DOCKER_IMAGE_NAME=${{ env.DOCKER_IMAGE_NAME }}
+            docker-compose -f docker-compose.prod.spring.yml down
+            docker-compose -f docker-compose.prod.spring.yml up -d
+            docker system prune -f
