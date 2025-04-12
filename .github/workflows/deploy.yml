@@ -114,10 +114,11 @@ jobs:
       - name: 스프링, filebeat 배포
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.ELK_EC2_HOST }}
+          host: ${{ secrets.SPRING_EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            echo ${{ secrets.GITHUB_PAT }} | docker login ghcr.io -u ${{ env.OWNER_LC }} --password-stdin
             cd /home/ec2-user/elk/prod
             docker pull ghcr.io/${{ env.OWNER_LC }}/${{ env.DOCKER_IMAGE_NAME }}:latest
             echo "OWNER_LC=${{ env.OWNER_LC }}" > .env
