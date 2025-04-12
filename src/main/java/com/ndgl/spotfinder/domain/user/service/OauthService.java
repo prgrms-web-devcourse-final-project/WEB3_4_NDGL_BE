@@ -31,9 +31,6 @@ public class OauthService {
 	@Value("${spring.security.oauth2.client.provider.google.user-info-uri}")
 	private String userInfoUri;
 
-	@Value("${auth.header.prefix}")
-	private String authHeaderPrefix;
-
 	private final OauthRepository oauthRepository;
 	private final UserRepository userRepository;
 	private final TokenProvider tokenProvider;
@@ -50,7 +47,6 @@ public class OauthService {
 	}
 
 	public UserLoginResponseDto processGoogleLogin(
-		Provider provider,
 		String code,
 		String redirectUri,
 		HttpServletResponse response) {
