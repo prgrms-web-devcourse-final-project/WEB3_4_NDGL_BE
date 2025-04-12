@@ -1,6 +1,7 @@
 package com.ndgl.spotfinder.domain.post.repository;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,9 +24,9 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 	Slice<Post> findByUserAndIdLessThanOrderByCreatedAtDesc(User user, Long lastId, PageRequest pageRequest);
 
 	@Query("SELECT p FROM Post p " +
-		"JOIN Like l ON p.id = l.targetId AND l.targetType = 'POST' " +
-		"WHERE l.user.id = :userId AND p.id < :lastId " +
-		"ORDER BY p.createdAt DESC")
+		   "JOIN Like l ON p.id = l.targetId AND l.targetType = 'POST' " +
+		   "WHERE l.user.id = :userId AND p.id < :lastId " +
+		   "ORDER BY p.createdAt DESC")
 	@EntityGraph(attributePaths = {"hashtags"})
 	Slice<Post> findLikedPostsByUser(@Param("userId") Long userId, @Param("lastId") Long lastId,
 		PageRequest pageRequest);
@@ -43,22 +44,24 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 	Optional<Post> findFirstByUserAndStatus(User user, PostStatus status);
 
 	@Query("SELECT p FROM Post p "
-		+ "WHERE (LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')) "
-		+ "OR LOWER(p.content) LIKE LOWER(CONCAT('%', :keyword, '%')) "
-		+ "OR LOWER(p.user.nickName) LIKE LOWER(CONCAT('%', :keyword, '%')) "
-		+ "OR EXISTS (SELECT h FROM p.hashtags h WHERE LOWER(h.name) LIKE LOWER(CONCAT('%', :keyword, '%')))) "
-		+ "ORDER BY p.createdAt DESC")
+		   + "WHERE (LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')) "
+		   + "OR LOWER(p.content) LIKE LOWER(CONCAT('%', :keyword, '%')) "
+		   + "OR LOWER(p.user.nickName) LIKE LOWER(CONCAT('%', :keyword, '%')) "
+		   + "OR EXISTS (SELECT h FROM p.hashtags h WHERE LOWER(h.name) LIKE LOWER(CONCAT('%', :keyword, '%')))) "
+		   + "ORDER BY p.createdAt DESC")
 	Slice<Post> searchAll(String keyword, PageRequest pageRequest);
 
 	List<Post> findByUser(User user);
 
 	@Query("SELECT DISTINCT p FROM Post p "
-    	+ "JOIN FETCH p.user "
-    	+ "LEFT JOIN FETCH p.hashtags")
+		   + "JOIN FETCH p.user "
+		   + "LEFT JOIN FETCH p.hashtags")
 	List<Post> findAllWithAssociations();
 
 	@Query("SELECT DISTINCT p FROM Post p "
-		+ "JOIN FETCH p.user LEFT JOIN FETCH p.hashtags "
-		+ "WHERE p.updatedAt > :updatedAt")
+		   + "JOIN FETCH p.user LEFT JOIN FETCH p.hashtags "
+		   + "WHERE p.updatedAt > :updatedAt")
 	List<Post> findByUpdatedAtAfter(LocalDateTime updatedAt);
+
+	List<Post> findByIdIn(Collection<Long> ids);
 }

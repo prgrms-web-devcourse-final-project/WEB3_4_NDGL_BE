@@ -21,10 +21,10 @@ public class ViewCountAspect {
 	private static final Long EXPIRE_NOT_SET = -1L;
 	private static final Duration CACHE_DURATION_TIME = Duration.ofHours(1);
 
-	@Before(value = "execution(* com.ndgl.spotfinder.domain.post.service.PostService.getPost(..)) && args(id)")
-	public void handlePostViewCount(Long id) {
+	@Before(value = "execution(* com.ndgl.spotfinder.domain.post.service.PostService.getPost(..)) && args(postId)")
+	public void handlePostViewCount(Long postId) {
 		String ip = request.getRemoteAddr();
-		String viewedPost = POST_KEY_PREFIX + id;
+		String viewedPost = POST_KEY_PREFIX + postId;
 
 		redisTemplate.opsForSet().add(viewedPost, ip);
 		setExpire(viewedPost);

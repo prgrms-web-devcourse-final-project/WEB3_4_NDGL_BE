@@ -155,6 +155,11 @@ public class PostService {
 	}
 
 	@Transactional(readOnly = true)
+	public List<Post> findPostByIds(List<Long> ids) {
+		return postRepository.findByIdIn(ids);
+	}
+
+	@Transactional(readOnly = true)
 	public Long getLastPostId(SliceRequest sliceRequest) {
 		if (sliceRequest.lastId() == null) {
 			return postRepository.findTopByOrderByIdDesc()
