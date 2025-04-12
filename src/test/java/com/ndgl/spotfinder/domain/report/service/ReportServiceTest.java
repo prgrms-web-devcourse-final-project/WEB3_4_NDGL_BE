@@ -26,9 +26,9 @@ import com.ndgl.spotfinder.domain.comment.entity.PostComment;
 import com.ndgl.spotfinder.domain.comment.service.PostCommentService;
 import com.ndgl.spotfinder.domain.post.entity.Post;
 import com.ndgl.spotfinder.domain.post.service.PostService;
-import com.ndgl.spotfinder.domain.report.dto.PostCommentReportResponse;
-import com.ndgl.spotfinder.domain.report.dto.PostReportResponse;
-import com.ndgl.spotfinder.domain.report.dto.ReportCreateRequest;
+import com.ndgl.spotfinder.domain.report.dto.PostCommentReportResponseDto;
+import com.ndgl.spotfinder.domain.report.dto.PostReportResponseDto;
+import com.ndgl.spotfinder.domain.report.dto.ReportCreateRequestDto;
 import com.ndgl.spotfinder.domain.report.entity.Ban;
 import com.ndgl.spotfinder.domain.report.entity.BanDuration;
 import com.ndgl.spotfinder.domain.report.entity.PostCommentReport;
@@ -77,7 +77,7 @@ public class ReportServiceTest {
 	@DisplayName("포스트 신고 - 정상")
 	void createPostReport_success() {
 		// given
-		ReportCreateRequest request = new ReportCreateRequest(ReportType.SPAM, "SPAM");
+		ReportCreateRequestDto request = new ReportCreateRequestDto(ReportType.SPAM, "SPAM");
 		String reporterEmail = "exmaple1@example.com";
 		long postId = 3L;
 
@@ -124,7 +124,7 @@ public class ReportServiceTest {
 		// given
 		String invalidReporterEmail = "exmaple1@example.com";
 		long postId = 3L;
-		ReportCreateRequest request = new ReportCreateRequest(ReportType.SPAM, "SPAM");
+		ReportCreateRequestDto request = new ReportCreateRequestDto(ReportType.SPAM, "SPAM");
 
 		when(userService.findUserByEmail(invalidReporterEmail))
 			.thenThrow(new ServiceException(ErrorCode.REPORTER_NOT_FOUND.getHttpStatus(), ErrorCode.REPORTER_NOT_FOUND.getMessage()));
@@ -145,7 +145,7 @@ public class ReportServiceTest {
 		// given
 		String reporterEmail = "exmaple1@example.com";
 		long invalidPostId = -1L;
-		ReportCreateRequest request = new ReportCreateRequest(ReportType.SPAM, "SPAM");
+		ReportCreateRequestDto request = new ReportCreateRequestDto(ReportType.SPAM, "SPAM");
 
 		User reporter = User.builder().build();
 		when(userService.findUserByEmail(reporterEmail)).thenReturn(reporter);
@@ -166,7 +166,7 @@ public class ReportServiceTest {
 	@DisplayName("댓글 신고 - 정상")
 	void createPostCommentReport_success() {
 		// given
-		ReportCreateRequest request = new ReportCreateRequest(ReportType.ADVERTISING, "광고 댓글입니다");
+		ReportCreateRequestDto request = new ReportCreateRequestDto(ReportType.ADVERTISING, "광고 댓글입니다");
 		String reporterEmail = "exmaple1@example.com";
 		long postCommentId = 3L;
 
@@ -213,7 +213,7 @@ public class ReportServiceTest {
 		// given
 		String invalidReporterEmail = "exmaple1@example.com";
 		long postCommentId = 3L;
-		ReportCreateRequest request = new ReportCreateRequest(ReportType.SPAM, "SPAM");
+		ReportCreateRequestDto request = new ReportCreateRequestDto(ReportType.SPAM, "SPAM");
 
 		when(userService.findUserByEmail(invalidReporterEmail))
 			.thenThrow(new ServiceException(ErrorCode.REPORTER_NOT_FOUND.getHttpStatus(), ErrorCode.REPORTER_NOT_FOUND.getMessage()));
@@ -234,7 +234,7 @@ public class ReportServiceTest {
 		// given
 		String reporterEmail = "exmaple1@example.com";
 		long invalidPostCommentId = -1L;
-		ReportCreateRequest request = new ReportCreateRequest(ReportType.SPAM, "SPAM");
+		ReportCreateRequestDto request = new ReportCreateRequestDto(ReportType.SPAM, "SPAM");
 
 		User reporter = User.builder().build();
 		when(userService.findUserByEmail(reporterEmail)).thenReturn(reporter);
@@ -259,15 +259,15 @@ public class ReportServiceTest {
 		int size = 10;
 		Pageable pageable = PageRequest.of(0, size, Sort.by(Sort.Direction.DESC, "id"));
 
-		PostReportResponse mockReport1 = mock(PostReportResponse.class);
-		PostReportResponse mockReport2 = mock(PostReportResponse.class);
-		List<PostReportResponse> mockReports = List.of(mockReport1, mockReport2);
-		Slice<PostReportResponse> mockSlice = new SliceImpl<>(mockReports, pageable, false);
+		PostReportResponseDto mockReport1 = mock(PostReportResponseDto.class);
+		PostReportResponseDto mockReport2 = mock(PostReportResponseDto.class);
+		List<PostReportResponseDto> mockReports = List.of(mockReport1, mockReport2);
+		Slice<PostReportResponseDto> mockSlice = new SliceImpl<>(mockReports, pageable, false);
 
 		when(postReportRepository.findPostReports(lastId, pageable)).thenReturn(mockSlice);
 
 		// when
-		SliceResponse<PostReportResponse> result = reportService.getPostReportSlice(lastId, size);
+		SliceResponse<PostReportResponseDto> result = reportService.getPostReportSlice(lastId, size);
 
 		// then
 		verify(postReportRepository).findPostReports(lastId, pageable);
@@ -285,7 +285,7 @@ public class ReportServiceTest {
 		int size = 10;
 
 		Pageable pageable = PageRequest.of(0, size, Sort.by(Sort.Direction.DESC, "id"));
-		Slice<PostReportResponse> emptySlice = new SliceImpl<>(Collections.emptyList(), pageable, false);
+		Slice<PostReportResponseDto> emptySlice = new SliceImpl<>(Collections.emptyList(), pageable, false);
 
 		when(postReportRepository.findPostReports(lastId, pageable)).thenReturn(emptySlice);
 
@@ -303,15 +303,15 @@ public class ReportServiceTest {
 		int size = 10;
 		Pageable pageable = PageRequest.of(0, size, Sort.by(Sort.Direction.DESC, "id"));
 
-		PostCommentReportResponse mockReport1 = mock(PostCommentReportResponse.class);
-		PostCommentReportResponse mockReport2 = mock(PostCommentReportResponse.class);
-		List<PostCommentReportResponse> mockReports = List.of(mockReport1, mockReport2);
-		Slice<PostCommentReportResponse> mockSlice = new SliceImpl<>(mockReports, pageable, false);
+		PostCommentReportResponseDto mockReport1 = mock(PostCommentReportResponseDto.class);
+		PostCommentReportResponseDto mockReport2 = mock(PostCommentReportResponseDto.class);
+		List<PostCommentReportResponseDto> mockReports = List.of(mockReport1, mockReport2);
+		Slice<PostCommentReportResponseDto> mockSlice = new SliceImpl<>(mockReports, pageable, false);
 
 		when(postCommentReportRepository.findPostCommentReports(lastId, pageable)).thenReturn(mockSlice);
 
 		// when
-		SliceResponse<PostCommentReportResponse> result = reportService.getPostCommentReportSlice(lastId, size);
+		SliceResponse<PostCommentReportResponseDto> result = reportService.getPostCommentReportSlice(lastId, size);
 
 		// then
 		verify(postCommentReportRepository).findPostCommentReports(lastId, pageable);
@@ -329,7 +329,7 @@ public class ReportServiceTest {
 		int size = 10;
 
 		Pageable pageable = PageRequest.of(0, size, Sort.by(Sort.Direction.DESC, "id"));
-		Slice<PostCommentReportResponse> emptySlice = new SliceImpl<>(Collections.emptyList(), pageable, false);
+		Slice<PostCommentReportResponseDto> emptySlice = new SliceImpl<>(Collections.emptyList(), pageable, false);
 
 		when(postCommentReportRepository.findPostCommentReports(lastId, pageable)).thenReturn(emptySlice);
 

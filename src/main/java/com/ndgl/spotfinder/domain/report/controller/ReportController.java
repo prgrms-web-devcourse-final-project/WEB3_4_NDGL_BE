@@ -14,75 +14,67 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ndgl.spotfinder.domain.report.dto.BanDto;
 import com.ndgl.spotfinder.domain.report.dto.PostCommentReportDto;
-import com.ndgl.spotfinder.domain.report.dto.PostCommentReportResponse;
+import com.ndgl.spotfinder.domain.report.dto.PostCommentReportResponseDto;
 import com.ndgl.spotfinder.domain.report.dto.PostReportDto;
-import com.ndgl.spotfinder.domain.report.dto.PostReportResponse;
-import com.ndgl.spotfinder.domain.report.dto.ReportCreateRequest;
+import com.ndgl.spotfinder.domain.report.dto.PostReportResponseDto;
+import com.ndgl.spotfinder.domain.report.dto.ReportCreateRequestDto;
 import com.ndgl.spotfinder.domain.report.service.ReportService;
 import com.ndgl.spotfinder.global.common.dto.SliceRequest;
 import com.ndgl.spotfinder.global.common.dto.SliceResponse;
 import com.ndgl.spotfinder.global.rsdata.RsData;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/v1/reports")
 @RequiredArgsConstructor
-@Tag(name = "ReportController")
-public class ReportController {
+public class ReportController implements ReportApiSpecification {
 	private final ReportService reportService;
 
 	@PostMapping("/posts/{id}")
-	@Operation(summary = "포스트 신고 요청")
 	public RsData<PostReportDto> createPostReport(
-		@PathVariable Long id,
-		@RequestBody @Valid ReportCreateRequest reportCreateRequest,
+		@PathVariable long id,
+		@RequestBody @Valid ReportCreateRequestDto reportCreateRequestDto,
 		Principal principal) {
 
-		PostReportDto postReportDto = reportService.createPostReport(reportCreateRequest, principal.getName(), id);
+		PostReportDto postReportDto = reportService.createPostReport(reportCreateRequestDto, principal.getName(), id);
 
 		return RsData.success(HttpStatus.OK, postReportDto);
 	}
 
 	@PostMapping("/comments/{id}")
-	@Operation(summary = "댓글 신고 요청")
 	public RsData<PostCommentReportDto> createPostCommentReport(
-		@PathVariable Long id,
-		@RequestBody @Valid ReportCreateRequest reportCreateRequest,
+		@PathVariable long id,
+		@RequestBody @Valid ReportCreateRequestDto reportCreateRequestDto,
 		Principal principal) {
 
-		PostCommentReportDto postCommentReportDto = reportService.createPostCommentReport(reportCreateRequest, principal.getName(), id);
+		PostCommentReportDto postCommentReportDto = reportService.createPostCommentReport(reportCreateRequestDto, principal.getName(), id);
 
 		return RsData.success(HttpStatus.OK, postCommentReportDto);
 	}
 
 	@GetMapping("/posts")
-	@Operation(summary = "포스트 신고 목록 조회")
-	public RsData<SliceResponse<PostReportResponse>> getPostReportList(
+	public RsData<SliceResponse<PostReportResponseDto>> getPostReportList(
 		@ModelAttribute @Valid SliceRequest sliceRequest
 	){
-		SliceResponse<PostReportResponse> postReportSlice
+		SliceResponse<PostReportResponseDto> postReportSlice
 			= reportService.getPostReportSlice(sliceRequest.lastId(), sliceRequest.size());
 
 		return RsData.success(HttpStatus.OK, postReportSlice);
 	}
 
 	@GetMapping("/comments")
-	@Operation(summary = "댓글 신고 목록 조회")
-	public RsData<SliceResponse<PostCommentReportResponse>> getPostCommentReportList(
+	public RsData<SliceResponse<PostCommentReportResponseDto>> getPostCommentReportList(
 		@ModelAttribute @Valid SliceRequest sliceRequest
 	){
-		SliceResponse<PostCommentReportResponse> commentReportSlice
+		SliceResponse<PostCommentReportResponseDto> commentReportSlice
 			= reportService.getPostCommentReportSlice(sliceRequest.lastId(), sliceRequest.size());
 
 		return RsData.success(HttpStatus.OK, commentReportSlice);
 	}
 
 	@PostMapping("/{reportId}/post/ban")
-	@Operation(summary = "포스트로 인한 유저 제재")
 	public RsData<BanDto> banUserDueToPost(
 		@PathVariable long reportId,
 		@RequestParam String duration
@@ -93,7 +85,6 @@ public class ReportController {
 	}
 
 	@PostMapping("/{reportId}/comment/ban")
-	@Operation(summary = "댓글로 인한 유저 제재")
 	public RsData<BanDto> banUserDueToPostComment(
 		@PathVariable long reportId,
 		@RequestParam String duration
@@ -104,7 +95,6 @@ public class ReportController {
 	}
 
 	@PostMapping("/{reportId}/post/reject")
-	@Operation(summary = "포스트 신고 기각")
 	public RsData<Void> rejectPostReport(
 		@PathVariable long reportId
 	){
@@ -114,7 +104,6 @@ public class ReportController {
 	}
 
 	@PostMapping("/{reportId}/comment/reject")
-	@Operation(summary = "댓글 신고 기각")
 	public RsData<Void> rejectPostCommentReport(
 		@PathVariable long reportId
 	){

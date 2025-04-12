@@ -6,12 +6,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import com.ndgl.spotfinder.domain.report.dto.PostReportResponse;
+import com.ndgl.spotfinder.domain.report.dto.PostReportResponseDto;
 import com.ndgl.spotfinder.domain.report.entity.PostReport;
 
 @Repository
 public interface PostReportRepository extends JpaRepository<PostReport, Long> {
-	@Query("SELECT new com.ndgl.spotfinder.domain.report.dto.PostReportResponse(" +
+	@Query("SELECT new com.ndgl.spotfinder.domain.report.dto.PostReportResponseDto(" +
 		"pr.post.id, " +
 		"pr.reporter.id, " +
 		"pr.reportedUser.id, " +
@@ -20,5 +20,5 @@ public interface PostReportRepository extends JpaRepository<PostReport, Long> {
 		"pr.createdAt) " +
 		"FROM PostReport pr " +
 		"WHERE pr.id < :lastId")
-	Slice<PostReportResponse> findPostReports(Long lastId, Pageable pageable);
+	Slice<PostReportResponseDto> findPostReports(Long lastId, Pageable pageable);
 }
