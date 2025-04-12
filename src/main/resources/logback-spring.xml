@@ -15,7 +15,7 @@
               value="[%d{yyyy-MM-dd HH:mm:ss.SSS}] %green([%thread]) %highlight(%-5level) %boldWhite([%C.%M:%yellow(%L)]) - %msg %ex{5}%n"/>
 
     <!-- dev 환경에 적용할 로그 -->
-    <springProfile name="dev">
+    <springProfile name="dev,prod">
         <include resource="console-appender.xml"/>
 
         <!-- ERROR 레벨 로깅 -->
