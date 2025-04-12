@@ -95,12 +95,15 @@ jobs:
           echo $INSTANCE_ID
 
       - name: 설정 파일 생성
+        env:
+          FILEBEAT_PROD: ${{ secrets.RILBEAT_PROD_YML }}
+          DOCKER_COMPOSE_PROD_SPRING: ${{ secrets.DOCKER_COMPOSE_PROD_SPRING_YML }}
         run: |
           mkdir -p elk/prod
           
-          echo '${{ secrets.FILEBEAT_PROD_YML }}' > elk/prod/filebeat.yml
+          echo "$FILEBEAT_PROD" > elk/prod/filebeat.yml
           
-          echo "${{ secrets.DOCKER_COMPOSE_PROD_SPRING_YML }}" > elk/prod/docker-compose.prod.spring.yml
+          echo "$DOCKER_COMPOSE_PROD_SPRING" > elk/prod/docker-compose.prod.spring.yml
 
       - name: 설정 파일 EC2로 전송
         uses: appleboy/scp-action@master
