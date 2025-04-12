@@ -25,7 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
-import com.ndgl.spotfinder.domain.admin.dto.CreateAdminRequest;
+import com.ndgl.spotfinder.domain.admin.dto.AdminCreateRequestDto;
 import com.ndgl.spotfinder.domain.admin.entity.Admin;
 import com.ndgl.spotfinder.domain.admin.repository.AdminRepository;
 import com.ndgl.spotfinder.domain.admin.service.AdminService;
@@ -85,11 +85,11 @@ class AdminControllerTest {
 		String username = "admin1";
 		String password = "admin123";
 
-		CreateAdminRequest createAdminRequest = new CreateAdminRequest(username, password);
+		AdminCreateRequestDto adminCreateRequestDto = new AdminCreateRequestDto(username, password);
 
 		ResultActions resultActions = mvc.perform(
 			post("/api/v1/admin/join")
-				.content(objectMapper.writeValueAsString(createAdminRequest))
+				.content(objectMapper.writeValueAsString(adminCreateRequestDto))
 				.contentType(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8))
 		);
 
@@ -116,11 +116,11 @@ class AdminControllerTest {
 		String username = "admin";
 		String password = "admin123";
 
-		CreateAdminRequest createAdminRequest = new CreateAdminRequest(username, password);
+		AdminCreateRequestDto adminCreateRequestDto = new AdminCreateRequestDto(username, password);
 
 		ResultActions resultActions = mvc.perform(
 			post("/api/v1/admin/join")
-				.content(objectMapper.writeValueAsString(createAdminRequest))
+				.content(objectMapper.writeValueAsString(adminCreateRequestDto))
 				.contentType(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8))
 		);
 
@@ -139,11 +139,11 @@ class AdminControllerTest {
 		String invalidUsername = "ad1";
 		String password = "admin123";
 
-		CreateAdminRequest createAdminRequest = new CreateAdminRequest(invalidUsername, password);
+		AdminCreateRequestDto adminCreateRequestDto = new AdminCreateRequestDto(invalidUsername, password);
 
 		ResultActions resultActions = mvc.perform(
 			post("/api/v1/admin/join")
-				.content(objectMapper.writeValueAsString(createAdminRequest))
+				.content(objectMapper.writeValueAsString(adminCreateRequestDto))
 				.contentType(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8))
 		);
 
@@ -183,11 +183,11 @@ class AdminControllerTest {
 		String username = "admin1";
 		String invalidPassword = "ad1";
 
-		CreateAdminRequest createAdminRequest = new CreateAdminRequest(username, invalidPassword);
+		AdminCreateRequestDto adminCreateRequestDto = new AdminCreateRequestDto(username, invalidPassword);
 
 		ResultActions resultActions = mvc.perform(
 			post("/api/v1/admin/join")
-				.content(objectMapper.writeValueAsString(createAdminRequest))
+				.content(objectMapper.writeValueAsString(adminCreateRequestDto))
 				.contentType(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8))
 		);
 

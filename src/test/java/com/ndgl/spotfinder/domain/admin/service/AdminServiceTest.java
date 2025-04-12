@@ -14,7 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.ndgl.spotfinder.domain.admin.dto.CreateAdminRequest;
+import com.ndgl.spotfinder.domain.admin.dto.AdminCreateRequestDto;
 import com.ndgl.spotfinder.domain.admin.entity.Admin;
 import com.ndgl.spotfinder.domain.admin.repository.AdminRepository;
 import com.ndgl.spotfinder.global.exception.ErrorCode;
@@ -41,7 +41,7 @@ class AdminServiceTest {
 	void 정상_관리자_회원가입() {
 		// given
 
-		CreateAdminRequest createAdminRequest = new CreateAdminRequest(USERNAME, PASSWORD);
+		AdminCreateRequestDto adminCreateRequestDto = new AdminCreateRequestDto(USERNAME, PASSWORD);
 
 		Admin admin = Admin.builder()
 			.username(USERNAME)
@@ -54,7 +54,7 @@ class AdminServiceTest {
 		when(adminRepository.save(any(Admin.class))).thenReturn(savedAdmin);
 
 		// when
-		adminService.join(createAdminRequest);
+		adminService.join(adminCreateRequestDto);
 
 		// then
 		verify(passwordEncoder).encode(PASSWORD);
@@ -65,7 +65,7 @@ class AdminServiceTest {
 	@DisplayName("관리자 회원가입 - username 중복")
 	void 비정상_관리자_회원가입_username_중복() {
 		// given
-		CreateAdminRequest duplicateRequest = new CreateAdminRequest(USERNAME, PASSWORD);
+		AdminCreateRequestDto duplicateRequest = new AdminCreateRequestDto(USERNAME, PASSWORD);
 		when(adminRepository.existsAdminByUsername(anyString())).thenReturn(true);
 
 		// when & then
