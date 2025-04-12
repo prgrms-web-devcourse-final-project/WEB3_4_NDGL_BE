@@ -96,7 +96,7 @@ jobs:
 
       - name: 설정 파일 생성
         env:
-          FILEBEAT_PROD: ${{ secrets.RILBEAT_PROD_YML }}
+          FILEBEAT_PROD: ${{ secrets.FILEBEAT_PROD_YML }}
           DOCKER_COMPOSE_PROD_SPRING: ${{ secrets.DOCKER_COMPOSE_PROD_SPRING_YML }}
         run: |
           mkdir -p elk/prod
