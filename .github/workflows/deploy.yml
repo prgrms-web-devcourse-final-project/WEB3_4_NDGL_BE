@@ -44,16 +44,11 @@ jobs:
       OWNER_LC: ${{ env.OWNER_LC }}
     steps:
       - uses: actions/checkout@v4
-      - name: application-secret.yml, filebeat.yml, docker-compose.prod.spring.yml 생성
+      - name: application-secret.yml 생성
         env:
           APPLICATION_SECRET: ${{ secrets.APPLICATION_SECRET_YML }}
-          FILEBEAT_PROD: ${{ secrets.FILEBEAT_PROD_YML }}
-          DOCKER_COMPOSE_PROD_SPRING: ${{ secrets.DOCKER_COMPOSE_PROD_SPRING_YML }}
         run: |
           echo "$APPLICATION_SECRET" > src/main/resources/application-secret.yml
-          mkdir elk/prod
-          echo "$FILEBEAT_PROD" > elk/prod/filebeat.yml
-          echo "$DOCKER_COMPOSE_PROD_SPRING" > elk/prod/docker-compose.prod.spring.yml
       - name: Docker Buildx 설치
         uses: docker/setup-buildx-action@v2
       - name: 레지스트리 로그인
@@ -98,6 +93,24 @@ jobs:
 
           echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
           echo $INSTANCE_ID
+
+      - name: 설정 파일 생성
+        run: |
+          mkdir -p elk/prod
+          
+          echo '${{ secrets.FILEBEAT_PROD_YML }}' > elk/prod/filebeat.yml
+          
+          echo '${{ secrets.DOCKER_COMPOSE_PROD_SPRING_YML }}' > elk/prod/docker-compose.prod.spring.yml
+
+      - name: 설정 파일 EC2로 전송
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SPRING_EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "elk"
+          target: "/home/ec2-user/"
+
       - name: AWS SSM Send-Command
         uses: peterkimzz/aws-ssm-send-command@master
         id: ssm
@@ -109,12 +122,13 @@ jobs:
           working-directory: /
           comment: Deploy
           command: |
+            cd /home/ec2-user/elk/prod
             docker pull ghcr.io/${{ env.OWNER_LC }}/${{ env.DOCKER_IMAGE_NAME }}:latest
-            export ELASTIC_USERNAME=${{ secrets.ELASTIC_USERNAME }}
-            export ELASTIC_PASSWORD=${{ secrets.ELASTIC_PASSWORD }}
-            export ELK_HOST=${{ secrets.ELK_HOST }}
-            export OWNER_LC=${{ env.OWNER_LC }}
-            export DOCKER_IMAGE_NAME=${{ env.DOCKER_IMAGE_NAME }}
+            echo "OWNER_LC=${{ env.OWNER_LC }}" > .env
+            echo "DOCKER_IMAGE_NAME=${{ env.DOCKER_IMAGE_NAME }}" >> .env
+            echo "ELASTIC_USERNAME=${{ secrets.ELASTIC_USERNAME }}" >> .env
+            echo "ELASTIC_PASSWORD=${{ secrets.ELASTIC_PASSWORD }}" >> .env
+            echo "ELK_HOST=${{ secrets.ELK_HOST }}" >> .env
             docker-compose -f docker-compose.prod.spring.yml down
             docker-compose -f docker-compose.prod.spring.yml up -d
             docker system prune -f
