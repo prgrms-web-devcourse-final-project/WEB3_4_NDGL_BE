@@ -117,7 +117,7 @@ public class UserController {
 		String email = tokenProvider.getEmail(accessToken);
 		User user = userService.findUserByEmail(email);
 
-		UserResignedResponseDto responseDto = userService.deleteUser(user, response, accessToken);
-		return RsData.success(HttpStatus.OK, responseDto);
+		userService.deleteUser(user, response, accessToken);
+		return RsData.success(HttpStatus.OK);
 	}
 }

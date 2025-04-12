@@ -13,7 +13,6 @@ import com.ndgl.spotfinder.domain.user.dto.UserJoinRequestDto;
 import com.ndgl.spotfinder.domain.user.dto.UserJoinResponseDto;
 import com.ndgl.spotfinder.domain.user.dto.UserModifiedRequestDto;
 import com.ndgl.spotfinder.domain.user.dto.UserModifiedResponseDto;
-import com.ndgl.spotfinder.domain.user.dto.UserResignedResponseDto;
 import com.ndgl.spotfinder.domain.user.entity.Oauth;
 import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.domain.user.repository.OauthRepository;
@@ -141,26 +140,20 @@ public class UserService {
 	}
 
 	@Transactional
-	public UserResignedResponseDto deleteUser(
+	public void deleteUser(
 		User user,
 		HttpServletResponse response,
 		String accessToken) {
 		int resignedUserCnt = userRepository.resignUser(user.getId());
 		int resignedOauthCnt = oauthRepository.resignOauth(user.getId());
-		
+
 		try {
 			if (resignedUserCnt > 0 && resignedOauthCnt > 0) {
 				tokenCookieUtil.cleanTokenCookies(response, accessToken);
 				refreshTokenService.deleteRefreshToken(user.getEmail());
-
-				return new UserResignedResponseDto(
-					true
-				);
 			}
 		} catch (Exception e) {
 			ErrorCode.SERVER_ERROR.throwServiceException();
 		}
-
-		return null;
 	}
 }
