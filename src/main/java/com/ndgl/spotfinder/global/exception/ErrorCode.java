@@ -16,6 +16,7 @@ public enum ErrorCode {
 	ACCESS_DENIED(HttpStatus.FORBIDDEN, "권한이 없습니다."),
 
 	ADMIN_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 관리자입니다."),
+	ADMIN_LOGIN_FAIL(HttpStatus.UNAUTHORIZED, "아이디 또는 비밀번호가 올바르지 않습니다."),
 	ADMIN_ALREADY_EXISTS_USERNAME(HttpStatus.CONFLICT, "이미 사용 중인 관리자 username 입니다."),
 
 	CONFLICTED_NICKNAME(HttpStatus.CONFLICT, "이미 사용중인 닉네임 입니다."),
@@ -63,11 +64,18 @@ public enum ErrorCode {
 
 	UNREADABLE_REQUEST_PAYLOAD(HttpStatus.BAD_REQUEST, "요청 데이터 파싱을 실패하였습니다."),
 
+	LOGGING_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "로그를 남기는 도중 에러 발생"),
+
+	POPULAR_KEYWORD_NOT_FOUND(HttpStatus.NOT_FOUND, "인기 검색어가 존재하지 않습니다."),
+	POPULAR_POST_NOT_FOUND(HttpStatus.NOT_FOUND, "인기 포스트가 존재하지 않습니다."),
+	REDIS_INVALID_ZSET_TUPLE(HttpStatus.INTERNAL_SERVER_ERROR, "올바르지 않은 레디스 ZSET 튜플입니다."),
+
 	ALREADY_FOLLOWED(HttpStatus.CONFLICT, "이미 팔로우한 유저입니다."),
 	NOT_FOLLOWED(HttpStatus.NOT_FOUND, "팔로우한 유저가 아닙니다."),
 	FOLLOWER_EQUALS_FOLLOWEE(HttpStatus.BAD_REQUEST, "자기 자신은 팔로우, 언팔로우할 수 없습니다."),
 
 	SEARCH_FAIL(HttpStatus.BAD_REQUEST, "엘라스틱서치 검색에 실패했습니다.");
+
 
 	private final HttpStatus httpStatus;
 	private final String message;

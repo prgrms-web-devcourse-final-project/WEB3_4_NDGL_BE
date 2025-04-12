@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class ElasticSearchIndexingScheduler {
+public class ElasticsearchIndexingScheduler {
 	private final PostRepository postRepository;
 	private final PostSearchRepository postSearchRepository;
 

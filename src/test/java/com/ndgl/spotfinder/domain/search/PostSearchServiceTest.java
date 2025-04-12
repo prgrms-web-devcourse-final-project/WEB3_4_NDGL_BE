@@ -32,7 +32,7 @@ import com.ndgl.spotfinder.domain.search.service.PostSearchService;
 import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.global.common.dto.SliceRequest;
 import com.ndgl.spotfinder.global.common.dto.SliceResponse;
-import com.ndgl.spotfinder.global.elk.ElasticSearchHealthCheck;
+import com.ndgl.spotfinder.global.elk.ElasticsearchHealthCheck;
 
 @ActiveProfiles("test")
 @SpringBootTest
@@ -57,7 +57,7 @@ public class PostSearchServiceTest {
 	private PostSearchRepository postSearchRepository;
 
 	@Mock
-	private ElasticSearchHealthCheck healthCheck;
+	private ElasticsearchHealthCheck healthCheck;
 
 	private final User user1 = User.builder()
 		.id(1L)

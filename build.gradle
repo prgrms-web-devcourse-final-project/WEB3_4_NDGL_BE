@@ -71,8 +71,17 @@ dependencies {
     //elasticSearch
     implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch:3.0.0'
 
+    // Elasticsearch Java API Client (8.x)
+    implementation 'co.elastic.clients:elasticsearch-java:8.12.0'
+    implementation 'jakarta.json:jakarta.json-api:2.1.1'
+    implementation 'org.glassfish:jakarta.json:2.0.1'
+
+    // LogStash
+    implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
+
     // 비동기 테스트
     testImplementation 'org.awaitility:awaitility:4.2.0'
+
 }
 
 tasks.named('test') {

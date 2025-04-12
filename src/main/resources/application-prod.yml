@@ -27,7 +27,9 @@ spring:
         enabled: true
 
   elasticsearch:
-    uris: http://localhost:9200
+    uris: http://${ELK_HOST}:9200
+    username: ${ELASTIC_USERNAME}
+    password: ${ELASTIC_PASSWORD}
     ssl:
       verification-mode: none
 

@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class ElasticSearchHealthCheck {
+public class ElasticsearchHealthCheck {
 	private final ElasticsearchClient client;
 
 	public boolean isElasticSearchUp() { // ES 서버 상태 체크

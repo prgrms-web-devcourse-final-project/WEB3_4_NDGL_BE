@@ -9,6 +9,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -16,6 +18,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ndgl.spotfinder.global.security.handler.CustomAccessDeniedHandler;
 import com.ndgl.spotfinder.global.security.handler.CustomAuthenticationEntryPoint;
+import com.ndgl.spotfinder.global.security.handler.CustomAuthenticationFailureHandler;
 import com.ndgl.spotfinder.global.security.handler.CustomAuthenticationSuccessHandler;
 import com.ndgl.spotfinder.global.security.handler.CustomLogoutHandler;
 import com.ndgl.spotfinder.global.security.handler.CustomLogoutSuccessHandler;
@@ -31,9 +34,11 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfig {
 
 	private final ObjectMapper objectMapper;
+	private final JwtFilter jwtFilter;
 	private final TokenProvider tokenProvider;
 	private final AdminUserDetailsService adminUserDetailsService;
-	private final CustomAuthenticationSuccessHandler successHandler;
+	private final CustomAuthenticationSuccessHandler adminAuthSuccessHandler;
+	private final CustomAuthenticationFailureHandler adminAuthFailureHandler;
 	private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
 	private final CustomLogoutHandler customLogoutHandler;
 	private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
@@ -49,7 +54,8 @@ public class SecurityConfig {
 			.formLogin(
 				form -> form
 					.loginProcessingUrl("/api/*/admin/login")
-					.successHandler(successHandler)
+					.successHandler(adminAuthSuccessHandler)
+					.failureHandler(adminAuthFailureHandler)
 			)
 			.logout(logout -> logout
 				.logoutUrl("/api/*/admin/logout")
@@ -113,8 +119,9 @@ public class SecurityConfig {
 					frameOptions.sameOrigin()
 				)
 			)
-			.addFilterBefore(new JwtFilter(tokenProvider),
-				org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class)
+			.addFilterBefore(jwtFilter,
+				UsernamePasswordAuthenticationFilter.class)
+			.addFilterBefore(jwtFilter, LogoutFilter.class)
 			.exceptionHandling(exceptionHandling -> {
 				exceptionHandling
 					.authenticationEntryPoint(customAuthenticationEntryPoint) // 401 에러
