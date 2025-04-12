@@ -35,7 +35,7 @@ public class ElasticsearchIndexingScheduler {
 		postSearchRepository.saveAll(documents);
 	}
 
-	@Scheduled(cron = "0 */30 * * * *") // 30분마다 부분 색인
+	// @Scheduled(cron = "0 */30 * * * *") // 30분마다 부분 색인
 	public void partialReindexPosts() {
 		log.info("부분 인덱싱 수행");
 		LocalDateTime thirtyMinutesAgo = LocalDateTime.now().minusMinutes(30);
