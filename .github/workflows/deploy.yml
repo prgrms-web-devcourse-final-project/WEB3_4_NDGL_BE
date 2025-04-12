@@ -51,6 +51,7 @@ jobs:
           DOCKER_COMPOSE_PROD_SPRING: ${{ secrets.DOCKER_COMPOSE_PROD_SPRING_YML }}
         run: |
           echo "$APPLICATION_SECRET" > src/main/resources/application-secret.yml
+          mkdir elk/prod
           echo "$FILEBEAT_PROD" > elk/prod/filebeat.yml
           echo "$DOCKER_COMPOSE_PROD_SPRING" > elk/prod/docker-compose.prod.spring.yml
       - name: Docker Buildx 설치
