@@ -25,7 +25,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	@Query("UPDATE User u "
 		+ "SET u.isResigned = true,"
 		+ "u.email = CONCAT('resigned_',u.id,'@resign.com'),"
-		+ "u.nickName = CONCAT('resigned_Nickname',u.id),"
+		+ "u.nickName = '탈퇴한회원입니다.',"
 		+ "u.blogName = CONCAT('resigned_Blogname',u.id)"
 		+ "WHERE u.id = :userId "
 		+ "AND  u.isResigned = false ")
