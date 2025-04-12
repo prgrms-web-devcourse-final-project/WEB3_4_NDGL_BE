@@ -1,6 +1,10 @@
 package com.ndgl.spotfinder.global.elk;
 
 import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.elasticsearch.client.RestClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -19,14 +23,35 @@ import co.elastic.clients.transport.rest_client.RestClientTransport;
 
 @Configuration
 @EnableScheduling
-@ConditionalOnProperty(name = "spring.elasticsearch.uris", matchIfMissing = false)
+@ConditionalOnProperty(
+	name = {
+		"spring.elasticsearch.uris",
+		"spring.elasticsearch.username",
+		"spring.elasticsearch.password"
+	},
+	matchIfMissing = false
+)
 public class ElasticsearchConfig {
 	@Value("${spring.elasticsearch.uris}")
 	private String elasticsearchUri;
 
+	@Value("${spring.elasticsearch.username}")
+	private String username;
+
+	@Value("${spring.elasticsearch.password}")
+	private String password;
+
 	@Bean
 	public RestClient restClient() {
-		return RestClient.builder(HttpHost.create(elasticsearchUri)).build();
+
+		final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+		credentialsProvider.setCredentials(AuthScope.ANY,
+			new UsernamePasswordCredentials(username, password));
+
+		return RestClient.builder(HttpHost.create(elasticsearchUri))
+			.setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder
+				.setDefaultCredentialsProvider(credentialsProvider))
+			.build();
 	}
 
 	@Bean
