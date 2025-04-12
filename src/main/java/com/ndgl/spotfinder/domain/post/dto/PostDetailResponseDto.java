@@ -17,6 +17,9 @@ public record PostDetailResponseDto(
 	@Schema(description = "내용", example = "TV 예능 맛있는 녀석들에 나온 맛집들입니다.")
 	String content,
 
+	@Schema(description = "작성자 아이디", example = "2")
+	Long authorId,
+
 	@Schema(description = "작성자 이름", example = "맛집사냥꾼")
 	String authorName,
 
@@ -27,7 +30,7 @@ public record PostDetailResponseDto(
 	Long likeCount,
 
 	@Schema(description = "댓글 수", example = "72")
-	Long commentCount,
+	Integer commentCount,
 
 	@Schema(description = "작성 일자", example = "2025-03-23T14:30:00")
 	LocalDateTime createdAt,
@@ -36,17 +39,21 @@ public record PostDetailResponseDto(
 	List<HashtagDto> hashtags,
 
 	@Schema(description = "장소 목록")
-	List<LocationDto> locations
+	List<LocationDto> locations,
+
+	@Schema(description = "좋아요 여부", example = "false")
+	Boolean likeStatus
 ) {
-	public PostDetailResponseDto(Post post) {
+	public PostDetailResponseDto(Post post, Boolean isLiked) {
 		this(
 			post.getId(),
 			post.getTitle(),
 			post.getContent(),
+			post.getUser().getId(),
 			post.getUser().getNickName(),
 			post.getThumbnail(),
 			post.getLikeCount(),
-			0L,
+			post.getComments().size(),
 			post.getCreatedAt(),
 			post.getHashtags()
 				.stream()
@@ -55,7 +62,8 @@ public record PostDetailResponseDto(
 			post.getLocations()
 				.stream()
 				.map(LocationDto::new)
-				.toList()
+				.toList(),
+			isLiked
 		);
 	}
 }

@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.ndgl.spotfinder.domain.comment.entity.PostComment;
 
 public interface PostCommentRepository extends JpaRepository<PostComment, Long> {
-	Slice<PostComment> findByPostIdAndParentCommentIsNullAndIdGreaterThanOrderByIdAsc(Long postId, Long lastId, Pageable pageable);
+	Slice<PostComment> findByPostIdAndParentCommentIsNullAndIdLessThanOrderByIdDesc(Long postId, Long lastId, Pageable pageable);
 }

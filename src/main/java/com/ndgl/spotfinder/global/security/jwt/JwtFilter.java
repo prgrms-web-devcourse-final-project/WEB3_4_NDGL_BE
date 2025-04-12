@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -16,9 +17,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
+@Component
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
 
+	private final AppConfig appConfig;
 	private final TokenProvider tokenProvider;
 
 	@Override
@@ -31,7 +34,7 @@ public class JwtFilter extends OncePerRequestFilter {
 		String tokenValue = null;
 
 		// 개발 환경일 경우, Header 인증을 먼저 시도 (for swagger)
-		if (AppConfig.isDev()) {
+		if (appConfig.isDev()) {
 			tokenValue = resolveTokenFromHeader(request);
 		}
 

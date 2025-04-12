@@ -1,0 +1,37 @@
+package com.ndgl.spotfinder.domain.like.controller;
+
+import java.security.Principal;
+
+import org.springframework.web.bind.annotation.PathVariable;
+
+import com.ndgl.spotfinder.global.rsdata.RsData;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Positive;
+
+@Tag(name = "좋아요 API", description = "좋아요 관련 API")
+public interface LikeApiSpecification {
+
+	@Operation(
+		summary = "댓글 좋아요 토글",
+		description = "댓글의 좋아요 상태를 토글합니다. 반환값 true는 좋아요 추가, false는 좋아요 취소를 의미합니다.",
+		security = {@SecurityRequirement(name = "JWT")}
+	)
+	RsData<Boolean> toggleCommentLike(
+		@Positive @Parameter(description = "댓글 ID", example = "1") @PathVariable Long commentId,
+		@Parameter(hidden = true) Principal principal
+	);
+
+	@Operation(
+		summary = "포스트 좋아요 토글",
+		description = "포스트의 좋아요 상태를 토글합니다. 반환값 true는 좋아요 추가, false는 좋아요 취소를 의미합니다.",
+		security = {@SecurityRequirement(name = "JWT")}
+	)
+	RsData<Boolean> togglePostLike(
+		@Positive  @Parameter(description = "포스트 ID", example = "1") @PathVariable Long postId,
+		@Parameter(hidden = true) Principal principal
+	);
+}

@@ -1,27 +1,32 @@
 package com.ndgl.spotfinder.global.app;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
+import lombok.RequiredArgsConstructor;
+
 @Configuration
+@RequiredArgsConstructor
 public class AppConfig {
-	private static Environment environment;
+	private final Environment environment;
 
-	@Autowired
-	public void setEnvironment(Environment environment) {
-		AppConfig.environment = environment;
-	}
+	public boolean isProd() { return environment.matchesProfiles("prod"); }
 
-	public static boolean isProd() { return environment.matchesProfiles("prod"); }
+	public boolean isDev() { return environment.matchesProfiles("dev"); }
 
-	public static boolean isDev() { return environment.matchesProfiles("dev"); }
-
-	public static boolean isTest() {
+	public boolean isTest() {
 		return environment.matchesProfiles("test");
 	}
 
-	public static boolean isNotProd() {
-		return !isProd();
+	public boolean isNotProd() { return !isProd(); }
+
+	public String getActiveProfile() {
+		String[] activeProfiles = environment.getActiveProfiles();
+		for (String profile : activeProfiles) {
+			if ("prod".equals(profile)) {
+				return "prod";
+			}
+		}
+		return "dev"; // prod가 없으면 기본값으로 dev 반환
 	}
 }

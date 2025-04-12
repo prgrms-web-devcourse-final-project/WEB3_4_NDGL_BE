@@ -10,4 +10,5 @@ import com.ndgl.spotfinder.domain.admin.entity.Admin;
 @Repository
 public interface AdminRepository extends JpaRepository<Admin, Long> {
 	public Optional<Admin> findByUsername(String username);
+	public boolean existsAdminByUsername(String username);
 }

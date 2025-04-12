@@ -25,10 +25,10 @@ public class Admin extends BaseTime {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 
-	@Column(unique = true)
+	@Column(unique = true, nullable = false)
 	String username;
 
-	@Column(unique = true)
+	@Column(nullable = false)
 	String password;
 
 	@Builder

@@ -4,7 +4,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
@@ -19,14 +21,16 @@ import org.springframework.data.domain.SliceImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 
-import com.ndgl.spotfinder.domain.comment.dto.PostCommentDto;
-import com.ndgl.spotfinder.domain.comment.dto.PostCommentReqDto;
+import com.ndgl.spotfinder.domain.comment.dto.PostCommentRequestDto;
+import com.ndgl.spotfinder.domain.comment.dto.PostCommentResponseDto;
 import com.ndgl.spotfinder.domain.comment.entity.PostComment;
 import com.ndgl.spotfinder.domain.comment.repository.PostCommentRepository;
+import com.ndgl.spotfinder.domain.like.entity.Like;
+import com.ndgl.spotfinder.domain.like.service.LikeService;
 import com.ndgl.spotfinder.domain.post.entity.Post;
-import com.ndgl.spotfinder.domain.post.repository.PostRepository;
+import com.ndgl.spotfinder.domain.post.service.PostService;
 import com.ndgl.spotfinder.domain.user.entity.User;
-import com.ndgl.spotfinder.domain.user.repository.UserRepository;
+import com.ndgl.spotfinder.domain.user.service.UserService;
 import com.ndgl.spotfinder.global.common.dto.SliceResponse;
 import com.ndgl.spotfinder.global.exception.ServiceException;
 
@@ -37,13 +41,16 @@ public class PostCommentServiceTest {
 	private PostCommentService postCommentService;
 
 	@Mock
-	private PostRepository postRepository;
-
-	@Mock
 	private PostCommentRepository postCommentRepository;
 
 	@Mock
-	private UserRepository userRepository;
+	private PostService postService;
+
+	@Mock
+	private UserService userService;
+
+	@Mock
+	private LikeService likeService;
 
 	private final User user = User.builder()
 		.id(1L)
@@ -81,10 +88,10 @@ public class PostCommentServiceTest {
 		// Given
 		Long postId = 1L;
 		String content = "댓글 3";
-		PostCommentReqDto reqBody = new PostCommentReqDto(content, null);
+		PostCommentRequestDto reqBody = new PostCommentRequestDto(content, null);
 
-		when(postRepository.findById(postId)).thenReturn(Optional.of(post));
-		when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
+		when(postService.findPostById(postId)).thenReturn(post);
+		when(userService.findUserByEmail(user.getEmail())).thenReturn(user);
 
 		ArgumentCaptor<PostComment> captor = ArgumentCaptor.forClass(PostComment.class);
 		doAnswer(invocation -> invocation.getArgument(0))
@@ -103,7 +110,6 @@ public class PostCommentServiceTest {
 		assertNull(savedComment.getParentComment()); // 대댓글이 아닌 경우
 	}
 
-
 	@Test
 	@DisplayName("댓글 수정")
 	void updateComment() {
@@ -114,7 +120,7 @@ public class PostCommentServiceTest {
 
 		// When
 		when(postCommentRepository.findById(commentId)).thenReturn(java.util.Optional.ofNullable(comment));
-		when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
+		when(userService.findUserByEmail(user.getEmail())).thenReturn(user);
 		postCommentService.modify(postId, commentId, content, user.getEmail());
 
 		// Then
@@ -150,7 +156,7 @@ public class PostCommentServiceTest {
 
 		// When
 		when(postCommentRepository.findById(commentId)).thenReturn(java.util.Optional.ofNullable(comment));
-		when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
+		when(userService.findUserByEmail(user.getEmail())).thenReturn(user);
 		postCommentService.delete(postId, commentId, user.getEmail());
 
 		// Then
@@ -182,13 +188,13 @@ public class PostCommentServiceTest {
 
 		// When
 		when(postCommentRepository.findById(commentId)).thenReturn(Optional.of(comment));
-		PostCommentDto result = postCommentService.getComment(postId, commentId);
+		PostCommentResponseDto result = postCommentService.getComment(null, postId, commentId);
 
 		// Then
 		assertNotNull(result);
-		assertEquals(commentId, result.getId());
-		assertEquals(postId, result.getPostId());
-		assertEquals(comment.getContent(), result.getContent());
+		assertEquals(commentId, result.id());
+		assertEquals(postId, result.postId());
+		assertEquals(comment.getContent(), result.content());
 	}
 
 	@Test
@@ -200,7 +206,8 @@ public class PostCommentServiceTest {
 
 		// When & Then
 		when(postCommentRepository.findById(commentId)).thenReturn(Optional.empty());
-		assertThrows(ServiceException.class, () -> postCommentService.getComment(postId, commentId), "댓글이 존재하지 않습니다.");
+		assertThrows(ServiceException.class, () -> postCommentService.getComment(null, postId, commentId),
+			"댓글이 존재하지 않습니다.");
 	}
 
 	@Test
@@ -212,7 +219,8 @@ public class PostCommentServiceTest {
 
 		// When & Then
 		when(postCommentRepository.findById(commentId)).thenReturn(Optional.empty());
-		assertThrows(ServiceException.class, () -> postCommentService.getComment(postId, commentId), "해당 포스트의 댓글이 아닙니다.");
+		assertThrows(ServiceException.class, () -> postCommentService.getComment(null, postId, commentId),
+			"해당 포스트의 댓글이 아닙니다.");
 	}
 
 	@Test
@@ -233,18 +241,19 @@ public class PostCommentServiceTest {
 		Slice<PostComment> commentSlice = new SliceImpl<>(comments.subList(0, size), pageRequest, true);
 
 		// Repository Stub 설정
-		when(postCommentRepository.findByPostIdAndParentCommentIsNullAndIdGreaterThanOrderByIdAsc(postId, lastId, pageRequest))
+		when(postCommentRepository.findByPostIdAndParentCommentIsNullAndIdLessThanOrderByIdDesc(postId, lastId,
+			pageRequest))
 			.thenReturn(commentSlice);
 
 		// When
-		SliceResponse<PostCommentDto> response = postCommentService.getComments(postId, lastId, size);
+		SliceResponse<PostCommentResponseDto> response = postCommentService.getComments(null, postId, lastId, size);
 
 		// Then
 		assertNotNull(response);
 		assertEquals(size, response.contents().size());
 		assertTrue(response.hasNext());
 		verify(postCommentRepository, times(1))
-			.findByPostIdAndParentCommentIsNullAndIdGreaterThanOrderByIdAsc(postId, lastId, pageRequest);
+			.findByPostIdAndParentCommentIsNullAndIdLessThanOrderByIdDesc(postId, lastId, pageRequest);
 	}
 
 	@Test
@@ -262,20 +271,20 @@ public class PostCommentServiceTest {
 		Slice<PostComment> commentSlice = new SliceImpl<>(comments.subList(0, toIndex), pageRequest, false);
 
 		// Repository Stub 설정
-		when(postCommentRepository.findByPostIdAndParentCommentIsNullAndIdGreaterThanOrderByIdAsc(postId, lastId, pageRequest))
+		when(postCommentRepository.findByPostIdAndParentCommentIsNullAndIdLessThanOrderByIdDesc(postId, lastId,
+			pageRequest))
 			.thenReturn(commentSlice);
 
 		// When
-		SliceResponse<PostCommentDto> response = postCommentService.getComments(postId, lastId, size);
+		SliceResponse<PostCommentResponseDto> response = postCommentService.getComments(null, postId, lastId, size);
 
 		// Then
 		assertNotNull(response);
 		assertEquals(toIndex, response.contents().size());
 		assertFalse(response.hasNext());
 		verify(postCommentRepository, times(1))
-			.findByPostIdAndParentCommentIsNullAndIdGreaterThanOrderByIdAsc(postId, lastId, pageRequest);
+			.findByPostIdAndParentCommentIsNullAndIdLessThanOrderByIdDesc(postId, lastId, pageRequest);
 	}
-
 
 	@Test
 	@DisplayName("댓글 목록 조회 - 빈 리스트 반환")
@@ -288,17 +297,79 @@ public class PostCommentServiceTest {
 		PageRequest pageRequest = PageRequest.of(0, size);
 		Slice<PostComment> emptySlice = new SliceImpl<>(Collections.emptyList(), pageRequest, false);
 
-		when(postCommentRepository.findByPostIdAndParentCommentIsNullAndIdGreaterThanOrderByIdAsc(postId, lastId, pageRequest))
+		when(postCommentRepository.findByPostIdAndParentCommentIsNullAndIdLessThanOrderByIdDesc(postId, lastId,
+			pageRequest))
 			.thenReturn(emptySlice);
 
 		// When
-		SliceResponse<PostCommentDto> response = postCommentService.getComments(postId, lastId, size);
+		SliceResponse<PostCommentResponseDto> response = postCommentService.getComments(null, postId, lastId, size);
 
 		// Then
 		assertNotNull(response);
 		assertTrue(response.contents().isEmpty());
 		assertFalse(response.hasNext());
 		verify(postCommentRepository, times(1))
-			.findByPostIdAndParentCommentIsNullAndIdGreaterThanOrderByIdAsc(postId, lastId, pageRequest);
+			.findByPostIdAndParentCommentIsNullAndIdLessThanOrderByIdDesc(postId, lastId, pageRequest);
 	}
+
+	@Test
+	@DisplayName("댓글 조회 - 비로그인 상태")
+	void getComment_WithoutLogin() {
+		// Given
+		Long postId = 1L;
+		Long commentId = 1L;
+		String email = null;
+
+		// When
+		when(postCommentRepository.findById(commentId)).thenReturn(Optional.of(comment));
+
+		PostCommentResponseDto result = postCommentService.getComment(email, postId, commentId);
+
+		// Then
+		assertNotNull(result);
+		assertEquals(commentId, result.id());
+		assertEquals("댓글 1", result.content());
+		assertFalse(result.likeStatus());
+		verify(likeService, never()).getLikeStatus(anyLong(), anyLong(), any());
+	}
+
+	@Test
+	@DisplayName("댓글 목록 조회 - 좋아요 상태 확인")
+	void getComments_WithLikeStatus() {
+		// Given
+		Long postId = 1L;
+		long lastId = 0L;
+		int size = 2;
+		Long userId = 1L;
+
+		List<PostComment> comments = List.of(comment, comment2);
+		PageRequest pageRequest = PageRequest.of(0, size);
+		Slice<PostComment> commentSlice = new SliceImpl<>(comments, pageRequest, false);
+
+		when(postCommentRepository.findByPostIdAndParentCommentIsNullAndIdLessThanOrderByIdDesc(postId, lastId,
+			pageRequest))
+			.thenReturn(commentSlice);
+		when(userService.findUserByEmail(user.getEmail())).thenReturn(user);
+
+		List<Long> commentIds = List.of(1L, 2L);
+		Map<Long, Boolean> likeStatusMap = new HashMap<>();
+		likeStatusMap.put(1L, true);
+		likeStatusMap.put(2L, false);
+
+		when(likeService.getAllLikeStatus(userId, commentIds, Like.TargetType.COMMENT))
+			.thenReturn(likeStatusMap);
+
+		// When
+		SliceResponse<PostCommentResponseDto> response = postCommentService.getComments(user.getEmail(), postId, lastId,
+			size);
+
+		// Then
+		assertNotNull(response);
+		assertEquals(2, response.contents().size());
+		assertTrue(response.contents().get(0).likeStatus());
+		assertFalse(response.contents().get(1).likeStatus());
+
+		verify(likeService, times(1)).getAllLikeStatus(anyLong(), anyList(), any());
+	}
+
 }

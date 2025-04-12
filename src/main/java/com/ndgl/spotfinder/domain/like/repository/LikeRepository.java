@@ -2,6 +2,7 @@ package com.ndgl.spotfinder.domain.like.repository;
 
 import static com.ndgl.spotfinder.domain.like.entity.Like.*;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -23,4 +24,6 @@ public interface LikeRepository extends JpaRepository<Like, Long> {
 
 	// 특정 대상의 전체 좋아요 삭제하기 (예: 포스트가 삭제될 때)
 	void deleteByTargetIdAndTargetType(long targetId, TargetType targetType);
+
+	List<Like> findAllByUserIdAndTargetIdInAndTargetType(long userId, List<Long> targetIds, TargetType targetType);
 }

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ndgl.spotfinder.domain.admin.dto.CreateAdminRequest;
+import com.ndgl.spotfinder.domain.admin.dto.CreateAdminResponse;
 import com.ndgl.spotfinder.domain.admin.service.AdminService;
 import com.ndgl.spotfinder.global.rsdata.RsData;
 import com.ndgl.spotfinder.global.security.cookie.TokenCookieUtil;
@@ -26,10 +27,10 @@ public class AdminController {
 	private final TokenCookieUtil tokenCookieUtil;
 
 	@PostMapping("/join")
-	public RsData<Void> joinAdmin(@RequestBody @Valid CreateAdminRequest createAdminRequest) {
-		adminService.join(createAdminRequest);
+	public RsData<CreateAdminResponse> joinAdmin(@RequestBody @Valid CreateAdminRequest createAdminRequest) {
+		CreateAdminResponse createAdminResponse = adminService.join(createAdminRequest);
 
-		return RsData.success(HttpStatus.OK);
+		return RsData.success(HttpStatus.OK, createAdminResponse);
 	}
 
 	@PostMapping("/resign")
@@ -43,6 +44,5 @@ public class AdminController {
 	public RsData<Void> getStatistics() {
 		return RsData.success(HttpStatus.OK);
 	}
-
 
 }

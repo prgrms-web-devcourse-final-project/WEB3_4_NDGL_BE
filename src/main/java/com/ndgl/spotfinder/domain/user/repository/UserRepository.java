@@ -2,6 +2,8 @@ package com.ndgl.spotfinder.domain.user.repository;
 
 import java.util.Optional;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.ndgl.spotfinder.domain.user.entity.User;
@@ -13,4 +15,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 	Optional<User> findByBlogName(String blogName);
 
+	Slice<User> findAllByIdGreaterThan(Long idIsGreaterThan, Pageable pageable);
 }

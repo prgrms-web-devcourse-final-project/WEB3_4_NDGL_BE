@@ -1,8 +1,7 @@
 package com.ndgl.spotfinder.global.security;
 
-import org.apache.tomcat.util.http.Rfc6265CookieProcessor;
-import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
-import org.springframework.boot.web.server.WebServerFactoryCustomizer;
+import java.util.Arrays;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
@@ -10,10 +9,16 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ndgl.spotfinder.global.security.handler.CustomAccessDeniedHandler;
 import com.ndgl.spotfinder.global.security.handler.CustomAuthenticationEntryPoint;
+import com.ndgl.spotfinder.global.security.handler.CustomAuthenticationFailureHandler;
 import com.ndgl.spotfinder.global.security.handler.CustomAuthenticationSuccessHandler;
 import com.ndgl.spotfinder.global.security.handler.CustomLogoutHandler;
 import com.ndgl.spotfinder.global.security.handler.CustomLogoutSuccessHandler;
@@ -29,9 +34,11 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfig {
 
 	private final ObjectMapper objectMapper;
+	private final JwtFilter jwtFilter;
 	private final TokenProvider tokenProvider;
 	private final AdminUserDetailsService adminUserDetailsService;
-	private final CustomAuthenticationSuccessHandler successHandler;
+	private final CustomAuthenticationSuccessHandler adminAuthSuccessHandler;
+	private final CustomAuthenticationFailureHandler adminAuthFailureHandler;
 	private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
 	private final CustomLogoutHandler customLogoutHandler;
 	private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
@@ -47,7 +54,8 @@ public class SecurityConfig {
 			.formLogin(
 				form -> form
 					.loginProcessingUrl("/api/*/admin/login")
-					.successHandler(successHandler)
+					.successHandler(adminAuthSuccessHandler)
+					.failureHandler(adminAuthFailureHandler)
 			)
 			.logout(logout -> logout
 				.logoutUrl("/api/*/admin/logout")
@@ -57,6 +65,9 @@ public class SecurityConfig {
 			)
 			.userDetailsService(adminUserDetailsService)
 			.csrf(csrf -> csrf.disable())
+			.cors(
+				cors -> cors.configurationSource(corsConfigurationSource())
+			)
 			.sessionManagement(session ->
 				session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.authorizeHttpRequests(auth -> auth
@@ -65,6 +76,10 @@ public class SecurityConfig {
 					"/login/callback",
 					"oauth2/**",
 					"/api/v1/users/google/login/process",
+					"/api/v1/users",
+					"/api/v1/users/logout",
+					"/api/v1/users/resign",
+					"/api/v1/users/info",
 					"/api/v1/auth/status",
 					"/api/v1/auth/token/refresh",
 					"/api/v1/users/google/login/process",
@@ -80,32 +95,21 @@ public class SecurityConfig {
 					"/v3/api-docs/**"
 				)
 				.permitAll()
-				.requestMatchers(HttpMethod.OPTIONS, "/**")// Preflight 요청(CORS)을 허용하여 브라우저의 사전 요청 차단 문제 해결
+				.requestMatchers(HttpMethod.GET,
+					"/api/v1/posts/**",
+					"/api/v1/posts/*/comments",
+					"/api/v1/posts/*/comments/*"
+				)
 				.permitAll()
-				.requestMatchers(HttpMethod.GET, "/api/v1/posts/**")
-				.permitAll()
-				.requestMatchers(HttpMethod.GET, "/api/v1/posts/*/comments")
-				.permitAll()
-				.requestMatchers(HttpMethod.GET, "/api/v1/posts/*/comments/*")
-				.permitAll()
-				// 관리자 권한 필요한 요청
-				.requestMatchers(HttpMethod.GET, "/api/*/admin/logout")
-				.hasAuthority("ROLE_ADMIN")
-				.requestMatchers(HttpMethod.GET, "/api/*/admin/resign")
-				.hasAuthority("ROLE_ADMIN")
-				.requestMatchers(HttpMethod.GET, "/api/*/admin/posts/statistics")
-				.hasAuthority("ROLE_ADMIN")
-				.requestMatchers(HttpMethod.GET, "/api/*/reports/posts")
-				.hasAuthority("ROLE_ADMIN")
-				.requestMatchers(HttpMethod.GET, "/api/*/reports/comments")
-				.hasAuthority("ROLE_ADMIN")
-				.requestMatchers(HttpMethod.POST, "/api/*/reports/{reportId}/post/ban")
-				.hasAuthority("ROLE_ADMIN")
-				.requestMatchers(HttpMethod.POST, "/api/*/reports/{reportId}/comment/ban")
-				.hasAuthority("ROLE_ADMIN")
-				.requestMatchers(HttpMethod.POST, "/api/*/reports/{reportId}/post/reject")
-				.hasAuthority("ROLE_ADMIN")
-				.requestMatchers(HttpMethod.POST, "/api/*/reports/{reportId}/comment/reject")
+				.requestMatchers(HttpMethod.POST,
+					"/api/*/reports/posts/{id}",
+					"/api/*/reports/comments/{id}"
+				)
+				.authenticated()
+				.requestMatchers(
+					"/api/*/admin/**",
+					"/api/*/reports/**"
+				)
 				.hasAuthority("ROLE_ADMIN")
 				.anyRequest()
 				.authenticated()
@@ -115,8 +119,9 @@ public class SecurityConfig {
 					frameOptions.sameOrigin()
 				)
 			)
-			.addFilterBefore(new JwtFilter(tokenProvider),
-				org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class)
+			.addFilterBefore(jwtFilter,
+				UsernamePasswordAuthenticationFilter.class)
+			.addFilterBefore(jwtFilter, LogoutFilter.class)
 			.exceptionHandling(exceptionHandling -> {
 				exceptionHandling
 					.authenticationEntryPoint(customAuthenticationEntryPoint) // 401 에러
@@ -127,11 +132,32 @@ public class SecurityConfig {
 	}
 
 	@Bean
-	public WebServerFactoryCustomizer<TomcatServletWebServerFactory> cookieProcessorCustomizer() {
-		return factory -> factory.addContextCustomizers(context -> {
-			final Rfc6265CookieProcessor cookieProcessor = new Rfc6265CookieProcessor();
-			cookieProcessor.setSameSiteCookies("None");
-			context.setCookieProcessor(cookieProcessor);
-		});
+	public CorsConfigurationSource corsConfigurationSource() {
+		CorsConfiguration configuration = new CorsConfiguration();
+
+		// 허용할 오리진 설정
+		configuration.setAllowedOrigins(Arrays.asList(
+			"http://localhost:8080",
+			"https://localhost:8080",
+			"http://localhost:3000",
+			"https://localhost:3000",
+			"https://api.ndgl.shop",
+			"https://www.ndgl.shop"
+		));
+
+		// 허용할 HTTP 메서드 설정
+		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
+
+		// 자격 증명 허용 설정 (쿠키 등)
+		configuration.setAllowCredentials(true);
+
+		// 허용할 헤더 설정
+		configuration.setAllowedHeaders(Arrays.asList("*"));
+
+		// CORS 설정을 특정 경로에 적용
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", configuration);
+
+		return source;
 	}
 }
