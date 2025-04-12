@@ -32,14 +32,20 @@ jobs:
           mkdir -p elk/prod
           
           # Logstash 설정 파일
-          echo "${{ secrets.LOGSTASH_PROD_CONF }}" > elk/prod/logstash.conf
-          
+          cat <<'EOF' > elk/prod/logstash.conf
+${{ secrets.LOGSTASH_PROD_CONF }}
+EOF
+  
           # Elasticsearch 템플릿 등록 스크립트
-          echo '${{ secrets.REGISTER_TEMPLATES_PROD_SCRIPT }}' > elk/prod/register-templates.sh
-          chmod +x elk/prod/register-templates.sh
-          
+          cat <<'EOF' > elk/prod/register-templates.sh
+${{ secrets.REGISTER_TEMPLATES_PROD_SCRIPT }}
+EOF
+  chmod +x elk/prod/register-templates.sh
+  
           # Docker Compose 파일
-          echo "${{ secrets.DOCKER_COMPOSE_PROD_ELK_YML }}" > elk/prod/docker-compose.prod.elk.yml
+          cat <<'EOF' > elk/prod/docker-compose.prod.elk.yml
+${{ secrets.DOCKER_COMPOSE_PROD_ELK_YML }}
+EOF
 
       # SCP로 설정 파일 전송
       - name: 설정 파일 서버에 전송
