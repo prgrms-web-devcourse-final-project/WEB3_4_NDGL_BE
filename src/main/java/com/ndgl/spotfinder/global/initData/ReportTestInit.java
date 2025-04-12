@@ -18,6 +18,7 @@ import com.ndgl.spotfinder.domain.comment.repository.PostCommentRepository;
 import com.ndgl.spotfinder.domain.post.entity.Hashtag;
 import com.ndgl.spotfinder.domain.post.entity.Location;
 import com.ndgl.spotfinder.domain.post.entity.Post;
+import com.ndgl.spotfinder.domain.post.entity.PostStatus;
 import com.ndgl.spotfinder.domain.post.repository.PostRepository;
 import com.ndgl.spotfinder.domain.user.entity.Oauth;
 import com.ndgl.spotfinder.domain.user.entity.Provider;
@@ -149,6 +150,7 @@ public class ReportTestInit {
 					.thumbnail("https://example.com/" + user.getId() + "_thumbnail" + i + ".jpg")
 					.viewCount((long)(i * 10)) // 조회수 설정
 					.likeCount(0L)
+					.status(PostStatus.PUBLIC)
 					.build();
 
 				for (String tag : tags) {
