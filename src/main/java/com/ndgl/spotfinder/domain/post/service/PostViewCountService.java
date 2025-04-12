@@ -79,7 +79,7 @@ public class PostViewCountService {
 	private Long extractPostIdFromKey(String key) {
 		try {
 			String[] parts = key.split(POST_KEY_PREFIX);
-			
+
 			return Long.parseLong(parts[1]);
 		} catch (Exception e) {
 			log.error("잘못된 키 값입니다.");

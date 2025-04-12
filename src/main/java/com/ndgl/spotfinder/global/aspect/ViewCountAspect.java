@@ -7,6 +7,8 @@ import org.aspectj.lang.annotation.Before;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
+import com.ndgl.spotfinder.global.common.util.IpAddressUtil;
+
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
@@ -21,9 +23,9 @@ public class ViewCountAspect {
 	private static final Long EXPIRE_NOT_SET = -1L;
 	private static final Duration CACHE_DURATION_TIME = Duration.ofHours(1);
 
-	@Before(value = "execution(* com.ndgl.spotfinder.domain.post.service.PostService.getPost(..)) && args(postId)")
+	@Before(value = "execution(* com.ndgl.spotfinder.domain.post.service.PostService.getPost(..)) && args(.., postId)")
 	public void handlePostViewCount(Long postId) {
-		String ip = request.getRemoteAddr();
+		String ip = IpAddressUtil.getClientIp(request);
 		String viewedPost = POST_KEY_PREFIX + postId;
 
 		redisTemplate.opsForSet().add(viewedPost, ip);
