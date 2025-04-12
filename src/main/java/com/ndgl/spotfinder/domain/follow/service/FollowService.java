@@ -3,6 +3,7 @@ package com.ndgl.spotfinder.domain.follow.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ndgl.spotfinder.domain.follow.FollowCheckResponseDto;
 import com.ndgl.spotfinder.domain.follow.entity.Follow;
 import com.ndgl.spotfinder.domain.follow.repository.FollowRepository;
 import com.ndgl.spotfinder.domain.user.entity.User;
@@ -42,6 +43,14 @@ public class FollowService {
 		checkIfNotFollowing(follower, followee);
 
 		followRepository.deleteFollowByFollowerAndFollowee(follower, followee);
+	}
+
+	public FollowCheckResponseDto getFollow(String email, Long userId) {
+		User follower = userService.findUserByEmail(email);
+		User followee = userService.findUserById(userId);
+
+		Boolean isFollowed = isFollowed(follower, followee);
+		return new FollowCheckResponseDto(isFollowed);
 	}
 
 	public void checkIfFollowerEqualsFollowee(User follower, User followee) {
