@@ -145,9 +145,11 @@ public class UserService {
 		User user,
 		HttpServletResponse response,
 		String accessToken) {
-		int ResignedCnt = userRepository.resignUser(user.getId());
+		int resignedUserCnt = userRepository.resignUser(user.getId());
+		int resignedOauthCnt = oauthRepository.resignOauth(user.getId());
+		
 		try {
-			if (ResignedCnt > 0) {
+			if (resignedUserCnt > 0 && resignedOauthCnt > 0) {
 				tokenCookieUtil.cleanTokenCookies(response, accessToken);
 				refreshTokenService.deleteRefreshToken(user.getEmail());
 

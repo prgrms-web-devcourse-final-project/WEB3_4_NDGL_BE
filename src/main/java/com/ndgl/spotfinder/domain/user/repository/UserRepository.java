@@ -22,6 +22,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 	//  soft delete용 업데이트 쿼리
 	@Modifying
-	@Query("UPDATE User u SET u.isResigned = true WHERE u.id = :userId")
+	@Query("UPDATE User u "
+		+ "SET u.isResigned = true,"
+		+ "u.email = CONCAT('resigned_',u.id,'@resign.com'),"
+		+ "u.nickName = CONCAT('resigned_Nickname',u.id),"
+		+ "u.blogName = CONCAT('resigned_Blogname',u.id)"
+		+ "WHERE u.id = :userId "
+		+ "AND  u.isResigned = false ")
 	int resignUser(@Param("userId") Long userId);
 }
