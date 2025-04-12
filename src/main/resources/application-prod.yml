@@ -1,0 +1,42 @@
+app:
+  cookie:
+    secure: true
+    sameSite: None
+    domain:
+    frontend-origin: https://www.ndgl.shop
+
+server:
+  port: 8080
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+
+  data:
+    redis:
+      host: redis_1
+      port: 6379
+
+    elasticsearch:
+      repositories:
+        enabled: true
+
+  elasticsearch:
+    uris: http://${ELK_HOST}:9200
+    username: ${ELASTIC_USERNAME}
+    password: ${ELASTIC_PASSWORD}
+    ssl:
+      verification-mode: none
+
+logging:
+  level:
+    com.ndgl.spotfinder: INFO
+    org.hibernate.SQL: INFO
+    org.hibernate.orm.jdbc.bind: INFO
+    org.hibernate.orm.jdbc.extract: INFO
+    org.springframework.transaction.interceptor: INFO

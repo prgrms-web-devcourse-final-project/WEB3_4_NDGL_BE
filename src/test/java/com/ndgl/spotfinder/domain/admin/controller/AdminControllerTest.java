@@ -253,8 +253,7 @@ class AdminControllerTest {
 		);
 
 		resultActions
-			.andExpect(status().isFound())
-			.andExpect(redirectedUrlPattern("/login?error"));
+			.andExpect(status().isUnauthorized());
 	}
 
 	@Test
@@ -272,8 +271,7 @@ class AdminControllerTest {
 		);
 
 		resultActions
-			.andExpect(status().isFound())
-			.andExpect(redirectedUrlPattern("/login?error"));
+			.andExpect(status().isUnauthorized());
 	}
 
 	@Test

@@ -1,0 +1,73 @@
+name: Deploy ELK Stack
+on:
+  push:
+    paths:
+      - ".github/workflows/elk-deploy.yml"
+      - "elk/**"
+    branches:
+      - dev
+
+jobs:
+  deploy-elk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ secrets.AWS_REGION }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: 인스턴스 ID 가져오기
+        id: get_instance_id
+        run: |
+          INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=Team01-elk-server" "Name=instance-state-name,Values=running" --query "Reservations[].Instances[].InstanceId" --output text)
+          echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
+          echo $INSTANCE_ID
+
+      # 필요한 설정 파일들 준비
+      - name: 설정 파일 생성
+        env:
+          LOGSTASH_CONF: ${{ secrets.LOGSTASH_PROD_CONF }}
+          REGISTER_TEMPLATES: ${{ secrets.REGISTER_TEMPLATES_PROD_SCRIPT }}
+          DOCKER_COMPOSE: ${{ secrets.DOCKER_COMPOSE_PROD_ELK_YML }}
+        run: |
+          mkdir -p elk/prod
+      
+          # Logstash 설정 파일
+          echo "$LOGSTASH_CONF" > elk/prod/logstash.conf
+      
+          # Elasticsearch 템플릿 등록 스크립트
+          echo "$REGISTER_TEMPLATES" > elk/prod/register-templates.sh
+          chmod +x elk/prod/register-templates.sh
+      
+          # Docker Compose 파일
+          echo "$DOCKER_COMPOSE" > elk/prod/docker-compose.prod.elk.yml
+
+      # SCP로 설정 파일 전송
+      - name: 설정 파일 서버에 전송
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.ELK_EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "elk"
+          target: "/home/ec2-user/"
+
+      - name: ELK 스택 배포
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.ELK_EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /home/ec2-user/elk/prod
+            echo "ELASTIC_PASSWORD=${{ secrets.ELASTIC_PASSWORD }}" > .env
+            echo "export KIBANA_USERNAME=${{ secrets.KIBANA_USERNAME }}" >> .env
+            echo "export KIBANA_PASSWORD=${{ secrets.KIBANA_PASSWORD }}" >> .env
+            echo "export LOGSTASH_USERNAME=${{ secrets.LOGSTASH_USERNAME }}" >> .env
+            echo "export LOGSTASH_PASSWORD=${{ secrets.LOGSTASH_PASSWORD }}" >> .env
+            docker-compose -f docker-compose.prod.elk.yml down
+            docker-compose -f docker-compose.prod.elk.yml up -d
+            docker system prune -f

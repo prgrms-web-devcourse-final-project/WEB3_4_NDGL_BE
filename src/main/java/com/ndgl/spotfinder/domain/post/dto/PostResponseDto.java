@@ -1,12 +1,9 @@
 package com.ndgl.spotfinder.domain.post.dto;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import com.ndgl.spotfinder.domain.post.entity.Post;
-import com.ndgl.spotfinder.domain.search.document.PostDocument;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -19,6 +16,9 @@ public record PostResponseDto(
 
 	@Schema(description = "내용", example = "TV 예능 맛있는 녀석들에 나온 맛집들입니다.")
 	String content,
+
+	@Schema(description = "작성자 아이디", example = "2")
+	Long authorId,
 
 	@Schema(description = "작성자 이름", example = "맛집사냥꾼")
 	String authorName,
@@ -38,11 +38,14 @@ public record PostResponseDto(
 	@Schema(description = "해시태그 목록")
 	List<HashtagDto> hashtags
 ) {
+	private static final Long POST_LIST_HASHTAG_COUNT = 3L;
+
 	public PostResponseDto(Post post) {
 		this(
 			post.getId(),
 			post.getTitle(),
 			post.getContent(),
+			post.getUser().getId(),
 			post.getUser().getNickName(),
 			post.getThumbnail(),
 			post.getLikeCount(),
@@ -50,28 +53,10 @@ public record PostResponseDto(
 			post.getCreatedAt(),
 			post.getHashtags()
 				.stream()
-				.limit(3)
+				.limit(POST_LIST_HASHTAG_COUNT)
 				.map(HashtagDto::new)
 				.toList()
 		);
 	}
 
-	public PostResponseDto(PostDocument post) {
-		this(
-			post.getId(),
-			post.getTitle(),
-			post.getContent(),
-			post.getNickname(),
-			post.getThumbnail(),
-			post.getLikeCount(),
-			0,
-			post.getCreatedAt(),
-			Optional.ofNullable(post.getHashtags())
-				.orElse(Collections.emptyList())
-				.stream()
-				.limit(3)
-				.map(HashtagDto::new)
-				.toList()
-		);
-	}
 }

@@ -11,7 +11,7 @@ public record SliceRequest(
 	Long lastId,
 
 	@Schema(description = "한 번에 요청할 데이터 개수", example = "5")
-	@NotNull
+	@NotNull(message = "size를 지정해야 합니다.")
 	@Positive(message = "요청 Slice 사이즈는 양수여야 합니다.")
 	Integer size
 ) {

@@ -28,5 +28,5 @@ public record PostUpdateRequestDto(
 
 	@NotNull(message = "썸네일 이미지는 필수입니다.")
 	String thumbnail
-) {
+) implements PostCommonUpdateRequestDto {
 }
