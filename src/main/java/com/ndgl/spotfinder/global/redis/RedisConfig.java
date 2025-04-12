@@ -1,4 +1,4 @@
-package com.ndgl.spotfinder.global.security.redis.config;
+package com.ndgl.spotfinder.global.redis;
 
 import java.util.List;
 
@@ -14,12 +14,9 @@ import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
 @Configuration
 @EnableScheduling
-@EnableRedisRepositories(basePackages = "com.ndgl.spotfinder.global.security.redis.repository")
+@EnableRedisRepositories(basePackages = "com.ndgl.spotfinder.global.security.refresh.repository")
 public class RedisConfig {
 	@Value("${spring.data.redis.host}")
 	private String redisHost;

@@ -20,7 +20,7 @@ import com.ndgl.spotfinder.domain.user.repository.UserRepository;
 import com.ndgl.spotfinder.global.common.dto.SliceRequest;
 import com.ndgl.spotfinder.global.exception.ErrorCode;
 import com.ndgl.spotfinder.global.security.cookie.TokenCookieUtil;
-import com.ndgl.spotfinder.global.security.redis.service.RefreshTokenService;
+import com.ndgl.spotfinder.global.security.refresh.service.RefreshTokenService;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
