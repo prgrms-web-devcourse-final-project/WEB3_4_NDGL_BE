@@ -47,7 +47,7 @@ jobs:
         with:
           host: ${{ secrets.ELK_EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.ELK_EC2_SSH_KEY }}
+          key: ${{ secrets.EC2_SSH_KEY }}
           source: "elk"
           target: "/home/ec2-user/"
 
@@ -56,14 +56,14 @@ jobs:
         with:
           host: ${{ secrets.ELK_EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.ELK_EC2_SSH_KEY }}
+          key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd /home/ec2-user/elk/prod
-            export ELASTIC_PASSWORD=${{ secrets.ELASTIC_PASSWORD }}
-            export KIBANA_USERNAME=${{ secrets.KIBANA_USERNAME }}
-            export KIBANA_PASSWORD=${{ secrets.KIBANA_PASSWORD }}
-            export LOGSTASH_USERNAME=${{ secrets.LOGSTASH_USERNAME }}
-            export LOGSTASH_PASSWORD=${{ secrets.LOGSTASH_PASSWORD }}
+            echo "ELASTIC_PASSWORD=${{ secrets.ELASTIC_PASSWORD }}" > .env
+            echo "export KIBANA_USERNAME=${{ secrets.KIBANA_USERNAME }}" >> .env
+            echo "export KIBANA_PASSWORD=${{ secrets.KIBANA_PASSWORD }}" >> .env
+            echo "export LOGSTASH_USERNAME=${{ secrets.LOGSTASH_USERNAME }}" >> .env
+            echo "export LOGSTASH_PASSWORD=${{ secrets.LOGSTASH_PASSWORD }}" >> .env
             docker-compose -f docker-compose.prod.elk.yml down
             docker-compose -f docker-compose.prod.elk.yml up -d
             docker system prune -f
