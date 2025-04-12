@@ -14,7 +14,9 @@ import com.ndgl.spotfinder.global.rsdata.RsData;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
+@Tag(name = "신고")
 public interface ReportApiSpecification {
 	@Operation(summary = "게시물 신고 요청")
 	RsData<PostReportDto> createPostReport(

@@ -23,14 +23,12 @@ import com.ndgl.spotfinder.global.common.dto.SliceRequest;
 import com.ndgl.spotfinder.global.common.dto.SliceResponse;
 import com.ndgl.spotfinder.global.rsdata.RsData;
 
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/v1/reports")
 @RequiredArgsConstructor
-@Tag(name = "신고")
 public class ReportController implements ReportApiSpecification {
 	private final ReportService reportService;
 
