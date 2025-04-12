@@ -36,7 +36,7 @@ jobs:
           
           # Elasticsearch 템플릿 등록 스크립트
           echo '${{ secrets.REGISTER_TEMPLATES_PROD_SCRIPT }}' > elk/prod/register-templates.sh
-          chmod +x elk/elasticsearch/register-templates.sh
+          chmod +x elk/prod/register-templates.sh
           
           # Docker Compose 파일
           echo '${{ secrets.DOCKER_COMPOSE_PROD_ELK_YML }}' > elk/prod/docker-compose.prod.elk.yml
