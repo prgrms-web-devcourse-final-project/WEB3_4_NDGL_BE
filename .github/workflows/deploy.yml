@@ -100,7 +100,7 @@ jobs:
           
           echo '${{ secrets.FILEBEAT_PROD_YML }}' > elk/prod/filebeat.yml
           
-          echo '${{ secrets.DOCKER_COMPOSE_PROD_SPRING_YML }}' > elk/prod/docker-compose.prod.spring.yml
+          echo "${{ secrets.DOCKER_COMPOSE_PROD_SPRING_YML }}" > elk/prod/docker-compose.prod.spring.yml
 
       - name: 설정 파일 EC2로 전송
         uses: appleboy/scp-action@master
