@@ -7,9 +7,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClient;
 
 import com.ndgl.spotfinder.domain.user.client.GoogleAuthClient;
+import com.ndgl.spotfinder.domain.user.client.GoogleUserInfoClient;
 import com.ndgl.spotfinder.domain.user.dto.GoogleTokenResponseDto;
 import com.ndgl.spotfinder.domain.user.dto.RestClientDto;
 import com.ndgl.spotfinder.domain.user.dto.UserLoginResponseDto;
@@ -35,15 +35,19 @@ public class OauthService {
 	private final UserRepository userRepository;
 	private final TokenProvider tokenProvider;
 	private final GoogleAuthClient googleAuthClient;
+	private final GoogleUserInfoClient googleUserInfoClient;
 
 	public OauthService(OauthRepository oauthRepository,
 		UserRepository userRepository,
 		TokenProvider tokenProvider,
-		GoogleAuthClient googleAuthClient) {
+		GoogleAuthClient googleAuthClient,
+		GoogleUserInfoClient googleUserInfoClient
+	) {
 		this.oauthRepository = oauthRepository;
 		this.userRepository = userRepository;
 		this.tokenProvider = tokenProvider;
 		this.googleAuthClient = googleAuthClient;
+		this.googleUserInfoClient = googleUserInfoClient;
 	}
 
 	public UserLoginResponseDto processGoogleLogin(
@@ -83,22 +87,15 @@ public class OauthService {
 	}
 
 	private UserLoginResponseDto getGoogleUserInfo(String accessToken) {
+		RestClientDto userInfo = googleUserInfoClient.fetchGoogleUserInfo(accessToken);
 
-		String userInfoUrl = userInfoUri;
-		RestClient restClient = RestClient.create();
+		return mapToUserLoginResponse(userInfo);
+	}
 
-		RestClientDto userInfo = restClient.get()
-			.uri(userInfoUrl)
-			.headers(headers -> headers.setBearerAuth(accessToken))
-			.retrieve()
-			.body(RestClientDto.class);
-
-		String identify = userInfo.id();
-		String email = userInfo.email();
-
+	private UserLoginResponseDto mapToUserLoginResponse(RestClientDto userInfo) {
 		return UserLoginResponseDto.builder()
-			.identify(identify)
-			.email(email)
+			.identify(userInfo.id())
+			.email(userInfo.email())
 			.build();
 	}
 

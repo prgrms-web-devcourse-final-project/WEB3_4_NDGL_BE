@@ -14,12 +14,22 @@ public class RestClientConfig {
 	@Value("${spring.security.oauth2.client.provider.google.token-uri}")
 	private String tokenUri;
 
+	@Value("${spring.security.oauth2.client.provider.google.user-info-uri}")
+	private String userInfoUri;
+
 	@Bean
 	@Qualifier("googleRestClient")
 	public RestClient googleRestClient() {
 		return RestClient.builder()
 			.baseUrl(tokenUri)
 			.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+			.build();
+	}
+
+	@Bean
+	public RestClient googleUserInfoRestClient() {
+		return RestClient.builder()
+			.baseUrl(userInfoUri)
 			.build();
 	}
 }
