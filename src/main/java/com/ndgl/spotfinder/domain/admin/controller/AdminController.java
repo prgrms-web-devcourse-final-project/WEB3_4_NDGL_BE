@@ -15,12 +15,10 @@ import com.ndgl.spotfinder.domain.admin.service.AdminService;
 import com.ndgl.spotfinder.global.rsdata.RsData;
 import com.ndgl.spotfinder.global.security.cookie.TokenCookieUtil;
 
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
-@Tag(name = "관리자")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/admin")
