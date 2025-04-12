@@ -27,6 +27,7 @@ public class PostViewCountService {
 	private final PostService postService;
 
 	private static final String POST_KEY_PREFIX = "viewed:post:";
+	private static final long SCAN_BATCH_SIZE = 1000;
 
 	public Map<Long, Long> collectPostViewCounts() {
 		Map<Long, Long> viewCountMap = new HashMap<>();
@@ -36,7 +37,7 @@ public class PostViewCountService {
 			.scanOptions()
 			.type(DataType.SET)
 			.match(POST_KEY_PREFIX + "*")
-			.count(1000)
+			.count(SCAN_BATCH_SIZE)
 			.build();
 
 		try (Cursor<byte[]> cursor = connection.scan(options)) {
