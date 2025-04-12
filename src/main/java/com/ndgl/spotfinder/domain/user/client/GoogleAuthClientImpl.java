@@ -1,8 +1,6 @@
 package com.ndgl.spotfinder.domain.user.client;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
@@ -16,8 +14,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class GoogleAuthClientImpl implements GoogleAuthClient {
 
-	@Value("${spring.security.oauth2.client.provider.google.token-uri}")
-	private String tokenUri;
+	private final RestClient googleRestClient;
 
 	@Value("${spring.security.oauth2.client.registration.google.authorization-grant-type}")
 	private String authorizationGrantType;
@@ -41,14 +38,7 @@ public class GoogleAuthClientImpl implements GoogleAuthClient {
 		);
 
 		try {
-			RestClient restClient = RestClient.builder()
-				.baseUrl(tokenUri)
-				.defaultHeaders(httpHeaders -> {
-					httpHeaders.set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE);
-				})
-				.build();
-
-			GoogleTokenResponseDto response = restClient.post()
+			GoogleTokenResponseDto response = googleRestClient.post()
 				.body(body)
 				.retrieve()
 				.body(GoogleTokenResponseDto.class);
