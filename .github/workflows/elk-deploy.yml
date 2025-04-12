@@ -28,24 +28,22 @@ jobs:
 
       # 필요한 설정 파일들 준비
       - name: 설정 파일 생성
+        env:
+          LOGSTASH_CONF: ${{ secrets.LOGSTASH_PROD_CONF }}
+          REGISTER_TEMPLATES: ${{ secrets.REGISTER_TEMPLATES_PROD_SCRIPT }}
+          DOCKER_COMPOSE: ${{ secrets.DOCKER_COMPOSE_PROD_ELK_YML }}
         run: |
           mkdir -p elk/prod
-          
+      
           # Logstash 설정 파일
-          cat <<'EOF' > elk/prod/logstash.conf
-${{ secrets.LOGSTASH_PROD_CONF }}
-EOF
-  
+          echo "$LOGSTASH_CONF" > elk/prod/logstash.conf
+      
           # Elasticsearch 템플릿 등록 스크립트
-          cat <<'EOF' > elk/prod/register-templates.sh
-${{ secrets.REGISTER_TEMPLATES_PROD_SCRIPT }}
-EOF
-  chmod +x elk/prod/register-templates.sh
-  
+          echo "$REGISTER_TEMPLATES" > elk/prod/register-templates.sh
+          chmod +x elk/prod/register-templates.sh
+      
           # Docker Compose 파일
-          cat <<'EOF' > elk/prod/docker-compose.prod.elk.yml
-${{ secrets.DOCKER_COMPOSE_PROD_ELK_YML }}
-EOF
+          echo "$DOCKER_COMPOSE" > elk/prod/docker-compose.prod.elk.yml
 
       # SCP로 설정 파일 전송
       - name: 설정 파일 서버에 전송
