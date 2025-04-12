@@ -118,7 +118,7 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            echo ${{ secrets.GITHUB_PAT }} | docker login ghcr.io -u ${{ env.OWNER_LC }} --password-stdin
+            echo ${{ secrets.GHCR_PAT }} | docker login ghcr.io -u ${{ env.OWNER_LC }} --password-stdin
             cd /home/ec2-user/elk/prod
             docker pull ghcr.io/${{ env.OWNER_LC }}/${{ env.DOCKER_IMAGE_NAME }}:latest
             echo "OWNER_LC=${{ env.OWNER_LC }}" > .env
