@@ -64,10 +64,10 @@ jobs:
           script: |
             cd /home/ec2-user/elk/prod
             echo "ELASTIC_PASSWORD=${{ secrets.ELASTIC_PASSWORD }}" > .env
-            echo "export KIBANA_USERNAME=${{ secrets.KIBANA_USERNAME }}" >> .env
-            echo "export KIBANA_PASSWORD=${{ secrets.KIBANA_PASSWORD }}" >> .env
-            echo "export LOGSTASH_USERNAME=${{ secrets.LOGSTASH_USERNAME }}" >> .env
-            echo "export LOGSTASH_PASSWORD=${{ secrets.LOGSTASH_PASSWORD }}" >> .env
+            echo "KIBANA_USERNAME=${{ secrets.KIBANA_USERNAME }}" >> .env
+            echo "KIBANA_PASSWORD=${{ secrets.KIBANA_PASSWORD }}" >> .env
+            echo "LOGSTASH_USERNAME=${{ secrets.LOGSTASH_USERNAME }}" >> .env
+            echo "LOGSTASH_PASSWORD=${{ secrets.LOGSTASH_PASSWORD }}" >> .env
             docker-compose -f docker-compose.prod.elk.yml down
             docker-compose -f docker-compose.prod.elk.yml up -d
             docker system prune -f
