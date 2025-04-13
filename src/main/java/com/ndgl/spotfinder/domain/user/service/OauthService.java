@@ -57,9 +57,11 @@ public class OauthService {
 		log.info("service redirectUri = {}", redirectUri);
 		// 1. 토큰 발급 : 구글
 		GoogleTokenResponseDto googleToken = googleAuthClient.fetchToken(code, redirectUri);
+		log.info("googleToken = {}", googleToken);
 
 		//  2.  구글 유저 정보 조회
 		UserLoginResponseDto googleUserInfo = getGoogleUserInfo(googleToken.getAccessToken());
+		log.info("googleUserInfo = {}", googleUserInfo);
 
 		//  3.  유저 저장 또는 회원가입 유도
 		UserLoginResponseDto googleUser = saveOrUpdateGoogleUser(googleUserInfo);
