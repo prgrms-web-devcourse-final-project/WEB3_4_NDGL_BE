@@ -29,7 +29,10 @@ public enum ErrorCode {
 	POST_ACCESS_DENIED(HttpStatus.FORBIDDEN, "작성자만 수정 또는 삭제할 수 있습니다."),
 	POST_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 포스트입니다."),
 
+	// POST_COMMENT
 	COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "댓글이 존재하지 않습니다."),
+	COMMENT_DELETE_DENIED(HttpStatus.FORBIDDEN, "작성자만 삭제할 수 있습니다."),
+	COMMENT_MODIFY_DENIED(HttpStatus.FORBIDDEN, "작성자만 수정할 수 있습니다."),
 	NOT_FOUND_IN_POST(HttpStatus.BAD_REQUEST, "해당 포스트의 댓글이 아닙니다."),
 	PIN_DENIED(HttpStatus.FORBIDDEN, "포스트 작성자만 댓글을 고정할 수 있습니다."),
 

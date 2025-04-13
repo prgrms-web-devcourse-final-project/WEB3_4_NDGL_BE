@@ -87,13 +87,13 @@ public class PostComment extends BaseTime implements Likeable {
 
 	public void checkAuthorCanModify(User author) {
 		if (!this.user.equals(author)) {
-			ErrorCode.UNAUTHORIZED.throwServiceException();
+			ErrorCode.COMMENT_MODIFY_DENIED.throwServiceException();
 		}
 	}
 
 	public void checkAuthorCanDelete(User author) {
 		if (!this.user.equals(author)) {
-			ErrorCode.UNAUTHORIZED.throwServiceException();
+			ErrorCode.COMMENT_DELETE_DENIED.throwServiceException();
 		}
 	}
 
