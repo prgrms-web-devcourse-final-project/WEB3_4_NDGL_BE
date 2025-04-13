@@ -1,5 +1,7 @@
 package com.ndgl.spotfinder.domain.search.controller;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -29,6 +31,12 @@ public class PostSearchController implements PostSearchApiSpecification {
 	) {
 		SliceResponse<PostResponseDto> results = postSearchService.searchPosts(sliceRequest, keyword);
 
+		return RsData.success(HttpStatus.OK, results);
+	}
+
+	@GetMapping("/suggest")
+	public RsData<List<String>> suggestKeyword(@RequestParam String keyword) {
+		List<String> results = postSearchService.suggestKeyword(keyword);
 		return RsData.success(HttpStatus.OK, results);
 	}
 }
