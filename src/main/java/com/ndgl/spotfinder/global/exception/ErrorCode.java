@@ -74,8 +74,9 @@ public enum ErrorCode {
 	NOT_FOLLOWED(HttpStatus.NOT_FOUND, "팔로우한 유저가 아닙니다."),
 	FOLLOWER_EQUALS_FOLLOWEE(HttpStatus.BAD_REQUEST, "자기 자신은 팔로우, 언팔로우할 수 없습니다."),
 
-	SEARCH_FAIL(HttpStatus.BAD_REQUEST, "엘라스틱서치 검색에 실패했습니다.");
+	SEARCH_FAIL(HttpStatus.BAD_REQUEST, "엘라스틱서치 검색에 실패했습니다."),
 
+	VIEW_COUNT_KEY_EXTRACT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Redis Key 추출 중 에러가 발생했습니다.");
 
 	private final HttpStatus httpStatus;
 	private final String message;

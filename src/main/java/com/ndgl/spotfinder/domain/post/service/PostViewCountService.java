@@ -15,11 +15,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ndgl.spotfinder.domain.post.entity.Post;
+import com.ndgl.spotfinder.global.exception.ErrorCode;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PostViewCountService {
@@ -40,16 +39,14 @@ public class PostViewCountService {
 			.count(SCAN_BATCH_SIZE)
 			.build();
 
-		try (Cursor<byte[]> cursor = connection.scan(options)) {
-			while (cursor.hasNext()) {
-				String key = new String(cursor.next());
-				Long postId = extractPostIdFromKey(key);
-				Long viewCount = redisTemplate.opsForSet().size(key);
+		Cursor<byte[]> cursor = connection.scan(options);
 
-				viewCountMap.put(postId, viewCount);
-			}
-		} catch (Exception e) {
-			log.error("조회수를 가져오지 못했습니다.");
+		while (cursor.hasNext()) {
+			String key = new String(cursor.next());
+			Long postId = extractPostIdFromKey(key);
+			Long viewCount = redisTemplate.opsForSet().size(key);
+
+			viewCountMap.put(postId, viewCount);
 		}
 
 		return viewCountMap;
@@ -81,8 +78,7 @@ public class PostViewCountService {
 
 			return Long.parseLong(parts[1]);
 		} catch (Exception e) {
-			log.error("잘못된 키 값입니다.");
-			throw e;
+			throw ErrorCode.VIEW_COUNT_KEY_EXTRACT_ERROR.throwServiceException(e);
 		}
 	}
 
