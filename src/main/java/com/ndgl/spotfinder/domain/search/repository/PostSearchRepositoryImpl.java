@@ -1,8 +1,11 @@
 package com.ndgl.spotfinder.domain.search.repository;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.domain.Page;
@@ -17,6 +20,7 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.query_dsl.FieldValueFactorModifier;
 import co.elastic.clients.elasticsearch._types.query_dsl.FunctionScoreMode;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch._types.query_dsl.TextQueryType;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import lombok.RequiredArgsConstructor;
@@ -83,5 +87,48 @@ public class PostSearchRepositoryImpl implements PostSearchRepositoryCustom {
 		long totalHits = response.hits().total() != null ? response.hits().total().value() : 0;
 
 		return new PageImpl<>(content, pageable, totalHits);
+	}
+
+	@Override
+	public List<String> suggestKeyword(String keyword) {
+		try {
+			SearchResponse<PostDocument> response = elasticsearchClient.search(s -> s
+					.index("post_index")
+					.size(30)
+					.query(q -> q
+						.multiMatch(m -> m
+							.query(keyword)
+							.fields("title", "content", "nickname", "hashtags")
+							.type(TextQueryType.PhrasePrefix) // 검색어 자동완성
+						)
+					),
+				PostDocument.class
+			);
+
+			return response.hits().hits().stream()
+				.map(Hit::source)
+				.filter(Objects::nonNull)
+				.flatMap(doc -> Stream.concat(
+					Stream.of(
+							Optional.ofNullable(doc.getTitle()),
+							Optional.ofNullable(doc.getContent()),
+							Optional.ofNullable(doc.getNickname())
+						)
+						.flatMap(Optional::stream)
+						.filter(s -> !s.isBlank()),
+					doc.getHashtags() != null ? doc.getHashtags().stream() : Stream.empty()
+				))
+				.flatMap(text -> Arrays.stream(text.split("[\\s\\p{Punct}]+")))
+				.map(String::trim)
+				.filter(word -> !word.isBlank())
+				.filter(word -> word.startsWith(keyword))
+				.distinct()
+				.sorted(String::compareTo)
+				.limit(10) // 상위 10개까지 반환
+				.toList();
+
+		} catch (IOException e) {
+			throw ErrorCode.KEYWORD_SUGGESTION_FAIL.throwServiceException(e);
+		}
 	}
 }
