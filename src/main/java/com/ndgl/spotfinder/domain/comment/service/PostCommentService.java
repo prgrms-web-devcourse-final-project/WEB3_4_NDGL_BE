@@ -164,4 +164,34 @@ public class PostCommentService {
 		return new PostCommentResponseDto(comment, isLiked, childrenComments);
 	}
 
+	@Transactional
+	public void pinComment(Long postId, Long commentId, String email) {
+		Post post = postService.findPostById(postId);
+		User user = userService.findUserByEmail(email);
+
+		// 고정 권한 체크 (작성자만 가능)
+		if (!post.getUser().getId().equals(user.getId())) {
+			ErrorCode.PIN_DENIED.throwServiceException();
+		}
+
+		PostComment targetComment = findCommentById(commentId);
+		targetComment.isCommentOfPost(postId);
+
+		// 기존 고정 댓글 해제
+		Optional<PostComment> existingPinnedCommentOpt = postCommentRepository.findPinnedCommentByPostId(postId);
+		if (existingPinnedCommentOpt.isPresent()) {
+			PostComment existingPinnedComment = existingPinnedCommentOpt.get();
+
+			// 이미 고정된 댓글을 다시 요청한 경우 → 고정 해제
+			if (existingPinnedComment.getId().equals(commentId)) {
+				existingPinnedComment.setPinned(false);
+				return;
+			}
+
+			// 다른 댓글이 고정되어 있는 경우 → 기존 해제 후 대상 고정
+			existingPinnedComment.setPinned(false);
+		}
+
+		targetComment.setPinned(true);
+	}
 }
