@@ -91,7 +91,7 @@ public class ControllerLoggingAspect {
 			statusCode = response.getStatusCode().value();
 		}
 
-		Map<String, Object> completeLogMap = new HashMap<>();
+		Map<String, Object> completeLogMap = new HashMap<>(requestLogMap);
 		completeLogMap.put("statusCode", statusCode);
 		completeLogMap.put("elapsedTime", elapsedTime);
 
