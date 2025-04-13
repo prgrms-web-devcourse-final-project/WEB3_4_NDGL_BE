@@ -21,7 +21,7 @@ public class ViewCountAspect {
 
 	private static final String POST_KEY_PREFIX = "viewed:post:";
 	private static final Long EXPIRE_NOT_SET = -1L;
-	private static final Duration CACHE_DURATION_TIME = Duration.ofHours(1);
+	private static final Duration CACHE_DURATION_TIME = Duration.ofMinutes(3);
 
 	@Before(value = "execution(* com.ndgl.spotfinder.domain.post.service.PostService.getPost(..)) && args(.., postId)")
 	public void handlePostViewCount(Long postId) {
