@@ -46,7 +46,6 @@ public class GoogleAuthClientImpl implements GoogleAuthClient {
 			.toString();
 
 		try {
-			log.info("request 요청 = {}", body);
 
 			GoogleTokenResponseDto response = googleRestClient.post()
 				.body(body)
