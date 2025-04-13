@@ -1,3 +1,4 @@
+/*
 package com.ndgl.spotfinder.global.aspect.logging;
 
 import java.util.Arrays;
@@ -16,6 +17,7 @@ import com.ndgl.spotfinder.global.common.util.IpAddressUtil;
 import com.ndgl.spotfinder.global.common.util.JsonUtil;
 import com.ndgl.spotfinder.global.common.util.MaskingUtil;
 import com.ndgl.spotfinder.global.common.util.RequestUtil;
+import com.ndgl.spotfinder.global.logging.context.RequestLogContext;
 import com.ndgl.spotfinder.global.rsdata.RsData;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -46,7 +48,7 @@ public class ControllerLoggingAspect {
 
 			return result;
 		} finally {
-			// RequestLogContext.clear();
+			RequestLogContext.clear();
 		}
 	}
 
@@ -73,14 +75,14 @@ public class ControllerLoggingAspect {
 		requestLogMap.put("httpBody", maskedArgs);
 		requestLogMap.put("ipAddress", IpAddressUtil.getClientIp(request));
 
-		// RequestLogContext.set(requestLogMap);
+		RequestLogContext.set(requestLogMap);
 	}
 
 	private void logResponseWithRequestData(Object result, long elapsedTime) throws Throwable{
-		/*Map<String, Object> requestLogMap = RequestLogContext.get();
+		Map<String, Object> requestLogMap = RequestLogContext.get();
 		if (requestLogMap == null) {
 			requestLogMap = new HashMap<>();
-		}*/
+		}
 
 		int statusCode = 200;
 		if (result instanceof RsData<?> response) {
@@ -97,3 +99,4 @@ public class ControllerLoggingAspect {
 
 	}
 }
+*/
