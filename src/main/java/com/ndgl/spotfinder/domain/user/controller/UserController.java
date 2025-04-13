@@ -61,6 +61,8 @@ public class UserController {
 		@RequestParam("redirect_uri") String redirectUri,
 		HttpServletResponse response
 	) {
+		log.info("controller redirectUri = {}", redirectUri);
+
 		//  구글 로그인 처리
 		UserLoginResponseDto responseDto = oauthService.processGoogleLogin(code, redirectUri,
 			response);

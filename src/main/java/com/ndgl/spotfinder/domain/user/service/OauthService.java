@@ -54,6 +54,7 @@ public class OauthService {
 		String code,
 		String redirectUri,
 		HttpServletResponse response) {
+		log.info("service redirectUri = {}", redirectUri);
 		// 1. 토큰 발급 : 구글
 		GoogleTokenResponseDto googleToken = googleAuthClient.fetchToken(code, redirectUri);
 
