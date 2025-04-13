@@ -9,7 +9,9 @@ import com.ndgl.spotfinder.global.exception.ErrorCode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Schema(description = "응답 데이터 포맷")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @AllArgsConstructor
@@ -27,14 +29,17 @@ public class RsData<T> {
 	private final T data;
 
 	public static <T> RsData<T> success(HttpStatus resultCode, T data) {
+		log.info("resultCode: {}, data: {}", resultCode, data);
 		return new RsData<>(resultCode.value(), "OK", data);
 	}
 
 	public static <T> RsData<T> success(HttpStatus resultCode) {
+		log.info("resultCode: {}", resultCode);
 		return new RsData<>(resultCode.value(), "OK", null);
 	}
 
 	public static <T> RsData<T> error(ErrorCode error) {
+		log.info("error: {}", error);
 		return new RsData<>(error.getHttpStatus().value(), error.getMessage(), null);
 	}
 }
