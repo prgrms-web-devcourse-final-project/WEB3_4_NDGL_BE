@@ -55,7 +55,9 @@ dependencies {
 
     // AWS S3
     implementation 'io.awspring.cloud:spring-cloud-aws-starter:3.3.0'
-    implementation 'software.amazon.awssdk:s3:2.29.52'
+    implementation('software.amazon.awssdk:s3:2.29.52') {
+        exclude group: 'commons-logging', module: 'commons-logging'
+    }
 
     // test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -69,7 +71,9 @@ dependencies {
     implementation 'me.paulschwarz:spring-dotenv:3.0.0'
 
     //elasticSearch
-    implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch:3.0.0'
+    implementation('org.springframework.boot:spring-boot-starter-data-elasticsearch:3.0.0') {
+        exclude group: 'commons-logging', module: 'commons-logging'
+    }
 
     // Elasticsearch Java API Client (8.x)
     implementation 'co.elastic.clients:elasticsearch-java:8.12.0'
