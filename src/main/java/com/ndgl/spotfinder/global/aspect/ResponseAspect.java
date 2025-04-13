@@ -9,7 +9,9 @@ import com.ndgl.spotfinder.global.rsdata.RsData;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Aspect
 @Component
 @RequiredArgsConstructor
@@ -45,6 +47,9 @@ public class ResponseAspect {
 
 		if (proceed instanceof RsData<?> rsData) {
 			response.setStatus(rsData.getCode());
+			log.info("response.data: {}", rsData.getData());
+			log.info("response.code: {}", rsData.getCode());
+			log.info("response.message: {}", rsData.getMessage());
 		}
 
 		return proceed;
