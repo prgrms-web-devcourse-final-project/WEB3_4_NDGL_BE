@@ -89,4 +89,20 @@ public interface PostCommentApiSpecification {
 		@Parameter(description = "댓글의 ID") Long commentId,
 		@Parameter(hidden = true) Principal principal
 	);
+
+	@Operation(
+		summary = "포스트 댓글 고정",
+		description = "댓글을 고정합니다.",
+		responses = {
+			@ApiResponse(responseCode = "200", description = "성공", content = @Content(
+				mediaType = "application/json",
+				examples = @ExampleObject("{\"code\": 200, \"message\": \"OK\"}")
+			))
+		}
+	)
+	RsData<Void> pin(
+		@Parameter(description = "게시물의 ID") Long id,
+		@Parameter(description = "댓글의 ID") Long commentId,
+		@Parameter(hidden = true) Principal principal
+	);
 }
