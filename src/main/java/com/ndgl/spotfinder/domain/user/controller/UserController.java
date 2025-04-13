@@ -16,7 +16,7 @@ import com.ndgl.spotfinder.domain.user.dto.UserJoinRequestDto;
 import com.ndgl.spotfinder.domain.user.dto.UserLoginResponseDto;
 import com.ndgl.spotfinder.domain.user.dto.UserModifiedRequestDto;
 import com.ndgl.spotfinder.domain.user.dto.UserModifiedResponseDto;
-import com.ndgl.spotfinder.domain.user.entity.Provider;
+import com.ndgl.spotfinder.domain.user.dto.UserResignedResponseDto;
 import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.domain.user.service.OauthService;
 import com.ndgl.spotfinder.domain.user.service.UserService;
@@ -61,8 +61,10 @@ public class UserController {
 		@RequestParam("redirect_uri") String redirectUri,
 		HttpServletResponse response
 	) {
+		log.info("controller redirectUri = {}", redirectUri);
+
 		//  구글 로그인 처리
-		UserLoginResponseDto responseDto = oauthService.processGoogleLogin(Provider.GOOGLE, code, redirectUri,
+		UserLoginResponseDto responseDto = oauthService.processGoogleLogin(code, redirectUri,
 			response);
 
 		return new RsData<>(responseDto.getCode(), responseDto.getMessage(), responseDto);
@@ -110,7 +112,7 @@ public class UserController {
 	}
 
 	@DeleteMapping("/resign")
-	public RsData<Void> resign(
+	public RsData<UserResignedResponseDto> resign(
 		@CookieValue("accessToken") String accessToken,
 		HttpServletResponse response) {
 		String email = tokenProvider.getEmail(accessToken);
