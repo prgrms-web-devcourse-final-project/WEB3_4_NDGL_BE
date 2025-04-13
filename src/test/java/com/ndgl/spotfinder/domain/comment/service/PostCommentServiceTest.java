@@ -372,4 +372,55 @@ public class PostCommentServiceTest {
 		verify(likeService, times(1)).getAllLikeStatus(anyLong(), anyList(), any());
 	}
 
+	@Test
+	@DisplayName("댓글 고정")
+	void pinComment_success() {
+		// Given
+		Long postId = 1L;
+		Long commentId = 1L;
+
+		when(postService.findPostById(postId)).thenReturn(post);
+		when(userService.findUserByEmail(user.getEmail())).thenReturn(user);
+		when(postCommentRepository.findPinnedCommentByPostId(postId)).thenReturn(Optional.empty());
+		when(postCommentRepository.findById(commentId)).thenReturn(Optional.of(comment));
+
+		// When
+		postCommentService.pinComment(postId, commentId, user.getEmail());
+
+		// Then
+		assertTrue(comment.isPinned());
+	}
+
+	@Test
+	@DisplayName("포스트 작성자가 아닌 유저가 댓글 고정")
+	void pinComment_unauthorized() {
+		// Given
+		User otherUser = User.builder().id(2L).email("other@test.com").build();
+
+		when(postService.findPostById(post.getId())).thenReturn(post);
+		when(userService.findUserByEmail(otherUser.getEmail())).thenReturn(otherUser);
+
+		// When & Then
+		assertThrows(ServiceException.class, () -> postCommentService.pinComment(
+			1L, 1L, otherUser.getEmail()), "포스트 작성자만 댓글을 고정할 수 있습니다."
+		);
+	}
+
+	@Test
+	@DisplayName("존재하지 않는 댓글 고정")
+	void pinComment_NotFound() {
+		// Given
+		Long invalidCommentId = 999L;
+
+		when(postService.findPostById(post.getId())).thenReturn(post);
+		when(userService.findUserByEmail(user.getEmail())).thenReturn(user);
+		when(postCommentRepository.findPinnedCommentByPostId(post.getId())).thenReturn(Optional.empty());
+		when(postCommentRepository.findById(invalidCommentId)).thenReturn(Optional.empty());
+
+		// When & Then
+		ServiceException exception = assertThrows(ServiceException.class,
+			() -> postCommentService.pinComment(post.getId(), invalidCommentId, user.getEmail())
+		);
+		assertEquals(HttpStatus.NOT_FOUND, exception.getCode());
+	}
 }
