@@ -1,4 +1,3 @@
-/*
 package com.ndgl.spotfinder.global.aspect.logging;
 
 import java.util.Arrays;
@@ -43,7 +42,7 @@ public class ControllerLoggingAspect {
 			Object result = joinPoint.proceed();
 
 			// 응답 데이터와 함께 모든 정보 로깅
-			long elapsedTime = System.currentTimeMillis() - startTime;
+			Long elapsedTime = System.currentTimeMillis() - startTime;
 			logResponseWithRequestData(result, elapsedTime);
 
 			return result;
@@ -78,7 +77,7 @@ public class ControllerLoggingAspect {
 		RequestLogContext.set(requestLogMap);
 	}
 
-	private void logResponseWithRequestData(Object result, long elapsedTime) throws Throwable{
+	private void logResponseWithRequestData(Object result, Long elapsedTime) throws Throwable{
 		Map<String, Object> requestLogMap = RequestLogContext.get();
 		if (requestLogMap == null) {
 			requestLogMap = new HashMap<>();
@@ -99,4 +98,3 @@ public class ControllerLoggingAspect {
 
 	}
 }
-*/
