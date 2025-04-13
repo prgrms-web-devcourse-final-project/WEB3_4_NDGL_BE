@@ -11,6 +11,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.ndgl.spotfinder.global.rsdata.RsData;
 
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -33,5 +37,16 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(HttpMessageNotReadableException.class)
 	public RsData<Void> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
 		return RsData.error(ErrorCode.UNREADABLE_REQUEST_PAYLOAD);
+	}
+
+	@ExceptionHandler(Exception.class)
+	public RsData<Void> handleGenericException(Exception e, HttpServletResponse response) {
+		if (response.isCommitted()) {
+			log.warn("응답이 이미 커밋된 상태에서 예외 발생: {}", e.getMessage());
+			return null; // 이미 응답했으니 더 이상 처리하지 않음
+		}
+
+		log.error("Unhandled exception", e);
+		return new RsData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "서버 내부 오류가 발생했습니다.", null);
 	}
 }
