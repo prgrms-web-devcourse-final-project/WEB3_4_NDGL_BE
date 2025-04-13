@@ -1,4 +1,3 @@
-/*
 package com.ndgl.spotfinder.global.aspect.logging;
 
 import java.util.Arrays;
@@ -32,7 +31,8 @@ public class ControllerLoggingAspect {
 
 	private final ObjectMapper objectMapper;
 
-	@Around("within(@org.springframework.web.bind.annotation.RestController *)")
+	@Around("within(@org.springframework.web.bind.annotation.RestController *) && " +
+		"!execution(* *(.., jakarta.servlet.http.HttpServletResponse, ..))")
 	public Object logControllerRequests(ProceedingJoinPoint joinPoint) throws Throwable {
 		long startTime = System.currentTimeMillis();
 
@@ -99,4 +99,3 @@ public class ControllerLoggingAspect {
 
 	}
 }
-*/
