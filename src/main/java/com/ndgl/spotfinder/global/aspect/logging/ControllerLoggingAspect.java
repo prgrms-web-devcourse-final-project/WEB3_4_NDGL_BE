@@ -1,3 +1,4 @@
+/*
 package com.ndgl.spotfinder.global.aspect.logging;
 
 import java.util.Arrays;
@@ -98,3 +99,4 @@ public class ControllerLoggingAspect {
 
 	}
 }
+*/
