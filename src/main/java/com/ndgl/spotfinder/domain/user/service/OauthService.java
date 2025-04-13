@@ -62,6 +62,8 @@ public class OauthService {
 
 		//  2.  구글 유저 정보 조회
 		UserLoginResponseDto googleUserInfo = getGoogleUserInfo(googleToken.getAccessToken());
+		log.info("googleUserInfo.code = {}", googleUserInfo.getCode());
+		log.info("googleUserInfo.message = {}", googleUserInfo.getMessage());
 		log.info("googleUserInfo.email = {}", googleUserInfo.getEmail());
 		log.info("googleUserInfo.userId = {}", googleUserInfo.getUserId());
 		log.info("googleUserInfo.provider = {}", googleUserInfo.getProvider());

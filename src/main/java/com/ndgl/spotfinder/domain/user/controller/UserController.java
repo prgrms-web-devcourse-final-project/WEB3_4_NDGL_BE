@@ -68,6 +68,8 @@ public class UserController {
 		UserLoginResponseDto responseDto = oauthService.processGoogleLogin(code, redirectUri,
 			response);
 
+		log.info("responseDto.code = {}", responseDto.getCode());
+		log.info("responseDto.message = {}", responseDto.getMessage());
 		log.info("responseDto.identify = {}", responseDto.getIdentify());
 		log.info("responseDto.userId = {}", responseDto.getUserId());
 		log.info("responseDto.email = {}", responseDto.getEmail());
