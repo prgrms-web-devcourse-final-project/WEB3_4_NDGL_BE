@@ -157,4 +157,15 @@ public class PostSearchService {
 			.map(repo -> repo.suggestKeyword(keyword))
 			.orElse(Collections.emptyList());
 	}
+
+	@Transactional(readOnly = true)
+	public void indexPosts() {
+		List<Post> posts = postRepository.findAll();
+		List<PostDocument> documents = posts.stream()
+			.map(PostDocument::from)
+			.toList();
+
+		postSearchRepository.deleteAll();
+		postSearchRepository.saveAll(documents);
+	}
 }

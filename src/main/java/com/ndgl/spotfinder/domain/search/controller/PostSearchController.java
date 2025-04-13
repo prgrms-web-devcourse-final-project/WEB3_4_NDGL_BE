@@ -39,4 +39,10 @@ public class PostSearchController implements PostSearchApiSpecification {
 		List<String> results = postSearchService.suggestKeyword(keyword);
 		return RsData.success(HttpStatus.OK, results);
 	}
+
+	@GetMapping("/index")
+	public RsData<String> indexPosts() {
+		postSearchService.indexPosts();
+		return RsData.success(HttpStatus.OK, "인덱싱 완료");
+	}
 }
