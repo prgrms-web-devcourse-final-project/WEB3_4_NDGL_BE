@@ -16,7 +16,6 @@ import com.ndgl.spotfinder.global.common.util.IpAddressUtil;
 import com.ndgl.spotfinder.global.common.util.JsonUtil;
 import com.ndgl.spotfinder.global.common.util.MaskingUtil;
 import com.ndgl.spotfinder.global.common.util.RequestUtil;
-import com.ndgl.spotfinder.global.logging.context.RequestLogContext;
 import com.ndgl.spotfinder.global.rsdata.RsData;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -42,12 +41,12 @@ public class ControllerLoggingAspect {
 			Object result = joinPoint.proceed();
 
 			// 응답 데이터와 함께 모든 정보 로깅
-			Long elapsedTime = System.currentTimeMillis() - startTime;
+			long elapsedTime = System.currentTimeMillis() - startTime;
 			logResponseWithRequestData(result, elapsedTime);
 
 			return result;
 		} finally {
-			RequestLogContext.clear();
+			// RequestLogContext.clear();
 		}
 	}
 
@@ -74,14 +73,14 @@ public class ControllerLoggingAspect {
 		requestLogMap.put("httpBody", maskedArgs);
 		requestLogMap.put("ipAddress", IpAddressUtil.getClientIp(request));
 
-		RequestLogContext.set(requestLogMap);
+		// RequestLogContext.set(requestLogMap);
 	}
 
-	private void logResponseWithRequestData(Object result, Long elapsedTime) throws Throwable{
-		Map<String, Object> requestLogMap = RequestLogContext.get();
+	private void logResponseWithRequestData(Object result, long elapsedTime) throws Throwable{
+		/*Map<String, Object> requestLogMap = RequestLogContext.get();
 		if (requestLogMap == null) {
 			requestLogMap = new HashMap<>();
-		}
+		}*/
 
 		int statusCode = 200;
 		if (result instanceof RsData<?> response) {
@@ -90,7 +89,7 @@ public class ControllerLoggingAspect {
 			statusCode = response.getStatusCode().value();
 		}
 
-		Map<String, Object> completeLogMap = new HashMap<>(requestLogMap);
+		Map<String, Object> completeLogMap = new HashMap<>();
 		completeLogMap.put("statusCode", statusCode);
 		completeLogMap.put("elapsedTime", elapsedTime);
 
