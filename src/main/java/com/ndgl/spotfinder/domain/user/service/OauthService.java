@@ -62,7 +62,10 @@ public class OauthService {
 
 		//  2.  구글 유저 정보 조회
 		UserLoginResponseDto googleUserInfo = getGoogleUserInfo(googleToken.getAccessToken());
-		log.info("googleUserInfo = {}", googleUserInfo);
+		log.info("googleUserInfo.email = {}", googleUserInfo.getEmail());
+		log.info("googleUserInfo.userId = {}", googleUserInfo.getUserId());
+		log.info("googleUserInfo.provider = {}", googleUserInfo.getProvider());
+		log.info("googleUserInfo.identify = {}", googleUserInfo.getIdentify());
 
 		//  3.  유저 저장 또는 회원가입 유도
 		UserLoginResponseDto googleUser = saveOrUpdateGoogleUser(googleUserInfo);
@@ -98,7 +101,7 @@ public class OauthService {
 
 	private UserLoginResponseDto mapToUserLoginResponse(RestClientDto userInfo) {
 		log.info("userInfo_id = {}", userInfo.id());
-		log.info("userInfo_emai = {}", userInfo.email());
+		log.info("userInfo_email = {}", userInfo.email());
 
 		return UserLoginResponseDto.builder()
 			.identify(userInfo.id())
