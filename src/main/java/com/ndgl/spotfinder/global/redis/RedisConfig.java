@@ -1,4 +1,4 @@
-package com.ndgl.spotfinder.global.security.redis.config;
+package com.ndgl.spotfinder.global.redis;
 
 import java.util.List;
 
@@ -16,7 +16,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @Configuration
 @EnableScheduling
-@EnableRedisRepositories(basePackages = "com.ndgl.spotfinder.global.security.redis.repository")
+@EnableRedisRepositories(basePackages = "com.ndgl.spotfinder.global.security.refresh.repository")
 public class RedisConfig {
 	@Value("${spring.data.redis.host}")
 	private String redisHost;

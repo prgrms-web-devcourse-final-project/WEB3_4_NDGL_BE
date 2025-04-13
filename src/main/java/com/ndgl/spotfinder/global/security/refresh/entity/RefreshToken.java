@@ -1,4 +1,4 @@
-package com.ndgl.spotfinder.global.security.redis.entity;
+package com.ndgl.spotfinder.global.security.refresh.entity;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;

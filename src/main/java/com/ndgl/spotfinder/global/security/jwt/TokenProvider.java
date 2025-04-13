@@ -21,7 +21,7 @@ import com.ndgl.spotfinder.global.exception.ErrorCode;
 import com.ndgl.spotfinder.global.security.cookie.TokenCookieUtil;
 import com.ndgl.spotfinder.global.security.jwt.service.AdminUserDetailsService;
 import com.ndgl.spotfinder.global.security.jwt.service.CustomUserDetailsService;
-import com.ndgl.spotfinder.global.security.redis.service.RefreshTokenService;
+import com.ndgl.spotfinder.global.security.refresh.service.RefreshTokenService;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -101,11 +101,10 @@ public class TokenProvider {
 			.map(GrantedAuthority::getAuthority)
 			.collect(Collectors.joining(","));
 
-		String accessToken= createAccessToken(email, authorities);
-		String refreshToken= createRefreshToken(email, authorities);
+		String accessToken = createAccessToken(email, authorities);
+		String refreshToken = createRefreshToken(email, authorities);
 
-		tokenCookieUtil.setTokenCookies(response, accessToken,refreshToken);
-
+		tokenCookieUtil.setTokenCookies(response, accessToken, refreshToken);
 
 		log.info("AccessToken / RefreshToken 생성 완료");
 	}
@@ -162,7 +161,8 @@ public class TokenProvider {
 			? adminUserDetailsService.loadUserByUsername(email)
 			: customUserDetailsService.loadUserByUsername(email);
 
-		return new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(), userDetails.getAuthorities());
+		return new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(),
+			userDetails.getAuthorities());
 	}
 
 	public String getEmail(String token) {
@@ -187,12 +187,12 @@ public class TokenProvider {
 		boolean isValid = validateToken(refreshToken);
 
 		//  refreshToken 만료 확인
-		if(!isValid) {
+		if (!isValid) {
 			refreshToken = createRefreshToken(email, authorities);
 		}
 
 		accessToken = createAccessToken(email, authorities);
-		tokenCookieUtil.setTokenCookies(response, accessToken,refreshToken);
+		tokenCookieUtil.setTokenCookies(response, accessToken, refreshToken);
 	}
 
 	public SecretKey getKey() {
@@ -204,7 +204,7 @@ public class TokenProvider {
 	}
 
 	//  token 만료 시 만료된 token auth 정보 취득
-	public String extractAuthoritiesEvenIfExpired (String token) {
+	public String extractAuthoritiesEvenIfExpired(String token) {
 		if (token == null || token.isBlank()) {
 			ErrorCode.UNAUTHORIZED.throwServiceException();
 		}
