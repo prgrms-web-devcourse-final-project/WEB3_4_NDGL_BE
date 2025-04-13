@@ -92,7 +92,6 @@ public class TokenProvider {
 	//  로그인 시, accessToken이랑 refreshToken을 같이 생성.
 	public void createTokenAndSetCookies(Authentication authentication, HttpServletResponse response) {
 		if (authentication == null || authentication.getName() == null) {
-			log.error("createToken: Authentication 또는 사용자 이름이 null입니다.");
 			ErrorCode.UNAUTHORIZED.throwServiceException();
 		}
 

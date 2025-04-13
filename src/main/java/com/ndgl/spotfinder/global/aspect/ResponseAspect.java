@@ -47,9 +47,6 @@ public class ResponseAspect {
 
 		if (proceed instanceof RsData<?> rsData) {
 			response.setStatus(rsData.getCode());
-			log.info("response.data: {}", rsData.getData());
-			log.info("response.code: {}", rsData.getCode());
-			log.info("response.message: {}", rsData.getMessage());
 		}
 
 		return proceed;

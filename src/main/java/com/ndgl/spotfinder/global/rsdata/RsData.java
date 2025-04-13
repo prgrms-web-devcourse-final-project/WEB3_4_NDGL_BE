@@ -29,17 +29,14 @@ public class RsData<T> {
 	private final T data;
 
 	public static <T> RsData<T> success(HttpStatus resultCode, T data) {
-		log.info("resultCode: {}, data: {}", resultCode, data);
 		return new RsData<>(resultCode.value(), "OK", data);
 	}
 
 	public static <T> RsData<T> success(HttpStatus resultCode) {
-		log.info("resultCode: {}", resultCode);
 		return new RsData<>(resultCode.value(), "OK", null);
 	}
 
 	public static <T> RsData<T> error(ErrorCode error) {
-		log.info("error: {}", error);
 		return new RsData<>(error.getHttpStatus().value(), error.getMessage(), null);
 	}
 }

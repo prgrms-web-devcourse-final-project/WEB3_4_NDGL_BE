@@ -32,10 +32,6 @@ public class GoogleAuthClientImpl implements GoogleAuthClient {
 	@Override
 	public GoogleTokenResponseDto fetchToken(String code, String redirectUri) {
 
-		log.info("googleClientId = {}", googleClientId);
-		log.info("googleClientSecret = {}", googleClientSecret);
-		log.info("rest client redirectUri = {}", redirectUri);
-
 		String body = new StringBuilder()
 			.append("grant_type=")
 			.append(authorizationGrantType)
@@ -50,7 +46,6 @@ public class GoogleAuthClientImpl implements GoogleAuthClient {
 			.toString();
 
 		try {
-			log.info("request 요청 = {}", body);
 
 			GoogleTokenResponseDto response = googleRestClient.post()
 				.body(body)
