@@ -18,6 +18,7 @@ import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.domain.user.repository.OauthRepository;
 import com.ndgl.spotfinder.domain.user.repository.UserRepository;
 import com.ndgl.spotfinder.global.common.dto.SliceRequest;
+import com.ndgl.spotfinder.global.common.util.MaskingUtil;
 import com.ndgl.spotfinder.global.exception.ErrorCode;
 import com.ndgl.spotfinder.global.security.cookie.TokenCookieUtil;
 import com.ndgl.spotfinder.global.security.refresh.service.RefreshTokenService;
@@ -144,8 +145,18 @@ public class UserService {
 		User user,
 		HttpServletResponse response,
 		String accessToken) {
-		userRepository.delete(user);
-		tokenCookieUtil.cleanTokenCookies(response, accessToken);
-		refreshTokenService.deleteRefreshToken(user.getEmail());
+		String maskedEmail = MaskingUtil.maskEmail(user.getEmail());
+
+		int resignedUserCnt = userRepository.resignUser(user.getId(), maskedEmail);
+		int resignedOauthCnt = oauthRepository.resignOauth(user.getId());
+
+		try {
+			if (resignedUserCnt > 0 && resignedOauthCnt > 0) {
+				tokenCookieUtil.cleanTokenCookies(response, accessToken);
+				refreshTokenService.deleteRefreshToken(user.getEmail());
+			}
+		} catch (Exception e) {
+			ErrorCode.SERVER_ERROR.throwServiceException(e);
+		}
 	}
 }

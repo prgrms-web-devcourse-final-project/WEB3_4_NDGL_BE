@@ -12,6 +12,7 @@ import software.amazon.awssdk.services.s3.model.S3Exception;
 @Slf4j
 public enum ErrorCode {
 	UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다."),
+	INVALID_OAUTH_CODE(HttpStatus.BAD_REQUEST, "유효하지 않은 OAUTH_CODE 입니다."),
 
 	ACCESS_DENIED(HttpStatus.FORBIDDEN, "권한이 없습니다."),
 

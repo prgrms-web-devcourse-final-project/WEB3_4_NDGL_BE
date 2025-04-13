@@ -61,4 +61,9 @@ public class User extends BaseTime {
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Oauth> oauths = new ArrayList<>();
+
+	@Setter
+	@Column(nullable = false)
+	@Builder.Default
+	private boolean isResigned = false;
 }
