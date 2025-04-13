@@ -13,6 +13,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,6 +22,12 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @NoArgsConstructor
+@Table(
+	name = "admin",
+	indexes = {
+		@Index(name = "idx_admin_username", columnList = "username")
+	}
+)
 public class Admin extends BaseTime {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
