@@ -1,7 +1,9 @@
 package com.ndgl.spotfinder.domain.user.client;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 
@@ -48,8 +50,16 @@ public class GoogleAuthClientImpl implements GoogleAuthClient {
 			}
 			return response;
 
+		} catch (HttpClientErrorException e) {
+			if (e.getStatusCode() == HttpStatus.BAD_REQUEST) {
+				ErrorCode.INVALID_OAUTH_CODE.throwServiceException();
+			}
+			throw e;
+			
 		} catch (RestClientException e) {
-			throw new RuntimeException(e);
+			ErrorCode.SERVER_ERROR.throwServiceException();
 		}
+
+		return null;
 	}
 }
