@@ -7,6 +7,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.RestClient;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Configuration
 public class RestClientConfig {
 
@@ -18,6 +21,7 @@ public class RestClientConfig {
 
 	@Bean
 	public RestClient googleRestClient() {
+		log.info("tokenUri: {}", tokenUri);
 		return RestClient.builder()
 			.baseUrl(tokenUri)
 			.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
@@ -26,6 +30,7 @@ public class RestClientConfig {
 
 	@Bean
 	public RestClient googleUserInfoRestClient() {
+		log.info("userInfoUri: {}", userInfoUri);
 		return RestClient.builder()
 			.baseUrl(userInfoUri)
 			.build();

@@ -29,28 +29,12 @@ public class GoogleAuthClientImpl implements GoogleAuthClient {
 	@Value("${spring.security.oauth2.client.registration.google.client_secret}")
 	private String googleClientSecret;
 
-	@Value("${spring.security.oauth2.client.registration.google.client-secret}")
-	private String googleClientSecret2;
-
 	@Override
 	public GoogleTokenResponseDto fetchToken(String code, String redirectUri) {
 
+		log.info("googleClientId = {}", googleClientId);
 		log.info("googleClientSecret = {}", googleClientSecret);
-		log.info("googleClientSecret2 = {}", googleClientSecret2);
 		log.info("rest client redirectUri = {}", redirectUri);
-
-		// String body = String.format(
-		// 	"grant_type=%s"
-		// 		+ "&client_id=%s"
-		// 		+ "&client_secret=%s"
-		// 		+ "&code=%s"
-		// 		+ "&redirect_uri=%s",
-		// 	authorizationGrantType,
-		// 	googleClientId,
-		// 	googleClientSecret,
-		// 	code,
-		// 	redirectUri
-		// );
 
 		String body = new StringBuilder()
 			.append("grant_type=")
@@ -66,6 +50,8 @@ public class GoogleAuthClientImpl implements GoogleAuthClient {
 			.toString();
 
 		try {
+			log.info("request 요청 = {}", body);
+
 			GoogleTokenResponseDto response = googleRestClient.post()
 				.body(body)
 				.retrieve()
