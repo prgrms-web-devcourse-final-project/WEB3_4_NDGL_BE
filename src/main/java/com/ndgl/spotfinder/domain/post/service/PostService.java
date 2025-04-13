@@ -170,6 +170,11 @@ public class PostService {
 		}
 	}
 
+	@Transactional
+	public void incrementPostViewCount(Long postId, Long viewCount) {
+		postRepository.incrementViewCount(postId, viewCount);
+	}
+
 	private void checkUserPermission(Post post, String email) {
 		if (!post.getUser().getEmail().equals(email)) {
 			ErrorCode.POST_ACCESS_DENIED.throwServiceException();

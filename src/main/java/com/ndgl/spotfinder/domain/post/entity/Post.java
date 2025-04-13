@@ -163,8 +163,4 @@ public class Post extends BaseTime implements Likeable {
 	public void addLike() {
 		this.likeCount++;
 	}
-
-	public void addViewCount(Long count) {
-		viewCount += count;
-	}
 }

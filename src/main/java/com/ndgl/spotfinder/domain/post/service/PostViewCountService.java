@@ -60,9 +60,7 @@ public class PostViewCountService {
 		List<Long> postIds = viewCounts.keySet().stream().toList();
 		List<Post> posts = postService.findPostByIds(postIds);
 
-		posts.forEach(post -> {
-			post.addViewCount(viewCounts.get(post.getId()));
-		});
+		viewCounts.forEach(postService::incrementPostViewCount);
 
 		deleteFromRedis(viewCounts);
 	}
