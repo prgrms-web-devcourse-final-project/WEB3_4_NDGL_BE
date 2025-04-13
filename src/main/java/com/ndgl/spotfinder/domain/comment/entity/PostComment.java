@@ -58,6 +58,11 @@ public class PostComment extends BaseTime implements Likeable {
 	@Column(nullable = false)
 	private Long likeCount;
 
+	@Column(nullable = false)
+	@Builder.Default
+	@Setter
+	private boolean pinned = false;
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "parent_id")
 	private PostComment parentComment;
