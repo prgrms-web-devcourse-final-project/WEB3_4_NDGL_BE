@@ -54,6 +54,7 @@ public class OauthService {
 		String code,
 		String redirectUri,
 		HttpServletResponse response) {
+		log.info("service code = {}", code);
 		log.info("service redirectUri = {}", redirectUri);
 		// 1. 토큰 발급 : 구글
 		GoogleTokenResponseDto googleToken = googleAuthClient.fetchToken(code, redirectUri);
@@ -96,6 +97,9 @@ public class OauthService {
 	}
 
 	private UserLoginResponseDto mapToUserLoginResponse(RestClientDto userInfo) {
+		log.info("userInfo_id = {}", userInfo.id());
+		log.info("userInfo_emai = {}", userInfo.email());
+
 		return UserLoginResponseDto.builder()
 			.identify(userInfo.id())
 			.email(userInfo.email())
