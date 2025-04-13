@@ -9,6 +9,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.ndgl.spotfinder.domain.comment.entity.PostComment;
+import com.ndgl.spotfinder.domain.comment.entity.PostCommentStatus;
 import com.ndgl.spotfinder.domain.comment.service.PostCommentService;
 import com.ndgl.spotfinder.domain.post.entity.Post;
 import com.ndgl.spotfinder.domain.post.service.PostService;
@@ -147,6 +148,9 @@ public class ReportService {
 
 		User user = postCommentReport.getReportedUser();
 		user.setBanned(true);
+
+		PostComment postComment = postCommentReport.getPostComment();
+		postComment.setStatus(PostCommentStatus.BLINDED); // 댓글 블라인드 처리
 
 		Ban ban = Ban.builder()
 			.user(user)

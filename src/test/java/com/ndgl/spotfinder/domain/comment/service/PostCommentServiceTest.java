@@ -24,6 +24,7 @@ import org.springframework.test.context.ActiveProfiles;
 import com.ndgl.spotfinder.domain.comment.dto.PostCommentRequestDto;
 import com.ndgl.spotfinder.domain.comment.dto.PostCommentResponseDto;
 import com.ndgl.spotfinder.domain.comment.entity.PostComment;
+import com.ndgl.spotfinder.domain.comment.entity.PostCommentStatus;
 import com.ndgl.spotfinder.domain.comment.repository.PostCommentRepository;
 import com.ndgl.spotfinder.domain.like.entity.Like;
 import com.ndgl.spotfinder.domain.like.service.LikeService;
@@ -162,7 +163,8 @@ public class PostCommentServiceTest {
 		// Then
 		verify(postCommentRepository, times(1)).findById(commentId);
 		assert comment != null;
-		verify(postCommentRepository, times(1)).delete(comment);
+		assertEquals(PostCommentStatus.DELETED, comment.getStatus());
+		verify(postCommentRepository, never()).delete(any());
 	}
 
 	@Test

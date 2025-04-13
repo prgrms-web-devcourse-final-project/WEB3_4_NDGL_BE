@@ -1,5 +1,6 @@
 package com.ndgl.spotfinder.domain.comment.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Pageable;
@@ -16,4 +17,7 @@ public interface PostCommentRepository extends JpaRepository<PostComment, Long> 
 
 	@Query("SELECT c FROM PostComment c WHERE c.post.id = :postId AND c.pinned = true")
 	Optional<PostComment> findPinnedCommentByPostId(Long postId);
+
+	@Query("SELECT c FROM PostComment c WHERE c.status = 'DELETED' AND c.childrenComments IS EMPTY")
+	List<PostComment> findDeletableComments();
 }

@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.ndgl.spotfinder.domain.comment.dto.PostCommentRequestDto;
 import com.ndgl.spotfinder.domain.comment.dto.PostCommentResponseDto;
 import com.ndgl.spotfinder.domain.comment.entity.PostComment;
+import com.ndgl.spotfinder.domain.comment.entity.PostCommentStatus;
 import com.ndgl.spotfinder.domain.comment.repository.PostCommentRepository;
 import com.ndgl.spotfinder.domain.like.entity.Like;
 import com.ndgl.spotfinder.domain.like.service.LikeService;
@@ -95,7 +96,9 @@ public class PostCommentService {
 
 		PostComment comment = findCommentAndVerifyPost(commentId, id);
 		comment.checkAuthorCanDelete(author);
-		postCommentRepository.delete(comment);
+
+		comment.setPinned(false); // 댓글 고정 해제
+		comment.setStatus(PostCommentStatus.DELETED);
 		likeService.deleteAllLikes(commentId, Like.TargetType.COMMENT);
 	}
 
