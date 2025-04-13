@@ -1,4 +1,9 @@
 server:
+  http:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
   port: 8080
   shutdown: graceful
   forward-headers-strategy: native
