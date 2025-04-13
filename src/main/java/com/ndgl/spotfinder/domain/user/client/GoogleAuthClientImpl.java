@@ -39,18 +39,31 @@ public class GoogleAuthClientImpl implements GoogleAuthClient {
 		log.info("googleClientSecret2 = {}", googleClientSecret2);
 		log.info("rest client redirectUri = {}", redirectUri);
 
-		String body = String.format(
-			"grant_type=%s"
-				+ "&client_id=%s"
-				+ "&client_secret=%s"
-				+ "&code=%s"
-				+ "&redirect_uri=%s",
-			authorizationGrantType,
-			googleClientId,
-			googleClientSecret,
-			code,
-			redirectUri
-		);
+		// String body = String.format(
+		// 	"grant_type=%s"
+		// 		+ "&client_id=%s"
+		// 		+ "&client_secret=%s"
+		// 		+ "&code=%s"
+		// 		+ "&redirect_uri=%s",
+		// 	authorizationGrantType,
+		// 	googleClientId,
+		// 	googleClientSecret,
+		// 	code,
+		// 	redirectUri
+		// );
+
+		String body = new StringBuilder()
+			.append("grant_type=")
+			.append(authorizationGrantType)
+			.append("&client_id=")
+			.append(googleClientId)
+			.append("&client_secret=")
+			.append(googleClientSecret)
+			.append("&code=")
+			.append(code)
+			.append("&redirect_uri=")
+			.append(redirectUri)
+			.toString();
 
 		try {
 			GoogleTokenResponseDto response = googleRestClient.post()
@@ -65,12 +78,12 @@ public class GoogleAuthClientImpl implements GoogleAuthClient {
 
 		} catch (HttpClientErrorException e) {
 			if (e.getStatusCode() == HttpStatus.BAD_REQUEST) {
-				ErrorCode.INVALID_OAUTH_CODE.throwServiceException();
+				ErrorCode.INVALID_OAUTH_CODE.throwServiceException(e);
 			}
 			throw e;
 
 		} catch (RestClientException e) {
-			ErrorCode.SERVER_ERROR.throwServiceException();
+			ErrorCode.SERVER_ERROR.throwServiceException(e);
 		}
 
 		return null;
