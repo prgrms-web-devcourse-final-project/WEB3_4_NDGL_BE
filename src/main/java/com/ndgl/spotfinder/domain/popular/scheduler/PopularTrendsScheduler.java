@@ -3,7 +3,6 @@ package com.ndgl.spotfinder.domain.popular.scheduler;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.ndgl.spotfinder.domain.popular.dto.KeywordCountDto;
@@ -25,7 +24,7 @@ public class PopularTrendsScheduler {
 	private final RedisPopularService redisPopularService;
 	private final PopularService popularService;
 
-	@Scheduled(cron = "0 */30 * * * *") // 매 30분 간격으로 실행
+	// @Scheduled(cron = "0 */30 * * * *") // 매 30분 간격으로 실행
 	public void updatePopularTrends() {
 		log.info("인기 검색어 및 게시물 업데이트 스케줄러 시작: {}", LocalDateTime.now());
 
