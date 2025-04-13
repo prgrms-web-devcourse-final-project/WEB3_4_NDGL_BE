@@ -61,19 +61,10 @@ public class UserController {
 		@RequestParam("redirect_uri") String redirectUri,
 		HttpServletResponse response
 	) {
-		log.info("controller code = {}", code);
-		log.info("controller redirectUri = {}", redirectUri);
 
 		//  구글 로그인 처리
 		UserLoginResponseDto responseDto = oauthService.processGoogleLogin(code, redirectUri,
 			response);
-
-		log.info("responseDto.code = {}", responseDto.getCode());
-		log.info("responseDto.message = {}", responseDto.getMessage());
-		log.info("responseDto.identify = {}", responseDto.getIdentify());
-		log.info("responseDto.userId = {}", responseDto.getUserId());
-		log.info("responseDto.email = {}", responseDto.getEmail());
-		log.info("responseDto.provider = {}", responseDto.getProvider());
 
 		return new RsData<>(responseDto.getCode(), responseDto.getMessage(), responseDto);
 

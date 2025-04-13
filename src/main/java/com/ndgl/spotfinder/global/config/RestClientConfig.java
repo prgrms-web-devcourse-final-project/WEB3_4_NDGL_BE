@@ -21,7 +21,6 @@ public class RestClientConfig {
 
 	@Bean
 	public RestClient googleRestClient() {
-		log.info("tokenUri: {}", tokenUri);
 		return RestClient.builder()
 			.baseUrl(tokenUri)
 			.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
@@ -30,7 +29,6 @@ public class RestClientConfig {
 
 	@Bean
 	public RestClient googleUserInfoRestClient() {
-		log.info("userInfoUri: {}", userInfoUri);
 		return RestClient.builder()
 			.baseUrl(userInfoUri)
 			.build();
