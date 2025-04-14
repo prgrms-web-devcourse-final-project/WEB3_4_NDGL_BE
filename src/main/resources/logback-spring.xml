@@ -80,7 +80,7 @@
             <appender-ref ref="INFO-USER-AUTH"/>
         </logger>
 
-        <logger name="com.ndgl.spotfinder.global.aspect.logging.PostViewLoggingAspect" level="INFO" additivity="false">
+        <logger name="com.ndgl.spotfinder.global.aspect.logging.PostViewTrackingAspect" level="INFO" additivity="false">
             <appender-ref ref="INFO-POST-VIEW"/>
         </logger>
 
