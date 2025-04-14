@@ -61,14 +61,14 @@ public class SearchLoggingAspect {
 	}
 
 	private void loggingSearchedKeyword(String keyword, String ip, String userAgent) {
-		// 로그 데이터 구성
-		Map<String, Object> logMap = new HashMap<>();
-		logMap.put("keyword", keyword);
-		logMap.put("ipAddress", ip);
-		logMap.put("userAgent", userAgent);
-
-		// 로그 남기기
 		try {
+			// 로그 데이터 구성
+			Map<String, Object> logMap = new HashMap<>();
+			logMap.put("keyword", keyword);
+			logMap.put("ipAddress", ip);
+			logMap.put("userAgent", userAgent);
+
+			// 로그 남기기
 			log.info(objectMapper.writeValueAsString(logMap));
 		} catch (JsonProcessingException e) {
 			ErrorCode.JSON_PROCESSING_EXCEPTION.throwServiceException(e);
