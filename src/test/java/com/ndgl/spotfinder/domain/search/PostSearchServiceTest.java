@@ -22,6 +22,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.test.context.ActiveProfiles;
 
+import com.ndgl.spotfinder.domain.popular.service.redis.RedisPopularService;
 import com.ndgl.spotfinder.domain.post.dto.PostResponseDto;
 import com.ndgl.spotfinder.domain.post.entity.Post;
 import com.ndgl.spotfinder.domain.post.repository.PostRepository;
@@ -59,6 +60,10 @@ public class PostSearchServiceTest {
 	@Mock
 	private ElasticsearchHealthCheck healthCheck;
 
+	@Mock
+	private RedisPopularService redisPopularService;
+
+
 	private final User user1 = User.builder()
 		.id(1L)
 		.email("이메일1")
@@ -89,7 +94,8 @@ public class PostSearchServiceTest {
 			postRepository,
 			healthCheck,
 			postSearchRepository,
-			redisTemplate
+			redisTemplate,
+			redisPopularService
 		);
 	}
 
