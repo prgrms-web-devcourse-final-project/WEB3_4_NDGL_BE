@@ -138,6 +138,7 @@ public class PostController implements PostApiSpecification {
 
 	@GetMapping("/popular")
 	public RsData<List<PostResponseDto>> getPopularPosts() {
-		return RsData.success(HttpStatus.OK, postService.getPopularPosts());
+		List<PostResponseDto> popularPosts = postService.getPopularPosts();
+		return RsData.success(HttpStatus.OK, popularPosts);
 	}
 }
