@@ -28,12 +28,12 @@ public class PopularPost extends BaseTime {
 	private long viewCount;
 
 	@Column(nullable = false)
-	private int rank;
+	private int ranking;
 
 	@Builder
-	private PopularPost(long postId, long viewCount, int rank) {
+	private PopularPost(long postId, long viewCount, int ranking) {
 		this.postId = postId;
 		this.viewCount = viewCount;
-		this.rank = rank;
+		this.ranking = ranking;
 	}
 }

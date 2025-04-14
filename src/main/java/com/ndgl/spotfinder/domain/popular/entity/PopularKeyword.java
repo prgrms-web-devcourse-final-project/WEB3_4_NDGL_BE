@@ -28,12 +28,12 @@ public class PopularKeyword extends BaseTime {
 	private long searchCount;
 
 	@Column(nullable = false)
-	private int rank;
+	private int ranking;
 
 	@Builder
-	private PopularKeyword(String keyword, long searchCount, int rank) {
+	private PopularKeyword(String keyword, long searchCount, int ranking) {
 		this.keyword = keyword;
 		this.searchCount = searchCount;
-		this.rank = rank;
+		this.ranking = ranking;
 	}
 }
