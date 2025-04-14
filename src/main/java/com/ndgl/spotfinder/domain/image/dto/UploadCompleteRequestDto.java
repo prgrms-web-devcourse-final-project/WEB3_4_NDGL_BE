@@ -15,7 +15,7 @@ public record UploadCompleteRequestDto(
 	@Schema(description = "이미지 참조 객체 ID", example = "1")
 	@NotNull(message = "ID는 필수입니다.")
 	@Min(value = 1, message = "ID는 최소 1 이상입니다.")
-	long id,
+	long referenceId,
 
 	@Schema(description = "이미지 참조 타입", example = "POST")
 	@NotNull(message = "imageType은 필수입니다.")
@@ -27,6 +27,6 @@ public record UploadCompleteRequestDto(
 	@NotNull(message = "URL은 필수입니다.")
 	@Size(min = 1, message = "URL이 최소 1개 이상 입력되어야 합니다.")
 	@Valid
-	List<String> imageUrl
+	List<String> imageUrls
 ) {
 }

@@ -4,13 +4,11 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.annotations.BatchSize;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import com.ndgl.spotfinder.domain.comment.entity.PostComment;
 import com.ndgl.spotfinder.domain.like.entity.Likeable;
-import com.ndgl.spotfinder.domain.post.dto.HashtagDto;
-import com.ndgl.spotfinder.domain.post.dto.LocationDto;
-import com.ndgl.spotfinder.domain.post.dto.PostCommonUpdateRequestDto;
 import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.global.base.BaseTime;
 
@@ -71,6 +69,7 @@ public class Post extends BaseTime implements Likeable {
 	private List<PostComment> comments = new ArrayList<>();
 
 	@Builder.Default
+	@BatchSize(size = 50)
 	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Hashtag> hashtags = new ArrayList<>();
 
@@ -88,6 +87,7 @@ public class Post extends BaseTime implements Likeable {
 		return Post.builder()
 			.title("")
 			.content("")
+			.thumbnail("")
 			.status(PostStatus.TEMP)
 			.user(user)
 			.build();
@@ -109,27 +109,6 @@ public class Post extends BaseTime implements Likeable {
 
 	public void addLocations(List<Location> locations) {
 		locations.forEach(this::addLocation);
-	}
-
-	public Post updatePost(PostCommonUpdateRequestDto requestDto, boolean temp) {
-		title = requestDto.title();
-		content = requestDto.content();
-		thumbnail = requestDto.thumbnail();
-		this.status = temp ? PostStatus.TEMP : PostStatus.PUBLIC;
-
-		List<Hashtag> newHashtags = requestDto.hashtags()
-			.stream()
-			.map(HashtagDto::toHashtag)
-			.toList();
-		updateHashtags(newHashtags);
-
-		List<Location> newLocations = requestDto.locations()
-			.stream()
-			.map(LocationDto::toLocation)
-			.toList();
-		updateLocations(newLocations);
-
-		return this;
 	}
 
 	public void updateHashtags(List<Hashtag> newHashtags) {

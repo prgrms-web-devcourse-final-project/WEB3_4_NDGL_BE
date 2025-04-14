@@ -73,11 +73,11 @@ public class PostService {
 	}
 
 	@Transactional
-	public void updatePost(Long id, PostCommonUpdateRequestDto requestDto, String email, boolean temp) {
+	public void updatePost(Long id, PostCommonUpdateRequestDto requestDto, String email, PostStatus postStatus) {
 		Post post = findPostById(id);
 
 		checkUserPermission(post, email);
-		postRepository.save(requestDto.toUpdatedPost(post, temp));
+		postRepository.save(requestDto.toUpdatedPost(post, postStatus));
 
 		cleanupImages(post);
 	}
@@ -95,7 +95,7 @@ public class PostService {
 	public SliceResponse<PostResponseDto> getPosts(SliceRequest sliceRequest) {
 		PageRequest pageRequest = PageRequest.of(FIRST_PAGE_NUMBER, sliceRequest.size());
 		Long lastId = getLastPostId(sliceRequest);
-		Slice<Post> results = postRepository.findByIdLessThanOrderByCreatedAtDesc(lastId, pageRequest);
+		Slice<Post> results = postRepository.findByIdLessThanOrderByIdDesc(lastId, pageRequest);
 		return convertToSliceResponse(results);
 	}
 
@@ -105,7 +105,7 @@ public class PostService {
 		Long lastId = getLastPostId(sliceRequest);
 		User user = userService.findUserById(userId);
 
-		Slice<Post> results = postRepository.findByUserAndIdLessThanOrderByCreatedAtDesc(user, lastId, pageRequest);
+		Slice<Post> results = postRepository.findByUserAndIdLessThanOrderByIdDesc(user, lastId, pageRequest);
 
 		return convertToSliceResponse(results);
 	}
@@ -154,11 +154,6 @@ public class PostService {
 	public Post findPostById(Long id) {
 		return postRepository.findById(id)
 			.orElseThrow(ErrorCode.POST_NOT_FOUND::throwServiceException);
-	}
-
-	@Transactional(readOnly = true)
-	public List<Post> findPostByIds(List<Long> ids) {
-		return postRepository.findByIdIn(ids);
 	}
 
 	@Transactional(readOnly = true)
