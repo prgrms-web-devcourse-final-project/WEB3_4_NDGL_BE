@@ -16,7 +16,7 @@ import com.ndgl.spotfinder.domain.image.repository.ImageRepository;
 import com.ndgl.spotfinder.domain.image.type.ImageUsage;
 import com.ndgl.spotfinder.global.aws.s3.S3Service;
 import com.ndgl.spotfinder.global.exception.ErrorCode;
-import com.ndgl.spotfinder.global.util.Ut;
+import com.ndgl.spotfinder.global.common.util.CommonUtil;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,7 +46,7 @@ public class ImageService {
 	 */
 	@Transactional
 	public void saveImages(UploadCompleteRequestDto rq) {
-		if (Ut.list.hasValue(rq.imageUrl())) {
+		if (CommonUtil.list.hasValue(rq.imageUrl())) {
 			List<Image> images = rq.imageUrl().stream()
 				.map(url -> Image.builder()
 					.imageUsage(ImageUsage.POST)
