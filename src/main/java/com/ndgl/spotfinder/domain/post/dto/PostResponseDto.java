@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import com.ndgl.spotfinder.domain.post.entity.Post;
+import com.ndgl.spotfinder.global.common.util.MarkdownUtil;
+import com.ndgl.spotfinder.global.common.util.StringUtil;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -39,12 +41,13 @@ public record PostResponseDto(
 	List<HashtagDto> hashtags
 ) {
 	private static final Long POST_LIST_HASHTAG_COUNT = 3L;
+	private static final Integer SLICED_CONTENT_LENGTH = 200;
 
 	public PostResponseDto(Post post) {
 		this(
 			post.getId(),
 			post.getTitle(),
-			post.getContent(),
+			sliceAndRemoveNewLinesFromContent(post.getContent()),
 			post.getUser().getId(),
 			post.getUser().getNickName(),
 			post.getThumbnail(),
@@ -59,4 +62,11 @@ public record PostResponseDto(
 		);
 	}
 
+	private static String sliceAndRemoveNewLinesFromContent(String content) {
+		String slicedContent =
+			content.length() > SLICED_CONTENT_LENGTH ? content.substring(0, SLICED_CONTENT_LENGTH) : content;
+		String pureText = MarkdownUtil.extractTextFromMarkdown(slicedContent);
+
+		return StringUtil.removeNewLines(pureText);
+	}
 }
