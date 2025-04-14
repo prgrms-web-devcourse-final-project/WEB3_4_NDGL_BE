@@ -35,7 +35,7 @@ import co.elastic.clients.elasticsearch._types.aggregations.StringTermsBucket;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 
 @ExtendWith(MockitoExtension.class)
-class ElasticsearchServiceTest {
+class ElasticsearchPopularServiceTest {
 
 	@Mock
 	private AppConfig appConfig;
@@ -69,7 +69,7 @@ class ElasticsearchServiceTest {
 		when(elasticsearchClient.search(any(Function.class), eq(Void.class))).thenReturn(mockResponse);
 
 		// when
-		List<KeywordCountDto> result = elasticsearchPopularService.findTopKeywords(startTime, endTime, size);
+		List<KeywordCountDto> result = elasticsearchPopularService.findTopKeywords(startTime, endTime);
 
 		// then
 		assertThat(result).hasSize(3);
@@ -94,7 +94,7 @@ class ElasticsearchServiceTest {
 		when(elasticsearchClient.search(any(Function.class), eq(Void.class))).thenReturn(mockResponse);
 
 		// when.
-		List<PostCountDto> result = elasticsearchPopularService.findTopPosts(startTime, endTime, size);
+		List<PostCountDto> result = elasticsearchPopularService.findTopPosts(startTime, endTime);
 
 		// then
 		assertThat(result).hasSize(3);
