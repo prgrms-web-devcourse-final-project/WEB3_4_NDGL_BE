@@ -30,7 +30,7 @@ public class ImageController implements ImageApiSpecification {
 		return RsData.success(HttpStatus.OK, rs);
 	}
 
-	@PostMapping("/complete")
+	@PostMapping("/upload-complete")
 	public RsData<String> uploadComplete(
 		@Valid @RequestBody UploadCompleteRequestDto rq
 	) {
