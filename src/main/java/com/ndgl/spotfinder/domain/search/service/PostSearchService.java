@@ -19,6 +19,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ndgl.spotfinder.domain.popular.service.redis.RedisPopularService;
 import com.ndgl.spotfinder.domain.post.dto.PostResponseDto;
 import com.ndgl.spotfinder.domain.post.entity.Post;
 import com.ndgl.spotfinder.domain.post.repository.PostRepository;
@@ -39,6 +40,7 @@ public class PostSearchService {
 	private final PostRepository postRepository;
 	private final ElasticsearchHealthCheck healthCheck;
 	private final PostSearchRepository postSearchRepository;
+	private final RedisPopularService redisPopularService;
 
 	@Qualifier("postCachdRedisTemplate")
 	private final RedisTemplate<String, List<Long>> redisTemplate;
@@ -48,13 +50,15 @@ public class PostSearchService {
 		PostRepository postJpaRepository,
 		ElasticsearchHealthCheck healthCheck,
 		@Autowired(required = false) PostSearchRepository postSearchRepository,
-		RedisTemplate<String, List<Long>> redisTemplate
+		RedisTemplate<String, List<Long>> redisTemplate,
+		RedisPopularService redisPopularService
 	) {
 		this.postService = postService;
 		this.postRepository = postJpaRepository;
 		this.healthCheck = healthCheck;
 		this.postSearchRepository = postSearchRepository;
 		this.redisTemplate = redisTemplate;
+		this.redisPopularService = redisPopularService;
 	}
 
 	@Transactional(readOnly = true)
@@ -167,5 +171,9 @@ public class PostSearchService {
 
 		postSearchRepository.deleteAll();
 		postSearchRepository.saveAll(documents);
+	}
+
+	public List<String> getPopularKeywords() {
+		return redisPopularService.getPopularKeywords();
 	}
 }

@@ -1,6 +1,7 @@
 package com.ndgl.spotfinder.domain.post.controller;
 
 import java.security.Principal;
+import java.util.List;
 
 import org.springframework.web.bind.annotation.PostMapping;
 
@@ -132,4 +133,9 @@ public interface PostApiSpecification {
 		SliceRequest sliceRequest,
 		@Parameter(hidden = true) Principal principal
 	);
+
+	@Operation(
+		summary = "인기 포스트 1~6위 조회"
+	)
+	RsData<List<PostResponseDto>> getPopularPosts();
 }

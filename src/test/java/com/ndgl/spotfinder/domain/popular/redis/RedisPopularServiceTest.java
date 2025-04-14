@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -19,9 +20,18 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.http.HttpStatus;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ndgl.spotfinder.domain.popular.constants.PopularConstants;
 import com.ndgl.spotfinder.domain.popular.dto.KeywordCountDto;
 import com.ndgl.spotfinder.domain.popular.dto.PostCountDto;
 import com.ndgl.spotfinder.domain.popular.service.redis.RedisPopularService;
+import com.ndgl.spotfinder.domain.post.dto.PostResponseDto;
+import com.ndgl.spotfinder.domain.post.entity.Post;
+import com.ndgl.spotfinder.domain.post.entity.PostStatus;
+import com.ndgl.spotfinder.domain.post.repository.PostRepository;
+import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.global.exception.ErrorCode;
 import com.ndgl.spotfinder.global.exception.ServiceException;
 
@@ -29,10 +39,18 @@ import com.ndgl.spotfinder.global.exception.ServiceException;
 class RedisPopularServiceTest {
 
 	@Mock
-	private RedisTemplate redisTemplate;
+	private RedisTemplate<String, String> redisTemplate;
 
 	@Mock
 	private ZSetOperations<String, String> zSetOps;
+
+	@Mock
+	private ObjectMapper objectMapper;
+
+	@Mock
+	private PostRepository postRepository;
+
+	private final ObjectMapper realObjectMapper = new ObjectMapper();
 
 	@InjectMocks
 	private RedisPopularService redisPopularService;
@@ -63,18 +81,49 @@ class RedisPopularServiceTest {
 
 	@Test
 	@DisplayName("레디스 인기 게시물 갱신 - 정상")
-	void 정상_레디스_인기_게시물_갱신(){
+	void 정상_레디스_인기_게시물_갱신() throws Exception{
 		// Given
+		User user = mock(User.class);
+		when(user.getId()).thenReturn(1L);
+		when(user.getNickName()).thenReturn("test");
+
+		Post post1 = Post.builder()
+			.id(1L)
+			.title("테스트1")
+			.content("테스트 내용1")
+			.user(user)
+			.thumbnail("https://example.com/" + user.getId() + "_thumbnail.jpg")
+			.viewCount(10L)
+			.likeCount(0L)
+			.status(PostStatus.PUBLIC)
+			.build();
+
+		Post post2 = Post.builder()
+			.id(2L)
+			.title("테스트2")
+			.content("테스트 내용2")
+			.user(user)
+			.thumbnail("https://example.com/" + user.getId() + "_thumbnail.jpg")
+			.viewCount(10L)
+			.likeCount(0L)
+			.status(PostStatus.PUBLIC)
+			.build();
+
 		List<PostCountDto> postCountDtos = List.of(
-			new PostCountDto(1L, 50L),
-			new PostCountDto(2L, 100L)
+			new PostCountDto(post1.getId(), 50L),
+			new PostCountDto(post2.getId(), 100L)
 		);
 
+		when(postRepository.findById(post1.getId())).thenReturn(Optional.of(post1));
+		when(postRepository.findById(post2.getId())).thenReturn(Optional.of(post2));
+
+		// When
 		redisPopularService.updateRedisPopularPosts(postCountDtos);
 
+		// Then
 		verify(redisTemplate).delete(POPULAR_POSTS_KEY);
-		verify(zSetOps).add(eq(POPULAR_POSTS_KEY), eq("1"), eq(50.0));
-		verify(zSetOps).add(eq(POPULAR_POSTS_KEY), eq("2"), eq(100.0));
+		verify(zSetOps).add(eq(POPULAR_POSTS_KEY), any(), eq(50.0));
+		verify(zSetOps).add(eq(POPULAR_POSTS_KEY), any(), eq(100.0));
 	}
 
 	@Test
@@ -87,14 +136,12 @@ class RedisPopularServiceTest {
 		when(zSetOps.reverseRangeWithScores(POPULAR_KEYWORDS_KEY, 0, 9)).thenReturn(mockSet);
 
 		//when
-		List<KeywordCountDto> result = redisPopularService.getPopularKeywords(10);
+		List<String> result = redisPopularService.getPopularKeywords();
 
 		//then
 		assertThat(result).hasSize(2);
-		assertThat(result.get(0).keyword()).isEqualTo("키워드1");
-		assertThat(result.get(0).count()).isEqualTo(100L);
-		assertThat(result.get(1).keyword()).isEqualTo("키워드2");
-		assertThat(result.get(1).count()).isEqualTo(50L);
+		assertThat(result.get(0)).isEqualTo("키워드1");
+		assertThat(result.get(1)).isEqualTo("키워드2");
 	}
 
 	@Test
@@ -104,7 +151,7 @@ class RedisPopularServiceTest {
 		when(zSetOps.reverseRangeWithScores(POPULAR_KEYWORDS_KEY, 0, 9)).thenReturn(Collections.emptySet());
 
 		// When & Then
-		assertThatThrownBy(() -> redisPopularService.getPopularKeywords(10))
+		assertThatThrownBy(() -> redisPopularService.getPopularKeywords())
 			.isInstanceOf(ServiceException.class)
 			.satisfies(exception -> {
 				ServiceException serviceException = (ServiceException) exception;
@@ -122,7 +169,7 @@ class RedisPopularServiceTest {
 		when(zSetOps.reverseRangeWithScores(POPULAR_KEYWORDS_KEY, 0, 9)).thenReturn(mockSet);
 
 		// When & Then
-		assertThatThrownBy(() -> redisPopularService.getPopularKeywords(10))
+		assertThatThrownBy(() -> redisPopularService.getPopularKeywords())
 			.isInstanceOf(ServiceException.class)
 			.satisfies(exception -> {
 				ServiceException serviceException = (ServiceException) exception;
@@ -133,22 +180,54 @@ class RedisPopularServiceTest {
 
 	@Test
 	@DisplayName("Top N 인기 게시물 조회 - 정상")
-	void 정상_Top_N개_인기_게시물_조회() {
+	void 정상_Top_N개_인기_게시물_조회() throws Exception {
 		Set<ZSetOperations.TypedTuple<String>> mockSet = new LinkedHashSet<>();
-		mockSet.add(mockTypedTuple("1", 100.0));
-		mockSet.add(mockTypedTuple("2", 50.0));
 
-		when(zSetOps.reverseRangeWithScores(POPULAR_POSTS_KEY, 0, 9)).thenReturn(mockSet);
+		User user = mock(User.class);
+		when(user.getId()).thenReturn(1L);
+		when(user.getNickName()).thenReturn("test");
+
+		Post post1 = Post.builder()
+			.id(1L)
+			.title("테스트1")
+			.content("테스트 내용1")
+			.user(user)
+			.thumbnail("https://example.com/" + user.getId() + "_thumbnail.jpg")
+			.viewCount(10L)
+			.likeCount(0L)
+			.status(PostStatus.PUBLIC)
+			.build();
+
+		Post post2 = Post.builder()
+			.id(2L)
+			.title("테스트2")
+			.content("테스트 내용2")
+			.user(user)
+			.thumbnail("https://example.com/" + user.getId() + "_thumbnail.jpg")
+			.viewCount(10L)
+			.likeCount(0L)
+			.status(PostStatus.PUBLIC)
+			.build();
+		PostResponseDto postDto1 = new PostResponseDto(post1);
+		PostResponseDto postDto2 = new PostResponseDto(post2);
+
+		String postJson1 = realObjectMapper.writeValueAsString(postDto1);
+		String postJson2 = realObjectMapper.writeValueAsString(postDto2);
+
+		mockSet.add(mockTypedTuple(postJson1, 100.0));
+		mockSet.add(mockTypedTuple(postJson2, 50.0));
+
+		when(zSetOps.reverseRangeWithScores(POPULAR_POSTS_KEY, 0, PopularConstants.POST_COUNT-1)).thenReturn(mockSet);
+		when(objectMapper.readValue(postJson1, PostResponseDto.class)).thenReturn(postDto1);
+		when(objectMapper.readValue(postJson2, PostResponseDto.class)).thenReturn(postDto2);
 
 		//when
-		List<PostCountDto> result = redisPopularService.getPopularPosts(10);
+		List<PostResponseDto> result = redisPopularService.getPopularPosts();
 
 		//then
 		assertThat(result).hasSize(2);
-		assertThat(result.get(0).postId()).isEqualTo(1);
-		assertThat(result.get(0).count()).isEqualTo(100L);
-		assertThat(result.get(1).postId()).isEqualTo(2);
-		assertThat(result.get(1).count()).isEqualTo(50L);
+		assertThat(result.get(0).id()).isEqualTo(1);
+		assertThat(result.get(1).id()).isEqualTo(2);
 	}
 
 	@Test
@@ -158,7 +237,7 @@ class RedisPopularServiceTest {
 		when(zSetOps.reverseRangeWithScores(POPULAR_POSTS_KEY, 0, 9)).thenReturn(Collections.emptySet());
 
 		// When & Then
-		assertThatThrownBy(() -> redisPopularService.getPopularPosts(10))
+		assertThatThrownBy(() -> redisPopularService.getPopularPosts())
 			.isInstanceOf(ServiceException.class)
 			.satisfies(exception -> {
 				ServiceException serviceException = (ServiceException) exception;
@@ -176,7 +255,7 @@ class RedisPopularServiceTest {
 		when(zSetOps.reverseRangeWithScores(POPULAR_POSTS_KEY, 0, 9)).thenReturn(mockSet);
 
 		// When & Then
-		assertThatThrownBy(() -> redisPopularService.getPopularPosts(10))
+		assertThatThrownBy(() -> redisPopularService.getPopularPosts())
 			.isInstanceOf(ServiceException.class)
 			.satisfies(exception -> {
 				ServiceException serviceException = (ServiceException) exception;
@@ -187,20 +266,23 @@ class RedisPopularServiceTest {
 
 	@Test
 	@DisplayName("Top N 인기 게시물 조회 - key 가 숫자가 아닌 Tuple")
-	void 비정상_Top_N개_인기_게시물_조회_숫자가_아닌_value_를_가진_튜플() {
+	void 비정상_Top_N개_인기_게시물_조회_숫자가_아닌_value_를_가진_튜플() throws Exception{
 		Set<ZSetOperations.TypedTuple<String>> mockSet = new LinkedHashSet<>();
-		mockSet.add(mockTypedTuple("invalid", 100.0));
+		String invalidJson = "invalid";
+		mockSet.add(mockTypedTuple(invalidJson, 100.0));
 
 		when(zSetOps.reverseRangeWithScores(POPULAR_POSTS_KEY, 0, 9)).thenReturn(mockSet);
+		when(objectMapper.readValue(invalidJson, PostResponseDto.class))
+			.thenThrow(new JsonMappingException(null, "invalid Json"));
 
 		// When & Then
-		assertThatThrownBy(() -> redisPopularService.getPopularPosts(10))
+		assertThatThrownBy(() -> redisPopularService.getPopularPosts())
 			.isInstanceOf(ServiceException.class)
 			.satisfies(exception -> {
 				ServiceException serviceException = (ServiceException) exception;
 				assertThat(serviceException.getCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
-				assertThat(serviceException.getMessage()).isEqualTo(ErrorCode.REDIS_INVALID_ZSET_TUPLE.getMessage());
-				assertThat(serviceException.getCause()).isInstanceOf(NumberFormatException.class);
+				assertThat(serviceException.getMessage()).isEqualTo(ErrorCode.JSON_PROCESSING_EXCEPTION.getMessage());
+				assertThat(serviceException.getCause()).isInstanceOf(JsonProcessingException.class);
 			});
 	}
 
@@ -211,3 +293,4 @@ class RedisPopularServiceTest {
 		return tuple;
 	}
 }
+

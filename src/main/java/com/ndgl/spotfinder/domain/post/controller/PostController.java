@@ -3,6 +3,7 @@ package com.ndgl.spotfinder.domain.post.controller;
 import static com.ndgl.spotfinder.global.common.util.CommonUtil.*;
 
 import java.security.Principal;
+import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -133,5 +134,11 @@ public class PostController implements PostApiSpecification {
 		SliceResponse<PostResponseDto> results = postService.getPostsByFollow(sliceRequest, principal.getName());
 
 		return RsData.success(HttpStatus.OK, results);
+	}
+
+	@GetMapping("/popular")
+	public RsData<List<PostResponseDto>> getPopularPosts() {
+		List<PostResponseDto> popularPosts = postService.getPopularPosts();
+		return RsData.success(HttpStatus.OK, popularPosts);
 	}
 }

@@ -45,4 +45,11 @@ public class PostSearchController implements PostSearchApiSpecification {
 		postSearchService.indexPosts();
 		return RsData.success(HttpStatus.OK, "인덱싱 완료");
 	}
+
+	@GetMapping("/popular-keywords")
+	public RsData<List<String>> getPopularKeywords() {
+		List<String> popularKeywords = postSearchService.getPopularKeywords();
+		return RsData.success(HttpStatus.OK, popularKeywords);
+	}
+
 }
