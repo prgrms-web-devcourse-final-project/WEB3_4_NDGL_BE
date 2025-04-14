@@ -1,6 +1,6 @@
 package com.ndgl.spotfinder.domain.post.controller;
 
-import static com.ndgl.spotfinder.global.util.Ut.*;
+import static com.ndgl.spotfinder.global.common.util.CommonUtil.*;
 
 import java.security.Principal;
 

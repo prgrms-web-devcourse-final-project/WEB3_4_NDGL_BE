@@ -19,7 +19,7 @@ import com.ndgl.spotfinder.domain.comment.service.PostCommentService;
 import com.ndgl.spotfinder.global.common.dto.SliceRequest;
 import com.ndgl.spotfinder.global.common.dto.SliceResponse;
 import com.ndgl.spotfinder.global.rsdata.RsData;
-import com.ndgl.spotfinder.global.util.Ut;
+import com.ndgl.spotfinder.global.common.util.CommonUtil;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +37,7 @@ public class PostCommentController implements PostCommentApiSpecification {
 		Principal principal
 	) {
 		return RsData.success(HttpStatus.OK,
-			postCommentService.getComments(Ut.getEmail(principal), id, request.lastId(), request.size())
+			postCommentService.getComments(CommonUtil.getEmail(principal), id, request.lastId(), request.size())
 		);
 	}
 
@@ -47,7 +47,7 @@ public class PostCommentController implements PostCommentApiSpecification {
 		@PathVariable Long commentId,
 		Principal principal
 	) {
-		return RsData.success(HttpStatus.OK, postCommentService.getComment(Ut.getEmail(principal), id, commentId));
+		return RsData.success(HttpStatus.OK, postCommentService.getComment(CommonUtil.getEmail(principal), id, commentId));
 	}
 
 	@PostMapping

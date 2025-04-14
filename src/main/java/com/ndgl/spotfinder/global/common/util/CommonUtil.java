@@ -1,10 +1,10 @@
-package com.ndgl.spotfinder.global.util;
+package com.ndgl.spotfinder.global.common.util;
 
 import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 
-public class Ut {
+public class CommonUtil {
 
 	public static class list {
 		public static boolean hasValue(List<?> list) {

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.ndgl.spotfinder.domain.image.type.ImageUsage;
 import com.ndgl.spotfinder.global.exception.ErrorCode;
-import com.ndgl.spotfinder.global.util.Ut;
+import com.ndgl.spotfinder.global.common.util.CommonUtil;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,7 +47,7 @@ public class S3Service {
 	 * @return 생성된 Presigned URL 목록
 	 */
 	public List<URL> generatePresignedUrls(ImageUsage imageUsage, long id, List<String> fileExtensions) {
-		if (!Ut.list.hasValue(fileExtensions))
+		if (!CommonUtil.list.hasValue(fileExtensions))
 			return List.of();
 
 		try {
@@ -135,7 +135,7 @@ public class S3Service {
 	 * @param urls url 리스트
 	 */
 	public void deleteObjectsByUrls(List<String> urls) {
-		if (!Ut.list.hasValue(urls))
+		if (!CommonUtil.list.hasValue(urls))
 			return;
 
 		try {
