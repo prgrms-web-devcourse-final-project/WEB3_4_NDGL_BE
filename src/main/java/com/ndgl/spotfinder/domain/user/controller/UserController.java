@@ -31,7 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/users")
-public class UserController {
+public class UserController implements UserApiSpecification {
 
 	private final OauthService oauthService;
 	private final TokenProvider tokenProvider;
