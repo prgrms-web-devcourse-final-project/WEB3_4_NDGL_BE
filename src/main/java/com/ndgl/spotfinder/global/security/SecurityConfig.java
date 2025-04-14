@@ -92,7 +92,8 @@ public class SecurityConfig {
 					"/h2-console/**",
 					"/error",
 					"/swagger-ui/**",
-					"/v3/api-docs/**"
+					"/v3/api-docs/**",
+					"/view-example/images/**" // 데모 페이지 용
 				)
 				.permitAll()
 				.requestMatchers(HttpMethod.GET,

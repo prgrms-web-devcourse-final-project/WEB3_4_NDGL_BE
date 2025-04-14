@@ -39,9 +39,9 @@ import lombok.extern.slf4j.Slf4j;
 public class BaseInitData {
 
 	// 데이터 생성 개수 설정
-	private static final int USER_COUNT = 5;               		// 생성할 사용자 수
-	private static final int POSTS_PER_USER_MIN = 1;       		// 사용자당 최소 포스트 수
-	private static final int POSTS_PER_USER_MAX = 3;       		// 사용자당 최대 포스트 수
+	private static final int USER_COUNT = 10;               		// 생성할 사용자 수
+	private static final int POSTS_PER_USER_MIN = 3;       		// 사용자당 최소 포스트 수
+	private static final int POSTS_PER_USER_MAX = 100;       		// 사용자당 최대 포스트 수
 	private static final int COMMENTS_PER_POST_MIN = 1;    		// 포스트당 최소 댓글 수
 	private static final int COMMENTS_PER_POST_MAX = 3;    		// 포스트당 최대 댓글 수
 	private static final double REPLY_PROBABILITY = 1;      	// 댓글에 대댓글이 달릴 확률
@@ -65,8 +65,8 @@ public class BaseInitData {
 
 			self.createUsers();
 			self.createPosts();
-			self.createComments();
-			self.createLikes();
+			// self.createComments();
+			// self.createLikes();
 			self.printStatistics();
 		};
 	}
