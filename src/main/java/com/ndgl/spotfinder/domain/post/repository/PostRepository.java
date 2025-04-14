@@ -6,7 +6,6 @@ import java.util.Optional;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -17,17 +16,14 @@ import com.ndgl.spotfinder.domain.post.entity.PostStatus;
 import com.ndgl.spotfinder.domain.user.entity.User;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
-	@EntityGraph(attributePaths = {"hashtags"})
 	Slice<Post> findByIdLessThanOrderByIdDesc(Long lastId, PageRequest pageRequest);
 
-	@EntityGraph(attributePaths = {"hashtags"})
 	Slice<Post> findByUserAndIdLessThanOrderByIdDesc(User user, Long lastId, PageRequest pageRequest);
 
 	@Query("SELECT p FROM Post p " +
 		   "JOIN Like l ON p.id = l.targetId AND l.targetType = 'POST' " +
 		   "WHERE l.user.id = :userId AND p.id < :lastId " +
 		   "ORDER BY p.id DESC")
-	@EntityGraph(attributePaths = {"hashtags"})
 	Slice<Post> findLikedPostsByUser(@Param("userId") Long userId, @Param("lastId") Long lastId,
 		PageRequest pageRequest);
 
@@ -35,7 +31,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 		   "JOIN Follow f ON f.follower.id = :userId AND f.followee.id = p.user.id " +
 		   "WHERE p.id < :lastId " +
 		   "ORDER BY p.id DESC")
-	@EntityGraph(attributePaths = {"hashtags"})
 	Slice<Post> findFollowedPostsByUser(@Param("userId") Long userId, @Param("lastId") Long lastId,
 		PageRequest pageRequest);
 
