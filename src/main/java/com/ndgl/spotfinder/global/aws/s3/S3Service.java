@@ -55,7 +55,7 @@ public class S3Service {
 				.map(fileExtension -> generatePresignedUrl(imageUsage, id, fileExtension))
 				.toList();
 		} catch (SdkException e) {
-			throw ErrorCode.S3_PRESIGNED_GENERATION_FAIL.throwS3Exception(e);
+			throw ErrorCode.S3_PRESIGNED_GENERATION_FAIL.throwCustomS3Exception(e);
 		}
 	}
 
@@ -80,7 +80,7 @@ public class S3Service {
 			log.debug("Presigned URL 생성");
 			return presignedRequest.url();
 		} catch (SdkException e) {
-			throw ErrorCode.S3_PRESIGNED_GENERATION_FAIL.throwS3Exception(e);
+			throw ErrorCode.S3_PRESIGNED_GENERATION_FAIL.throwCustomS3Exception(e);
 		}
 	}
 
@@ -125,7 +125,7 @@ public class S3Service {
 			s3Client.deleteObject(deleteRequest);
 			log.debug("S3 파일 삭제 완료: {}", objectKey);
 		} catch (SdkException e) {
-			throw ErrorCode.S3_OBJECT_DELETE_FAIL.throwS3Exception(e);
+			throw ErrorCode.S3_OBJECT_DELETE_FAIL.throwCustomS3Exception(e);
 		}
 	}
 
@@ -153,7 +153,7 @@ public class S3Service {
 			s3Client.deleteObjects(deleteRequest);
 
 		} catch (SdkException e) {
-			ErrorCode.S3_OBJECT_DELETE_FAIL.throwS3Exception(e);
+			ErrorCode.S3_OBJECT_DELETE_FAIL.throwCustomS3Exception(e);
 		}
 	}
 
@@ -196,7 +196,7 @@ public class S3Service {
 			s3Client.deleteObjects(deleteRequest);
 
 		} catch (SdkException e) {
-			ErrorCode.S3_OBJECT_DELETE_FAIL.throwS3Exception(e);
+			ErrorCode.S3_OBJECT_DELETE_FAIL.throwCustomS3Exception(e);
 		}
 	}
 
@@ -226,7 +226,7 @@ public class S3Service {
 					.build();
 			} while (Boolean.TRUE.equals(listResponse.isTruncated()));
 		} catch (SdkException e) {
-			ErrorCode.S3_OBJECT_ACCESS_FAIL.throwS3Exception(e);
+			ErrorCode.S3_OBJECT_ACCESS_FAIL.throwCustomS3Exception(e);
 		}
 
 		return objects;
