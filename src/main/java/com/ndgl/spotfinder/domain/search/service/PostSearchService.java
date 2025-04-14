@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -148,5 +149,23 @@ public class PostSearchService {
 		log.info("Redis 캐시 검색 결과 반환 - {}건", results.size());
 
 		return new SliceResponse<>(results, hasNext);
+	}
+
+	@Transactional(readOnly = true)
+	public List<String> suggestKeyword(String keyword) {
+		return Optional.ofNullable(postSearchRepository)
+			.map(repo -> repo.suggestKeyword(keyword))
+			.orElse(Collections.emptyList());
+	}
+
+	@Transactional(readOnly = true)
+	public void indexPosts() {
+		List<Post> posts = postRepository.findAll();
+		List<PostDocument> documents = posts.stream()
+			.map(PostDocument::from)
+			.toList();
+
+		postSearchRepository.deleteAll();
+		postSearchRepository.saveAll(documents);
 	}
 }

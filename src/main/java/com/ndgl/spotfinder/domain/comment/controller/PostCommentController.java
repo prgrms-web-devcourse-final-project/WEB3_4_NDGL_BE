@@ -80,4 +80,14 @@ public class PostCommentController implements PostCommentApiSpecification {
 		postCommentService.delete(id, commentId, principal.getName());
 		return RsData.success(HttpStatus.OK);
 	}
+
+	@PutMapping("/{commentId}/pin")
+	public RsData<Void> pin(
+		@PathVariable Long id,
+		@PathVariable Long commentId,
+		Principal principal
+	) {
+		postCommentService.pinComment(id, commentId, principal.getName());
+		return RsData.success(HttpStatus.OK);
+	}
 }

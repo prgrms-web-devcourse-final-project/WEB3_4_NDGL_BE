@@ -23,6 +23,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 
 import com.ndgl.spotfinder.domain.comment.entity.PostComment;
+import com.ndgl.spotfinder.domain.comment.entity.PostCommentStatus;
 import com.ndgl.spotfinder.domain.comment.service.PostCommentService;
 import com.ndgl.spotfinder.domain.post.entity.Post;
 import com.ndgl.spotfinder.domain.post.service.PostService;
@@ -419,7 +420,15 @@ public class ReportServiceTest {
 
 		User user = User.builder().id(1L).build();
 
-		PostCommentReport report = PostCommentReport.builder().reportedUser(user).build();
+		PostComment postComment = PostComment.builder()
+			.id(1L)
+			.status(PostCommentStatus.PUBLIC)
+			.build();
+
+		PostCommentReport report = PostCommentReport.builder()
+			.reportedUser(user)
+			.postComment(postComment)
+			.build();
 
 		Ban ban = mock(Ban.class);
 		when(ban.getId()).thenReturn(1L);
@@ -442,6 +451,7 @@ public class ReportServiceTest {
 		assertThat(capturedBan.getEndDate()).isEqualTo(Ban.calculateEndDate(BanDuration.ONE_WEEK));
 		assertThat(capturedBan.getBanType()).isEqualTo(report.getReportType());
 		assertThat(user.isBanned()).isTrue();
+		assertThat(postComment.getStatus()).isEqualTo(PostCommentStatus.BLINDED);
 		assertThat(report.getReportStatus()).isEqualTo(ReportStatus.RESOLVED);
 	}
 

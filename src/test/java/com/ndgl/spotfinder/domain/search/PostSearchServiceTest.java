@@ -82,8 +82,8 @@ public class PostSearchServiceTest {
 
 	@BeforeEach
 	void setUp() {
-		when(redisTemplate.opsForValue()).thenReturn(valueOperations);
-		when(valueOperations.get(anyString())).thenReturn(null);
+		lenient().when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+		lenient().when(valueOperations.get(anyString())).thenReturn(null);
 		postSearchService = new PostSearchService(
 			postService,
 			postRepository,
@@ -157,5 +157,45 @@ public class PostSearchServiceTest {
 
 		verify(postSearchRepository, times(1)).searchByKeyword(eq(keyword), any(PageRequest.class));
 		verify(postRepository, times(1)).findAllById(anyList());
+	}
+
+	@Test
+	@DisplayName("검색어 자동완성")
+	void suggestKeyword() {
+		// given
+		String keyword = "맛";
+		List<String> suggestions = List.of("맛집", "맛있는", "맛있어요");
+		when(postSearchRepository.suggestKeyword(keyword)).thenReturn(suggestions);
+
+		// when
+		List<String> result = postSearchService.suggestKeyword(keyword);
+
+		// then
+		assertNotNull(result);
+		assertEquals(3, result.size());
+		assertTrue(result.contains("맛집"));
+		assertTrue(result.contains("맛있는"));
+		assertTrue(result.contains("맛있어요"));
+
+		// verify
+		verify(postSearchRepository, times(1)).suggestKeyword(keyword);
+	}
+
+	@Test
+	@DisplayName("자동완성 결과가 null -> 빈 리스트 반환")
+	void suggestKeyword_ifNull() {
+		// given
+		String keyword = "맛";
+		when(postSearchRepository.suggestKeyword(keyword)).thenReturn(null);
+
+		// when
+		List<String> result = postSearchService.suggestKeyword(keyword);
+
+		// then
+		assertNotNull(result);
+		assertTrue(result.isEmpty());
+
+		// verify
+		verify(postSearchRepository, times(1)).suggestKeyword(keyword);
 	}
 }

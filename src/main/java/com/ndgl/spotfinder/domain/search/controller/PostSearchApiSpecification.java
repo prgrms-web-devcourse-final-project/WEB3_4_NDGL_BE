@@ -1,5 +1,7 @@
 package com.ndgl.spotfinder.domain.search.controller;
 
+import java.util.List;
+
 import com.ndgl.spotfinder.domain.post.dto.PostResponseDto;
 import com.ndgl.spotfinder.global.common.dto.SliceRequest;
 import com.ndgl.spotfinder.global.common.dto.SliceResponse;
@@ -17,6 +19,14 @@ public interface PostSearchApiSpecification {
 	)
 	RsData<SliceResponse<PostResponseDto>> searchPosts(
 		SliceRequest sliceRequest,
+		@Parameter(description = "검색 키워드") String keyword
+	);
+
+	@Operation(
+		summary = "포스트 검색 자동완성",
+		description = "검색어 자동완성 리스트를 반환합니다."
+	)
+	RsData<List<String>> suggestKeyword(
 		@Parameter(description = "검색 키워드") String keyword
 	);
 }

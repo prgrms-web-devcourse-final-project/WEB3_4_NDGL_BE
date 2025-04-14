@@ -29,8 +29,12 @@ public enum ErrorCode {
 	POST_ACCESS_DENIED(HttpStatus.FORBIDDEN, "작성자만 수정 또는 삭제할 수 있습니다."),
 	POST_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 포스트입니다."),
 
+	// POST_COMMENT
 	COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "댓글이 존재하지 않습니다."),
+	COMMENT_DELETE_DENIED(HttpStatus.FORBIDDEN, "작성자만 삭제할 수 있습니다."),
+	COMMENT_MODIFY_DENIED(HttpStatus.FORBIDDEN, "작성자만 수정할 수 있습니다."),
 	NOT_FOUND_IN_POST(HttpStatus.BAD_REQUEST, "해당 포스트의 댓글이 아닙니다."),
+	PIN_DENIED(HttpStatus.FORBIDDEN, "포스트 작성자만 댓글을 고정할 수 있습니다."),
 
 	// LIKE
 	UNSUPPORTED_TARGET_TYPE(HttpStatus.NOT_FOUND, "지원하지 않는 타겟 유형입니다"),
@@ -76,6 +80,7 @@ public enum ErrorCode {
 	FOLLOWER_EQUALS_FOLLOWEE(HttpStatus.BAD_REQUEST, "자기 자신은 팔로우, 언팔로우할 수 없습니다."),
 
 	SEARCH_FAIL(HttpStatus.BAD_REQUEST, "엘라스틱서치 검색에 실패했습니다."),
+	KEYWORD_SUGGESTION_FAIL(HttpStatus.BAD_REQUEST, "엘라스틱서치 키워드 추천에 실패했습니다."),
 
 	VIEW_COUNT_KEY_EXTRACT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Redis Key 추출 중 에러가 발생했습니다.");
 
