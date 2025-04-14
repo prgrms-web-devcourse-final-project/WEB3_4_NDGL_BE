@@ -1,10 +1,11 @@
 package com.ndgl.spotfinder.domain.post.scheduler;
 
-import java.util.Map;
+import java.util.List;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import com.ndgl.spotfinder.domain.post.dto.PostViewCountDto;
 import com.ndgl.spotfinder.domain.post.service.PostViewCountService;
 
 import lombok.RequiredArgsConstructor;
@@ -18,7 +19,7 @@ public class PostViewSyncScheduler {
 
 	@Scheduled(fixedRate = POST_VIEW_COUNT_SYNC_PERIOD)
 	public void syncViews() {
-		Map<Long, Long> views = postViewCountService.collectPostViewCounts();
+		List<PostViewCountDto> views = postViewCountService.collectPostViewCounts();
 
 		if (!views.isEmpty()) {
 			postViewCountService.applyToDatabase(views);
