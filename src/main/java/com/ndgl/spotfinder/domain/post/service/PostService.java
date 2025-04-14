@@ -95,7 +95,7 @@ public class PostService {
 	public SliceResponse<PostResponseDto> getPosts(SliceRequest sliceRequest) {
 		PageRequest pageRequest = PageRequest.of(FIRST_PAGE_NUMBER, sliceRequest.size());
 		Long lastId = getLastPostId(sliceRequest);
-		Slice<Post> results = postRepository.findByIdLessThanOrderByCreatedAtDesc(lastId, pageRequest);
+		Slice<Post> results = postRepository.findByIdLessThanOrderByIdDesc(lastId, pageRequest);
 		return convertToSliceResponse(results);
 	}
 
@@ -105,7 +105,7 @@ public class PostService {
 		Long lastId = getLastPostId(sliceRequest);
 		User user = userService.findUserById(userId);
 
-		Slice<Post> results = postRepository.findByUserAndIdLessThanOrderByCreatedAtDesc(user, lastId, pageRequest);
+		Slice<Post> results = postRepository.findByUserAndIdLessThanOrderByIdDesc(user, lastId, pageRequest);
 
 		return convertToSliceResponse(results);
 	}
