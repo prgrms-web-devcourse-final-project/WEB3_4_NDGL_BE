@@ -15,6 +15,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ndgl.spotfinder.global.exception.CustomS3Exception;
 import com.ndgl.spotfinder.global.exception.ServiceException;
 import com.ndgl.spotfinder.global.logging.context.RequestLogContext;
 
@@ -48,6 +49,9 @@ public class ServiceExceptionLoggingAspect {
 		boolean isWarning = true;
 
 		if (ex instanceof ServiceException exception) {
+			statusCode = exception.getCode().value();
+			exceptionMessage = exception.getMessage();
+		} else if (ex instanceof CustomS3Exception exception) {
 			statusCode = exception.getCode().value();
 			exceptionMessage = exception.getMessage();
 		} else if (ex instanceof MethodArgumentNotValidException exception) {
