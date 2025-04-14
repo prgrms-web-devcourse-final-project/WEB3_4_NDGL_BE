@@ -52,7 +52,7 @@ public class ServiceExceptionLoggingAspect {
 			statusCode = exception.getCode().value();
 			exceptionMessage = exception.getMessage();
 		} else if (ex instanceof CustomS3Exception exception) {
-			statusCode = HttpStatus.BAD_REQUEST.value();
+			statusCode = exception.getCode().value();
 			exceptionMessage = exception.getMessage();
 		} else if (ex instanceof MethodArgumentNotValidException exception) {
 			statusCode = HttpStatus.BAD_REQUEST.value();
