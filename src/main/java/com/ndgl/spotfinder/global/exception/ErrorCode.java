@@ -82,7 +82,9 @@ public enum ErrorCode {
 	SEARCH_FAIL(HttpStatus.BAD_REQUEST, "엘라스틱서치 검색에 실패했습니다."),
 	KEYWORD_SUGGESTION_FAIL(HttpStatus.BAD_REQUEST, "엘라스틱서치 키워드 추천에 실패했습니다."),
 
-	VIEW_COUNT_KEY_EXTRACT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Redis Key 추출 중 에러가 발생했습니다.");
+	VIEW_COUNT_KEY_EXTRACT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Redis Key 추출 중 에러가 발생했습니다."),
+
+	JSON_PROCESSING_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "ObjectMapper 변환 도중 에러가 발생했습니다.");
 
 	private final HttpStatus httpStatus;
 	private final String message;
