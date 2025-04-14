@@ -59,6 +59,7 @@ public interface PostApiSpecification {
 
 	@Operation(
 		summary = "포스트 수정",
+		security = {@SecurityRequirement(name = "JWT")},
 		responses = {
 			@ApiResponse(responseCode = "200", description = "성공", content = @Content(
 				mediaType = "application/json",

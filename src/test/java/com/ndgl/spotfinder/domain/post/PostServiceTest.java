@@ -169,7 +169,7 @@ public class PostServiceTest {
 		when(postRepository.findById(1L)).thenReturn(Optional.of(samplePost));
 
 		// when
-		postService.updatePost(1L, requestDto, "이메일1", false);
+		postService.updatePost(1L, requestDto, "이메일1", PostStatus.PUBLIC);
 
 		// then
 		verify(postRepository, times(1)).save(any());
@@ -196,7 +196,7 @@ public class PostServiceTest {
 
 		// then
 		ServiceException exception = assertThrows(ServiceException.class,
-			() -> postService.updatePost(1L, any(PostUpdateRequestDto.class), "이메일1", false));
+			() -> postService.updatePost(1L, any(PostUpdateRequestDto.class), "이메일1", PostStatus.PUBLIC));
 		assertEquals(HttpStatus.NOT_FOUND, exception.getCode());
 	}
 
@@ -208,7 +208,7 @@ public class PostServiceTest {
 
 		// then
 		ServiceException exception = assertThrows(ServiceException.class,
-			() -> postService.updatePost(1L, any(PostUpdateRequestDto.class), "이메일2", false));
+			() -> postService.updatePost(1L, any(PostUpdateRequestDto.class), "이메일2", PostStatus.PUBLIC));
 		assertEquals(HttpStatus.FORBIDDEN, exception.getCode());
 	}
 
@@ -229,7 +229,7 @@ public class PostServiceTest {
 		when(postRepository.findById(1L)).thenReturn(Optional.of(samplePost));
 
 		// when
-		postService.updatePost(1L, requestDto, "이메일1", true);
+		postService.updatePost(1L, requestDto, "이메일1", PostStatus.TEMP);
 
 		// then
 		verify(postRepository, times(1)).save(any());
