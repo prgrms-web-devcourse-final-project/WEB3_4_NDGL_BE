@@ -17,6 +17,7 @@ import com.ndgl.spotfinder.domain.image.service.ImageService;
 import com.ndgl.spotfinder.domain.image.type.ImageUsage;
 import com.ndgl.spotfinder.domain.like.entity.Like;
 import com.ndgl.spotfinder.domain.like.service.LikeService;
+import com.ndgl.spotfinder.domain.popular.service.redis.RedisPopularService;
 import com.ndgl.spotfinder.domain.post.dto.PostCommonUpdateRequestDto;
 import com.ndgl.spotfinder.domain.post.dto.PostCreateRequestDto;
 import com.ndgl.spotfinder.domain.post.dto.PostDetailResponseDto;
@@ -43,6 +44,7 @@ public class PostService {
 	private final UserService userService;
 	private final ImageCleanupService imageCleanupService;
 	private final LikeService likeService;
+	private final RedisPopularService redisPopularService;
 
 	private static final int FIRST_PAGE_NUMBER = 0;
 	private static final Long DEFAULT_LAST_ID = 0L;
@@ -200,5 +202,9 @@ public class PostService {
 			urls.add(markdownMatcher.group(1));
 		}
 		return urls;
+	}
+
+	public List<PostResponseDto> getPopularPosts() {
+		return redisPopularService.getPopularPosts();
 	}
 }
