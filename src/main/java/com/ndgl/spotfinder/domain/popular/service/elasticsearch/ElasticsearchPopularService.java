@@ -11,6 +11,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.ndgl.spotfinder.domain.popular.constants.PopularConstants;
 import com.ndgl.spotfinder.domain.popular.dto.KeywordCountDto;
 import com.ndgl.spotfinder.domain.popular.dto.PostCountDto;
 import com.ndgl.spotfinder.global.app.AppConfig;
@@ -43,7 +44,7 @@ public class ElasticsearchPopularService {
 
 
 	// 인기 검색어 Top N 조회
-	public List<KeywordCountDto> findTopKeywords(long startTime, long endTime, int size) throws IOException {
+	public List<KeywordCountDto> findTopKeywords(long startTime, long endTime) throws IOException {
 		String[] indices = getIndicesForTimeRange(startTime, endTime, keywordSearchIndex);
 
 		for (String index : indices) {
@@ -66,7 +67,7 @@ public class ElasticsearchPopularService {
 				.aggregations("top_keywords", a -> a
 					.terms(t -> t
 						.field("keyword.joined")
-						.size(size)
+						.size(PopularConstants.KEYWORD_COUNT)
 					)
 				)
 				.size(0), // 집계 결과만 필요하므로 검색 결과는 불필요
@@ -86,7 +87,7 @@ public class ElasticsearchPopularService {
 	}
 
 	// 인기 포스트 Top N 조회
-	public List<PostCountDto> findTopPosts(long startTime, long endTime, int size) throws IOException {
+	public List<PostCountDto> findTopPosts(long startTime, long endTime) throws IOException {
 		String[] indices = getIndicesForTimeRange(startTime, endTime, postViewIndex);
 
 		for (String index : indices) {
@@ -109,7 +110,7 @@ public class ElasticsearchPopularService {
 				.aggregations("top_posts", a -> a
 					.terms(t -> t
 						.field("postId")
-						.size(size)
+						.size(PopularConstants.POST_COUNT)
 					)
 				)
 				.size(0), // 집계 결과만 필요하므로 검색 결과는 불필요
