@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -41,22 +42,38 @@ public interface UserApiSpecification {
 		HttpServletResponse response
 	);
 
-	@Operation(summary = "로그아웃", description = "로그아웃 처리 진행.")
+	@Operation(
+		summary = "로그아웃",
+		description = "로그아웃 처리 진행.",
+		security = {@SecurityRequirement(name = "JWT")}
+	)
 	@PostMapping("/logout")
 	RsData<Void> logout(@CookieValue(value = "accessToken", required = false) String accessToken,
 		HttpServletResponse response);
 
-	@Operation(summary = "마이페이지", description = "마이페이지를 열어 정보를 보여줌.")
+	@Operation(
+		summary = "마이페이지",
+		description = "마이페이지를 열어 정보를 보여줌.",
+		security = {@SecurityRequirement(name = "JWT")}
+	)
 	@GetMapping("/info")
 	RsData<UserInfoResponseDto> userInfo(@CookieValue("accessToken") String accessToken);
 
-	@Operation(summary = "유저 정보 수정", description = "마이페이지를 열어 정보를 보여줌.")
+	@Operation(
+		summary = "유저 정보 수정",
+		description = "마이페이지를 열어 정보를 보여줌.",
+		security = {@SecurityRequirement(name = "JWT")}
+	)
 	@PutMapping
 	RsData<UserModifiedResponseDto> update(
 		@RequestBody UserModifiedRequestDto request,
 		@CookieValue("accessToken") String accessToken);
 
-	@Operation(summary = "회원 탈퇴", description = "회원 탈퇴 처리.")
+	@Operation(
+		summary = "회원 탈퇴",
+		description = "회원 탈퇴 처리.",
+		security = {@SecurityRequirement(name = "JWT")}
+	)
 	@DeleteMapping("/resign")
 	RsData<UserResignedResponseDto> resign(
 		@CookieValue("accessToken") String accessToken,
