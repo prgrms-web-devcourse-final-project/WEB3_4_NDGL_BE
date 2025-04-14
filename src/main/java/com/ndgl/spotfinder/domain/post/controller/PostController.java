@@ -22,6 +22,7 @@ import com.ndgl.spotfinder.domain.post.dto.PostResponseDto;
 import com.ndgl.spotfinder.domain.post.dto.PostTempResponseDto;
 import com.ndgl.spotfinder.domain.post.dto.PostTempUpdateRequestDto;
 import com.ndgl.spotfinder.domain.post.dto.PostUpdateRequestDto;
+import com.ndgl.spotfinder.domain.post.entity.PostStatus;
 import com.ndgl.spotfinder.domain.post.service.PostService;
 import com.ndgl.spotfinder.global.common.dto.SliceRequest;
 import com.ndgl.spotfinder.global.common.dto.SliceResponse;
@@ -58,7 +59,7 @@ public class PostController implements PostApiSpecification {
 		@RequestBody @Valid PostTempUpdateRequestDto requestDto,
 		Principal principal
 	) {
-		postService.updatePost(id, requestDto, principal.getName(), true);
+		postService.updatePost(id, requestDto, principal.getName(), PostStatus.TEMP);
 
 		return RsData.success(HttpStatus.OK);
 	}
@@ -69,7 +70,7 @@ public class PostController implements PostApiSpecification {
 		@RequestBody @Valid PostUpdateRequestDto postUpdateRequestDto,
 		Principal principal
 	) {
-		postService.updatePost(id, postUpdateRequestDto, principal.getName(), false);
+		postService.updatePost(id, postUpdateRequestDto, principal.getName(), PostStatus.PUBLIC);
 
 		return RsData.success(HttpStatus.OK);
 	}

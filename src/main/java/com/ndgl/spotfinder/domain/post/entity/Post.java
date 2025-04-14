@@ -87,6 +87,7 @@ public class Post extends BaseTime implements Likeable {
 		return Post.builder()
 			.title("")
 			.content("")
+			.thumbnail("")
 			.status(PostStatus.TEMP)
 			.user(user)
 			.build();

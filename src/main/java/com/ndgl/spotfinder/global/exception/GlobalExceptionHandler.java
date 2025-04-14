@@ -18,6 +18,11 @@ import lombok.extern.slf4j.Slf4j;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+	@ExceptionHandler(CustomS3Exception.class)
+	public RsData<Void> handleServiceException(CustomS3Exception e) {
+		return new RsData<>(e.getCode().value(), e.getMessage(), null);
+	}
+
 	@ExceptionHandler(ServiceException.class)
 	public RsData<Void> handleServiceException(ServiceException e) {
 		return new RsData<>(e.getCode().value(), e.getMessage(), null);

@@ -73,11 +73,11 @@ public class PostService {
 	}
 
 	@Transactional
-	public void updatePost(Long id, PostCommonUpdateRequestDto requestDto, String email, boolean temp) {
+	public void updatePost(Long id, PostCommonUpdateRequestDto requestDto, String email, PostStatus postStatus) {
 		Post post = findPostById(id);
 
 		checkUserPermission(post, email);
-		postRepository.save(requestDto.toUpdatedPost(post, temp));
+		postRepository.save(requestDto.toUpdatedPost(post, postStatus));
 
 		cleanupImages(post);
 	}

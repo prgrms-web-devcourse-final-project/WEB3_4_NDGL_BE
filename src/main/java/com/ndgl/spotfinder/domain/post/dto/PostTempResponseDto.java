@@ -11,22 +11,22 @@ public record PostTempResponseDto(
 	@Schema(description = "ID", example = "1")
 	Long id,
 
-	@Schema(description = "제목", example = "맛있는 녀석들에 나온 맛집들")
+	@Schema(description = "제목", example = "")
 	String title,
 
-	@Schema(description = "내용", example = "TV 예능 맛있는 녀석들에 나온 맛집들입니다.")
+	@Schema(description = "내용", example = "")
 	String content,
 
-	@Schema(description = "썸네일 이미지 URL", example = "https://image.com/images/thumbnail1.jpg")
+	@Schema(description = "썸네일 이미지 URL", example = "")
 	String thumbnail,
 
-	@Schema(description = "해시태그 목록")
+	@Schema(description = "해시태그 목록", example = "[]")
 	List<HashtagDto> hashtags,
 
-	@Schema(description = "장소 목록")
+	@Schema(description = "장소 목록", example = "[]")
 	List<LocationDto> locations,
 
-	@Schema(description = "포스트 상태", example = "TEMP(임시글), PUBLIC(공개), BLIND(블라인드)")
+	@Schema(description = "포스트 상태", example = "TEMP(임시글)")
 	PostStatus status
 ) {
 

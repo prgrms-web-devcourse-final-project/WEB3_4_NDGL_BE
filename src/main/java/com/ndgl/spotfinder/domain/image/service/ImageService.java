@@ -46,13 +46,13 @@ public class ImageService {
 	 */
 	@Transactional
 	public void saveImages(UploadCompleteRequestDto rq) {
-		if (CommonUtil.list.hasValue(rq.imageUrl())) {
-			List<Image> images = rq.imageUrl().stream()
+		if (CommonUtil.list.hasValue(rq.imageUrls())) {
+			List<Image> images = rq.imageUrls().stream()
 				.map(url -> Image.builder()
 					.imageUsage(ImageUsage.POST)
 					.url(url)
 					.imageUsage(rq.imageUsage())
-					.referenceId(rq.id())
+					.referenceId(rq.referenceId())
 					.build())
 				.collect(Collectors.toList());
 
