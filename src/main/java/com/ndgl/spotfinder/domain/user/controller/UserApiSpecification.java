@@ -1,10 +1,6 @@
 package com.ndgl.spotfinder.domain.user.controller;
 
 import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -31,15 +27,13 @@ public interface UserApiSpecification {
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "OK")
 	})
-	@PostMapping("/join")
 	RsData<Void> join(@Valid @RequestBody UserJoinRequestDto userJoinRequestDTO);
 
 	@Operation(summary = "구글 로그인 처리", description = "구글 OAuth 인증 코드를 받아 사용자 인증을 수행합니다.")
-	@GetMapping("/google/login/process")
 	RsData<?> processGoogleLogin(
 		@Parameter(description = "f/e에서 전해주는 인증 코드") @RequestParam("code") String code,
 		@Parameter(description = "f/e에서 전해주는 redirect URI") @RequestParam("redirect_uri") String redirectUri,
-		HttpServletResponse response
+		@Parameter(hidden = true) HttpServletResponse response
 	);
 
 	@Operation(
@@ -47,16 +41,15 @@ public interface UserApiSpecification {
 		description = "로그아웃 처리 진행.",
 		security = {@SecurityRequirement(name = "JWT")}
 	)
-	@PostMapping("/logout")
-	RsData<Void> logout(@CookieValue(value = "accessToken", required = false) String accessToken,
-		HttpServletResponse response);
+	RsData<Void> logout(
+		@CookieValue(value = "accessToken", required = false) String accessToken,
+		@Parameter(hidden = true) HttpServletResponse response);
 
 	@Operation(
 		summary = "마이페이지",
 		description = "마이페이지를 열어 정보를 보여줌.",
 		security = {@SecurityRequirement(name = "JWT")}
 	)
-	@GetMapping("/info")
 	RsData<UserInfoResponseDto> userInfo(@CookieValue("accessToken") String accessToken);
 
 	@Operation(
@@ -64,7 +57,6 @@ public interface UserApiSpecification {
 		description = "마이페이지를 열어 정보를 보여줌.",
 		security = {@SecurityRequirement(name = "JWT")}
 	)
-	@PutMapping
 	RsData<UserModifiedResponseDto> update(
 		@RequestBody UserModifiedRequestDto request,
 		@CookieValue("accessToken") String accessToken);
@@ -74,8 +66,7 @@ public interface UserApiSpecification {
 		description = "회원 탈퇴 처리.",
 		security = {@SecurityRequirement(name = "JWT")}
 	)
-	@DeleteMapping("/resign")
 	RsData<UserResignedResponseDto> resign(
 		@CookieValue("accessToken") String accessToken,
-		HttpServletResponse response);
+		@Parameter(hidden = true) HttpServletResponse response);
 }
