@@ -18,6 +18,6 @@ public record BlogResponseDto(
 	Boolean isFollowed,
 
 	@Schema(description = "포스트 목록")
-	List<PostSummeryDto> posts
+	List<PostSummaryDto> posts
 ) {
 }
