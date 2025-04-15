@@ -39,7 +39,7 @@ import com.ndgl.spotfinder.global.elk.ElasticsearchHealthCheck;
 @ActiveProfiles("test")
 @SpringBootTest
 @ExtendWith(MockitoExtension.class)
-public class PostSearchServiceTest {
+class PostSearchServiceTest {
 	@Mock
 	private RedisTemplate<String, List<Long>> redisTemplate;
 
@@ -103,7 +103,7 @@ public class PostSearchServiceTest {
 
 	@Test
 	@DisplayName("JPA 기반 like 검색 - 공개 상태만 필터링")
-	void search_with_jpa() {
+	void searchWithJpa_success() {
 		// given
 		String keyword = "맛집";
 		Long lastId = Long.MAX_VALUE;
@@ -135,7 +135,7 @@ public class PostSearchServiceTest {
 
 	@Test
 	@DisplayName("Elasticsearch 기반 검색")
-	void search_with_elasticsearch() {
+	void searchWithElasticsearch_success() {
 		// given
 		String keyword = "여행";
 		Long lastId = 10L;
@@ -169,7 +169,7 @@ public class PostSearchServiceTest {
 
 	@Test
 	@DisplayName("검색어 자동완성")
-	void suggestKeyword() {
+	void suggestKeyword_success() {
 		// given
 		String keyword = "맛";
 		List<String> suggestions = List.of("맛집", "맛있는", "맛있어요");
@@ -191,7 +191,7 @@ public class PostSearchServiceTest {
 
 	@Test
 	@DisplayName("자동완성 결과가 null -> 빈 리스트 반환")
-	void suggestKeyword_ifNull() {
+	void suggestKeyword_ifNull_success() {
 		// given
 		String keyword = "맛";
 		when(postSearchRepository.suggestKeyword(keyword)).thenReturn(null);

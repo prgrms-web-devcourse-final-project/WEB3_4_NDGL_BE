@@ -37,7 +37,7 @@ import com.ndgl.spotfinder.global.exception.ServiceException;
 
 @SpringBootTest
 @ActiveProfiles("test")
-public class PostCommentServiceTest {
+class PostCommentServiceTest {
 	@InjectMocks
 	private PostCommentService postCommentService;
 
@@ -85,7 +85,7 @@ public class PostCommentServiceTest {
 
 	@Test
 	@DisplayName("댓글 작성")
-	void createComment() {
+	void createComment_success() {
 		// Given
 		Long postId = 1L;
 		String content = "댓글 3";
@@ -113,7 +113,7 @@ public class PostCommentServiceTest {
 
 	@Test
 	@DisplayName("댓글 수정")
-	void updateComment() {
+	void updateComment_success() {
 		// Given
 		Long postId = 1L;
 		Long commentId = 1L;
@@ -135,7 +135,7 @@ public class PostCommentServiceTest {
 
 	@Test
 	@DisplayName("존재하지 않는 댓글 수정")
-	void updateComment_notFound() {
+	void updateComment_notFound_fail() {
 		Long postId = 1L;
 		Long commentId = 10L;
 		String content = "수정된 댓글 10";
@@ -150,7 +150,7 @@ public class PostCommentServiceTest {
 
 	@Test
 	@DisplayName("댓글 삭제")
-	void deleteComment() {
+	void deleteComment_success() {
 		// Given
 		Long postId = 1L;
 		Long commentId = 1L;
@@ -169,7 +169,7 @@ public class PostCommentServiceTest {
 
 	@Test
 	@DisplayName("존재하지 않는 댓글 삭제")
-	void deleteComment_notFound() {
+	void deleteComment_notFound_fail() {
 		Long postId = 1L;
 		Long commentId = 10L;
 
@@ -183,7 +183,7 @@ public class PostCommentServiceTest {
 
 	@Test
 	@DisplayName("댓글 조회")
-	void getComment() {
+	void getComment_success() {
 		// Given
 		Long postId = 1L;
 		Long commentId = 1L;
@@ -201,7 +201,7 @@ public class PostCommentServiceTest {
 
 	@Test
 	@DisplayName("존재하지 않는 댓글 조회")
-	void getComment_notFound() {
+	void getComment_notFound_fail() {
 		// Given
 		Long postId = 1L;
 		Long commentId = 10L;
@@ -214,7 +214,7 @@ public class PostCommentServiceTest {
 
 	@Test
 	@DisplayName("포스트에 속하지 않는 댓글 조회")
-	void getComment_notInPost() {
+	void getComment_notInPost_fail() {
 		// Given
 		Long postId = 2L;
 		Long commentId = 1L;
@@ -260,7 +260,7 @@ public class PostCommentServiceTest {
 
 	@Test
 	@DisplayName("댓글 목록 조회 - 마지막 페이지")
-	void getComments_LastPage() {
+	void getComments_LastPage_success() {
 		// Given
 		Long postId = 1L;
 		long lastId = 1L;
@@ -290,7 +290,7 @@ public class PostCommentServiceTest {
 
 	@Test
 	@DisplayName("댓글 목록 조회 - 빈 리스트 반환")
-	void getComments_Empty() {
+	void getComments_Empty_success() {
 		// Given
 		Long postId = 1L;
 		long lastId = 10L;
@@ -316,7 +316,7 @@ public class PostCommentServiceTest {
 
 	@Test
 	@DisplayName("댓글 조회 - 비로그인 상태")
-	void getComment_WithoutLogin() {
+	void getComment_WithoutLogin_fail() {
 		// Given
 		Long postId = 1L;
 		Long commentId = 1L;
@@ -337,7 +337,7 @@ public class PostCommentServiceTest {
 
 	@Test
 	@DisplayName("댓글 목록 조회 - 좋아요 상태 확인")
-	void getComments_WithLikeStatus() {
+	void getComments_WithLikeStatus_success() {
 		// Given
 		Long postId = 1L;
 		long lastId = 0L;
@@ -395,7 +395,7 @@ public class PostCommentServiceTest {
 
 	@Test
 	@DisplayName("포스트 작성자가 아닌 유저가 댓글 고정")
-	void pinComment_unauthorized() {
+	void pinComment_unauthorized_fail() {
 		// Given
 		User otherUser = User.builder().id(2L).email("other@test.com").build();
 
@@ -410,7 +410,7 @@ public class PostCommentServiceTest {
 
 	@Test
 	@DisplayName("존재하지 않는 댓글 고정")
-	void pinComment_NotFound() {
+	void pinComment_NotFound_fail() {
 		// Given
 		Long invalidCommentId = 999L;
 
