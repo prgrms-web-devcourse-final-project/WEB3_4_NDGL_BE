@@ -14,7 +14,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
-import com.ndgl.spotfinder.domain.post.entity.PostStatus;
+import com.ndgl.spotfinder.domain.post.type.PostStatus;
 import com.ndgl.spotfinder.domain.search.document.PostDocument;
 import com.ndgl.spotfinder.global.exception.ErrorCode;
 

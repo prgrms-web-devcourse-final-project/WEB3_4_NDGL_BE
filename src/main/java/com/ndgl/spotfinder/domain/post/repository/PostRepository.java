@@ -12,7 +12,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.ndgl.spotfinder.domain.post.entity.Post;
-import com.ndgl.spotfinder.domain.post.entity.PostStatus;
+import com.ndgl.spotfinder.domain.post.type.PostStatus;
 import com.ndgl.spotfinder.domain.user.entity.User;
 
 public interface PostRepository extends JpaRepository<Post, Long> {

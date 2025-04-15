@@ -28,7 +28,8 @@ public class BlogController implements BlogApiSpecification {
 		@ModelAttribute @Valid SliceRequest sliceRequest,
 		Principal principal
 	) {
-		SliceResponse<BlogResponseDto> results = blogService.getBlogs(sliceRequest, principal.getName());
+		String email = (principal != null) ? principal.getName() : null;
+		SliceResponse<BlogResponseDto> results = blogService.getBlogs(sliceRequest, email);
 
 		return RsData.success(HttpStatus.OK, results);
 	}

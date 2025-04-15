@@ -3,7 +3,7 @@ package com.ndgl.spotfinder.domain.report.dto;
 import java.time.LocalDate;
 
 import com.ndgl.spotfinder.domain.report.entity.Ban;
-import com.ndgl.spotfinder.domain.report.entity.ReportType;
+import com.ndgl.spotfinder.domain.report.type.ReportType;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

@@ -108,13 +108,11 @@ public interface PostApiSpecification {
 
 	@Operation(
 		summary = "사용자가 작성한 포스트 목록 조회",
-		description = "요청한 사이즈만큼 최신순으로 조회",
-		security = {@SecurityRequirement(name = "JWT")}
+		description = "요청한 사이즈만큼 최신순으로 조회"
 	)
 	RsData<SliceResponse<PostResponseDto>> getPostsByUserId(
 		@Parameter(description = "사용자의 ID") Long userId,
-		SliceRequest sliceRequest,
-		@Parameter(hidden = true) Principal principal
+		SliceRequest sliceRequest
 	);
 
 	@Operation(

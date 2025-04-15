@@ -1,5 +1,6 @@
 package com.ndgl.spotfinder.domain.like.entity;
 
+import com.ndgl.spotfinder.domain.like.type.TargetType;
 import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.global.base.BaseTime;
 
@@ -49,10 +50,5 @@ public class Like extends BaseTime {
 	@Column(name = "target_type", nullable = false)
 	@Enumerated(EnumType.STRING)
 	private TargetType targetType;
-
-	public enum TargetType {
-		POST,      // 포스트
-		COMMENT,   // 댓글
-	}
 
 }

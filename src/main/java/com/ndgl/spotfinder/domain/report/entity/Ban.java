@@ -2,6 +2,8 @@ package com.ndgl.spotfinder.domain.report.entity;
 
 import java.time.LocalDate;
 
+import com.ndgl.spotfinder.domain.report.type.BanDuration;
+import com.ndgl.spotfinder.domain.report.type.ReportType;
 import com.ndgl.spotfinder.domain.user.entity.User;
 
 import jakarta.persistence.Column;
@@ -23,7 +25,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor
-@Table(name="ban", indexes = @Index(name = "idx_end_date", columnList = "end_date"))
+@Table(name = "ban", indexes = @Index(name = "idx_end_date", columnList = "end_date"))
 public class Ban {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -53,7 +55,7 @@ public class Ban {
 
 	public static LocalDate calculateEndDate(BanDuration banDuration) {
 		LocalDate now = LocalDate.now();
-		return switch(banDuration) {
+		return switch (banDuration) {
 			case ONE_DAY -> now.plusDays(1);
 			case ONE_WEEK -> now.plusWeeks(1);
 			case ONE_MONTH -> now.plusMonths(1);

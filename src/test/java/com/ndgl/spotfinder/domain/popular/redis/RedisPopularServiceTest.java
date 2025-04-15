@@ -29,8 +29,8 @@ import com.ndgl.spotfinder.domain.popular.dto.PostCountDto;
 import com.ndgl.spotfinder.domain.popular.service.redis.RedisPopularService;
 import com.ndgl.spotfinder.domain.post.dto.PostResponseDto;
 import com.ndgl.spotfinder.domain.post.entity.Post;
-import com.ndgl.spotfinder.domain.post.entity.PostStatus;
 import com.ndgl.spotfinder.domain.post.repository.PostRepository;
+import com.ndgl.spotfinder.domain.post.type.PostStatus;
 import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.global.exception.ErrorCode;
 import com.ndgl.spotfinder.global.exception.ServiceException;
@@ -65,7 +65,7 @@ class RedisPopularServiceTest {
 
 	@Test
 	@DisplayName("레디스 인기 검색어 갱신 - 정상")
-	void 정상_레디스_인기_검색어_갱신(){
+	void 정상_레디스_인기_검색어_갱신() {
 		// Given
 		List<KeywordCountDto> keywordCountDtos = List.of(
 			new KeywordCountDto("키워드1", 50L),
@@ -81,7 +81,7 @@ class RedisPopularServiceTest {
 
 	@Test
 	@DisplayName("레디스 인기 게시물 갱신 - 정상")
-	void 정상_레디스_인기_게시물_갱신() throws Exception{
+	void 정상_레디스_인기_게시물_갱신() throws Exception {
 		// Given
 		User user = mock(User.class);
 		when(user.getId()).thenReturn(1L);
@@ -154,7 +154,7 @@ class RedisPopularServiceTest {
 		assertThatThrownBy(() -> redisPopularService.getPopularKeywords())
 			.isInstanceOf(ServiceException.class)
 			.satisfies(exception -> {
-				ServiceException serviceException = (ServiceException) exception;
+				ServiceException serviceException = (ServiceException)exception;
 				assertThat(serviceException.getCode()).isEqualTo(HttpStatus.NOT_FOUND);
 				assertThat(serviceException.getMessage()).isEqualTo(ErrorCode.POPULAR_KEYWORD_NOT_FOUND.getMessage());
 			});
@@ -172,7 +172,7 @@ class RedisPopularServiceTest {
 		assertThatThrownBy(() -> redisPopularService.getPopularKeywords())
 			.isInstanceOf(ServiceException.class)
 			.satisfies(exception -> {
-				ServiceException serviceException = (ServiceException) exception;
+				ServiceException serviceException = (ServiceException)exception;
 				assertThat(serviceException.getCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
 				assertThat(serviceException.getMessage()).isEqualTo(ErrorCode.REDIS_INVALID_ZSET_TUPLE.getMessage());
 			});
@@ -217,7 +217,7 @@ class RedisPopularServiceTest {
 		mockSet.add(mockTypedTuple(postJson1, 100.0));
 		mockSet.add(mockTypedTuple(postJson2, 50.0));
 
-		when(zSetOps.reverseRangeWithScores(POPULAR_POSTS_KEY, 0, PopularConstants.POST_COUNT-1)).thenReturn(mockSet);
+		when(zSetOps.reverseRangeWithScores(POPULAR_POSTS_KEY, 0, PopularConstants.POST_COUNT - 1)).thenReturn(mockSet);
 		when(objectMapper.readValue(postJson1, PostResponseDto.class)).thenReturn(postDto1);
 		when(objectMapper.readValue(postJson2, PostResponseDto.class)).thenReturn(postDto2);
 
@@ -240,7 +240,7 @@ class RedisPopularServiceTest {
 		assertThatThrownBy(() -> redisPopularService.getPopularPosts())
 			.isInstanceOf(ServiceException.class)
 			.satisfies(exception -> {
-				ServiceException serviceException = (ServiceException) exception;
+				ServiceException serviceException = (ServiceException)exception;
 				assertThat(serviceException.getCode()).isEqualTo(HttpStatus.NOT_FOUND);
 				assertThat(serviceException.getMessage()).isEqualTo(ErrorCode.POPULAR_POST_NOT_FOUND.getMessage());
 			});
@@ -258,7 +258,7 @@ class RedisPopularServiceTest {
 		assertThatThrownBy(() -> redisPopularService.getPopularPosts())
 			.isInstanceOf(ServiceException.class)
 			.satisfies(exception -> {
-				ServiceException serviceException = (ServiceException) exception;
+				ServiceException serviceException = (ServiceException)exception;
 				assertThat(serviceException.getCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
 				assertThat(serviceException.getMessage()).isEqualTo(ErrorCode.REDIS_INVALID_ZSET_TUPLE.getMessage());
 			});
@@ -266,7 +266,7 @@ class RedisPopularServiceTest {
 
 	@Test
 	@DisplayName("Top N 인기 게시물 조회 - key 가 숫자가 아닌 Tuple")
-	void 비정상_Top_N개_인기_게시물_조회_숫자가_아닌_value_를_가진_튜플() throws Exception{
+	void 비정상_Top_N개_인기_게시물_조회_숫자가_아닌_value_를_가진_튜플() throws Exception {
 		Set<ZSetOperations.TypedTuple<String>> mockSet = new LinkedHashSet<>();
 		String invalidJson = "invalid";
 		mockSet.add(mockTypedTuple(invalidJson, 100.0));
@@ -279,7 +279,7 @@ class RedisPopularServiceTest {
 		assertThatThrownBy(() -> redisPopularService.getPopularPosts())
 			.isInstanceOf(ServiceException.class)
 			.satisfies(exception -> {
-				ServiceException serviceException = (ServiceException) exception;
+				ServiceException serviceException = (ServiceException)exception;
 				assertThat(serviceException.getCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
 				assertThat(serviceException.getMessage()).isEqualTo(ErrorCode.JSON_PROCESSING_EXCEPTION.getMessage());
 				assertThat(serviceException.getCause()).isInstanceOf(JsonProcessingException.class);
@@ -293,4 +293,3 @@ class RedisPopularServiceTest {
 		return tuple;
 	}
 }
-

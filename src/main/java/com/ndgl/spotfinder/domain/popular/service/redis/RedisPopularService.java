@@ -15,8 +15,8 @@ import com.ndgl.spotfinder.domain.popular.dto.KeywordCountDto;
 import com.ndgl.spotfinder.domain.popular.dto.PostCountDto;
 import com.ndgl.spotfinder.domain.post.dto.PostResponseDto;
 import com.ndgl.spotfinder.domain.post.entity.Post;
-import com.ndgl.spotfinder.domain.post.entity.PostStatus;
 import com.ndgl.spotfinder.domain.post.repository.PostRepository;
+import com.ndgl.spotfinder.domain.post.type.PostStatus;
 import com.ndgl.spotfinder.global.exception.ErrorCode;
 
 import lombok.RequiredArgsConstructor;
@@ -31,7 +31,6 @@ public class RedisPopularService {
 	private final RedisTemplate<String, String> redisTemplate;
 	private final ObjectMapper objectMapper;
 
-
 	private static final String POPULAR_KEYWORDS_KEY = "popular:keywords";
 	private static final String POPULAR_POSTS_KEY = "popular:posts";
 
@@ -41,7 +40,7 @@ public class RedisPopularService {
 
 		// 기존 ZSET 데이터 삭제
 		log.info("새로 발견된 인기 검색어 개수 : {}", keywordCounts.size());
-		if(!keywordCounts.isEmpty()) {
+		if (!keywordCounts.isEmpty()) {
 			log.info("기존 인기 검색어 삭제");
 			redisTemplate.delete(POPULAR_KEYWORDS_KEY);
 		}
@@ -63,7 +62,7 @@ public class RedisPopularService {
 
 			// 기존 ZSET 데이터 삭제
 			log.info("새로 발견된 인기 글 개수 : {}", postCounts.size());
-			if(!postCounts.isEmpty()) {
+			if (!postCounts.isEmpty()) {
 				log.info("기존 인기 글 삭제");
 				redisTemplate.delete(POPULAR_POSTS_KEY);
 			}
@@ -73,7 +72,7 @@ public class RedisPopularService {
 				Post post = postRepository.findById(postCount.postId())
 					.orElseThrow(ErrorCode.POST_NOT_FOUND::throwServiceException);
 
-				if(!post.getStatus().equals(PostStatus.PUBLIC))
+				if (!post.getStatus().equals(PostStatus.PUBLIC))
 					continue;
 
 				log.info("새 인기 글 : {} - {}회", post.getTitle(), postCount.count());
@@ -82,7 +81,7 @@ public class RedisPopularService {
 			}
 
 			log.info("Redis 인기 게시물 업데이트 완료: {} 개 게시물", postCounts.size());
-		} catch (JsonProcessingException e){
+		} catch (JsonProcessingException e) {
 			ErrorCode.JSON_PROCESSING_EXCEPTION.throwServiceException(e);
 		}
 	}
@@ -92,7 +91,8 @@ public class RedisPopularService {
 		ZSetOperations<String, String> zSetOps = redisTemplate.opsForZSet();
 
 		// ZSET에서 상위 N개 항목 조회 (내림차순, 0부터 N-1까지)
-		Set<ZSetOperations.TypedTuple<String>> keywordSet = zSetOps.reverseRangeWithScores(POPULAR_KEYWORDS_KEY, 0, PopularConstants.KEYWORD_COUNT-1);
+		Set<ZSetOperations.TypedTuple<String>> keywordSet = zSetOps.reverseRangeWithScores(POPULAR_KEYWORDS_KEY, 0,
+			PopularConstants.KEYWORD_COUNT - 1);
 
 		if (keywordSet == null || keywordSet.isEmpty()) {
 			ErrorCode.POPULAR_KEYWORD_NOT_FOUND.throwServiceException();
@@ -113,7 +113,8 @@ public class RedisPopularService {
 		ZSetOperations<String, String> zSetOps = redisTemplate.opsForZSet();
 
 		// ZSET에서 상위 N개 항목 조회 (내림차순, 0부터 N-1까지)
-		Set<ZSetOperations.TypedTuple<String>> postSet = zSetOps.reverseRangeWithScores(POPULAR_POSTS_KEY, 0, PopularConstants.POST_COUNT-1);
+		Set<ZSetOperations.TypedTuple<String>> postSet = zSetOps.reverseRangeWithScores(POPULAR_POSTS_KEY, 0,
+			PopularConstants.POST_COUNT - 1);
 
 		if (postSet == null || postSet.isEmpty()) {
 			ErrorCode.POPULAR_POST_NOT_FOUND.throwServiceException();
@@ -130,7 +131,7 @@ public class RedisPopularService {
 	}
 
 	private String toKeyword(ZSetOperations.TypedTuple<String> tuple) {
-		if(isInvalidTuple(tuple))
+		if (isInvalidTuple(tuple))
 			ErrorCode.REDIS_INVALID_ZSET_TUPLE.throwServiceException();
 
 		return tuple.getValue();
@@ -142,7 +143,7 @@ public class RedisPopularService {
 				ErrorCode.REDIS_INVALID_ZSET_TUPLE.throwServiceException();
 
 			return objectMapper.readValue(tuple.getValue(), PostResponseDto.class);
-		} catch(JsonProcessingException e) {
+		} catch (JsonProcessingException e) {
 			throw ErrorCode.JSON_PROCESSING_EXCEPTION.throwServiceException(e);
 		}
 	}

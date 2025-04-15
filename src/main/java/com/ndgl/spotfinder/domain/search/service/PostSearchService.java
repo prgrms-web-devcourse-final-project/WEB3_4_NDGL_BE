@@ -22,12 +22,12 @@ import org.springframework.transaction.annotation.Transactional;
 import com.ndgl.spotfinder.domain.popular.service.redis.RedisPopularService;
 import com.ndgl.spotfinder.domain.post.dto.PostResponseDto;
 import com.ndgl.spotfinder.domain.post.entity.Post;
-import com.ndgl.spotfinder.domain.post.entity.PostStatus;
 import com.ndgl.spotfinder.domain.post.repository.PostRepository;
 import com.ndgl.spotfinder.domain.post.service.PostService;
+import com.ndgl.spotfinder.domain.post.type.PostStatus;
 import com.ndgl.spotfinder.domain.search.document.PostDocument;
-import com.ndgl.spotfinder.domain.search.document.SearchType;
 import com.ndgl.spotfinder.domain.search.repository.PostSearchRepository;
+import com.ndgl.spotfinder.domain.search.type.SearchType;
 import com.ndgl.spotfinder.global.common.dto.SliceRequest;
 import com.ndgl.spotfinder.global.common.dto.SliceResponse;
 import com.ndgl.spotfinder.global.elk.ElasticsearchHealthCheck;
@@ -95,7 +95,7 @@ public class PostSearchService {
 		}
 
 		return cached.stream()
-			.map(id -> ((Number) id).longValue())
+			.map(id -> ((Number)id).longValue())
 			.toList();
 	}
 

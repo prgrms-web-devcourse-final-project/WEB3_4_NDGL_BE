@@ -23,22 +23,22 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 
 import com.ndgl.spotfinder.domain.comment.entity.PostComment;
-import com.ndgl.spotfinder.domain.comment.entity.PostCommentStatus;
 import com.ndgl.spotfinder.domain.comment.service.PostCommentService;
+import com.ndgl.spotfinder.domain.comment.type.PostCommentStatus;
 import com.ndgl.spotfinder.domain.post.entity.Post;
 import com.ndgl.spotfinder.domain.post.service.PostService;
 import com.ndgl.spotfinder.domain.report.dto.PostCommentReportResponseDto;
 import com.ndgl.spotfinder.domain.report.dto.PostReportResponseDto;
 import com.ndgl.spotfinder.domain.report.dto.ReportCreateRequestDto;
 import com.ndgl.spotfinder.domain.report.entity.Ban;
-import com.ndgl.spotfinder.domain.report.entity.BanDuration;
 import com.ndgl.spotfinder.domain.report.entity.PostCommentReport;
 import com.ndgl.spotfinder.domain.report.entity.PostReport;
-import com.ndgl.spotfinder.domain.report.entity.ReportStatus;
-import com.ndgl.spotfinder.domain.report.entity.ReportType;
 import com.ndgl.spotfinder.domain.report.repository.BanRepository;
 import com.ndgl.spotfinder.domain.report.repository.PostCommentReportRepository;
 import com.ndgl.spotfinder.domain.report.repository.PostReportRepository;
+import com.ndgl.spotfinder.domain.report.type.BanDuration;
+import com.ndgl.spotfinder.domain.report.type.ReportStatus;
+import com.ndgl.spotfinder.domain.report.type.ReportType;
 import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.domain.user.service.UserService;
 import com.ndgl.spotfinder.global.common.dto.SliceResponse;
@@ -72,7 +72,6 @@ public class ReportServiceTest {
 
 	@InjectMocks
 	private ReportService reportService;
-
 
 	@Test
 	@DisplayName("포스트 신고 - 정상")
@@ -128,13 +127,14 @@ public class ReportServiceTest {
 		ReportCreateRequestDto request = new ReportCreateRequestDto(ReportType.SPAM, "SPAM");
 
 		when(userService.findUserByEmail(invalidReporterEmail))
-			.thenThrow(new ServiceException(ErrorCode.REPORTER_NOT_FOUND.getHttpStatus(), ErrorCode.REPORTER_NOT_FOUND.getMessage()));
+			.thenThrow(new ServiceException(ErrorCode.REPORTER_NOT_FOUND.getHttpStatus(),
+				ErrorCode.REPORTER_NOT_FOUND.getMessage()));
 
 		// When & Then
 		assertThatThrownBy(() -> reportService.createPostReport(request, invalidReporterEmail, postId))
 			.isInstanceOf(ServiceException.class)
 			.satisfies(exception -> {
-				ServiceException serviceException = (ServiceException) exception;
+				ServiceException serviceException = (ServiceException)exception;
 				assertThat(serviceException.getCode()).isEqualTo(HttpStatus.NOT_FOUND);
 				assertThat(serviceException.getMessage()).isEqualTo(ErrorCode.REPORTER_NOT_FOUND.getMessage());
 			});
@@ -151,13 +151,14 @@ public class ReportServiceTest {
 		User reporter = User.builder().build();
 		when(userService.findUserByEmail(reporterEmail)).thenReturn(reporter);
 		when(postService.findPostById(invalidPostId))
-			.thenThrow(new ServiceException(ErrorCode.REPORTED_POST_NOT_FOUND.getHttpStatus(), ErrorCode.REPORTED_POST_NOT_FOUND.getMessage()));
+			.thenThrow(new ServiceException(ErrorCode.REPORTED_POST_NOT_FOUND.getHttpStatus(),
+				ErrorCode.REPORTED_POST_NOT_FOUND.getMessage()));
 
 		// When & Then
 		assertThatThrownBy(() -> reportService.createPostReport(request, reporterEmail, invalidPostId))
 			.isInstanceOf(ServiceException.class)
 			.satisfies(exception -> {
-				ServiceException serviceException = (ServiceException) exception;
+				ServiceException serviceException = (ServiceException)exception;
 				assertThat(serviceException.getCode()).isEqualTo(HttpStatus.NOT_FOUND);
 				assertThat(serviceException.getMessage()).isEqualTo(ErrorCode.REPORTED_POST_NOT_FOUND.getMessage());
 			});
@@ -217,13 +218,14 @@ public class ReportServiceTest {
 		ReportCreateRequestDto request = new ReportCreateRequestDto(ReportType.SPAM, "SPAM");
 
 		when(userService.findUserByEmail(invalidReporterEmail))
-			.thenThrow(new ServiceException(ErrorCode.REPORTER_NOT_FOUND.getHttpStatus(), ErrorCode.REPORTER_NOT_FOUND.getMessage()));
+			.thenThrow(new ServiceException(ErrorCode.REPORTER_NOT_FOUND.getHttpStatus(),
+				ErrorCode.REPORTER_NOT_FOUND.getMessage()));
 
 		// When & Then
 		assertThatThrownBy(() -> reportService.createPostCommentReport(request, invalidReporterEmail, postCommentId))
 			.isInstanceOf(ServiceException.class)
 			.satisfies(exception -> {
-				ServiceException serviceException = (ServiceException) exception;
+				ServiceException serviceException = (ServiceException)exception;
 				assertThat(serviceException.getCode()).isEqualTo(HttpStatus.NOT_FOUND);
 				assertThat(serviceException.getMessage()).isEqualTo(ErrorCode.REPORTER_NOT_FOUND.getMessage());
 			});
@@ -240,13 +242,14 @@ public class ReportServiceTest {
 		User reporter = User.builder().build();
 		when(userService.findUserByEmail(reporterEmail)).thenReturn(reporter);
 		when(postCommentService.findCommentById(invalidPostCommentId))
-			.thenThrow(new ServiceException(ErrorCode.REPORTED_COMMENT_NOT_FOUND.getHttpStatus(), ErrorCode.REPORTED_COMMENT_NOT_FOUND.getMessage()));
+			.thenThrow(new ServiceException(ErrorCode.REPORTED_COMMENT_NOT_FOUND.getHttpStatus(),
+				ErrorCode.REPORTED_COMMENT_NOT_FOUND.getMessage()));
 
 		// When & Then
 		assertThatThrownBy(() -> reportService.createPostCommentReport(request, reporterEmail, invalidPostCommentId))
 			.isInstanceOf(ServiceException.class)
 			.satisfies(exception -> {
-				ServiceException serviceException = (ServiceException) exception;
+				ServiceException serviceException = (ServiceException)exception;
 				assertThat(serviceException.getCode()).isEqualTo(HttpStatus.NOT_FOUND);
 				assertThat(serviceException.getMessage()).isEqualTo(ErrorCode.REPORTED_COMMENT_NOT_FOUND.getMessage());
 			});
@@ -385,7 +388,7 @@ public class ReportServiceTest {
 		assertThatThrownBy(() -> reportService.banUserDueToPost(reportId, duration))
 			.isInstanceOf(ServiceException.class)
 			.satisfies(exception -> {
-				ServiceException serviceException = (ServiceException) exception;
+				ServiceException serviceException = (ServiceException)exception;
 				assertThat(serviceException.getCode()).isEqualTo(HttpStatus.BAD_REQUEST);
 				assertThat(serviceException.getMessage()).isEqualTo(ErrorCode.INVALID_BAN_DURATION.getMessage());
 			});
@@ -399,13 +402,14 @@ public class ReportServiceTest {
 		String duration = "30일";
 
 		when(postReportRepository.findById(invalidReportId))
-			.thenThrow(new ServiceException(ErrorCode.POST_REPORT_NOT_FOUND.getHttpStatus(), ErrorCode.POST_REPORT_NOT_FOUND.getMessage()));
+			.thenThrow(new ServiceException(ErrorCode.POST_REPORT_NOT_FOUND.getHttpStatus(),
+				ErrorCode.POST_REPORT_NOT_FOUND.getMessage()));
 
 		// When
 		assertThatThrownBy(() -> reportService.banUserDueToPost(invalidReportId, duration))
 			.isInstanceOf(ServiceException.class)
 			.satisfies(exception -> {
-				ServiceException serviceException = (ServiceException) exception;
+				ServiceException serviceException = (ServiceException)exception;
 				assertThat(serviceException.getCode()).isEqualTo(HttpStatus.NOT_FOUND);
 				assertThat(serviceException.getMessage()).isEqualTo(ErrorCode.POST_REPORT_NOT_FOUND.getMessage());
 			});
@@ -466,7 +470,7 @@ public class ReportServiceTest {
 		assertThatThrownBy(() -> reportService.banUserDueToPostComment(reportId, duration))
 			.isInstanceOf(ServiceException.class)
 			.satisfies(exception -> {
-				ServiceException serviceException = (ServiceException) exception;
+				ServiceException serviceException = (ServiceException)exception;
 				assertThat(serviceException.getCode()).isEqualTo(HttpStatus.BAD_REQUEST);
 				assertThat(serviceException.getMessage()).isEqualTo(ErrorCode.INVALID_BAN_DURATION.getMessage());
 			});
@@ -480,13 +484,14 @@ public class ReportServiceTest {
 		String duration = "30일";
 
 		when(postCommentReportRepository.findById(invalidReportId))
-			.thenThrow(new ServiceException(ErrorCode.COMMENT_REPORT_NOT_FOUND.getHttpStatus(), ErrorCode.COMMENT_REPORT_NOT_FOUND.getMessage()));
+			.thenThrow(new ServiceException(ErrorCode.COMMENT_REPORT_NOT_FOUND.getHttpStatus(),
+				ErrorCode.COMMENT_REPORT_NOT_FOUND.getMessage()));
 
 		// When
 		assertThatThrownBy(() -> reportService.banUserDueToPostComment(invalidReportId, duration))
 			.isInstanceOf(ServiceException.class)
 			.satisfies(exception -> {
-				ServiceException serviceException = (ServiceException) exception;
+				ServiceException serviceException = (ServiceException)exception;
 				assertThat(serviceException.getCode()).isEqualTo(HttpStatus.NOT_FOUND);
 				assertThat(serviceException.getMessage()).isEqualTo(ErrorCode.COMMENT_REPORT_NOT_FOUND.getMessage());
 			});
@@ -515,13 +520,14 @@ public class ReportServiceTest {
 		long reportId = -1L;
 
 		when(postReportRepository.findById(reportId))
-			.thenThrow(new ServiceException(ErrorCode.POST_REPORT_NOT_FOUND.getHttpStatus(), ErrorCode.POST_REPORT_NOT_FOUND.getMessage()));
+			.thenThrow(new ServiceException(ErrorCode.POST_REPORT_NOT_FOUND.getHttpStatus(),
+				ErrorCode.POST_REPORT_NOT_FOUND.getMessage()));
 
 		// When, Then
 		assertThatThrownBy(() -> reportService.rejectPostReport(reportId))
 			.isInstanceOf(ServiceException.class)
 			.satisfies(exception -> {
-				ServiceException serviceException = (ServiceException) exception;
+				ServiceException serviceException = (ServiceException)exception;
 				assertThat(serviceException.getCode()).isEqualTo(HttpStatus.NOT_FOUND);
 				assertThat(serviceException.getMessage()).isEqualTo(ErrorCode.POST_REPORT_NOT_FOUND.getMessage());
 			});
@@ -550,13 +556,14 @@ public class ReportServiceTest {
 		long reportId = -1L;
 
 		when(postCommentReportRepository.findById(reportId))
-			.thenThrow(new ServiceException(ErrorCode.COMMENT_REPORT_NOT_FOUND.getHttpStatus(), ErrorCode.COMMENT_REPORT_NOT_FOUND.getMessage()));
+			.thenThrow(new ServiceException(ErrorCode.COMMENT_REPORT_NOT_FOUND.getHttpStatus(),
+				ErrorCode.COMMENT_REPORT_NOT_FOUND.getMessage()));
 
 		// When, Then
 		assertThatThrownBy(() -> reportService.rejectPostCommentReport(reportId))
 			.isInstanceOf(ServiceException.class)
 			.satisfies(exception -> {
-				ServiceException serviceException = (ServiceException) exception;
+				ServiceException serviceException = (ServiceException)exception;
 				assertThat(serviceException.getCode()).isEqualTo(HttpStatus.NOT_FOUND);
 				assertThat(serviceException.getMessage()).isEqualTo(ErrorCode.COMMENT_REPORT_NOT_FOUND.getMessage());
 			});

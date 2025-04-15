@@ -15,10 +15,10 @@ import org.springframework.transaction.annotation.Transactional;
 import com.ndgl.spotfinder.domain.comment.dto.PostCommentRequestDto;
 import com.ndgl.spotfinder.domain.comment.dto.PostCommentResponseDto;
 import com.ndgl.spotfinder.domain.comment.entity.PostComment;
-import com.ndgl.spotfinder.domain.comment.entity.PostCommentStatus;
 import com.ndgl.spotfinder.domain.comment.repository.PostCommentRepository;
-import com.ndgl.spotfinder.domain.like.entity.Like;
+import com.ndgl.spotfinder.domain.comment.type.PostCommentStatus;
 import com.ndgl.spotfinder.domain.like.service.LikeService;
+import com.ndgl.spotfinder.domain.like.type.TargetType;
 import com.ndgl.spotfinder.domain.post.entity.Post;
 import com.ndgl.spotfinder.domain.post.service.PostService;
 import com.ndgl.spotfinder.domain.user.entity.User;
@@ -99,7 +99,7 @@ public class PostCommentService {
 
 		comment.setPinned(false); // 댓글 고정 해제
 		comment.setStatus(PostCommentStatus.DELETED);
-		likeService.deleteAllLikes(commentId, Like.TargetType.COMMENT);
+		likeService.deleteAllLikes(commentId, TargetType.COMMENT);
 	}
 
 	@Transactional
@@ -115,7 +115,7 @@ public class PostCommentService {
 	private SliceResponse<PostCommentResponseDto> convertToSliceResponse(long userId, Slice<PostComment> results) {
 		List<Long> allCommentIds = collectAllCommentIds(results.getContent());
 		Map<Long, Boolean> likeStatusMap = likeService.getAllLikeStatus(
-			userId, allCommentIds, Like.TargetType.COMMENT);
+			userId, allCommentIds, TargetType.COMMENT);
 
 		return new SliceResponse<>(
 			results.map(comment -> createResponseWithLikeStatusMap(comment, likeStatusMap)).toList(),
@@ -174,7 +174,7 @@ public class PostCommentService {
 
 		// 고정 권한 체크 (작성자만 가능)
 		if (!post.getUser().getId().equals(user.getId())) {
-			ErrorCode.PIN_DENIED.throwServiceException();
+			ErrorCode.COMMENT_PIN_DENIED.throwServiceException();
 		}
 
 		PostComment targetComment = findCommentById(commentId);

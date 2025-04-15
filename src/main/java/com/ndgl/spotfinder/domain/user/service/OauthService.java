@@ -14,10 +14,10 @@ import com.ndgl.spotfinder.domain.user.dto.GoogleTokenResponseDto;
 import com.ndgl.spotfinder.domain.user.dto.RestClientDto;
 import com.ndgl.spotfinder.domain.user.dto.UserLoginResponseDto;
 import com.ndgl.spotfinder.domain.user.entity.Oauth;
-import com.ndgl.spotfinder.domain.user.entity.Provider;
 import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.domain.user.repository.OauthRepository;
 import com.ndgl.spotfinder.domain.user.repository.UserRepository;
+import com.ndgl.spotfinder.domain.user.type.Provider;
 import com.ndgl.spotfinder.global.exception.ServiceException;
 import com.ndgl.spotfinder.global.security.jwt.CustomUserDetails;
 import com.ndgl.spotfinder.global.security.jwt.TokenProvider;
@@ -54,7 +54,7 @@ public class OauthService {
 		String code,
 		String redirectUri,
 		HttpServletResponse response) {
-	
+
 		// 1. 토큰 발급 : 구글
 		GoogleTokenResponseDto googleToken = googleAuthClient.fetchToken(code, redirectUri);
 

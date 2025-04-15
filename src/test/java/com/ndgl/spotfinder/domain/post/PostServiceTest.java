@@ -21,8 +21,8 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import com.ndgl.spotfinder.domain.image.service.ImageCleanupService;
 import com.ndgl.spotfinder.domain.image.service.ImageService;
-import com.ndgl.spotfinder.domain.like.entity.Like;
 import com.ndgl.spotfinder.domain.like.service.LikeService;
+import com.ndgl.spotfinder.domain.like.type.TargetType;
 import com.ndgl.spotfinder.domain.post.dto.HashtagDto;
 import com.ndgl.spotfinder.domain.post.dto.LocationDto;
 import com.ndgl.spotfinder.domain.post.dto.PostCreateRequestDto;
@@ -32,9 +32,9 @@ import com.ndgl.spotfinder.domain.post.dto.PostUpdateRequestDto;
 import com.ndgl.spotfinder.domain.post.entity.Hashtag;
 import com.ndgl.spotfinder.domain.post.entity.Location;
 import com.ndgl.spotfinder.domain.post.entity.Post;
-import com.ndgl.spotfinder.domain.post.entity.PostStatus;
 import com.ndgl.spotfinder.domain.post.repository.PostRepository;
 import com.ndgl.spotfinder.domain.post.service.PostService;
+import com.ndgl.spotfinder.domain.post.type.PostStatus;
 import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.domain.user.service.UserService;
 import com.ndgl.spotfinder.global.exception.ErrorCode;
@@ -343,7 +343,7 @@ public class PostServiceTest {
 		// given
 		when(postRepository.findById(1L)).thenReturn(Optional.of(samplePost));
 		when(userService.findUserByEmail(user1.getEmail())).thenReturn(user1);
-		when(likeService.getLikeStatus(user1.getId(), 1L, Like.TargetType.POST)).thenReturn(true);
+		when(likeService.getLikeStatus(user1.getId(), 1L, TargetType.POST)).thenReturn(true);
 
 		// when
 		PostDetailResponseDto dto = postService.getPost(user1.getEmail(), 1L);
@@ -377,7 +377,7 @@ public class PostServiceTest {
 		// given
 		when(postRepository.findById(1L)).thenReturn(Optional.of(samplePost));
 		when(userService.findUserByEmail(user1.getEmail())).thenReturn(user1);
-		when(likeService.getLikeStatus(user1.getId(), 1L, Like.TargetType.POST)).thenReturn(false);
+		when(likeService.getLikeStatus(user1.getId(), 1L, TargetType.POST)).thenReturn(false);
 
 		// when
 		PostDetailResponseDto dto = postService.getPost(user1.getEmail(), 1L);

@@ -17,8 +17,8 @@ import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ndgl.spotfinder.domain.user.dto.UserJoinRequestDto;
-import com.ndgl.spotfinder.domain.user.entity.Provider;
 import com.ndgl.spotfinder.domain.user.service.OauthService;
+import com.ndgl.spotfinder.domain.user.type.Provider;
 
 @SpringBootTest
 @AutoConfigureMockMvc

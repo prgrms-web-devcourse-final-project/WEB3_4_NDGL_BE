@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import com.ndgl.spotfinder.domain.comment.type.PostCommentStatus;
 import com.ndgl.spotfinder.domain.like.entity.Likeable;
 import com.ndgl.spotfinder.domain.post.entity.Post;
 import com.ndgl.spotfinder.domain.user.entity.User;
@@ -81,7 +82,7 @@ public class PostComment extends BaseTime implements Likeable {
 
 	public void isCommentOfPost(Long postId) {
 		if (!this.post.getId().equals(postId)) {
-			ErrorCode.NOT_FOUND_IN_POST.throwServiceException();
+			ErrorCode.COMMENT_NOT_FOUND_IN_POST.throwServiceException();
 		}
 	}
 

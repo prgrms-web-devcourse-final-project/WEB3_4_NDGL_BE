@@ -1,7 +1,5 @@
 package com.ndgl.spotfinder.domain.like.repository;
 
-import static com.ndgl.spotfinder.domain.like.entity.Like.*;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -9,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.ndgl.spotfinder.domain.like.entity.Like;
+import com.ndgl.spotfinder.domain.like.type.TargetType;
 
 @Repository
 public interface LikeRepository extends JpaRepository<Like, Long> {
