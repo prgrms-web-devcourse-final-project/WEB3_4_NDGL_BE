@@ -32,13 +32,13 @@ class AdminServiceTest {
 	@InjectMocks
 	private AdminService adminService;
 
-	private final String USERNAME = "testAdmin";
-	private final String PASSWORD = "password123";
-	private final String ENCODED_PASSWORD = "encodedPassword123";
+	private static final String USERNAME = "testAdmin";
+	private static final String PASSWORD = "password123";
+	private static final String ENCODED_PASSWORD = "encodedPassword123";
 
 	@Test
 	@DisplayName("관리자 회원가입 - 정상")
-	void 정상_관리자_회원가입() {
+	void joinAdmin_success() {
 		// given
 
 		AdminCreateRequestDto adminCreateRequestDto = new AdminCreateRequestDto(USERNAME, PASSWORD);
@@ -63,7 +63,7 @@ class AdminServiceTest {
 
 	@Test
 	@DisplayName("관리자 회원가입 - username 중복")
-	void 비정상_관리자_회원가입_username_중복() {
+	void joinAdmin_duplicate_username_fail() {
 		// given
 		AdminCreateRequestDto duplicateRequest = new AdminCreateRequestDto(USERNAME, PASSWORD);
 		when(adminRepository.existsAdminByUsername(anyString())).thenReturn(true);
@@ -79,7 +79,7 @@ class AdminServiceTest {
 
 	@Test
 	@DisplayName("관리자 계정 탈퇴 - 정상")
-	void 정상_관리자_탈퇴() {
+	void resignAdmin_success() {
 		// given
 		Admin admin = Admin.builder()
 			.username(USERNAME)
@@ -97,7 +97,7 @@ class AdminServiceTest {
 
 	@Test
 	@DisplayName("관리자 계정 탈퇴 - 관리자 존재 X")
-	void 비정상_관리자_탈퇴_관리자_존재_X() {
+	void resignAdmin_not_found_fail() {
 		// given
 		when(adminRepository.findByUsername(anyString())).thenReturn(Optional.empty());
 
@@ -112,7 +112,7 @@ class AdminServiceTest {
 
 	@Test
 	@DisplayName("username 로 관리자 찾기 - 정상")
-	void 정상_username으로_관리자_찾기() {
+	void findAdminByUsername_success() {
 		// given
 		Admin admin = Admin.builder()
 			.username(USERNAME)
@@ -133,7 +133,7 @@ class AdminServiceTest {
 
 	@Test
 	@DisplayName("username 로 관리자 찾기 - 관리자 존재 X")
-	void 비정상_username으로_관리자_찾기_관리자_존재_X() {
+	void findAdminByUsername_not_found_fail() {
 		// given
 		when(adminRepository.findByUsername(anyString())).thenReturn(Optional.empty());
 

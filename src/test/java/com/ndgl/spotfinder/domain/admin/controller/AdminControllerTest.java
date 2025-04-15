@@ -80,7 +80,7 @@ class AdminControllerTest {
 
 	@Test
 	@DisplayName("관리자 생성 - 정상")
-	void 정상_관리자_생성() throws Exception {
+	void joinAdmin_success() throws Exception {
 
 		String username = "admin1";
 		String password = "admin123";
@@ -111,7 +111,7 @@ class AdminControllerTest {
 
 	@Test
 	@DisplayName("관리자 생성 - username 중복")
-	void 비정상_관리자_생성_username_중복() throws Exception {
+	void joinAdmin_duplicate_username_fail() throws Exception {
 
 		String username = "admin";
 		String password = "admin123";
@@ -134,7 +134,7 @@ class AdminControllerTest {
 
 	@Test
 	@DisplayName("관리자 생성 - 비정상 username (4자 미만")
-	void 비정상_관리자_생성_비정상_username_4자_미만() throws Exception {
+	void joinAdmin_invalid_username_fail() throws Exception {
 
 		String invalidUsername = "ad1";
 		String password = "admin123";
@@ -156,7 +156,7 @@ class AdminControllerTest {
 
 	@Test
 	@DisplayName("관리자 생성 - username 데이터 누락")
-	void 비정상_관리자_생성_username_데이터_누락() throws Exception {
+	void joinAdmin_missing_username_fail() throws Exception {
 
 		ResultActions resultActions = mvc.perform(
 			post("/api/v1/admin/join")
@@ -178,7 +178,7 @@ class AdminControllerTest {
 
 	@Test
 	@DisplayName("관리자 생성 - 비정상 password (4자 미만")
-	void 비정상_관리자_생성_비정상_password_4자_미만() throws Exception {
+	void joinAdmin_invalid_password_fail() throws Exception {
 
 		String username = "admin1";
 		String invalidPassword = "ad1";
@@ -200,7 +200,7 @@ class AdminControllerTest {
 
 	@Test
 	@DisplayName("관리자 생성 - password 데이터 누락")
-	void 비정상_관리자_생성_password_데이터_누락() throws Exception {
+	void joinAdmin_missing_password_fail() throws Exception {
 
 		ResultActions resultActions = mvc.perform(
 			post("/api/v1/admin/join")
@@ -222,7 +222,7 @@ class AdminControllerTest {
 
 	@Test
 	@DisplayName("관리자 로그인 - 정상")
-	void 정상_관리자_로그인() throws Exception {
+	void loginAdmin_success() throws Exception {
 
 		String username = "admin";
 		String password = "12345";
@@ -240,7 +240,7 @@ class AdminControllerTest {
 
 	@Test
 	@DisplayName("관리자 로그인 - 비정상 username")
-	void 비정상_관리자_로그인_비정상_username() throws Exception {
+	void loginAdmin_invalid_username_fail() throws Exception {
 
 		String username = "invalid";
 		String password = "12345";
@@ -258,7 +258,7 @@ class AdminControllerTest {
 
 	@Test
 	@DisplayName("관리자 로그인 - 비정상 password")
-	void 비정상_관리자_로그인_비정상_password() throws Exception {
+	void loginAdmin_invalid_password_fail() throws Exception {
 
 		String username = "admin";
 		String password = "invalid";
@@ -276,7 +276,7 @@ class AdminControllerTest {
 
 	@Test
 	@DisplayName("관리자 체크 - 정상")
-	void 정상_관리자_체크() throws Exception {
+	void checkAdmin_success() throws Exception {
 
 		setUpAdminAuth("admin");
 
@@ -289,7 +289,7 @@ class AdminControllerTest {
 
 	@Test
 	@DisplayName("관리자 체크 - 권한 X")
-	void 비정상_관리자_체크_권한_X() throws Exception {
+	void checkAdmin_not_authorized_fail() throws Exception {
 
 		setUpUserAuth(1L);
 
@@ -304,7 +304,7 @@ class AdminControllerTest {
 
 	@Test
 	@DisplayName("관리자 체크 - 인증 X")
-	void 비정상_관리자_체크_인증_X() throws Exception {
+	void checkAdmin_not_authenticated_fail() throws Exception {
 
 		ResultActions resultActions = mvc.perform(
 			get("/api/v1/admin/posts/statistics"));
@@ -317,7 +317,7 @@ class AdminControllerTest {
 
 	@Test
 	@DisplayName("관리자 로그아웃 - 정상")
-	void 정상_관리자_로그아웃() throws Exception {
+	void logoutAdmin_success() throws Exception {
 
 		String adminUsername = "admin";
 		setUpAdminAuth(adminUsername);
@@ -345,7 +345,7 @@ class AdminControllerTest {
 
 	@Test
 	@DisplayName("관리자 탈퇴 - 정상")
-	void 정상_관리자_탈퇴() throws Exception {
+	void resignAdmin_success() throws Exception {
 
 		String adminUsername = "admin";
 		setUpAdminAuth(adminUsername);
@@ -367,7 +367,7 @@ class AdminControllerTest {
 
 	@Test
 	@DisplayName("관리자 탈퇴 - 권한 X")
-	void 비정상_관리자_탈퇴_권한_X() throws Exception {
+	void resignAdmin_not_authorized_fail() throws Exception {
 
 		setUpUserAuth(1L);
 
@@ -382,7 +382,7 @@ class AdminControllerTest {
 
 	@Test
 	@DisplayName("관리자 탈퇴 - 인증 X")
-	void 비정상_관리자_탈퇴_인증_X() throws Exception {
+	void resignAdmin_not_authenticated_fail() throws Exception {
 
 		ResultActions resultActions = mvc.perform(
 			get("/api/v1/admin/resign"));

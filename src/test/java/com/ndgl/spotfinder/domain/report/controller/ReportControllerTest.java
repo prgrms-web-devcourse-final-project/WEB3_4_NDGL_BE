@@ -48,7 +48,7 @@ import com.ndgl.spotfinder.global.security.jwt.CustomUserDetails;
 @AutoConfigureMockMvc
 @Transactional
 @SpringBootTest
-public class ReportControllerTest {
+class ReportControllerTest {
 	@Autowired
 	private MockMvc mvc;
 
@@ -96,7 +96,7 @@ public class ReportControllerTest {
 
 	@Test
 	@DisplayName("포스트 신고 요청 - 정상")
-	void 정상_포스트_신고_요청() throws Exception {
+	void createPostReport_success() throws Exception {
 
 		long reporterId = 1L;
 		long postId = 1L;
@@ -124,7 +124,7 @@ public class ReportControllerTest {
 
 	@Test
 	@DisplayName("포스트 신고 요청 - 비로그인")
-	void 비정상_포스트_신고_요청_비로그인() throws Exception {
+	void createPostReport_not_authenticated_fail() throws Exception {
 
 		long postId = 1L;
 		ReportType reportType = ReportType.SPAM;
@@ -145,7 +145,7 @@ public class ReportControllerTest {
 
 	@Test
 	@DisplayName("포스트 신고 요청 - 비정상 요청 데이터")
-	void 비정상_포스트_신고_요청_이상한_요청_데이터() throws Exception {
+	void createPostReport_invalid_requestDto_fail() throws Exception {
 
 		long reporterId = 1L;
 		long postId = 1L;
@@ -172,7 +172,7 @@ public class ReportControllerTest {
 
 	@Test
 	@DisplayName("댓글 신고 요청 - 정상")
-	void 정상_댓글_신고_요청() throws Exception {
+	void createPostCommentReport_success() throws Exception {
 
 		long reporterId = 1L;
 		long postCommentId = 1L;
@@ -200,7 +200,7 @@ public class ReportControllerTest {
 
 	@Test
 	@DisplayName("댓글 신고 요청 - 비로그인")
-	void 비정상_댓글_신고_요청_비로그인() throws Exception {
+	void createPostCommentReport_not_authenticated_fail() throws Exception {
 
 		long postId = 1L;
 		ReportType reportType = ReportType.SPAM;
@@ -221,7 +221,7 @@ public class ReportControllerTest {
 
 	@Test
 	@DisplayName("댓글 신고 요청 - 비정상 요청 데이터")
-	void 비정상_댓글_신고_요청_이상한_요청_데이터() throws Exception {
+	void createPostCommentReport_invalid_requestDto_fail() throws Exception {
 		long reporterId = 1L;
 		long postCommentId = 1L;
 
@@ -247,7 +247,7 @@ public class ReportControllerTest {
 
 	@Test
 	@DisplayName("포스트 신고 목록 조회 - 정상 (10개 이하)")
-	void 정상_포스트_신고_목록_조회_10개_이하() throws Exception {
+	void getPostReportSlice_less_than_11_success() throws Exception {
 		setUpAdminAuth("admin");
 
 		ReportType reportType = ReportType.SPAM;
@@ -279,7 +279,7 @@ public class ReportControllerTest {
 
 	@Test
 	@DisplayName("포스트 신고 목록 조회 - 정상 (10개 초과)")
-	void 정상_포스트_신고_목록_조회_10개_초과() throws Exception {
+	void getPostReportSlice_more_than_10_success() throws Exception {
 		setUpAdminAuth("admin");
 
 		ReportType reportType = ReportType.SPAM;
@@ -312,7 +312,7 @@ public class ReportControllerTest {
 
 	@Test
 	@DisplayName("포스트 신고 목록 조회 - 데이터 없음")
-	void 비정상_포스트_신고_목록_조회_데이터_없음() throws Exception {
+	void getPostReportSlice_not_found_fail() throws Exception {
 		setUpAdminAuth("admin");
 
 		// 가장 마지막에 생성된 신고 ID 가져오기
@@ -332,7 +332,7 @@ public class ReportControllerTest {
 
 	@Test
 	@DisplayName("포스트 신고 목록 조회 - 비정상 lastId")
-	void 비정상_포스트_신고_목록_조회_비정상_lastId() throws Exception {
+	void getPostReportSlice_invalid_lastId_fail() throws Exception {
 		setUpAdminAuth("admin");
 
 		// 가장 마지막에 생성된 신고 ID 가져오기
@@ -352,7 +352,7 @@ public class ReportControllerTest {
 
 	@Test
 	@DisplayName("포스트 신고 목록 조회 - 비정상 size")
-	void 비정상_포스트_신고_목록_조회_비정상_size() throws Exception {
+	void getPostReportSlice_invalid_size_fail() throws Exception {
 		setUpAdminAuth("admin");
 
 		// 가장 마지막에 생성된 신고 ID 가져오기
@@ -372,7 +372,7 @@ public class ReportControllerTest {
 
 	@Test
 	@DisplayName("포스트 신고 목록 조회 - 비로그인")
-	void 비정상_포스트_신고_목록_조회_비로그인() throws Exception {
+	void getPostReportSlice_not_authenticated_fail() throws Exception {
 
 		long lastId = 0;
 		int size = 10;
@@ -388,7 +388,7 @@ public class ReportControllerTest {
 
 	@Test
 	@DisplayName("포스트 신고 목록 조회 - 관리자 권한 없음")
-	void 비정상_포스트_신고_목록_조회_관리자_권한_없음() throws Exception {
+	void getPostReportSlice_not_authorized_fail() throws Exception {
 		setUpUserAuth(1L);
 		long lastId = 0;
 		int size = 10;
@@ -404,7 +404,7 @@ public class ReportControllerTest {
 
 	@Test
 	@DisplayName("댓글 신고 목록 조회 - 정상 (10개 이하)")
-	void 정상_댓글_신고_목록_조회_10개_이하() throws Exception {
+	void getPostCommentReportSlice_less_than_11_success() throws Exception {
 		setUpAdminAuth("admin");
 
 		ReportType reportType = ReportType.SPAM;
@@ -436,7 +436,7 @@ public class ReportControllerTest {
 
 	@Test
 	@DisplayName("댓글 신고 목록 조회 - 정상 (10개 초과)")
-	void 정상_댓글_신고_목록_조회_10개_초과() throws Exception {
+	void getPostCommentReportSlice_more_than_10_success() throws Exception {
 		setUpAdminAuth("admin");
 
 		ReportType reportType = ReportType.SPAM;
@@ -468,7 +468,7 @@ public class ReportControllerTest {
 
 	@Test
 	@DisplayName("댓글 신고 목록 조회 - 데이터 없음")
-	void 비정상_댓글_신고_목록_조회_데이터_없음() throws Exception {
+	void getPostCommentReportSlice_not_found_fail() throws Exception {
 		setUpAdminAuth("admin");
 
 		// 가장 마지막에 생성된 신고 ID 가져오기
@@ -488,7 +488,7 @@ public class ReportControllerTest {
 
 	@Test
 	@DisplayName("댓글 신고 목록 조회 - 비정상 lastId")
-	void 비정상_댓글_신고_목록_조회_비정상_lastId() throws Exception {
+	void getPostCommentReportSlice_invalid_lastId_fail() throws Exception {
 		setUpAdminAuth("admin");
 
 		// 가장 마지막에 생성된 신고 ID 가져오기
@@ -508,7 +508,7 @@ public class ReportControllerTest {
 
 	@Test
 	@DisplayName("댓글 신고 목록 조회 - 비정상 size")
-	void 비정상_댓글_신고_목록_조회_비정상_size() throws Exception {
+	void getPostCommentReportSlice_invalid_size_fail() throws Exception {
 		setUpAdminAuth("admin");
 
 		// 가장 마지막에 생성된 신고 ID 가져오기
@@ -528,7 +528,7 @@ public class ReportControllerTest {
 
 	@Test
 	@DisplayName("댓글 신고 목록 조회 - 비로그인")
-	void 비정상_댓글_신고_목록_조회_비로그인() throws Exception {
+	void getPostCommentReportSlice_not_authenticated_fail() throws Exception {
 
 		long lastId = 0;
 		int size = 10;
@@ -544,7 +544,7 @@ public class ReportControllerTest {
 
 	@Test
 	@DisplayName("댓글 신고 목록 조회 - 관리자 권한 없음")
-	void 비정상_댓글_신고_목록_조회_관리자_권한_없음() throws Exception {
+	void getPostCommentReportSlice_not_authorized_fail() throws Exception {
 		setUpUserAuth(1L);
 		long lastId = 0;
 		int size = 10;
@@ -560,7 +560,7 @@ public class ReportControllerTest {
 
 	@Test
 	@DisplayName("포스트로 인한 유저 제재 - 정상")
-	void 정상_포스트로_인한_유저_제재() throws Exception {
+	void banUserDueToPost_success() throws Exception {
 		setUpAdminAuth("admin");
 
 		ReportType reportType = ReportType.SPAM;
@@ -584,7 +584,7 @@ public class ReportControllerTest {
 
 	@Test
 	@DisplayName("포스트로 인한 유저 제재 - 존재하지 않는 신고")
-	void 비정상_포스트로_인한_유저_제재_신고_존재_X() throws Exception {
+	void banUserDueToPost_report_not_found_fail() throws Exception {
 		setUpAdminAuth("admin");
 
 		long invalidPostReportId = -1L;
@@ -603,7 +603,7 @@ public class ReportControllerTest {
 
 	@Test
 	@DisplayName("포스트로 인한 유저 제재 - 비정상 BanDuration")
-	void 비정상_포스트로_인한_유저_제재_비정상_BanDuration() throws Exception {
+	void banUserDueToPost_invalid_banDuration_fail() throws Exception {
 		setUpAdminAuth("admin");
 
 		ReportType reportType = ReportType.SPAM;
@@ -627,7 +627,7 @@ public class ReportControllerTest {
 
 	@Test
 	@DisplayName("포스트로 인한 유저 제재 - 비로그인")
-	void 비정상_포스트로_인한_유저_제재_비로그인() throws Exception {
+	void banUserDueToPost_not_authenticated_fail() throws Exception {
 
 		long temp = 1L;
 		String duration = "7일";
@@ -643,7 +643,7 @@ public class ReportControllerTest {
 
 	@Test
 	@DisplayName("포스트로 인한 유저 제재 - 관리자 권한 없음")
-	void 비정상_포스트로_인한_유저_제재_관리자_권한_없음() throws Exception {
+	void banUserDueToPost_not_authorized_fail() throws Exception {
 		setUpUserAuth(1L);
 
 		long temp = 1L;
@@ -660,7 +660,7 @@ public class ReportControllerTest {
 
 	@Test
 	@DisplayName("댓글로 인한 유저 제재 - 정상")
-	void 정상_댓글로_인한_유저_제재() throws Exception {
+	void banUserDueToPostComment_success() throws Exception {
 		setUpAdminAuth("admin");
 
 		ReportType reportType = ReportType.SPAM;
@@ -685,7 +685,7 @@ public class ReportControllerTest {
 
 	@Test
 	@DisplayName("댓글로 인한 유저 제재 - 존재하지 않는 신고")
-	void 비정상_댓글로_인한_유저_제재_신고_존재_X() throws Exception {
+	void banUserDueToPostComment_report_not_found_fail() throws Exception {
 		setUpAdminAuth("admin");
 
 		long invalidPostCommentReportId = -1L;
@@ -704,7 +704,7 @@ public class ReportControllerTest {
 
 	@Test
 	@DisplayName("댓글로 인한 유저 제재 - 비정상 BanDuration")
-	void 비정상_댓글로_인한_유저_제재_비정상_BanDuration() throws Exception {
+	void banUserDueToPostComment_invalid_banDuration_fail() throws Exception {
 		setUpAdminAuth("admin");
 
 		ReportType reportType = ReportType.SPAM;
@@ -730,7 +730,7 @@ public class ReportControllerTest {
 
 	@Test
 	@DisplayName("댓글로 인한 유저 제재 - 비로그인")
-	void 비정상_댓글로_인한_유저_제재_비로그인() throws Exception {
+	void banUserDueToPostComment_not_authenticated_fail() throws Exception {
 
 		long temp = 1L;
 		String duration = "7일";
@@ -746,7 +746,7 @@ public class ReportControllerTest {
 
 	@Test
 	@DisplayName("댓글로 인한 유저 제재 - 관리자 권한 없음")
-	void 비정상_댓글로_인한_유저_제재_관리자_권한_없음() throws Exception {
+	void banUserDueToPostComment_not_authorized_fail() throws Exception {
 		setUpUserAuth(1L);
 
 		long temp = 1L;
@@ -763,7 +763,7 @@ public class ReportControllerTest {
 
 	@Test
 	@DisplayName("포스트 신고 기각 - 정상")
-	void 정상_포스트_신고_기각() throws Exception {
+	void rejectPostReport_fail() throws Exception {
 		setUpAdminAuth("admin");
 
 		ReportType reportType = ReportType.SPAM;
@@ -789,7 +789,7 @@ public class ReportControllerTest {
 
 	@Test
 	@DisplayName("포스트 신고 기각 - 존재하지 않는 신고")
-	void 비정상_포스트_신고_기각_신고_존재_X() throws Exception {
+	void rejectPostReport_report_not_found_fail() throws Exception {
 		setUpAdminAuth("admin");
 
 		long invalidPostReportId = -1L;
@@ -807,7 +807,7 @@ public class ReportControllerTest {
 
 	@Test
 	@DisplayName("포스트 신고 기각 - 비로그인")
-	void 비정상_포스트_신고_기각_비로그인() throws Exception {
+	void rejectPostReport_not_authenticated_fail() throws Exception {
 
 		long temp = 1L;
 
@@ -822,7 +822,7 @@ public class ReportControllerTest {
 
 	@Test
 	@DisplayName("포스트 신고 기각 - 관리자 권한 없음")
-	void 비정상_포스트_신고_기각_관리자_권한_없음() throws Exception {
+	void rejectPostReport_not_authorized_fail() throws Exception {
 		setUpUserAuth(1L);
 
 		long temp = 1L;
@@ -838,7 +838,7 @@ public class ReportControllerTest {
 
 	@Test
 	@DisplayName("댓글 신고 기각 - 정상")
-	void 정상_댓글_신고_기각() throws Exception {
+	void rejectPostCommentReport_success() throws Exception {
 		setUpAdminAuth("admin");
 
 		ReportType reportType = ReportType.SPAM;
@@ -865,7 +865,7 @@ public class ReportControllerTest {
 
 	@Test
 	@DisplayName("댓글 신고 기각 - 존재하지 않는 신고")
-	void 비정상_댓글_신고_기각_신고_존재_X() throws Exception {
+	void rejectPostCommentReport_report_not_found_fail() throws Exception {
 		setUpAdminAuth("admin");
 
 		long invalidPostCommentReportId = -1L;
@@ -883,7 +883,7 @@ public class ReportControllerTest {
 
 	@Test
 	@DisplayName("댓글 신고 기각 - 비로그인")
-	void 비정상_댓글_신고_기각_비로그인() throws Exception {
+	void rejectPostCommentReport_not_authenticated_fail() throws Exception {
 
 		long temp = 1L;
 
@@ -898,7 +898,7 @@ public class ReportControllerTest {
 
 	@Test
 	@DisplayName("댓글 신고 기각 - 관리자 권한 없음")
-	void 비정상_댓글_신고_기각_관리자_권한_없음() throws Exception {
+	void rejectPostCommentReport_not_authorized_fail() throws Exception {
 		setUpUserAuth(1L);
 
 		long temp = 1L;
