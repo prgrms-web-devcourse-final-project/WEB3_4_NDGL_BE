@@ -88,8 +88,8 @@ class BlogServiceTest {
 		when(userService.findUsers(sliceRequest)).thenReturn(users);
 		when(followService.isFollowed(user1, user2)).thenReturn(true);
 		when(followService.isFollowed(user1, user3)).thenReturn(false);
-		when(postService.getPostsByUser(2L)).thenReturn(List.of(samplePost1));
-		when(postService.getPostsByUser(3L)).thenReturn(List.of(samplePost2));
+		when(postService.getPostsByUser(2L, 3)).thenReturn(List.of(samplePost1));
+		when(postService.getPostsByUser(3L, 3)).thenReturn(List.of(samplePost2));
 
 		// then
 		BlogResponseDto dto1 = new BlogResponseDto(
