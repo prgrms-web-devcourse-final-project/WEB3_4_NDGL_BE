@@ -21,9 +21,11 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -35,6 +37,9 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 @Entity
+@Table(name = "post", indexes = {
+	@Index(name = "idx_post_created_at", columnList = "created_at DESC")
+})
 public class Post extends BaseTime implements Likeable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -131,6 +136,12 @@ public class Post extends BaseTime implements Likeable {
 
 	public void updateLikeCount(long num) {
 		this.likeCount += num;
+	}
+
+	public void changeStatus(PostStatus newStatus) {
+		if (this.status == PostStatus.TEMP && newStatus == PostStatus.PUBLIC)
+			this.createdAt = LocalDateTime.now(); // 발행일으로 변경시, 생성일 업데이트
+		this.status = newStatus;
 	}
 
 	@Override
