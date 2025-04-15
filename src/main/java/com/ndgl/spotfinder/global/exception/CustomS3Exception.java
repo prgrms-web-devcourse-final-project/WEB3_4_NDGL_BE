@@ -6,12 +6,12 @@ import lombok.Getter;
 
 @Getter
 public class CustomS3Exception extends RuntimeException {
-    private final HttpStatus resultCode;
-    private final String msg;
+    private final HttpStatus code;
+    private final String message;
 
-    public CustomS3Exception(HttpStatus resultCode, String msg, Throwable cause) {
-        super(resultCode + ":" + msg, cause);
-        this.resultCode = resultCode;
-        this.msg = msg;
+    public CustomS3Exception(HttpStatus code, String message, Throwable cause) {
+        super(code + ":" + message, cause);
+        this.code = code;
+        this.message = message;
     }
 }

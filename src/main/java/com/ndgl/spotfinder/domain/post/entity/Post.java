@@ -4,13 +4,11 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.annotations.BatchSize;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import com.ndgl.spotfinder.domain.comment.entity.PostComment;
 import com.ndgl.spotfinder.domain.like.entity.Likeable;
-import com.ndgl.spotfinder.domain.post.dto.HashtagDto;
-import com.ndgl.spotfinder.domain.post.dto.LocationDto;
-import com.ndgl.spotfinder.domain.post.dto.PostCommonUpdateRequestDto;
 import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.global.base.BaseTime;
 
@@ -23,9 +21,11 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -37,6 +37,9 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 @Entity
+@Table(name = "post", indexes = {
+	@Index(name = "idx_post_created_at", columnList = "created_at DESC")
+})
 public class Post extends BaseTime implements Likeable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -71,6 +74,7 @@ public class Post extends BaseTime implements Likeable {
 	private List<PostComment> comments = new ArrayList<>();
 
 	@Builder.Default
+	@BatchSize(size = 50)
 	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Hashtag> hashtags = new ArrayList<>();
 
@@ -88,6 +92,7 @@ public class Post extends BaseTime implements Likeable {
 		return Post.builder()
 			.title("")
 			.content("")
+			.thumbnail("")
 			.status(PostStatus.TEMP)
 			.user(user)
 			.build();
@@ -111,27 +116,6 @@ public class Post extends BaseTime implements Likeable {
 		locations.forEach(this::addLocation);
 	}
 
-	public Post updatePost(PostCommonUpdateRequestDto requestDto, boolean temp) {
-		title = requestDto.title();
-		content = requestDto.content();
-		thumbnail = requestDto.thumbnail();
-		this.status = temp ? PostStatus.TEMP : PostStatus.PUBLIC;
-
-		List<Hashtag> newHashtags = requestDto.hashtags()
-			.stream()
-			.map(HashtagDto::toHashtag)
-			.toList();
-		updateHashtags(newHashtags);
-
-		List<Location> newLocations = requestDto.locations()
-			.stream()
-			.map(LocationDto::toLocation)
-			.toList();
-		updateLocations(newLocations);
-
-		return this;
-	}
-
 	public void updateHashtags(List<Hashtag> newHashtags) {
 		removeAllHashtags();
 		addHashtags(newHashtags);
@@ -152,6 +136,12 @@ public class Post extends BaseTime implements Likeable {
 
 	public void updateLikeCount(long num) {
 		this.likeCount += num;
+	}
+
+	public void changeStatus(PostStatus newStatus) {
+		if (this.status == PostStatus.TEMP && newStatus == PostStatus.PUBLIC)
+			this.createdAt = LocalDateTime.now(); // 발행일으로 변경시, 생성일 업데이트
+		this.status = newStatus;
 	}
 
 	@Override

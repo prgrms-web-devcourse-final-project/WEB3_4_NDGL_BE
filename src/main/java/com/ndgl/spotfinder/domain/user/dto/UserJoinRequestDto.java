@@ -2,6 +2,7 @@ package com.ndgl.spotfinder.domain.user.dto;
 
 import com.ndgl.spotfinder.domain.user.entity.Provider;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -11,15 +12,19 @@ import lombok.Getter;
 @Getter
 @Builder
 public class UserJoinRequestDto {
+	@Schema(description = "로그인 시 받아온 소셜 플랫폼 정보.", examples = "GOOGLE")
 	@NotNull(message = "provider 값이 없습니다. ")
 	private Provider provider;
 
+	@Schema(description = "로그인 시 받아 온 소셜 플랫폼 인증 정보.", examples = "123456789")
 	@NotNull(message = "identify 값이 필요합니다.")
 	private String identify;
 
+	@Schema(description = "로그인 시 받아온 이메일 정보.", examples = "testman123@test.com")
 	@NotNull(message = "email 값이 필요합니다.")
 	private String email;
 
+	@Schema(description = "닉네임", example = "testman001")
 	@NotNull(message = "nickName 값이 필요합니다.")
 	@Size(min = 2, max = 15, message = "닉네임은 15자 이하로 입력해주세요.")
 	@Pattern(
@@ -28,6 +33,7 @@ public class UserJoinRequestDto {
 	)
 	private final String nickName;
 
+	@Schema(description = "블로그 명", example = "testblog001")
 	@NotNull(message = "blogName 값이 필요합니다.")
 	@Size(min = 2, max = 20, message = "블로그 명은 20자 이하로 입력해주세요.")
 	@Pattern(

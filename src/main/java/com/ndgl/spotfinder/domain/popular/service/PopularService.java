@@ -31,7 +31,7 @@ public class PopularService {
 			entities.add(PopularKeyword.builder()
 				.keyword(kc.keyword())
 				.searchCount(kc.count())
-				.rank(i + 1)
+				.ranking(i + 1)
 				.build());
 		}
 
@@ -47,7 +47,7 @@ public class PopularService {
 			entities.add(PopularPost.builder()
 				.postId(pc.postId())
 				.viewCount(pc.count())
-				.rank(i + 1)
+				.ranking(i + 1)
 				.build());
 		}
 

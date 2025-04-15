@@ -17,5 +17,5 @@ import lombok.Setter;
 public abstract class BaseTime {
 	@CreatedDate
 	@Setter(AccessLevel.PRIVATE)
-	private LocalDateTime createdAt;
+	protected LocalDateTime createdAt;
 }

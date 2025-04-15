@@ -52,11 +52,11 @@ public class PopularServiceTest {
 		assertThat(saved).hasSize(2);
 		assertThat(saved.get(0).getKeyword()).isEqualTo("서울");
 		assertThat(saved.get(0).getSearchCount()).isEqualTo(100L);
-		assertThat(saved.get(0).getRank()).isEqualTo(1);
+		assertThat(saved.get(0).getRanking()).isEqualTo(1);
 
 		assertThat(saved.get(1).getKeyword()).isEqualTo("강남");
 		assertThat(saved.get(1).getSearchCount()).isEqualTo(80L);
-		assertThat(saved.get(1).getRank()).isEqualTo(2);
+		assertThat(saved.get(1).getRanking()).isEqualTo(2);
 	}
 
 	@Test
@@ -79,10 +79,10 @@ public class PopularServiceTest {
 		assertThat(saved).hasSize(2);
 		assertThat(saved.get(0).getPostId()).isEqualTo(1L);
 		assertThat(saved.get(0).getViewCount()).isEqualTo(100L);
-		assertThat(saved.get(0).getRank()).isEqualTo(1);
+		assertThat(saved.get(0).getRanking()).isEqualTo(1);
 
 		assertThat(saved.get(1).getPostId()).isEqualTo(2L);
 		assertThat(saved.get(1).getViewCount()).isEqualTo(80L);
-		assertThat(saved.get(1).getRank()).isEqualTo(2);
+		assertThat(saved.get(1).getRanking()).isEqualTo(2);
 	}
 }

@@ -9,8 +9,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.ndgl.spotfinder.domain.image.type.ImageUsage;
-import com.ndgl.spotfinder.global.exception.ErrorCode;
 import com.ndgl.spotfinder.global.common.util.CommonUtil;
+import com.ndgl.spotfinder.global.exception.ErrorCode;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +41,7 @@ public class S3Service {
 	/**
 	 * 여러 파일에 대한 업로드용 Presigned URL 목록 생성
 	 *
-	 * @param imageUsage      이미지 유형
+	 * @param imageUsage     이미지 유형
 	 * @param id             이미지와 연관된 객체 ID
 	 * @param fileExtensions 파일 확장자 목록 (jpg, png 등)
 	 * @return 생성된 Presigned URL 목록
@@ -55,14 +55,14 @@ public class S3Service {
 				.map(fileExtension -> generatePresignedUrl(imageUsage, id, fileExtension))
 				.toList();
 		} catch (SdkException e) {
-			throw ErrorCode.S3_PRESIGNED_GENERATION_FAIL.throwS3Exception(e);
+			throw ErrorCode.S3_PRESIGNED_GENERATION_FAIL.throwCustomS3Exception(e);
 		}
 	}
 
 	/**
 	 * 단일 파일에 대한 업로드용 Presigned URL 생성
 	 *
-	 * @param imageUsage     이미지 유형 (POST, PROFILE 등)
+	 * @param imageUsage    이미지 유형 (POST, PROFILE 등)
 	 * @param id            이미지와 연관된 객체 ID (게시글 ID 등)
 	 * @param fileExtension 파일 확장자 (jpg, png 등)
 	 * @return 생성된 Presigned URL
@@ -77,36 +77,11 @@ public class S3Service {
 					.key(key))
 				.signatureDuration(Duration.ofMinutes(EXPIRATION_MINUTES)));
 
-			log.debug("Presigned URL 생성");
 			return presignedRequest.url();
 		} catch (SdkException e) {
-			throw ErrorCode.S3_PRESIGNED_GENERATION_FAIL.throwS3Exception(e);
+			throw ErrorCode.S3_PRESIGNED_GENERATION_FAIL.throwCustomS3Exception(e);
 		}
 	}
-
-	/**
-	 * 조회용 Presigned URL 생성
-	 *
-	 * @param imageUrl 원본 S3 이미지 URL
-	 * @return 지정된 시간 동안 유효한 조회용 서명된 URL
-	 */
-	// @Deprecated
-	// public URL generatePresignedGetUrl(String imageUrl) {
-	// 	try {
-	// 		String objectKey = S3Util.extractObjectKeyFromUrl(imageUrl);
-	//
-	// 		GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
-	// 			.getObjectRequest(getObjectRequest -> getObjectRequest
-	// 				.bucket(bucketName)
-	// 				.key(objectKey))
-	// 			.signatureDuration(Duration.ofMinutes(EXPIRATION_MINUTES))
-	// 			.build();
-	//
-	// 		return s3Presigner.presignGetObject(presignRequest).url();
-	// 	} catch (SdkException e) {
-	// 		throw ErrorCode.S3_PRESIGNED_GENERATION_FAIL.throwS3Exception(e);
-	// 	}
-	// }
 
 	/**
 	 * 단일 S3 객체 삭제
@@ -123,9 +98,9 @@ public class S3Service {
 				.build();
 
 			s3Client.deleteObject(deleteRequest);
-			log.debug("S3 파일 삭제 완료: {}", objectKey);
+			// log.debug("S3 파일 삭제 완료: {}", objectKey);
 		} catch (SdkException e) {
-			throw ErrorCode.S3_OBJECT_DELETE_FAIL.throwS3Exception(e);
+			throw ErrorCode.S3_OBJECT_DELETE_FAIL.throwCustomS3Exception(e);
 		}
 	}
 
@@ -153,7 +128,7 @@ public class S3Service {
 			s3Client.deleteObjects(deleteRequest);
 
 		} catch (SdkException e) {
-			ErrorCode.S3_OBJECT_DELETE_FAIL.throwS3Exception(e);
+			ErrorCode.S3_OBJECT_DELETE_FAIL.throwCustomS3Exception(e);
 		}
 	}
 
@@ -161,7 +136,7 @@ public class S3Service {
 	 * S3의 폴더의 모든 Object 들 삭제
 	 *
 	 * @param imageUsage 타입
-	 * @param id        ID
+	 * @param id         ID
 	 */
 	public void deleteAllObjectsById(ImageUsage imageUsage, long id) {
 		// folderPath 로 변환
@@ -196,7 +171,7 @@ public class S3Service {
 			s3Client.deleteObjects(deleteRequest);
 
 		} catch (SdkException e) {
-			ErrorCode.S3_OBJECT_DELETE_FAIL.throwS3Exception(e);
+			ErrorCode.S3_OBJECT_DELETE_FAIL.throwCustomS3Exception(e);
 		}
 	}
 
@@ -226,7 +201,7 @@ public class S3Service {
 					.build();
 			} while (Boolean.TRUE.equals(listResponse.isTruncated()));
 		} catch (SdkException e) {
-			ErrorCode.S3_OBJECT_ACCESS_FAIL.throwS3Exception(e);
+			ErrorCode.S3_OBJECT_ACCESS_FAIL.throwCustomS3Exception(e);
 		}
 
 		return objects;

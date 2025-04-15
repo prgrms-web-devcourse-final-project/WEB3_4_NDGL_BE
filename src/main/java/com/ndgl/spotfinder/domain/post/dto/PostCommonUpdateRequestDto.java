@@ -18,11 +18,11 @@ public interface PostCommonUpdateRequestDto {
 
 	String thumbnail();
 
-	default Post toUpdatedPost(Post post, boolean temp) {
+	default Post toUpdatedPost(Post post, PostStatus postStatus) {
 		post.setTitle(title());
 		post.setContent(content());
 		post.setThumbnail(thumbnail());
-		post.setStatus(temp ? PostStatus.TEMP : PostStatus.PUBLIC);
+		post.changeStatus(postStatus);
 
 		List<Hashtag> newHashtags = hashtags()
 			.stream()

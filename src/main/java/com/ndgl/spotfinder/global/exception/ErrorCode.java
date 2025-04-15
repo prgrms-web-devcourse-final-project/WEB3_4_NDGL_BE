@@ -5,7 +5,6 @@ import org.springframework.http.HttpStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import software.amazon.awssdk.services.s3.model.S3Exception;
 
 @Getter
 @AllArgsConstructor
@@ -93,7 +92,7 @@ public enum ErrorCode {
 		throw new ServiceException(httpStatus, message);
 	}
 
-	public S3Exception throwS3Exception(Throwable cause) {
+	public CustomS3Exception throwCustomS3Exception(Throwable cause) {
 		throw new CustomS3Exception(httpStatus, message, cause);
 	}
 
