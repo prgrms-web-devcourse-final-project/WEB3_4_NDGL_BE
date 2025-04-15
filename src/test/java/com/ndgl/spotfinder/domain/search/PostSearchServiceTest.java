@@ -25,6 +25,7 @@ import org.springframework.test.context.ActiveProfiles;
 import com.ndgl.spotfinder.domain.popular.service.redis.RedisPopularService;
 import com.ndgl.spotfinder.domain.post.dto.PostResponseDto;
 import com.ndgl.spotfinder.domain.post.entity.Post;
+import com.ndgl.spotfinder.domain.post.entity.PostStatus;
 import com.ndgl.spotfinder.domain.post.repository.PostRepository;
 import com.ndgl.spotfinder.domain.post.service.PostService;
 import com.ndgl.spotfinder.domain.search.document.PostDocument;
@@ -76,6 +77,7 @@ public class PostSearchServiceTest {
 		.title("맛집 추천")
 		.content("정말 맛있어요")
 		.user(user1)
+		.status(PostStatus.PUBLIC)
 		.build();
 
 	private final Post samplePost3 = Post.builder()
@@ -83,6 +85,7 @@ public class PostSearchServiceTest {
 		.title("여행 후기")
 		.content("풍경이 좋아요")
 		.user(user1)
+		.status(PostStatus.BLIND)
 		.build();
 
 	@BeforeEach
@@ -100,7 +103,7 @@ public class PostSearchServiceTest {
 	}
 
 	@Test
-	@DisplayName("JPA 기반 like 검색")
+	@DisplayName("JPA 기반 like 검색 - 공개 상태만 필터링")
 	void search_with_jpa() {
 		// given
 		String keyword = "맛집";
@@ -108,7 +111,7 @@ public class PostSearchServiceTest {
 		int size = 3;
 
 		PageRequest pageRequest = PageRequest.of(0, 1000);
-		List<Post> posts = List.of(samplePost2);
+		List<Post> posts = List.of(samplePost2, samplePost3);
 		Slice<Post> postSlice = new SliceImpl<>(posts, pageRequest, false);
 
 		when(healthCheck.isElasticSearchUp()).thenReturn(false);
