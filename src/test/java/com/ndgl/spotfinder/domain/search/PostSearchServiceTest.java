@@ -25,9 +25,9 @@ import org.springframework.test.context.ActiveProfiles;
 import com.ndgl.spotfinder.domain.popular.service.redis.RedisPopularService;
 import com.ndgl.spotfinder.domain.post.dto.PostResponseDto;
 import com.ndgl.spotfinder.domain.post.entity.Post;
-import com.ndgl.spotfinder.domain.post.entity.PostStatus;
 import com.ndgl.spotfinder.domain.post.repository.PostRepository;
 import com.ndgl.spotfinder.domain.post.service.PostService;
+import com.ndgl.spotfinder.domain.post.type.PostStatus;
 import com.ndgl.spotfinder.domain.search.document.PostDocument;
 import com.ndgl.spotfinder.domain.search.repository.PostSearchRepository;
 import com.ndgl.spotfinder.domain.search.service.PostSearchService;
@@ -63,7 +63,6 @@ public class PostSearchServiceTest {
 
 	@Mock
 	private RedisPopularService redisPopularService;
-
 
 	private final User user1 = User.builder()
 		.id(1L)
