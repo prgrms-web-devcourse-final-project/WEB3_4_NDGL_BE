@@ -100,7 +100,7 @@ public class PostService {
 	}
 
 	@Transactional(readOnly = true)
-	public SliceResponse<PostResponseDto> getPostsByUser(SliceRequest sliceRequest, Long userId, String email) {
+	public SliceResponse<PostResponseDto> getPostsByUser(SliceRequest sliceRequest, Long userId) {
 		PageRequest pageRequest = PageRequest.of(FIRST_PAGE_NUMBER, sliceRequest.size());
 		Long lastId = getLastPostId(sliceRequest);
 		User user = userService.findUserById(userId);

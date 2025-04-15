@@ -96,6 +96,11 @@ public class SecurityConfig {
 					"/v3/api-docs/**"
 				)
 				.permitAll()
+				.requestMatchers(
+					"/api/v1/posts/like",
+					"/api/v1/posts/follow"
+				)
+				.authenticated()
 				.requestMatchers(HttpMethod.GET,
 					"/api/v1/posts/**",
 					"/api/v1/posts/*/comments",
