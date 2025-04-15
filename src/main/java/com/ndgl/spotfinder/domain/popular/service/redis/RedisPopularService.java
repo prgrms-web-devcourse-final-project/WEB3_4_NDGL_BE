@@ -15,6 +15,7 @@ import com.ndgl.spotfinder.domain.popular.dto.KeywordCountDto;
 import com.ndgl.spotfinder.domain.popular.dto.PostCountDto;
 import com.ndgl.spotfinder.domain.post.dto.PostResponseDto;
 import com.ndgl.spotfinder.domain.post.entity.Post;
+import com.ndgl.spotfinder.domain.post.entity.PostStatus;
 import com.ndgl.spotfinder.domain.post.repository.PostRepository;
 import com.ndgl.spotfinder.global.exception.ErrorCode;
 
@@ -39,12 +40,15 @@ public class RedisPopularService {
 		ZSetOperations<String, String> zSetOps = redisTemplate.opsForZSet();
 
 		// 기존 ZSET 데이터 삭제
+		log.info("새로 발견된 인기 검색어 개수 : {}", keywordCounts.size());
 		if(!keywordCounts.isEmpty()) {
+			log.info("기존 인기 검색어 삭제");
 			redisTemplate.delete(POPULAR_KEYWORDS_KEY);
 		}
 
 		// 새로운 데이터 추가
 		for (KeywordCountDto keywordCount : keywordCounts) {
+			log.info("새 인기 검색어 : {} - {}회", keywordCount.keyword(), keywordCount.count());
 			zSetOps.add(POPULAR_KEYWORDS_KEY, keywordCount.keyword(), keywordCount.count());
 		}
 
@@ -58,7 +62,9 @@ public class RedisPopularService {
 			ZSetOperations<String, String> zSetOps = redisTemplate.opsForZSet();
 
 			// 기존 ZSET 데이터 삭제
+			log.info("새로 발견된 인기 글 개수 : {}", postCounts.size());
 			if(!postCounts.isEmpty()) {
+				log.info("기존 인기 글 삭제");
 				redisTemplate.delete(POPULAR_POSTS_KEY);
 			}
 
@@ -66,6 +72,11 @@ public class RedisPopularService {
 			for (PostCountDto postCount : postCounts) {
 				Post post = postRepository.findById(postCount.postId())
 					.orElseThrow(ErrorCode.POST_NOT_FOUND::throwServiceException);
+
+				if(!post.getStatus().equals(PostStatus.PUBLIC))
+					continue;
+
+				log.info("새 인기 글 : {} - {}회", post.getTitle(), postCount.count());
 				PostResponseDto postResponseDto = new PostResponseDto(post);
 				zSetOps.add(POPULAR_POSTS_KEY, objectMapper.writeValueAsString(postResponseDto), postCount.count());
 			}
