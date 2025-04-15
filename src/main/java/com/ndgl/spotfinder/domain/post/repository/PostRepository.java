@@ -8,6 +8,7 @@ import java.util.Optional;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,6 +16,8 @@ import org.springframework.data.repository.query.Param;
 import com.ndgl.spotfinder.domain.post.entity.Post;
 import com.ndgl.spotfinder.domain.post.type.PostStatus;
 import com.ndgl.spotfinder.domain.user.entity.User;
+
+import jakarta.persistence.LockModeType;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
 	Slice<Post> findByStatusAndIdLessThanOrderByCreatedAtDesc(
@@ -46,7 +49,10 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
 	Optional<Post> findTopByOrderByIdDesc();
 
-	Optional<Post> findFirstByUserAndStatus(User user, PostStatus status);
+	@Lock(LockModeType.PESSIMISTIC_WRITE)
+	@Query("SELECT p FROM Post p WHERE p.user = :user AND p.status = :status ORDER BY p.id DESC")
+	Optional<Post> findFirstByUserAndStatus(
+		@Param("user") User user, @Param("status") PostStatus status);
 
 	@Query("SELECT p FROM Post p "
 		+ "WHERE (LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')) "
