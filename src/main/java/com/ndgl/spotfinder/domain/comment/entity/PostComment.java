@@ -10,6 +10,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import com.ndgl.spotfinder.domain.comment.type.PostCommentStatus;
 import com.ndgl.spotfinder.domain.like.entity.Likeable;
 import com.ndgl.spotfinder.domain.post.entity.Post;
+import com.ndgl.spotfinder.domain.report.entity.PostCommentReport;
 import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.global.base.BaseTime;
 import com.ndgl.spotfinder.global.exception.ErrorCode;
@@ -79,6 +80,10 @@ public class PostComment extends BaseTime implements Likeable {
 	@Builder.Default
 	@OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<PostComment> childrenComments = new ArrayList<>();
+
+	@Builder.Default
+	@OneToMany(mappedBy = "postComment", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<PostCommentReport> postCommentReports = new ArrayList<>();
 
 	public void isCommentOfPost(Long postId) {
 		if (!this.post.getId().equals(postId)) {
