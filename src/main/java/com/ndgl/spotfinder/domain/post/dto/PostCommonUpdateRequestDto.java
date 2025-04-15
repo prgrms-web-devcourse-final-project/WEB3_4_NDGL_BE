@@ -18,7 +18,7 @@ public interface PostCommonUpdateRequestDto {
 
 	String thumbnail();
 
-	default Post toUpdatedPost(Post post, PostStatus postStatus) {
+	default void updatePost(Post post, PostStatus postStatus) {
 		post.setTitle(title());
 		post.setContent(content());
 		post.setThumbnail(thumbnail());
@@ -35,7 +35,5 @@ public interface PostCommonUpdateRequestDto {
 			.map(LocationDto::toLocation)
 			.toList();
 		post.updateLocations(newLocations);
-
-		return post;
 	}
 }
