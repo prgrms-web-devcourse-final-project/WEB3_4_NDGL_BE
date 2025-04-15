@@ -39,7 +39,7 @@ import com.ndgl.spotfinder.global.elk.ElasticsearchHealthCheck;
 @ActiveProfiles("test")
 @SpringBootTest
 @ExtendWith(MockitoExtension.class)
-public class PostSearchServiceTest {
+class PostSearchServiceTest {
 	@Mock
 	private RedisTemplate<String, List<Long>> redisTemplate;
 

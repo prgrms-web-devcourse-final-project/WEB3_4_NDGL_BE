@@ -37,7 +37,7 @@ import com.ndgl.spotfinder.global.exception.ServiceException;
 
 @SpringBootTest
 @ActiveProfiles("test")
-public class PostCommentServiceTest {
+class PostCommentServiceTest {
 	@InjectMocks
 	private PostCommentService postCommentService;
 
