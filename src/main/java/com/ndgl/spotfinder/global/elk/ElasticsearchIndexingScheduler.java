@@ -22,9 +22,15 @@ import lombok.extern.slf4j.Slf4j;
 public class ElasticsearchIndexingScheduler {
 	private final PostRepository postRepository;
 	private final PostSearchRepository postSearchRepository;
+	private boolean isFullIndexing = false;
 
-	@Scheduled(cron = "0 0 0 * * *") // 매일 자정에 전체 색인
+	@Scheduled(cron = "0 0 4 * * *") // 매일 04시에 전체 색인
 	public void fullReindexPosts() {
+		if (isFullIndexing) { // 이미 전체 인덱싱 중이면 종료
+			return;
+		}
+		isFullIndexing = true;
+
 		log.info("전체 인덱싱 수행");
 		List<Post> posts = postRepository.findAllWithAssociations();
 
@@ -33,14 +39,18 @@ public class ElasticsearchIndexingScheduler {
 			.toList();
 
 		postSearchRepository.saveAll(documents);
+		isFullIndexing = false;
 	}
 
-	@Scheduled(cron = "0 */30 * * * *") // 30분마다 부분 색인
+	@Scheduled(cron = "0 */10 * * * *") // 10분마다 부분 색인
 	public void partialReindexPosts() {
+		if (isFullIndexing) {
+			return; // 전체 인덱싱 중이면 부분 인덱싱 건너뜀
+		}
 		log.info("부분 인덱싱 수행");
-		LocalDateTime thirtyMinutesAgo = LocalDateTime.now().minusMinutes(30);
+		LocalDateTime tenMinutesAgo = LocalDateTime.now().minusMinutes(10);
 
-		List<Post> recentPosts = postRepository.findByUpdatedAtAfter(thirtyMinutesAgo);
+		List<Post> recentPosts = postRepository.findByUpdatedAtAfter(tenMinutesAgo);
 
 		List<PostDocument> documents = recentPosts.stream()
 			.map(PostDocument::from)

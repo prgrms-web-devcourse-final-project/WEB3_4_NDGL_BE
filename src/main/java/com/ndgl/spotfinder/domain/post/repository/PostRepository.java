@@ -60,7 +60,9 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
 	@Query("SELECT DISTINCT p FROM Post p "
 		+ "JOIN FETCH p.user "
+		+ "LEFT JOIN FETCH p.comments "
 		+ "LEFT JOIN FETCH p.hashtags "
+		+ "LEFT JOIN FETCH p.locations "
 		+ "WHERE p.status = 'PUBLIC'")
 	List<Post> findAllWithAssociations();
 
