@@ -2,7 +2,7 @@ package com.ndgl.spotfinder.domain.blog.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-public record PostSummeryDto(
+public record PostSummaryDto(
 	@Schema(description = "ID", example = "1")
 	Long id,
 

@@ -15,7 +15,7 @@ import org.springframework.data.domain.SliceImpl;
 import org.springframework.test.context.ActiveProfiles;
 
 import com.ndgl.spotfinder.domain.blog.dto.BlogResponseDto;
-import com.ndgl.spotfinder.domain.blog.dto.PostSummeryDto;
+import com.ndgl.spotfinder.domain.blog.dto.PostSummaryDto;
 import com.ndgl.spotfinder.domain.blog.service.BlogService;
 import com.ndgl.spotfinder.domain.follow.service.FollowService;
 import com.ndgl.spotfinder.domain.post.entity.Post;
@@ -97,7 +97,7 @@ class BlogServiceTest {
 			"블로그2",
 			"별명2",
 			true,
-			List.of(new PostSummeryDto(1L, "제목1"))
+			List.of(new PostSummaryDto(1L, "제목1"))
 		);
 
 		BlogResponseDto dto2 = new BlogResponseDto(
@@ -105,7 +105,7 @@ class BlogServiceTest {
 			"블로그3",
 			"별명3",
 			false,
-			List.of(new PostSummeryDto(2L, "제목2"))
+			List.of(new PostSummaryDto(2L, "제목2"))
 		);
 
 		SliceResponse<BlogResponseDto> expectedResult = new SliceResponse<>(

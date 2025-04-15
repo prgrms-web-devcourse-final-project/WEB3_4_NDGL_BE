@@ -9,6 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -121,10 +122,11 @@ public class PostService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<Post> getPostsByUser(Long userId) {
+	public List<Post> getPostsByUser(Long userId, Integer limit) {
 		User user = userService.findUserById(userId);
+		Pageable pageable = PageRequest.of(FIRST_PAGE_NUMBER, limit);
 
-		return postRepository.findByUser(user);
+		return postRepository.findByUserAndStatus(user, PostStatus.PUBLIC, pageable);
 	}
 
 	@Transactional(readOnly = true)
