@@ -24,9 +24,10 @@ import com.ndgl.spotfinder.domain.post.dto.PostResponseDto;
 import com.ndgl.spotfinder.domain.post.entity.Post;
 import com.ndgl.spotfinder.domain.post.repository.PostRepository;
 import com.ndgl.spotfinder.domain.post.service.PostService;
+import com.ndgl.spotfinder.domain.post.type.PostStatus;
 import com.ndgl.spotfinder.domain.search.document.PostDocument;
-import com.ndgl.spotfinder.domain.search.document.SearchType;
 import com.ndgl.spotfinder.domain.search.repository.PostSearchRepository;
+import com.ndgl.spotfinder.domain.search.type.SearchType;
 import com.ndgl.spotfinder.global.common.dto.SliceRequest;
 import com.ndgl.spotfinder.global.common.dto.SliceResponse;
 import com.ndgl.spotfinder.global.elk.ElasticsearchHealthCheck;
@@ -94,7 +95,7 @@ public class PostSearchService {
 		}
 
 		return cached.stream()
-			.map(id -> ((Number) id).longValue())
+			.map(id -> ((Number)id).longValue())
 			.toList();
 	}
 
@@ -114,6 +115,7 @@ public class PostSearchService {
 			Slice<Post> posts = postRepository.searchAll(keyword, pageRequest);
 
 			ids = posts.getContent().stream()
+				.filter(post -> post.getStatus() == PostStatus.PUBLIC)
 				.sorted(Comparator.comparing(Post::getId).reversed())
 				.map(Post::getId)
 				.toList();
@@ -171,6 +173,10 @@ public class PostSearchService {
 
 		postSearchRepository.deleteAll();
 		postSearchRepository.saveAll(documents);
+
+		// Redis 캐시 삭제 (검색 관련 데이터)
+		redisTemplate.delete("search:post:*");
+		redisTemplate.delete("searchJpa:post:*");
 	}
 
 	public List<String> getPopularKeywords() {

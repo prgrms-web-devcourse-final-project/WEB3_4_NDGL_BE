@@ -1,4 +1,4 @@
-package com.ndgl.spotfinder.domain.comment.entity;
+package com.ndgl.spotfinder.domain.comment.type;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

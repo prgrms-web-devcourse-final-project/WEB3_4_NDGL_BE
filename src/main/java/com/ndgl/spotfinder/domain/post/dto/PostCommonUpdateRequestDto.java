@@ -5,7 +5,7 @@ import java.util.List;
 import com.ndgl.spotfinder.domain.post.entity.Hashtag;
 import com.ndgl.spotfinder.domain.post.entity.Location;
 import com.ndgl.spotfinder.domain.post.entity.Post;
-import com.ndgl.spotfinder.domain.post.entity.PostStatus;
+import com.ndgl.spotfinder.domain.post.type.PostStatus;
 
 public interface PostCommonUpdateRequestDto {
 	String title();
@@ -22,7 +22,7 @@ public interface PostCommonUpdateRequestDto {
 		post.setTitle(title());
 		post.setContent(content());
 		post.setThumbnail(thumbnail());
-		post.setStatus(postStatus);
+		post.changeStatus(postStatus);
 
 		List<Hashtag> newHashtags = hashtags()
 			.stream()

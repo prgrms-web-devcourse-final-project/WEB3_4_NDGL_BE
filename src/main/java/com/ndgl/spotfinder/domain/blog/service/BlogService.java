@@ -26,7 +26,7 @@ public class BlogService {
 	private static final Integer DEFAULT_PREVIEW_POST_COUNT = 3;
 
 	public SliceResponse<BlogResponseDto> getBlogs(SliceRequest sliceRequest, String email) {
-		User currentUser = userService.findUserByEmail(email);
+		User currentUser = (email != null) ? userService.findUserByEmail(email) : null;
 		Slice<User> users = userService.findUsers(sliceRequest);
 
 		List<BlogResponseDto> posts = users.stream()
@@ -47,6 +47,10 @@ public class BlogService {
 	}
 
 	private Boolean isFollowedUser(User follower, User followee) {
+		if (follower == null) {
+			return false;
+		}
+
 		return followService.isFollowed(follower, followee);
 	}
 

@@ -1,8 +1,8 @@
 package com.ndgl.spotfinder.domain.report.dto;
 
 import com.ndgl.spotfinder.domain.report.entity.PostReport;
-import com.ndgl.spotfinder.domain.report.entity.ReportStatus;
-import com.ndgl.spotfinder.domain.report.entity.ReportType;
+import com.ndgl.spotfinder.domain.report.type.ReportStatus;
+import com.ndgl.spotfinder.domain.report.type.ReportType;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

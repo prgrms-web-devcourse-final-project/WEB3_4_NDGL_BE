@@ -15,8 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.ndgl.spotfinder.domain.image.service.ImageCleanupService;
 import com.ndgl.spotfinder.domain.image.service.ImageService;
 import com.ndgl.spotfinder.domain.image.type.ImageUsage;
-import com.ndgl.spotfinder.domain.like.entity.Like;
 import com.ndgl.spotfinder.domain.like.service.LikeService;
+import com.ndgl.spotfinder.domain.like.type.TargetType;
 import com.ndgl.spotfinder.domain.popular.service.redis.RedisPopularService;
 import com.ndgl.spotfinder.domain.post.dto.PostCommonUpdateRequestDto;
 import com.ndgl.spotfinder.domain.post.dto.PostCreateRequestDto;
@@ -24,8 +24,8 @@ import com.ndgl.spotfinder.domain.post.dto.PostDetailResponseDto;
 import com.ndgl.spotfinder.domain.post.dto.PostResponseDto;
 import com.ndgl.spotfinder.domain.post.dto.PostTempResponseDto;
 import com.ndgl.spotfinder.domain.post.entity.Post;
-import com.ndgl.spotfinder.domain.post.entity.PostStatus;
 import com.ndgl.spotfinder.domain.post.repository.PostRepository;
+import com.ndgl.spotfinder.domain.post.type.PostStatus;
 import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.domain.user.service.UserService;
 import com.ndgl.spotfinder.global.common.dto.SliceRequest;
@@ -87,25 +87,25 @@ public class PostService {
 		checkUserPermission(post, email);
 		postRepository.delete(post);
 		imageService.deletePostWithAllImages(ImageUsage.POST, post.getId());
-		likeService.deleteAllLikes(id, Like.TargetType.POST);
+		likeService.deleteAllLikes(id, TargetType.POST);
 	}
 
 	@Transactional(readOnly = true)
 	public SliceResponse<PostResponseDto> getPosts(SliceRequest sliceRequest) {
 		PageRequest pageRequest = PageRequest.of(FIRST_PAGE_NUMBER, sliceRequest.size());
 		Long lastId = getLastPostId(sliceRequest);
-		Slice<Post> results = postRepository.findByStatusAndIdLessThanOrderByIdDesc(
+		Slice<Post> results = postRepository.findByStatusAndIdLessThanOrderByCreatedAtDesc(
 			PostStatus.PUBLIC, lastId, pageRequest);
 		return convertToSliceResponse(results);
 	}
 
 	@Transactional(readOnly = true)
-	public SliceResponse<PostResponseDto> getPostsByUser(SliceRequest sliceRequest, Long userId, String email) {
+	public SliceResponse<PostResponseDto> getPostsByUser(SliceRequest sliceRequest, Long userId) {
 		PageRequest pageRequest = PageRequest.of(FIRST_PAGE_NUMBER, sliceRequest.size());
 		Long lastId = getLastPostId(sliceRequest);
 		User user = userService.findUserById(userId);
 
-		Slice<Post> results = postRepository.findByStatusAndUserAndIdLessThanOrderByIdDesc(
+		Slice<Post> results = postRepository.findByStatusAndUserAndIdLessThanOrderByCreatedAtDesc(
 			PostStatus.PUBLIC, user, lastId, pageRequest
 		);
 
@@ -124,7 +124,7 @@ public class PostService {
 		Post post = findPostById(postId);
 		Boolean isLiked = Optional.ofNullable(email)
 			.map(userService::findUserByEmail)
-			.map(loginUser -> likeService.getLikeStatus(loginUser.getId(), postId, Like.TargetType.POST))
+			.map(loginUser -> likeService.getLikeStatus(loginUser.getId(), postId, TargetType.POST))
 			.orElse(false);
 
 		return new PostDetailResponseDto(post, isLiked);

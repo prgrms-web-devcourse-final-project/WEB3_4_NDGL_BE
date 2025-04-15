@@ -12,20 +12,20 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.ndgl.spotfinder.domain.post.entity.Post;
-import com.ndgl.spotfinder.domain.post.entity.PostStatus;
+import com.ndgl.spotfinder.domain.post.type.PostStatus;
 import com.ndgl.spotfinder.domain.user.entity.User;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
-	Slice<Post> findByStatusAndIdLessThanOrderByIdDesc(
+	Slice<Post> findByStatusAndIdLessThanOrderByCreatedAtDesc(
 		PostStatus status, Long lastId, PageRequest pageRequest);
 
-	Slice<Post> findByStatusAndUserAndIdLessThanOrderByIdDesc(
+	Slice<Post> findByStatusAndUserAndIdLessThanOrderByCreatedAtDesc(
 		PostStatus status, User user, Long lastId, PageRequest pageRequest);
 
 	@Query("SELECT p FROM Post p " +
 		"JOIN Like l ON p.id = l.targetId AND l.targetType = 'POST' " +
 		"WHERE l.user.id = :userId AND p.id < :lastId AND p.status = :postStatus " +
-		"ORDER BY p.id DESC")
+		"ORDER BY p.createdAt DESC")
 	Slice<Post> findLikedPostsByUser(
 		@Param("userId") Long userId,
 		@Param("lastId") Long lastId,
@@ -36,7 +36,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 		"JOIN Follow f ON f.follower.id = :userId AND f.followee.id = p.user.id " +
 		"WHERE p.id < :lastId " +
 		"AND p.status = :postStatus " +
-		"ORDER BY p.id DESC")
+		"ORDER BY p.createdAt DESC")
 	Slice<Post> findFollowedPostsByUser(
 		@Param("userId") Long userId,
 		@Param("lastId") Long lastId,
@@ -53,14 +53,16 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 		+ "OR LOWER(p.user.nickName) LIKE LOWER(CONCAT('%', :keyword, '%')) "
 		+ "OR EXISTS (SELECT h FROM p.hashtags h WHERE LOWER(h.name) LIKE LOWER(CONCAT('%', :keyword, '%')))) "
 		+ "AND p.status = 'PUBLIC'"
-		+ "ORDER BY p.id DESC")
+		+ "ORDER BY p.createdAt DESC")
 	Slice<Post> searchAll(String keyword, PageRequest pageRequest);
 
 	List<Post> findByUser(User user);
 
 	@Query("SELECT DISTINCT p FROM Post p "
 		+ "JOIN FETCH p.user "
+		+ "LEFT JOIN FETCH p.comments "
 		+ "LEFT JOIN FETCH p.hashtags "
+		+ "LEFT JOIN FETCH p.locations "
 		+ "WHERE p.status = 'PUBLIC'")
 	List<Post> findAllWithAssociations();
 

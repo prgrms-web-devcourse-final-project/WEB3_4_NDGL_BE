@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ndgl.spotfinder.domain.like.entity.Like;
 import com.ndgl.spotfinder.domain.like.service.LikeService;
+import com.ndgl.spotfinder.domain.like.type.TargetType;
 import com.ndgl.spotfinder.global.rsdata.RsData;
 
 import jakarta.validation.constraints.Positive;
@@ -30,7 +30,7 @@ public class LikeController implements LikeApiSpecification {
 		@Positive @PathVariable Long commentId,
 		Principal principal
 	) {
-		boolean isAdded = likeService.toggleLike(principal.getName(), commentId, Like.TargetType.COMMENT);
+		boolean isAdded = likeService.toggleLike(principal.getName(), commentId, TargetType.COMMENT);
 		return RsData.success(HttpStatus.OK, isAdded);
 	}
 
@@ -42,7 +42,7 @@ public class LikeController implements LikeApiSpecification {
 		@Positive @PathVariable Long postId,
 		Principal principal
 	) {
-		boolean isAdded = likeService.toggleLike(principal.getName(), postId, Like.TargetType.POST);
+		boolean isAdded = likeService.toggleLike(principal.getName(), postId, TargetType.POST);
 		return RsData.success(HttpStatus.OK, isAdded);
 	}
 

@@ -3,7 +3,7 @@ package com.ndgl.spotfinder.domain.post.dto;
 import java.util.List;
 
 import com.ndgl.spotfinder.domain.post.entity.Post;
-import com.ndgl.spotfinder.domain.post.entity.PostStatus;
+import com.ndgl.spotfinder.domain.post.type.PostStatus;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

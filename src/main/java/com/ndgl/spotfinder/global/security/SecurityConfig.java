@@ -71,46 +71,81 @@ public class SecurityConfig {
 			.sessionManagement(session ->
 				session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.authorizeHttpRequests(auth -> auth
+				// 인증
 				.requestMatchers(
-					"/api/v1/users/join",
 					"/login/callback",
 					"oauth2/**",
-					"/api/v1/users/google/login/process",
-					"/api/v1/users",
-					"/api/v1/users/logout",
-					"/api/v1/users/resign",
-					"/api/v1/users/info",
-					"/api/v1/auth/status",
-					"/api/v1/auth/token/refresh",
-					"/api/v1/users/google/login/process",
-					"/api/*/admin/login",
-					"/api/*/admin/join",
-					"/api/v1/dev/**"
+					"/api/*/auth/status",
+					"/api/*/auth/token/refresh"
 				)
-				.permitAll() // 로그인 경로는 모두 허용
+				.permitAll()
+
+				// 유저
 				.requestMatchers(
-					"/h2-console/**",
-					"/error",
-					"/swagger-ui/**",
-					"/v3/api-docs/**"
+					"/api/*/users/join",
+					"/api/*/users/google/login/process",
+					"/api/*/users",
+					"/api/*/users/logout",
+					"/api/*/users/resign",
+					"/api/*/users/info"
 				)
 				.permitAll()
+
+				// 관리자
+				.requestMatchers(
+					"/api/*/admin/login",
+					"/api/*/admin/join"
+				)
+				.permitAll()
+				.requestMatchers(
+					"/api/*/admin/**"
+				)
+				.hasAuthority("ROLE_ADMIN")
+
+				// 포스트
+				.requestMatchers(
+					"/api/*/posts/like",
+					"/api/*/posts/follow"
+				)
+				.authenticated()
 				.requestMatchers(HttpMethod.GET,
-					"/api/v1/posts/**",
-					"/api/v1/posts/*/comments",
-					"/api/v1/posts/*/comments/*"
+					"/api/*/posts/**"
 				)
 				.permitAll()
+
+				// 댓글
+				.requestMatchers(HttpMethod.GET,
+					"/api/*/posts/*/comments",
+					"/api/*/posts/*/comments/*"
+				)
+				.permitAll()
+
+				// 신고
 				.requestMatchers(HttpMethod.POST,
 					"/api/*/reports/posts/{id}",
 					"/api/*/reports/comments/{id}"
 				)
 				.authenticated()
 				.requestMatchers(
-					"/api/*/admin/**",
 					"/api/*/reports/**"
 				)
 				.hasAuthority("ROLE_ADMIN")
+
+				// 블로그
+				.requestMatchers(
+					"/api/*/blogs"
+				)
+				.permitAll()
+
+				// 기타
+				.requestMatchers(
+					"/api/*/dev/**",
+					"/h2-console/**",
+					"/error",
+					"/swagger-ui/**",
+					"/v3/api-docs/**"
+				)
+				.permitAll()
 				.anyRequest()
 				.authenticated()
 			)

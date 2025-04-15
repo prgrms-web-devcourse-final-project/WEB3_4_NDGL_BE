@@ -1,4 +1,4 @@
-package com.ndgl.spotfinder.domain.report.entity;
+package com.ndgl.spotfinder.domain.report.type;
 
 import com.ndgl.spotfinder.global.exception.ErrorCode;
 

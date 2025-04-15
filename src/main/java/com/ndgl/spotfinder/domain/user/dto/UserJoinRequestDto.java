@@ -1,6 +1,6 @@
 package com.ndgl.spotfinder.domain.user.dto;
 
-import com.ndgl.spotfinder.domain.user.entity.Provider;
+import com.ndgl.spotfinder.domain.user.type.Provider;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;

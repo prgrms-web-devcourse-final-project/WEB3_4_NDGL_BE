@@ -16,18 +16,18 @@ import org.springframework.transaction.annotation.Transactional;
 import com.ndgl.spotfinder.domain.comment.entity.PostComment;
 import com.ndgl.spotfinder.domain.comment.repository.PostCommentRepository;
 import com.ndgl.spotfinder.domain.like.entity.Like;
-import com.ndgl.spotfinder.domain.like.entity.Like.TargetType;
 import com.ndgl.spotfinder.domain.like.repository.LikeRepository;
+import com.ndgl.spotfinder.domain.like.type.TargetType;
 import com.ndgl.spotfinder.domain.post.entity.Hashtag;
 import com.ndgl.spotfinder.domain.post.entity.Location;
 import com.ndgl.spotfinder.domain.post.entity.Post;
-import com.ndgl.spotfinder.domain.post.entity.PostStatus;
 import com.ndgl.spotfinder.domain.post.repository.PostRepository;
+import com.ndgl.spotfinder.domain.post.type.PostStatus;
 import com.ndgl.spotfinder.domain.user.entity.Oauth;
-import com.ndgl.spotfinder.domain.user.entity.Provider;
 import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.domain.user.repository.OauthRepository;
 import com.ndgl.spotfinder.domain.user.repository.UserRepository;
+import com.ndgl.spotfinder.domain.user.type.Provider;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,13 +39,13 @@ import lombok.extern.slf4j.Slf4j;
 public class BaseInitData {
 
 	// 데이터 생성 개수 설정
-	private static final int USER_COUNT = 5;               		// 생성할 사용자 수
-	private static final int POSTS_PER_USER_MIN = 1;       		// 사용자당 최소 포스트 수
-	private static final int POSTS_PER_USER_MAX = 3;       		// 사용자당 최대 포스트 수
-	private static final int COMMENTS_PER_POST_MIN = 1;    		// 포스트당 최소 댓글 수
-	private static final int COMMENTS_PER_POST_MAX = 3;    		// 포스트당 최대 댓글 수
-	private static final double REPLY_PROBABILITY = 1;      	// 댓글에 대댓글이 달릴 확률
-	private static final double POST_LIKE_PROBABILITY = 0.4; 	// 포스트에 좋아요 확률
+	private static final int USER_COUNT = 5;                    // 생성할 사용자 수
+	private static final int POSTS_PER_USER_MIN = 1;            // 사용자당 최소 포스트 수
+	private static final int POSTS_PER_USER_MAX = 3;            // 사용자당 최대 포스트 수
+	private static final int COMMENTS_PER_POST_MIN = 1;            // 포스트당 최소 댓글 수
+	private static final int COMMENTS_PER_POST_MAX = 3;            // 포스트당 최대 댓글 수
+	private static final double REPLY_PROBABILITY = 1;        // 댓글에 대댓글이 달릴 확률
+	private static final double POST_LIKE_PROBABILITY = 0.4;    // 포스트에 좋아요 확률
 	private static final double COMMENT_LIKE_PROBABILITY = 0.2; // 댓글에 좋아요 확률
 
 	private final UserRepository userRepository;

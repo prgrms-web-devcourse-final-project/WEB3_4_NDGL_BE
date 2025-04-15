@@ -5,6 +5,7 @@ import java.util.List;
 import com.ndgl.spotfinder.domain.post.entity.Hashtag;
 import com.ndgl.spotfinder.domain.post.entity.Location;
 import com.ndgl.spotfinder.domain.post.entity.Post;
+import com.ndgl.spotfinder.domain.post.type.PostStatus;
 import com.ndgl.spotfinder.domain.user.entity.User;
 
 import jakarta.validation.Valid;
@@ -54,6 +55,7 @@ public record PostCreateRequestDto(
 
 		post.addHashtags(hashtagEntities);
 		post.addLocations(locationEntities);
+		post.setStatus(PostStatus.PUBLIC);
 
 		return post;
 	}

@@ -24,10 +24,10 @@ import org.springframework.test.context.ActiveProfiles;
 import com.ndgl.spotfinder.domain.comment.dto.PostCommentRequestDto;
 import com.ndgl.spotfinder.domain.comment.dto.PostCommentResponseDto;
 import com.ndgl.spotfinder.domain.comment.entity.PostComment;
-import com.ndgl.spotfinder.domain.comment.entity.PostCommentStatus;
 import com.ndgl.spotfinder.domain.comment.repository.PostCommentRepository;
-import com.ndgl.spotfinder.domain.like.entity.Like;
+import com.ndgl.spotfinder.domain.comment.type.PostCommentStatus;
 import com.ndgl.spotfinder.domain.like.service.LikeService;
+import com.ndgl.spotfinder.domain.like.type.TargetType;
 import com.ndgl.spotfinder.domain.post.entity.Post;
 import com.ndgl.spotfinder.domain.post.service.PostService;
 import com.ndgl.spotfinder.domain.user.entity.User;
@@ -358,7 +358,7 @@ public class PostCommentServiceTest {
 		likeStatusMap.put(1L, true);
 		likeStatusMap.put(2L, false);
 
-		when(likeService.getAllLikeStatus(userId, commentIds, Like.TargetType.COMMENT))
+		when(likeService.getAllLikeStatus(userId, commentIds, TargetType.COMMENT))
 			.thenReturn(likeStatusMap);
 
 		// When

@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import com.ndgl.spotfinder.domain.post.type.PostStatus;
 import com.ndgl.spotfinder.domain.search.document.PostDocument;
 import com.ndgl.spotfinder.global.exception.ErrorCode;
 
@@ -82,7 +84,8 @@ public class PostSearchRepositoryImpl implements PostSearchRepositoryCustom {
 		List<PostDocument> content = response.hits().hits().stream()
 			.map(Hit::source)
 			.filter(Objects::nonNull)
-			.toList();
+			.filter(post -> post.getStatus() == PostStatus.PUBLIC)
+			.collect(Collectors.toList());
 
 		long totalHits = response.hits().total() != null ? response.hits().total().value() : 0;
 

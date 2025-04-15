@@ -6,7 +6,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import com.ndgl.spotfinder.domain.comment.entity.PostComment;
-import com.ndgl.spotfinder.domain.comment.entity.PostCommentStatus;
+import com.ndgl.spotfinder.domain.comment.type.PostCommentStatus;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

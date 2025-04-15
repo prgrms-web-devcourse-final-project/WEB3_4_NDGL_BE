@@ -1,6 +1,6 @@
 package com.ndgl.spotfinder.domain.report.dto;
 
-import com.ndgl.spotfinder.domain.report.entity.ReportType;
+import com.ndgl.spotfinder.domain.report.type.ReportType;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

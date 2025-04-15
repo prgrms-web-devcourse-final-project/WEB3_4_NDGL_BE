@@ -3,6 +3,7 @@ package com.ndgl.spotfinder.domain.user.entity;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.ndgl.spotfinder.domain.user.type.Provider;
 import com.ndgl.spotfinder.global.base.BaseTime;
 
 import jakarta.persistence.Entity;

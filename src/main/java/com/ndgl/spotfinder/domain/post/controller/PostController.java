@@ -22,8 +22,8 @@ import com.ndgl.spotfinder.domain.post.dto.PostResponseDto;
 import com.ndgl.spotfinder.domain.post.dto.PostTempResponseDto;
 import com.ndgl.spotfinder.domain.post.dto.PostTempUpdateRequestDto;
 import com.ndgl.spotfinder.domain.post.dto.PostUpdateRequestDto;
-import com.ndgl.spotfinder.domain.post.entity.PostStatus;
 import com.ndgl.spotfinder.domain.post.service.PostService;
+import com.ndgl.spotfinder.domain.post.type.PostStatus;
 import com.ndgl.spotfinder.global.common.dto.SliceRequest;
 import com.ndgl.spotfinder.global.common.dto.SliceResponse;
 import com.ndgl.spotfinder.global.rsdata.RsData;
@@ -108,11 +108,9 @@ public class PostController implements PostApiSpecification {
 	@GetMapping("/users/{userId}")
 	public RsData<SliceResponse<PostResponseDto>> getPostsByUserId(
 		@PathVariable Long userId,
-		@ModelAttribute @Valid SliceRequest sliceRequest,
-		Principal principal
+		@ModelAttribute @Valid SliceRequest sliceRequest
 	) {
-		String email = getEmail(principal);
-		SliceResponse<PostResponseDto> results = postService.getPostsByUser(sliceRequest, userId, email);
+		SliceResponse<PostResponseDto> results = postService.getPostsByUser(sliceRequest, userId);
 
 		return RsData.success(HttpStatus.OK, results);
 	}
