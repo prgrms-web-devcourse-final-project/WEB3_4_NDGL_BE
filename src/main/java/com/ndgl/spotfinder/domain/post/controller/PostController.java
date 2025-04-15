@@ -108,11 +108,9 @@ public class PostController implements PostApiSpecification {
 	@GetMapping("/users/{userId}")
 	public RsData<SliceResponse<PostResponseDto>> getPostsByUserId(
 		@PathVariable Long userId,
-		@ModelAttribute @Valid SliceRequest sliceRequest,
-		Principal principal
+		@ModelAttribute @Valid SliceRequest sliceRequest
 	) {
-		String email = getEmail(principal);
-		SliceResponse<PostResponseDto> results = postService.getPostsByUser(sliceRequest, userId, email);
+		SliceResponse<PostResponseDto> results = postService.getPostsByUser(sliceRequest, userId);
 
 		return RsData.success(HttpStatus.OK, results);
 	}
