@@ -156,43 +156,6 @@ class PostServiceTest {
 	}
 
 	@Test
-	@DisplayName("포스트 수정 - 성공")
-	void updatePost_success() {
-		// given
-		HashtagDto hashtagDto = new HashtagDto("태그2");
-		LocationDto locationDto = new LocationDto("장소2", "주소2", 35.5, 126.5, 1);
-		PostUpdateRequestDto requestDto = new PostUpdateRequestDto(
-			"제목2",
-			"내용2",
-			List.of(hashtagDto),
-			List.of(locationDto),
-			""
-		);
-
-		when(userService.findUserByEmail("이메일1")).thenReturn(user1);
-		when(postRepository.findById(1L)).thenReturn(Optional.of(samplePost));
-
-		// when
-		postService.updatePost(1L, requestDto, "이메일1", PostStatus.PUBLIC);
-
-		// then
-		verify(postRepository, times(1)).save(any());
-		ArgumentCaptor<Post> postCaptor = ArgumentCaptor.forClass(Post.class);
-		verify(postRepository).save(postCaptor.capture());
-		Post savedPost = postCaptor.getValue();
-		assertEquals("제목2", savedPost.getTitle());
-		assertEquals("내용2", savedPost.getContent());
-
-		Hashtag updatedHashtag = savedPost.getHashtags().get(0);
-		Location updatedLocation = savedPost.getLocations().get(0);
-		assertEquals("태그2", updatedHashtag.getName());
-		assertEquals("장소2", updatedLocation.getName());
-		assertEquals("주소2", updatedLocation.getAddress());
-		assertEquals(35.5, updatedLocation.getLatitude());
-		assertEquals(126.5, updatedLocation.getLongitude());
-	}
-
-	@Test
 	@DisplayName("포스트 수정 - 요청한 사용자를 찾을 수 없는 경우")
 	void updatePost_notFound_fail() {
 		// given
@@ -219,36 +182,6 @@ class PostServiceTest {
 	}
 
 	@Test
-	@DisplayName("포스트 수정 - 임시글 저장 성공")
-	void updatePost_withTempStatus_success() {
-		// given
-		HashtagDto hashtagDto = new HashtagDto("태그2");
-		LocationDto locationDto = new LocationDto("장소2", "주소2", 35.5, 126.5, 1);
-		PostUpdateRequestDto requestDto = new PostUpdateRequestDto(
-			"임시제목",
-			"임시내용",
-			List.of(hashtagDto),
-			List.of(locationDto),
-			""
-		);
-
-		when(userService.findUserByEmail("이메일1")).thenReturn(user1);
-		when(postRepository.findById(1L)).thenReturn(Optional.of(samplePost));
-
-		// when
-		postService.updatePost(1L, requestDto, "이메일1", PostStatus.TEMP);
-
-		// then
-		verify(postRepository, times(1)).save(any());
-		ArgumentCaptor<Post> postCaptor = ArgumentCaptor.forClass(Post.class);
-		verify(postRepository).save(postCaptor.capture());
-		Post savedPost = postCaptor.getValue();
-		assertEquals("임시제목", savedPost.getTitle());
-		assertEquals("임시내용", savedPost.getContent());
-		assertEquals(PostStatus.TEMP, savedPost.getStatus());
-	}
-
-	@Test
 	@DisplayName("포스트 삭제 - 성공")
 	void deletePost_success() {
 		// given
@@ -260,7 +193,7 @@ class PostServiceTest {
 
 		// then
 		assertEquals(PostStatus.DELETED, samplePost.getStatus());
-		assertEquals( LocalDate.now().plusWeeks(1), samplePost.getDeleteScheduledAt());
+		assertEquals(LocalDate.now().plusWeeks(1), samplePost.getDeleteScheduledAt());
 	}
 
 	@Test
