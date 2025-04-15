@@ -5,6 +5,7 @@ import static org.mockito.Mockito.*;
 
 import java.util.List;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -26,7 +27,7 @@ import com.ndgl.spotfinder.global.common.dto.SliceResponse;
 
 @ActiveProfiles("test")
 @SpringBootTest
-public class BlogServiceTest {
+class BlogServiceTest {
 	@InjectMocks
 	private BlogService blogService;
 
@@ -75,7 +76,8 @@ public class BlogServiceTest {
 		.build();
 
 	@Test
-	public void getBlogs_success() {
+	@DisplayName("블로그 목록 조회 - 성공")
+	void getBlogs_success() {
 		// given
 		SliceRequest sliceRequest = new SliceRequest(4L, 3);
 		String email = "이메일1";
