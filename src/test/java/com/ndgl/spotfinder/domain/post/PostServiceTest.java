@@ -11,6 +11,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
@@ -43,8 +44,7 @@ import com.ndgl.spotfinder.global.exception.ServiceException;
 
 @ActiveProfiles("test")
 @SpringBootTest
-public class PostServiceTest {
-
+class PostServiceTest {
 	@InjectMocks
 	private PostService postService;
 
@@ -104,7 +104,8 @@ public class PostServiceTest {
 	}
 
 	@Test
-	public void createPost_success() {
+	@DisplayName("포스트 생성 - 성공")
+	void createPost_success() {
 		// given
 		HashtagDto hashtagDto = new HashtagDto("태그1");
 		LocationDto locationDto = new LocationDto("장소1", "주소1", 37.0, 126.0, 1);
@@ -141,7 +142,8 @@ public class PostServiceTest {
 	}
 
 	@Test
-	public void createPost_userNotFound() {
+	@DisplayName("포스트 생성 - 유저를 찾을 수 없는 경우")
+	void createPost_userNotFound_fail() {
 		// when
 		ErrorCode errorCode = ErrorCode.USER_NOT_FOUND;
 		when(userService.findUserByEmail("이메일1"))
@@ -154,7 +156,8 @@ public class PostServiceTest {
 	}
 
 	@Test
-	public void updatePost_success() {
+	@DisplayName("포스트 수정 - 성공")
+	void updatePost_success() {
 		// given
 		HashtagDto hashtagDto = new HashtagDto("태그2");
 		LocationDto locationDto = new LocationDto("장소2", "주소2", 35.5, 126.5, 1);
@@ -190,7 +193,8 @@ public class PostServiceTest {
 	}
 
 	@Test
-	public void updatePost_notFound() {
+	@DisplayName("포스트 수정 - 요청한 사용자를 찾을 수 없는 경우")
+	void updatePost_notFound_fail() {
 		// given
 		when(userService.findUserByEmail("이메일1")).thenReturn(user1);
 		when(postRepository.findById(1L)).thenReturn(Optional.empty());
@@ -202,7 +206,8 @@ public class PostServiceTest {
 	}
 
 	@Test
-	public void updatePost_AuthorMissMatch() {
+	@DisplayName("포스트 수정 - 요청한 사용자가 작성자가 아닌 경우")
+	void updatePost_AuthorMissMatch_fail() {
 		// given
 		when(userService.findUserByEmail("이메일2")).thenReturn(user2);
 		when(postRepository.findById(1L)).thenReturn(Optional.of(samplePost));
@@ -214,7 +219,8 @@ public class PostServiceTest {
 	}
 
 	@Test
-	public void updatePost_withTempStatus() {
+	@DisplayName("포스트 수정 - 임시글 저장 성공")
+	void updatePost_withTempStatus_success() {
 		// given
 		HashtagDto hashtagDto = new HashtagDto("태그2");
 		LocationDto locationDto = new LocationDto("장소2", "주소2", 35.5, 126.5, 1);
@@ -243,7 +249,8 @@ public class PostServiceTest {
 	}
 
 	@Test
-	public void deletePost_success() {
+	@DisplayName("포스트 삭제 - 성공")
+	void deletePost_success() {
 		// given
 		when(userService.findUserByEmail("이메일1")).thenReturn(user1);
 		when(postRepository.findById(1L)).thenReturn(Optional.of(samplePost));
@@ -257,7 +264,8 @@ public class PostServiceTest {
 	}
 
 	@Test
-	public void deletePost_notFound() {
+	@DisplayName("포스트 삭제 - 요청한 사용자를 찾을 수 없는 경우")
+	void deletePost_notFound_fail() {
 		// given
 		when(userService.findUserByEmail("이메일1")).thenReturn(user1);
 		when(postRepository.findById(1L)).thenReturn(Optional.empty());
@@ -269,7 +277,8 @@ public class PostServiceTest {
 	}
 
 	@Test
-	public void deletePost_AuthorMissMatch() {
+	@DisplayName("포스트 삭제 - 요청한 사용자가 작성자가 아닌 경우")
+	void deletePost_AuthorMissMatch_fail() {
 		// given
 		when(userService.findUserByEmail("이메일2")).thenReturn(user2);
 		when(postRepository.findById(1L)).thenReturn(Optional.of(samplePost));
@@ -281,7 +290,8 @@ public class PostServiceTest {
 	}
 
 	@Test
-	public void findOrCreateTempPost_findExistingTemp() {
+	@DisplayName("임시 포스트 생성 또는 조회 - 임시 포스트가 있는 경우")
+	void findOrCreateTempPost_findExistingTemp_success() {
 		// given
 		Post tempPost = Post.builder()
 			.id(3L)
@@ -306,7 +316,8 @@ public class PostServiceTest {
 	}
 
 	@Test
-	public void findOrCreateTempPost_createNewTemp() {
+	@DisplayName("임시 포스트 생성 또는 조회 - 임시 포스트가 없는 경우 생성")
+	void findOrCreateTempPost_createNewTemp_success() {
 		// given
 		Post newTempPost = Post.createTempPost(user1);
 		ReflectionTestUtils.setField(newTempPost, "id", 3L);
@@ -325,7 +336,8 @@ public class PostServiceTest {
 	}
 
 	@Test
-	public void extractImageUrlsFromContent_success() throws Exception {
+	@DisplayName("포스트 내용에서 이미지 URL 추출 - 성공")
+	void extractImageUrlsFromContent_success() throws Exception {
 		// 비공개 메서드 테스트를 위해 리플렉션 사용
 		String content = "이미지 테스트 ![](https://example.com/image1.jpg) 추가 이미지 ![](https://example.com/image2.png)";
 
@@ -341,7 +353,8 @@ public class PostServiceTest {
 	}
 
 	@Test
-	public void getPost_withLoggedInUser_success() {
+	@DisplayName("포스트 단건 조회 - 로그인 한 경우 성공")
+	void getPost_withLoggedInUser_success() {
 		// given
 		when(postRepository.findById(1L)).thenReturn(Optional.of(samplePost));
 		when(userService.findUserByEmail(user1.getEmail())).thenReturn(user1);
@@ -359,7 +372,8 @@ public class PostServiceTest {
 	}
 
 	@Test
-	public void getPost_withNoUser_success() {
+	@DisplayName("포스트 단건 조회 - 로그인 안 한 경우 성공")
+	void getPost_withNoUser_success() {
 		// given
 		when(postRepository.findById(1L)).thenReturn(Optional.of(samplePost));
 
@@ -375,7 +389,8 @@ public class PostServiceTest {
 	}
 
 	@Test
-	public void getPost_withLoggedInUserNotLiked_success() {
+	@DisplayName("포스트 단건 조회 - 로그인하고 좋아요하지 않은 경우 성공")
+	void getPost_withLoggedInUserNotLiked_success() {
 		// given
 		when(postRepository.findById(1L)).thenReturn(Optional.of(samplePost));
 		when(userService.findUserByEmail(user1.getEmail())).thenReturn(user1);
