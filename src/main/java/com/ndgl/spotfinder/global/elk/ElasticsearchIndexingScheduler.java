@@ -55,9 +55,8 @@ public class ElasticsearchIndexingScheduler {
 		isFullIndexing = false;
 	}
 
-	// @Scheduled(cron = "0 */10 * * * *") // 10분마다 부분 색인
 	@Transactional(readOnly = true)
-	@Scheduled(cron = "*/30 * * * * *")
+	@Scheduled(cron = "0 */10 * * * *") // 10분마다 부분 색인
 	public void partialReindexPosts() {
 		if (isFullIndexing) {
 			return; // 전체 인덱싱 중이면 부분 인덱싱 건너뜀
