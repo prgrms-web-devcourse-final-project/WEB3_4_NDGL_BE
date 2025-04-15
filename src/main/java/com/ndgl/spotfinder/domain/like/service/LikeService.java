@@ -40,7 +40,7 @@ public class LikeService {
 		Long userId = Optional.ofNullable(email)
 			.map(userService::findUserByEmail)
 			.map(User::getId)
-			.orElseThrow(ErrorCode.INVALID_EMAIl::throwServiceException);
+			.orElseThrow(ErrorCode.LIKE_INVALID_EMAIL::throwServiceException);
 
 		return likeRepository.findByUserIdAndTargetIdAndTargetType(userId, targetId, targetType)
 			.map(like -> {

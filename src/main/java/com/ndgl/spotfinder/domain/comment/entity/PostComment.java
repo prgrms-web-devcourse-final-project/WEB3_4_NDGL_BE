@@ -81,7 +81,7 @@ public class PostComment extends BaseTime implements Likeable {
 
 	public void isCommentOfPost(Long postId) {
 		if (!this.post.getId().equals(postId)) {
-			ErrorCode.NOT_FOUND_IN_POST.throwServiceException();
+			ErrorCode.COMMENT_NOT_FOUND_IN_POST.throwServiceException();
 		}
 	}
 

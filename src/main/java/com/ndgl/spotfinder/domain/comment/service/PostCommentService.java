@@ -174,7 +174,7 @@ public class PostCommentService {
 
 		// 고정 권한 체크 (작성자만 가능)
 		if (!post.getUser().getId().equals(user.getId())) {
-			ErrorCode.PIN_DENIED.throwServiceException();
+			ErrorCode.COMMENT_PIN_DENIED.throwServiceException();
 		}
 
 		PostComment targetComment = findCommentById(commentId);

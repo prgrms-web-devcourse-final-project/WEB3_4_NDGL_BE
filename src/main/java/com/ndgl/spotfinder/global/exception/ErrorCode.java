@@ -10,37 +10,44 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 @Slf4j
 public enum ErrorCode {
+	// 공통
+	UNREADABLE_REQUEST_PAYLOAD(HttpStatus.BAD_REQUEST, "요청 데이터 파싱을 실패하였습니다."),
+	JSON_PROCESSING_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "ObjectMapper 변환 도중 에러가 발생했습니다."),
+
+	// 인증, 인가
 	UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다."),
 	INVALID_OAUTH_CODE(HttpStatus.BAD_REQUEST, "유효하지 않은 OAUTH_CODE 입니다."),
-
 	ACCESS_DENIED(HttpStatus.FORBIDDEN, "권한이 없습니다."),
+	MISSING_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "Access Token이 존재하지 않습니다."),
 
+	// 관리자
 	ADMIN_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 관리자입니다."),
 	ADMIN_LOGIN_FAIL(HttpStatus.UNAUTHORIZED, "아이디 또는 비밀번호가 올바르지 않습니다."),
 	ADMIN_ALREADY_EXISTS_USERNAME(HttpStatus.CONFLICT, "이미 사용 중인 관리자 username 입니다."),
 
+	// 유저
 	CONFLICTED_NICKNAME(HttpStatus.CONFLICT, "이미 사용중인 닉네임 입니다."),
 	CONFLICTED_BLOG_NAME(HttpStatus.CONFLICT, "이미 사용중인 블로그 명 입니다."),
 	USER_NOT_FOUND(HttpStatus.NOT_FOUND, "대상 유저가 없습니다."),
 	NO_APPLIED_SOCIAL_PLATFORM(HttpStatus.BAD_REQUEST, "지원하지 않는 소셜 플랫폼입니다"),
-	SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 통신 에러"),
+	DELETE_USER_NOT_FOUND(HttpStatus.INTERNAL_SERVER_ERROR, "삭제할 유저가 존재하지 않습니다."),
+	REST_CLIENT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Rest Client Error"),
 
+	// 포스트
 	POST_ACCESS_DENIED(HttpStatus.FORBIDDEN, "작성자만 수정 또는 삭제할 수 있습니다."),
 	POST_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 포스트입니다."),
 
-	// POST_COMMENT
+	// 댓글
 	COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "댓글이 존재하지 않습니다."),
 	COMMENT_DELETE_DENIED(HttpStatus.FORBIDDEN, "작성자만 삭제할 수 있습니다."),
 	COMMENT_MODIFY_DENIED(HttpStatus.FORBIDDEN, "작성자만 수정할 수 있습니다."),
-	NOT_FOUND_IN_POST(HttpStatus.BAD_REQUEST, "해당 포스트의 댓글이 아닙니다."),
-	PIN_DENIED(HttpStatus.FORBIDDEN, "포스트 작성자만 댓글을 고정할 수 있습니다."),
+	COMMENT_NOT_FOUND_IN_POST(HttpStatus.BAD_REQUEST, "해당 포스트의 댓글이 아닙니다."),
+	COMMENT_PIN_DENIED(HttpStatus.FORBIDDEN, "포스트 작성자만 댓글을 고정할 수 있습니다."),
 
-	// LIKE
-	UNSUPPORTED_TARGET_TYPE(HttpStatus.NOT_FOUND, "지원하지 않는 타겟 유형입니다"),
-	INVALID_TARGET_ID(HttpStatus.BAD_REQUEST, "유효하지 않은 대상 ID입니다."),
-	INVALID_EMAIl(HttpStatus.BAD_REQUEST, "유효하지 않은 이메일 입니다."),
+	// 좋아요
+	LIKE_INVALID_EMAIL(HttpStatus.BAD_REQUEST, "유효하지 않은 이메일 입니다."),
 
-	// REPORT
+	// 신고
 	REPORTER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 신고자입니다."),
 	REPORTED_POST_NOT_FOUND(HttpStatus.NOT_FOUND, "신고한 글이 존재하지 않습니다."),
 	REPORTED_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "신고한 댓글이 존재하지 않습니다."),
@@ -51,39 +58,27 @@ public enum ErrorCode {
 	INVALID_BAN_DURATION(HttpStatus.BAD_REQUEST, "유효하지 않은 제재 일자 옵션입니다."),
 
 	// S3
-	S3_PRESIGNED_GENERATION_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "Presigned URL 생성 실패"),
-	S3_OBJECT_DELETE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "S3 객체 삭제 실패"),
-	S3_OBJECT_ACCESS_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "S3 객체 조회 실패"),
-	S3_OBJECT_UPLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "S3 업로드 실패"),
-	S3_INVALID_URL(HttpStatus.INTERNAL_SERVER_ERROR, "옳지 않은 URL"),
+	S3_PRESIGNED_GENERATION_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "Presigned URL 생성에 실패했습니다."),
+	S3_OBJECT_DELETE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "S3 객체 삭제에 실패했습니다."),
+	S3_OBJECT_ACCESS_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "S3 객체 조회에 실패했습니다."),
+	S3_OBJECT_UPLOAD_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "S3 업로드에 실패했습니다."),
 
-	// IMAGE
-	UNSUPPORTED_IMAGE_TYPE(HttpStatus.NOT_FOUND, "지원하지 않는 이미지 유형입니다."),
-	IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 이미지가 존재하지 않습니다."),
-
-	MISSING_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "Refresh Token 이 유효하지 않습니다."),
-	EXPIRED_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "Refresh Token 이 만료되었습니다."),
-	MISSING_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "Access Token 이 유효하지 않습니다."),
-	EXPIRED_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "Access Token 이 만료되었습니다."),
-
-	UNREADABLE_REQUEST_PAYLOAD(HttpStatus.BAD_REQUEST, "요청 데이터 파싱을 실패하였습니다."),
-
-	LOGGING_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "로그를 남기는 도중 에러 발생"),
-
+	// 인기
 	POPULAR_KEYWORD_NOT_FOUND(HttpStatus.NOT_FOUND, "인기 검색어가 존재하지 않습니다."),
 	POPULAR_POST_NOT_FOUND(HttpStatus.NOT_FOUND, "인기 포스트가 존재하지 않습니다."),
 	REDIS_INVALID_ZSET_TUPLE(HttpStatus.INTERNAL_SERVER_ERROR, "올바르지 않은 레디스 ZSET 튜플입니다."),
 
+	// 팔로우
 	ALREADY_FOLLOWED(HttpStatus.CONFLICT, "이미 팔로우한 유저입니다."),
 	NOT_FOLLOWED(HttpStatus.NOT_FOUND, "팔로우한 유저가 아닙니다."),
 	FOLLOWER_EQUALS_FOLLOWEE(HttpStatus.BAD_REQUEST, "자기 자신은 팔로우, 언팔로우할 수 없습니다."),
 
+	// 검색
 	SEARCH_FAIL(HttpStatus.BAD_REQUEST, "엘라스틱서치 검색에 실패했습니다."),
 	KEYWORD_SUGGESTION_FAIL(HttpStatus.BAD_REQUEST, "엘라스틱서치 키워드 추천에 실패했습니다."),
 
-	VIEW_COUNT_KEY_EXTRACT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Redis Key 추출 중 에러가 발생했습니다."),
-
-	JSON_PROCESSING_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "ObjectMapper 변환 도중 에러가 발생했습니다.");
+	// 조회
+	VIEW_COUNT_KEY_EXTRACT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Redis Key 추출 중 에러가 발생했습니다.");
 
 	private final HttpStatus httpStatus;
 	private final String message;

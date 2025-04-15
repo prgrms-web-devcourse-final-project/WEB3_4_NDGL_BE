@@ -64,7 +64,7 @@ public class GoogleAuthClientImpl implements GoogleAuthClient {
 			throw e;
 
 		} catch (RestClientException e) {
-			ErrorCode.SERVER_ERROR.throwServiceException(e);
+			ErrorCode.REST_CLIENT_ERROR.throwServiceException(e);
 		}
 
 		return null;

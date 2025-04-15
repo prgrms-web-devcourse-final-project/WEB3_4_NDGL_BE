@@ -156,7 +156,7 @@ public class UserService {
 				refreshTokenService.deleteRefreshToken(user.getEmail());
 			}
 		} catch (Exception e) {
-			ErrorCode.SERVER_ERROR.throwServiceException(e);
+			ErrorCode.DELETE_USER_NOT_FOUND.throwServiceException(e);
 		}
 	}
 }
