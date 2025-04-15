@@ -1,5 +1,6 @@
 package com.ndgl.spotfinder.domain.post.repository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -87,4 +88,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 	@Modifying
 	@Query("UPDATE Post p SET p.viewCount = p.viewCount + :count WHERE p.id = :postId")
 	void incrementViewCount(@Param("postId") Long postId, @Param("count") Long count);
+
+	List<Post> findAllByStatusAndDeleteScheduledAt(PostStatus status, LocalDate deleteScheduledAt);
 }
