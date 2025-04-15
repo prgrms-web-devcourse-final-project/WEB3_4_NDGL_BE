@@ -85,7 +85,8 @@ public class SecurityConfig {
 					"/api/v1/users/google/login/process",
 					"/api/*/admin/login",
 					"/api/*/admin/join",
-					"/api/v1/dev/**"
+					"/api/v1/dev/**",
+					"/api/v1/blogs"
 				)
 				.permitAll() // 로그인 경로는 모두 허용
 				.requestMatchers(
