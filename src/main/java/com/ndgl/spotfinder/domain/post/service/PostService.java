@@ -79,7 +79,7 @@ public class PostService {
 		Post post = findPostById(id);
 
 		checkUserPermission(post, email);
-		postRepository.save(requestDto.toUpdatedPost(post, postStatus));
+		requestDto.updatePost(post, postStatus);
 		cleanupImages(post);
 	}
 

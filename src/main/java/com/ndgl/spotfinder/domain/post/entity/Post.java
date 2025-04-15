@@ -151,8 +151,6 @@ public class Post extends BaseTime implements Likeable {
 	}
 
 	public void changeStatus(PostStatus newStatus) {
-		// if (this.status == PostStatus.TEMP && newStatus == PostStatus.PUBLIC)
-		// 	this.createdAt = LocalDateTime.now(); // 발행일으로 변경시, 생성일 업데이트
 		this.status = newStatus;
 	}
 
