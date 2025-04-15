@@ -80,7 +80,7 @@ public class PostController implements PostApiSpecification {
 		@PathVariable Long id,
 		Principal principal
 	) {
-		postService.deletePost(id, principal.getName());
+		postService.softDeletePost(id, principal.getName());
 
 		return RsData.success(HttpStatus.OK);
 	}

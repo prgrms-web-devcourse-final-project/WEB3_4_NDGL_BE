@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import java.lang.reflect.Method;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -248,10 +249,11 @@ public class PostServiceTest {
 		when(postRepository.findById(1L)).thenReturn(Optional.of(samplePost));
 
 		// when
-		postService.deletePost(1L, "이메일1");
+		postService.softDeletePost(1L, "이메일1");
 
 		// then
-		verify(postRepository, times(1)).delete(samplePost);
+		assertEquals(PostStatus.DELETED, samplePost.getStatus());
+		assertEquals( LocalDate.now().plusWeeks(1), samplePost.getDeleteScheduledAt());
 	}
 
 	@Test
@@ -262,7 +264,7 @@ public class PostServiceTest {
 
 		// then
 		ServiceException exception = assertThrows(ServiceException.class,
-			() -> postService.deletePost(1L, "이메일1"));
+			() -> postService.softDeletePost(1L, "이메일1"));
 		assertEquals(HttpStatus.NOT_FOUND, exception.getCode());
 	}
 
@@ -274,7 +276,7 @@ public class PostServiceTest {
 
 		// then
 		ServiceException exception = assertThrows(ServiceException.class,
-			() -> postService.deletePost(1L, "이메일2"));
+			() -> postService.softDeletePost(1L, "이메일2"));
 		assertEquals(HttpStatus.FORBIDDEN, exception.getCode());
 	}
 

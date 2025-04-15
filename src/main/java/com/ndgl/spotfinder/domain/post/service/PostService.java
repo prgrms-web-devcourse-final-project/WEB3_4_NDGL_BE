@@ -1,5 +1,6 @@
 package com.ndgl.spotfinder.domain.post.service;
 
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -82,9 +83,16 @@ public class PostService {
 	}
 
 	@Transactional
-	public void deletePost(Long id, String email) {
+	public void softDeletePost(Long id, String email) {
 		Post post = findPostById(id);
 		checkUserPermission(post, email);
+		post.setStatus(PostStatus.DELETED);
+		post.setDeleteScheduledAt(LocalDate.now().plusWeeks(1));
+	}
+
+	@Transactional
+	public void deletePost(Long id) {
+		Post post = findPostById(id);
 		postRepository.delete(post);
 		imageService.deletePostWithAllImages(ImageUsage.POST, post.getId());
 		likeService.deleteAllLikes(id, TargetType.POST);

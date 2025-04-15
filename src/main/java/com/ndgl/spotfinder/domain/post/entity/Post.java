@@ -1,5 +1,6 @@
 package com.ndgl.spotfinder.domain.post.entity;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +11,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import com.ndgl.spotfinder.domain.comment.entity.PostComment;
 import com.ndgl.spotfinder.domain.like.entity.Likeable;
 import com.ndgl.spotfinder.domain.post.type.PostStatus;
+import com.ndgl.spotfinder.domain.report.entity.PostReport;
 import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.global.base.BaseTime;
 
@@ -39,7 +41,8 @@ import lombok.Setter;
 @Builder
 @Entity
 @Table(name = "post", indexes = {
-	@Index(name = "idx_post_created_at", columnList = "created_at DESC")
+	@Index(name = "idx_post_created_at", columnList = "created_at DESC"),
+	@Index(name = "idx_post_status_deleted_date", columnList = "status, deletedScheduledAt")
 })
 public class Post extends BaseTime implements Likeable {
 	@Id
@@ -56,6 +59,10 @@ public class Post extends BaseTime implements Likeable {
 
 	@LastModifiedDate
 	private LocalDateTime updatedAt;
+
+	@Setter
+	@Column(name = "deleted_scheduled_at")
+	private LocalDate deleteScheduledAt;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
@@ -82,6 +89,10 @@ public class Post extends BaseTime implements Likeable {
 	@Builder.Default
 	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Location> locations = new ArrayList<>();
+
+	@Builder.Default
+	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<PostReport> postReports = new ArrayList<>();
 
 	@Setter
 	@Column(nullable = false)
