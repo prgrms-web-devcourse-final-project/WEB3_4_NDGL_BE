@@ -22,7 +22,7 @@ public interface PostCommonUpdateRequestDto {
 		post.setTitle(title());
 		post.setContent(content());
 		post.setThumbnail(thumbnail());
-		post.setStatus(postStatus);
+		post.changeStatus(postStatus);
 
 		List<Hashtag> newHashtags = hashtags()
 			.stream()
