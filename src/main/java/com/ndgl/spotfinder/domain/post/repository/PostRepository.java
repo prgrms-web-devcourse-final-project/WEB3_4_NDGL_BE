@@ -81,9 +81,10 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 	List<Post> findAllWithAssociations(@Param("status") PostStatus status);
 
 	@Query("SELECT DISTINCT p FROM Post p "
-		   + "JOIN FETCH p.user LEFT JOIN FETCH p.hashtags "
-		   + "WHERE p.updatedAt > :updatedAt "
-		   + "AND p.status = 'PUBLIC'")
+		+ "JOIN FETCH p.user "
+		+ "LEFT JOIN FETCH p.comments "
+		+ "WHERE p.updatedAt > :updatedAt "
+		+ "AND p.status = 'PUBLIC'")
 	List<Post> findByUpdatedAtAfter(LocalDateTime updatedAt);
 
 	@Query("SELECT DISTINCT p FROM Post p "
