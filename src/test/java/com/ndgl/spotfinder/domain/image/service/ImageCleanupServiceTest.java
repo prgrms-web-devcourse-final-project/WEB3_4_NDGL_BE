@@ -28,7 +28,7 @@ import com.ndgl.spotfinder.global.aws.s3.S3Service;
 
 @SpringBootTest
 @ActiveProfiles("test")
-public class ImageCleanupServiceTest {
+class ImageCleanupServiceTest {
 
 	@Autowired
 	private ImageCleanupService imageCleanupService;

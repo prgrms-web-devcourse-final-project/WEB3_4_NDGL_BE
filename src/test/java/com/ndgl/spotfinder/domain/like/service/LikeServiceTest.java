@@ -30,7 +30,7 @@ import com.ndgl.spotfinder.domain.user.service.UserService;
 import com.ndgl.spotfinder.global.exception.ServiceException;
 
 @ExtendWith(MockitoExtension.class)
-public class LikeServiceTest {
+class LikeServiceTest {
 
 	@Mock
 	private LikeRepository likeRepository;
@@ -59,7 +59,7 @@ public class LikeServiceTest {
 	private PostComment mockCommentEntity;
 
 	@BeforeEach
-	public void setup() {
+	void setup() {
 		// 테스트 객체 초기화
 		testUser = User.builder()
 			.id(VALID_USER_ID)

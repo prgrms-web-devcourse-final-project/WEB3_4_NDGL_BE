@@ -29,7 +29,7 @@ import com.ndgl.spotfinder.global.common.util.CommonUtil;
 import com.ndgl.spotfinder.global.exception.ServiceException;
 
 @ExtendWith(MockitoExtension.class)
-public class ImageServiceTest {
+class ImageServiceTest {
 
 	@InjectMocks
 	private ImageService imageService;
