@@ -25,23 +25,25 @@ public class PopularTrendsScheduler {
 	private final RedisPopularService redisPopularService;
 	private final PopularService popularService;
 
-	@Scheduled(cron = "0 */30 * * * *") // 매 30분 간격으로 실행
+	@Scheduled(cron = "0 */10 * * * *") // 매 10분 간격으로 실행
 	public void updatePopularTrends() {
 		log.info("인기 검색어 및 게시물 업데이트 스케줄러 시작: {}", LocalDateTime.now());
 
 		try {
 			long endTime = System.currentTimeMillis();
-			long startTime = endTime - (30 * 60 * 1000);
+			long startTime = endTime - (10 * 60 * 1000);
 
 			// Elasticsearch 에서 인기 검색어 / 인기 포스트 조회
 			List<KeywordCountDto> topKeywords = elasticsearchPopularService.findTopKeywords(startTime, endTime);
 			List<PostCountDto> topPosts = elasticsearchPopularService.findTopPosts(startTime, endTime);
 
 			// 레디스 업데이트
+			log.info("레디스 인기 검색어 / 게시물 저장 시작");
 			redisPopularService.updateRedisPopularKeywords(topKeywords);
 			redisPopularService.updateRedisPopularPosts(topPosts);
 
 			// MySQL 업데이트
+			log.info("MySQL 인기 검색어 / 게시물 저장 시작");
 			popularService.savePopularKeywords(topKeywords);
 			popularService.savePopularPosts(topPosts);
 
