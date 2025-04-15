@@ -8,7 +8,8 @@ import lombok.RequiredArgsConstructor;
 public enum PostStatus {
 	PUBLIC("공개"),
 	TEMP("임시 글"),
-	BLIND("블라인드");
+	BLIND("블라인드"),
+	DELETED("삭제");
 
 	private final String value;
 }

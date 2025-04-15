@@ -48,7 +48,7 @@ import com.ndgl.spotfinder.global.exception.ServiceException;
 import jakarta.persistence.EntityManager;
 
 @ExtendWith(MockitoExtension.class)
-public class ReportServiceTest {
+class ReportServiceTest {
 	@Mock
 	private PostReportRepository postReportRepository;
 
@@ -120,7 +120,7 @@ public class ReportServiceTest {
 
 	@Test
 	@DisplayName("포스트 신고 - 비정상 reporterEmail")
-	void createPostReportSlice_invalidReporterId() {
+	void createPostReport_invalid_ReporterEmail_fail() {
 		// given
 		String invalidReporterEmail = "exmaple1@example.com";
 		long postId = 3L;
@@ -142,7 +142,7 @@ public class ReportServiceTest {
 
 	@Test
 	@DisplayName("포스트 신고 - 비정상 postId")
-	void createPostReportSlice_invalidPostId() {
+	void createPostReport_invalid_PostId_fail() {
 		// given
 		String reporterEmail = "exmaple1@example.com";
 		long invalidPostId = -1L;
@@ -211,7 +211,7 @@ public class ReportServiceTest {
 
 	@Test
 	@DisplayName("댓글 신고 - 비정상 reporterEmail")
-	void createPostCommentReportSlice_invalidReporterId() {
+	void createPostCommentReport_invalid_ReporterId_fail() {
 		// given
 		String invalidReporterEmail = "exmaple1@example.com";
 		long postCommentId = 3L;
@@ -233,7 +233,7 @@ public class ReportServiceTest {
 
 	@Test
 	@DisplayName("댓글 신고 - 비정상 postCommentId")
-	void createPostCommentReportSlice_invalidPostCommentId() {
+	void createPostCommentReport_invalid_PostCommentId_fail() {
 		// given
 		String reporterEmail = "exmaple1@example.com";
 		long invalidPostCommentId = -1L;
@@ -283,7 +283,7 @@ public class ReportServiceTest {
 
 	@Test
 	@DisplayName("포스트 신고 목록 조회 - 조회 결과 X")
-	void getPostReportSlice_whenNoReportsFound() {
+	void getPostReportSlice_report_not_found_fail() {
 		// given
 		long lastId = 0L;
 		int size = 10;
@@ -327,7 +327,7 @@ public class ReportServiceTest {
 
 	@Test
 	@DisplayName("댓글 신고 목록 조회 - 조회 결과 X")
-	void getPostCommentReportSlice_whenNoReportsFound() {
+	void getPostCommentReportSlice_reports_not_found_fail() {
 		// given
 		long lastId = 0L;
 		int size = 10;
@@ -379,7 +379,7 @@ public class ReportServiceTest {
 
 	@Test
 	@DisplayName("포스트 유저 제재 - 비정상 duration")
-	void banUserDueToPost_invalidDuration() {
+	void banUserDueToPost_invalid_duration_fail() {
 		// Given
 		long reportId = -1L;
 		String duration = "에러";
@@ -396,7 +396,7 @@ public class ReportServiceTest {
 
 	@Test
 	@DisplayName("포스트 유저 제재 - 비정상 reportId")
-	void banUserDueToPost_invalidReportId() {
+	void banUserDueToPost_invalid_reportId_fail() {
 		// Given
 		long invalidReportId = -1L;
 		String duration = "30일";
@@ -461,7 +461,7 @@ public class ReportServiceTest {
 
 	@Test
 	@DisplayName("댓글 유저 제재 - 비정상 duration")
-	void banUserDueToPostComment_invalidDuration() {
+	void banUserDueToPostComment_invalid_duration_fail() {
 		// Given
 		long reportId = -1L;
 		String duration = "에러";
@@ -478,7 +478,7 @@ public class ReportServiceTest {
 
 	@Test
 	@DisplayName("댓글 유저 제재 - 비정상 reportId")
-	void banUserDueToPostComment_invalidReportId() {
+	void banUserDueToPostComment_invalid_reportId_fail() {
 		// Given
 		long invalidReportId = -1L;
 		String duration = "30일";
@@ -515,7 +515,7 @@ public class ReportServiceTest {
 
 	@Test
 	@DisplayName("포스트 신고 기각 - 비정상 reportId")
-	void rejectPostReport_invalidReportId() {
+	void rejectPostReport_invalid_reportId_fail() {
 		// Given
 		long reportId = -1L;
 
@@ -551,7 +551,7 @@ public class ReportServiceTest {
 
 	@Test
 	@DisplayName("댓글 신고 기각 - 비정상 reportId")
-	void rejectPostCommentReport_invalidReportId() {
+	void rejectPostCommentReport_invalid_reportId_fail() {
 		// Given
 		long reportId = -1L;
 

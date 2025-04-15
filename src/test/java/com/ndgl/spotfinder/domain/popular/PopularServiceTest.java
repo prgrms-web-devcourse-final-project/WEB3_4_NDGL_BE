@@ -22,7 +22,7 @@ import com.ndgl.spotfinder.domain.popular.repository.PopularPostRepository;
 import com.ndgl.spotfinder.domain.popular.service.PopularService;
 
 @ExtendWith(MockitoExtension.class)
-public class PopularServiceTest {
+class PopularServiceTest {
 	@Mock
 	PopularPostRepository popularPostRepository;
 
@@ -34,7 +34,7 @@ public class PopularServiceTest {
 
 	@Test
 	@DisplayName("인기 키워드 저장 테스트")
-	void 정상_인기_키워드_저장_테스트() {
+	void savePopularKeywords_success() {
 		// given
 		List<KeywordCountDto> keywords = List.of(
 			new KeywordCountDto("서울", 100L),
@@ -61,7 +61,7 @@ public class PopularServiceTest {
 
 	@Test
 	@DisplayName("인기 게시물 저장 테스트")
-	void 정상_인기_게시물_저장_테스트() {
+	void savePopularPosts_success() {
 		// given
 		List<PostCountDto> posts = List.of(
 			new PostCountDto(1L, 100L),

@@ -3,6 +3,7 @@ package com.ndgl.spotfinder.domain.follow;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -19,7 +20,7 @@ import com.ndgl.spotfinder.global.exception.ServiceException;
 
 @ActiveProfiles("test")
 @SpringBootTest
-public class FollowServiceTest {
+class FollowServiceTest {
 	@InjectMocks
 	private FollowService followService;
 
@@ -40,7 +41,8 @@ public class FollowServiceTest {
 		.build();
 
 	@Test
-	public void createFollow_success() {
+	@DisplayName("팔로우 - 성공")
+	void createFollow_success() {
 		// when
 		when(userService.findUserByEmail("user1@example.com")).thenReturn(user1);
 		when(userService.findUserById(2L)).thenReturn(user2);
@@ -53,7 +55,8 @@ public class FollowServiceTest {
 	}
 
 	@Test
-	public void createFollow_followerEqualsFollowee() {
+	@DisplayName("팔로우 - 자기 자신 팔로우")
+	void createFollow_followerEqualsFollowee_fail() {
 		// when
 		when(userService.findUserByEmail("user1@example.com")).thenReturn(user1);
 		when(userService.findUserById(1L)).thenReturn(user1);
@@ -65,7 +68,8 @@ public class FollowServiceTest {
 	}
 
 	@Test
-	public void createFollow_alreadyFollowing() {
+	@DisplayName("팔로우 - 이미 팔로우한 경우")
+	void createFollow_alreadyFollowing_fail() {
 		// when
 		when(userService.findUserByEmail("user1@example.com")).thenReturn(user1);
 		when(userService.findUserById(2L)).thenReturn(user2);
@@ -78,7 +82,8 @@ public class FollowServiceTest {
 	}
 
 	@Test
-	public void deleteFollow_success() {
+	@DisplayName("언팔로우 - 성공")
+	void deleteFollow_success() {
 		// when
 		when(userService.findUserByEmail("user1@example.com")).thenReturn(user1);
 		when(userService.findUserById(2L)).thenReturn(user2);
@@ -91,7 +96,8 @@ public class FollowServiceTest {
 	}
 
 	@Test
-	public void deleteFollow_followerEqualsFollowee() {
+	@DisplayName("언팔로우 - 자기 자신 언팔로우")
+	void deleteFollow_followerEqualsFollowee_fail() {
 		// when
 		when(userService.findUserByEmail("user1@example.com")).thenReturn(user1);
 		when(userService.findUserById(1L)).thenReturn(user1);
@@ -103,7 +109,8 @@ public class FollowServiceTest {
 	}
 
 	@Test
-	public void deleteFollow_notFollowing() {
+	@DisplayName("언팔로우 - 팔로우하고 있지 않은 경우")
+	void deleteFollow_notFollowing_fail() {
 		// when
 		when(userService.findUserByEmail("user1@example.com")).thenReturn(user1);
 		when(userService.findUserById(2L)).thenReturn(user2);

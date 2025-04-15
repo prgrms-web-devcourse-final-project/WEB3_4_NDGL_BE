@@ -5,6 +5,7 @@ import static org.mockito.Mockito.*;
 
 import java.util.List;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -14,7 +15,7 @@ import org.springframework.data.domain.SliceImpl;
 import org.springframework.test.context.ActiveProfiles;
 
 import com.ndgl.spotfinder.domain.blog.dto.BlogResponseDto;
-import com.ndgl.spotfinder.domain.blog.dto.PostSummeryDto;
+import com.ndgl.spotfinder.domain.blog.dto.PostSummaryDto;
 import com.ndgl.spotfinder.domain.blog.service.BlogService;
 import com.ndgl.spotfinder.domain.follow.service.FollowService;
 import com.ndgl.spotfinder.domain.post.entity.Post;
@@ -26,7 +27,7 @@ import com.ndgl.spotfinder.global.common.dto.SliceResponse;
 
 @ActiveProfiles("test")
 @SpringBootTest
-public class BlogServiceTest {
+class BlogServiceTest {
 	@InjectMocks
 	private BlogService blogService;
 
@@ -75,7 +76,8 @@ public class BlogServiceTest {
 		.build();
 
 	@Test
-	public void getBlogs_success() {
+	@DisplayName("블로그 목록 조회 - 성공")
+	void getBlogs_success() {
 		// given
 		SliceRequest sliceRequest = new SliceRequest(4L, 3);
 		String email = "이메일1";
@@ -86,8 +88,8 @@ public class BlogServiceTest {
 		when(userService.findUsers(sliceRequest)).thenReturn(users);
 		when(followService.isFollowed(user1, user2)).thenReturn(true);
 		when(followService.isFollowed(user1, user3)).thenReturn(false);
-		when(postService.getPostsByUser(2L)).thenReturn(List.of(samplePost1));
-		when(postService.getPostsByUser(3L)).thenReturn(List.of(samplePost2));
+		when(postService.getPostsByUser(2L, 3)).thenReturn(List.of(samplePost1));
+		when(postService.getPostsByUser(3L, 3)).thenReturn(List.of(samplePost2));
 
 		// then
 		BlogResponseDto dto1 = new BlogResponseDto(
@@ -95,7 +97,7 @@ public class BlogServiceTest {
 			"블로그2",
 			"별명2",
 			true,
-			List.of(new PostSummeryDto(1L, "제목1"))
+			List.of(new PostSummaryDto(1L, "제목1"))
 		);
 
 		BlogResponseDto dto2 = new BlogResponseDto(
@@ -103,7 +105,7 @@ public class BlogServiceTest {
 			"블로그3",
 			"별명3",
 			false,
-			List.of(new PostSummeryDto(2L, "제목2"))
+			List.of(new PostSummaryDto(2L, "제목2"))
 		);
 
 		SliceResponse<BlogResponseDto> expectedResult = new SliceResponse<>(

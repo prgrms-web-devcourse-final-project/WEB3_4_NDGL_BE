@@ -1,5 +1,6 @@
 package com.ndgl.spotfinder.domain.post.service;
 
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -8,6 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -77,14 +79,21 @@ public class PostService {
 		Post post = findPostById(id);
 
 		checkUserPermission(post, email);
-		postRepository.save(requestDto.toUpdatedPost(post, postStatus));
+		requestDto.updatePost(post, postStatus);
 		cleanupImages(post);
 	}
 
 	@Transactional
-	public void deletePost(Long id, String email) {
+	public void softDeletePost(Long id, String email) {
 		Post post = findPostById(id);
 		checkUserPermission(post, email);
+		post.setStatus(PostStatus.DELETED);
+		post.setDeleteScheduledAt(LocalDate.now().plusWeeks(1));
+	}
+
+	@Transactional
+	public void deletePost(Long id) {
+		Post post = findPostById(id);
 		postRepository.delete(post);
 		imageService.deletePostWithAllImages(ImageUsage.POST, post.getId());
 		likeService.deleteAllLikes(id, TargetType.POST);
@@ -113,10 +122,11 @@ public class PostService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<Post> getPostsByUser(Long userId) {
+	public List<Post> getPostsByUser(Long userId, Integer limit) {
 		User user = userService.findUserById(userId);
+		Pageable pageable = PageRequest.of(FIRST_PAGE_NUMBER, limit);
 
-		return postRepository.findByUser(user);
+		return postRepository.findByUserAndStatus(user, PostStatus.PUBLIC, pageable);
 	}
 
 	@Transactional(readOnly = true)
