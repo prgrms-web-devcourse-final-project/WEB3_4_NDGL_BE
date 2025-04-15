@@ -1,4 +1,4 @@
-package com.ndgl.spotfinder.global.initData;
+package com.ndgl.spotfinder.global.initdata;
 
 import java.util.List;
 
