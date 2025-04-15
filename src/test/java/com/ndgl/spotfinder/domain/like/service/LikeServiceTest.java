@@ -88,7 +88,7 @@ public class LikeServiceTest {
 
 	@Test
 	@DisplayName("포스트 좋아요 추가 성공")
-	public void toggleLike_addPostLike_success() {
+	void toggleLike_addPostLike_success() {
 		// given
 		when(userService.findUserByEmail(VALID_USER_EMAIL)).thenReturn(testUser);
 		when(likeRepository.findByUserIdAndTargetIdAndTargetType(VALID_USER_ID, VALID_POST_ID, TargetType.POST))
@@ -110,7 +110,7 @@ public class LikeServiceTest {
 
 	@Test
 	@DisplayName("포스트 좋아요 취소 성공")
-	public void toggleLike_removePostLike_success() {
+	void toggleLike_removePostLike_success() {
 		// given
 		when(userService.findUserByEmail(VALID_USER_EMAIL)).thenReturn(testUser);
 		when(likeRepository.findByUserIdAndTargetIdAndTargetType(VALID_USER_ID, VALID_POST_ID, TargetType.POST))
@@ -131,7 +131,7 @@ public class LikeServiceTest {
 
 	@Test
 	@DisplayName("댓글 좋아요 추가 성공")
-	public void toggleLike_addCommentLike_success() {
+	void toggleLike_addCommentLike_success() {
 		// given
 		when(userService.findUserByEmail(VALID_USER_EMAIL)).thenReturn(testUser);
 		when(likeRepository.findByUserIdAndTargetIdAndTargetType(VALID_USER_ID, VALID_COMMENT_ID, TargetType.COMMENT))
@@ -154,7 +154,7 @@ public class LikeServiceTest {
 
 	@Test
 	@DisplayName("댓글 좋아요 취소 성공")
-	public void toggleLike_removeCommentLike_success() {
+	void toggleLike_removeCommentLike_success() {
 		// given
 		when(userService.findUserByEmail(VALID_USER_EMAIL)).thenReturn(testUser);
 		when(likeRepository.findByUserIdAndTargetIdAndTargetType(VALID_USER_ID, VALID_COMMENT_ID, TargetType.COMMENT))
@@ -176,7 +176,7 @@ public class LikeServiceTest {
 
 	@Test
 	@DisplayName("이메일이 null일 때 좋아요 추가 실패")
-	public void toggleLike_nullEmail_throwsException() {
+	void toggleLike_nullEmail_throwsException() {
 		// when & then
 		assertThrows(ServiceException.class, () -> {
 			likeService.toggleLike(null, VALID_POST_ID, TargetType.POST);
@@ -187,7 +187,7 @@ public class LikeServiceTest {
 
 	@Test
 	@DisplayName("여러 게시물의 좋아요 상태 한 번에 조회 성공")
-	public void getAllLikeStatus_success() {
+	void getAllLikeStatus_success() {
 		// given
 		List<Long> postIds = Arrays.asList(1L, 2L, 3L);
 		List<Like> likes = Arrays.asList(
@@ -212,7 +212,7 @@ public class LikeServiceTest {
 
 	@Test
 	@DisplayName("빈 게시물 ID 리스트로 좋아요 상태 조회시 빈 맵 반환")
-	public void getAllLikeStatus_emptyList_returnsEmptyMap() {
+	void getAllLikeStatus_emptyList_returnsEmptyMap() {
 		// given
 		List<Long> emptyPostIds = Collections.emptyList();
 
@@ -227,7 +227,7 @@ public class LikeServiceTest {
 
 	@Test
 	@DisplayName("포스트의 모든 좋아요 삭제 성공")
-	public void deleteAllLikes_forPost_success() {
+	void deleteAllLikes_forPost_success() {
 		// when
 		likeService.deleteAllLikes(VALID_POST_ID, TargetType.POST);
 
@@ -237,7 +237,7 @@ public class LikeServiceTest {
 
 	@Test
 	@DisplayName("댓글의 모든 좋아요 삭제 성공")
-	public void deleteAllLikes_forComment_success() {
+	void deleteAllLikes_forComment_success() {
 		// when
 		likeService.deleteAllLikes(VALID_COMMENT_ID, TargetType.COMMENT);
 
@@ -247,7 +247,7 @@ public class LikeServiceTest {
 
 	@Test
 	@DisplayName("포스트 좋아요 수 조회 성공")
-	public void getLikeCount_forPost_success() {
+	void getLikeCount_forPost_success() {
 		// given
 		long expectedCount = 5L;
 		when(likeRepository.countByTargetIdAndTargetType(VALID_POST_ID, TargetType.POST))
@@ -263,7 +263,7 @@ public class LikeServiceTest {
 
 	@Test
 	@DisplayName("댓글 좋아요 수 조회 성공")
-	public void getLikeCount_forComment_success() {
+	void getLikeCount_forComment_success() {
 		// given
 		long expectedCount = 3L;
 		when(likeRepository.countByTargetIdAndTargetType(VALID_COMMENT_ID, TargetType.COMMENT))
@@ -279,7 +279,7 @@ public class LikeServiceTest {
 
 	@Test
 	@DisplayName("포스트 좋아요 상태 조회 - 좋아요가 존재함")
-	public void getLikeStatus_forPost_exists() {
+	void getLikeStatus_forPost_exists() {
 		// given
 		when(likeRepository.existsByUserIdAndTargetIdAndTargetType(
 			VALID_USER_ID, VALID_POST_ID, TargetType.POST)).thenReturn(true);
@@ -295,7 +295,7 @@ public class LikeServiceTest {
 
 	@Test
 	@DisplayName("포스트 좋아요 상태 조회 - 좋아요 없음")
-	public void getLikeStatus_forPost_notExists() {
+	void getLikeStatus_forPost_notExists() {
 		// given
 		when(likeRepository.existsByUserIdAndTargetIdAndTargetType(
 			VALID_USER_ID, VALID_POST_ID, TargetType.POST)).thenReturn(false);
@@ -311,7 +311,7 @@ public class LikeServiceTest {
 
 	@Test
 	@DisplayName("댓글 좋아요 상태 조회 - 좋아요가 존재함")
-	public void getLikeStatus_forComment_exists() {
+	void getLikeStatus_forComment_exists() {
 		// given
 		when(likeRepository.existsByUserIdAndTargetIdAndTargetType(
 			VALID_USER_ID, VALID_COMMENT_ID, TargetType.COMMENT)).thenReturn(true);
@@ -327,7 +327,7 @@ public class LikeServiceTest {
 
 	@Test
 	@DisplayName("댓글 좋아요 상태 조회 - 좋아요 없음")
-	public void getLikeStatus_forComment_notExists() {
+	void getLikeStatus_forComment_notExists() {
 		// given
 		when(likeRepository.existsByUserIdAndTargetIdAndTargetType(
 			VALID_USER_ID, VALID_COMMENT_ID, TargetType.COMMENT)).thenReturn(false);
@@ -343,7 +343,7 @@ public class LikeServiceTest {
 
 	@Test
 	@DisplayName("userId가 null인 경우 좋아요 상태 조회 - false 반환")
-	public void getLikeStatus_userIdNull_returnsFalse() {
+	void getLikeStatus_userIdNull_returnsFalse() {
 		// when
 		Boolean result = likeService.getLikeStatus(null, VALID_POST_ID, TargetType.POST);
 

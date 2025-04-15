@@ -56,8 +56,8 @@ public class ImageServiceTest {
 		.build();
 
 	@Test
-	@DisplayName("Presigned URL 생성 성공")
-	public void createImage_success() throws Exception {
+	@DisplayName("Presigned URL 생성 - 정상")
+	void createImage_success() throws Exception {
 		// given
 		long postId = 10L;
 		List<String> extensions = Arrays.asList("jpg", "png");
@@ -80,8 +80,8 @@ public class ImageServiceTest {
 	}
 
 	@Test
-	@DisplayName("Presigned URL 생성 실패 - DB 제약조건 위반")
-	public void createImage_dbConstraintViolation() throws Exception {
+	@DisplayName("Presigned URL 생성 - DB 제약조건 위반")
+	void createImage_dbConstraintViolation_fail() throws Exception {
 		// given
 		long postId = 10L;
 		List<String> extensions = Arrays.asList("jpg", "png");
@@ -96,8 +96,8 @@ public class ImageServiceTest {
 	}
 
 	@Test
-	@DisplayName("이미지 저장 성공")
-	public void saveImages_success() {
+	@DisplayName("이미지 저장 - 정상")
+	void saveImages_success() {
 		// given
 		long postId = 10L;
 		List<String> imageUrls = Arrays.asList(
@@ -119,8 +119,8 @@ public class ImageServiceTest {
 	}
 
 	@Test
-	@DisplayName("빈 이미지 URL 목록 저장 시 처리")
-	public void saveImages_emptyList() {
+	@DisplayName("이미지 저장 - 빈 목록")
+	void saveImages_emptyList_success() {
 		// given
 		long postId = 10L;
 		List<String> emptyUrls = new ArrayList<>();
@@ -139,8 +139,8 @@ public class ImageServiceTest {
 	}
 
 	@Test
-	@DisplayName("단일 이미지 삭제 성공")
-	public void deleteImageByUrl_success() {
+	@DisplayName("이미지 URL 삭제 - 정상")
+	void deleteImageByUrl_success() {
 		// given
 		String imageUrl = "posts/10/image1.jpg";
 
@@ -155,8 +155,8 @@ public class ImageServiceTest {
 	}
 
 	@Test
-	@DisplayName("존재하지 않는 이미지 URL 삭제 시도")
-	public void deleteImageByUrl_notFound() {
+	@DisplayName("이미지 URL 삭제 - 존재하지 않음")
+	void deleteImageByUrl_notFound_success() {
 		// given
 		String nonExistingUrl = "posts/999/notfound.jpg";
 
@@ -171,8 +171,8 @@ public class ImageServiceTest {
 	}
 
 	@Test
-	@DisplayName("모든 이미지 삭제 성공")
-	public void deletePostWithAllImages_success() {
+	@DisplayName("게시물 이미지 전체 삭제 - 정상")
+	void deletePostWithAllImages_success() {
 		// given
 		long postId = 10L;
 

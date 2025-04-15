@@ -13,6 +13,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.DisplayName;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,7 +75,8 @@ public class ImageCleanupServiceTest {
 	}
 
 	@Test
-	public void testAsyncImageCleanupWithException() {
+	@DisplayName("비동기 이미지 정리 중 예외 발생 테스트")
+	void asyncImageCleanup_withException_success() {
 		// Given
 		ImageUsage imageUsage = ImageUsage.POST;
 		long referenceId = 100L;
@@ -94,7 +96,8 @@ public class ImageCleanupServiceTest {
 	}
 
 	@Test
-	public void testCleanupUnusedImages() {
+	@DisplayName("미사용 이미지 정리 - 썸네일 보존 테스트")
+	void cleanupUnusedImages_preserveThumbnail_success() {
 		// Given
 		ImageUsage imageUsage = ImageUsage.POST;
 		long referenceId = 100L;
@@ -139,7 +142,8 @@ public class ImageCleanupServiceTest {
 	}
 
 	@Test
-	public void testCleanupUnusedImagesWithNullThumbnail() {
+	@DisplayName("미사용 이미지 정리 - 썸네일 미설정 테스트")
+	void cleanupUnusedImages_nullThumbnail_success() {
 		// Given
 		ImageUsage imageUsage = ImageUsage.POST;
 		long referenceId = 100L;
@@ -181,7 +185,8 @@ public class ImageCleanupServiceTest {
 	}
 
 	@Test
-	public void testCleanupUnusedImagesWithContentAndThumbnail() {
+	@DisplayName("미사용 이미지 정리 - 컨텐츠 및 썸네일 보존 테스트")
+	void cleanupUnusedImages_preserveContentAndThumbnail_success() {
 		// Given
 		ImageUsage imageUsage = ImageUsage.POST;
 		long referenceId = 100L;
