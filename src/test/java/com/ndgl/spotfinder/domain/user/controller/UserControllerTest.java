@@ -19,7 +19,7 @@ import com.ndgl.spotfinder.domain.user.type.Provider;
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-public class UserControllerTest {
+class UserControllerTest {
 
 	@Autowired
 	private MockMvc mockMvc;
