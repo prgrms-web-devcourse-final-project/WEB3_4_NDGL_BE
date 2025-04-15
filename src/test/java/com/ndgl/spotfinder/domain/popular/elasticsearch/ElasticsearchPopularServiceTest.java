@@ -5,7 +5,6 @@ import static org.mockito.Mockito.*;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,21 +45,19 @@ class ElasticsearchPopularServiceTest {
 	@InjectMocks
 	private ElasticsearchPopularService elasticsearchPopularService;
 
-	private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy.MM.dd");
-	private ZonedDateTime now;
 	private long currentTimestamp;
 
 	@BeforeEach
 	void setup() {
+		ZonedDateTime now;
 		now = ZonedDateTime.now(ZoneId.systemDefault());
 		currentTimestamp = now.toInstant().toEpochMilli();
 	}
 
 	@Test
 	@DisplayName("인기 검색어 조회 - 단일 날짜")
-	void 단일_날짜에서_TOP_N개_인기_검색어_조회() throws Exception {
+	void findTopKeywords_success() throws Exception {
 		//given
-		int size = 5;
 		long startTime = currentTimestamp - 30 * 60 * 1000;
 		long endTime = currentTimestamp;
 
@@ -83,9 +80,8 @@ class ElasticsearchPopularServiceTest {
 
 	@Test
 	@DisplayName("인기 게시물 조회 - 단일 날짜")
-	void 단일_날짜에서_TOP_N개_인기_게시물_조회() throws Exception {
+	void findTopPosts_success() throws Exception {
 		//given
-		int size = 5;
 		long startTime = currentTimestamp - 30 * 60 * 1000;
 		long endTime = currentTimestamp;
 

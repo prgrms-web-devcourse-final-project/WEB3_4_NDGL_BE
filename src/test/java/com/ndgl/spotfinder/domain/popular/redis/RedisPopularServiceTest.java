@@ -38,25 +38,19 @@ import com.ndgl.spotfinder.global.exception.ServiceException;
 @ExtendWith(MockitoExtension.class)
 class RedisPopularServiceTest {
 
-	@Mock
-	private RedisTemplate<String, String> redisTemplate;
-
-	@Mock
-	private ZSetOperations<String, String> zSetOps;
-
-	@Mock
-	private ObjectMapper objectMapper;
-
-	@Mock
-	private PostRepository postRepository;
-
-	private final ObjectMapper realObjectMapper = new ObjectMapper();
-
-	@InjectMocks
-	private RedisPopularService redisPopularService;
-
 	private static final String POPULAR_KEYWORDS_KEY = "popular:keywords";
 	private static final String POPULAR_POSTS_KEY = "popular:posts";
+	private final ObjectMapper realObjectMapper = new ObjectMapper();
+	@Mock
+	private RedisTemplate<String, String> redisTemplate;
+	@Mock
+	private ZSetOperations<String, String> zSetOps;
+	@Mock
+	private ObjectMapper objectMapper;
+	@Mock
+	private PostRepository postRepository;
+	@InjectMocks
+	private RedisPopularService redisPopularService;
 
 	@BeforeEach
 	void setUp() {
@@ -65,7 +59,7 @@ class RedisPopularServiceTest {
 
 	@Test
 	@DisplayName("레디스 인기 검색어 갱신 - 정상")
-	void 정상_레디스_인기_검색어_갱신() {
+	void updateRedisPopularKeywords_success() {
 		// Given
 		List<KeywordCountDto> keywordCountDtos = List.of(
 			new KeywordCountDto("키워드1", 50L),
@@ -75,13 +69,13 @@ class RedisPopularServiceTest {
 		redisPopularService.updateRedisPopularKeywords(keywordCountDtos);
 
 		verify(redisTemplate).delete(POPULAR_KEYWORDS_KEY);
-		verify(zSetOps).add(eq(POPULAR_KEYWORDS_KEY), eq("키워드1"), eq(50.0));
-		verify(zSetOps).add(eq(POPULAR_KEYWORDS_KEY), eq("키워드2"), eq(100.0));
+		verify(zSetOps).add(POPULAR_KEYWORDS_KEY, "키워드1", 50.0);
+		verify(zSetOps).add(POPULAR_KEYWORDS_KEY, "키워드2", 100.0);
 	}
 
 	@Test
 	@DisplayName("레디스 인기 게시물 갱신 - 정상")
-	void 정상_레디스_인기_게시물_갱신() throws Exception {
+	void updateRedisPopularPosts() {
 		// Given
 		User user = mock(User.class);
 		when(user.getId()).thenReturn(1L);
@@ -128,7 +122,7 @@ class RedisPopularServiceTest {
 
 	@Test
 	@DisplayName("Top N 인기 검색어 조회 - 정상")
-	void 정상_Top_N개_인기_검색어_조회() {
+	void getPopularKeywords_success() {
 		Set<ZSetOperations.TypedTuple<String>> mockSet = new LinkedHashSet<>();
 		mockSet.add(mockTypedTuple("키워드1", 100.0));
 		mockSet.add(mockTypedTuple("키워드2", 50.0));
@@ -146,7 +140,7 @@ class RedisPopularServiceTest {
 
 	@Test
 	@DisplayName("Top N 인기 검색어 조회 - 결과 X")
-	void 비정상_Top_N개_인기_검색어_조회_빈_결과() {
+	void getPopularKeywords_popularKeywords_not_found_fail() {
 		// Given
 		when(zSetOps.reverseRangeWithScores(POPULAR_KEYWORDS_KEY, 0, 9)).thenReturn(Collections.emptySet());
 
@@ -161,8 +155,8 @@ class RedisPopularServiceTest {
 	}
 
 	@Test
-	@DisplayName("Top N 인기 검색어 조회 - 비정상 Tuple")
-	void 비정상_Top_N개_인기_검색어_조회_비정상_Tuple() {
+	@DisplayName("Top N 인기 검색어 조회 - 비정상 null Tuple")
+	void getPopularKeywords_null_tuple_fail() {
 		Set<ZSetOperations.TypedTuple<String>> mockSet = new LinkedHashSet<>();
 		mockSet.add(null);
 
@@ -180,7 +174,7 @@ class RedisPopularServiceTest {
 
 	@Test
 	@DisplayName("Top N 인기 게시물 조회 - 정상")
-	void 정상_Top_N개_인기_게시물_조회() throws Exception {
+	void getPopularPosts_success() throws Exception {
 		Set<ZSetOperations.TypedTuple<String>> mockSet = new LinkedHashSet<>();
 
 		User user = mock(User.class);
@@ -232,7 +226,7 @@ class RedisPopularServiceTest {
 
 	@Test
 	@DisplayName("Top N 인기 게시물 조회 - 결과 X")
-	void 비정상_Top_N개_인기_게시물_조회_빈_결과() {
+	void getPopularPosts_popularPosts_not_found_fail() {
 		// Given
 		when(zSetOps.reverseRangeWithScores(POPULAR_POSTS_KEY, 0, 9)).thenReturn(Collections.emptySet());
 
@@ -247,8 +241,8 @@ class RedisPopularServiceTest {
 	}
 
 	@Test
-	@DisplayName("Top N 인기 게시물 조회 - 비정상 Tuple")
-	void 비정상_Top_N개_인기_게시물_조회_비정상_튜플() {
+	@DisplayName("Top N 인기 게시물 조회 - 비정상 null tuple")
+	void getPopularPosts_null_tuple_fail() {
 		Set<ZSetOperations.TypedTuple<String>> mockSet = new LinkedHashSet<>();
 		mockSet.add(null);
 
@@ -265,8 +259,8 @@ class RedisPopularServiceTest {
 	}
 
 	@Test
-	@DisplayName("Top N 인기 게시물 조회 - key 가 숫자가 아닌 Tuple")
-	void 비정상_Top_N개_인기_게시물_조회_숫자가_아닌_value_를_가진_튜플() throws Exception {
+	@DisplayName("Top N 인기 게시물 조회 - json 파싱 불가능한 튜플")
+	void getPopularPosts_non_json_tuple_fail() throws Exception {
 		Set<ZSetOperations.TypedTuple<String>> mockSet = new LinkedHashSet<>();
 		String invalidJson = "invalid";
 		mockSet.add(mockTypedTuple(invalidJson, 100.0));
