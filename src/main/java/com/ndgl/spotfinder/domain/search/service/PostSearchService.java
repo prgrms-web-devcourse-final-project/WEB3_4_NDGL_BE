@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.ndgl.spotfinder.domain.popular.service.redis.RedisPopularService;
 import com.ndgl.spotfinder.domain.post.dto.PostResponseDto;
 import com.ndgl.spotfinder.domain.post.entity.Post;
+import com.ndgl.spotfinder.domain.post.entity.PostStatus;
 import com.ndgl.spotfinder.domain.post.repository.PostRepository;
 import com.ndgl.spotfinder.domain.post.service.PostService;
 import com.ndgl.spotfinder.domain.search.document.PostDocument;
@@ -114,6 +115,7 @@ public class PostSearchService {
 			Slice<Post> posts = postRepository.searchAll(keyword, pageRequest);
 
 			ids = posts.getContent().stream()
+				.filter(post -> post.getStatus() == PostStatus.PUBLIC)
 				.sorted(Comparator.comparing(Post::getId).reversed())
 				.map(Post::getId)
 				.toList();

@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.ndgl.spotfinder.domain.post.entity.Hashtag;
 import com.ndgl.spotfinder.domain.post.entity.Post;
+import com.ndgl.spotfinder.domain.post.entity.PostStatus;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -64,6 +65,9 @@ public class PostDocument {
 
 	@Field(type = FieldType.Text, analyzer = "post_analyzer")
 	private List<String> hashtags;
+
+	@Field(type = FieldType.Keyword)
+	private PostStatus status;
 
 	public static PostDocument from(Post post) {
 		return PostDocument.builder()
