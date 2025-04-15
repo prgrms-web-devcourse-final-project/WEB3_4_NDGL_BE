@@ -82,6 +82,7 @@ public class PostDocument {
 			.viewCount(post.getViewCount())
 			.likeCount(post.getLikeCount())
 			.commentCount(post.getComments().size())
+			.status(post.getStatus())
 			.hashtags(
 				post.getHashtags().stream()
 					.map(Hashtag::getName)
