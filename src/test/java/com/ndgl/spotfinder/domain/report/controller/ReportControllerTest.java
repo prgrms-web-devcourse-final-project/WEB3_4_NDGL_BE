@@ -33,11 +33,11 @@ import com.ndgl.spotfinder.domain.report.dto.PostReportDto;
 import com.ndgl.spotfinder.domain.report.dto.ReportCreateRequestDto;
 import com.ndgl.spotfinder.domain.report.entity.PostCommentReport;
 import com.ndgl.spotfinder.domain.report.entity.PostReport;
-import com.ndgl.spotfinder.domain.report.entity.ReportStatus;
-import com.ndgl.spotfinder.domain.report.entity.ReportType;
 import com.ndgl.spotfinder.domain.report.repository.PostCommentReportRepository;
 import com.ndgl.spotfinder.domain.report.repository.PostReportRepository;
 import com.ndgl.spotfinder.domain.report.service.ReportService;
+import com.ndgl.spotfinder.domain.report.type.ReportStatus;
+import com.ndgl.spotfinder.domain.report.type.ReportType;
 import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.domain.user.service.UserService;
 import com.ndgl.spotfinder.global.exception.ErrorCode;
@@ -75,7 +75,6 @@ public class ReportControllerTest {
 
 	@Autowired
 	private PostService postCommentService;
-
 
 	void setUpUserAuth(long userId) {
 		User user = userService.findUserById(userId);
@@ -156,11 +155,11 @@ public class ReportControllerTest {
 		ResultActions resultActions = mvc.perform(
 			post("/api/v1/reports/posts/{id}", postId)
 				.content("""
-					{
-					  "reportType": "WRONG",
-					  "reason": "이상한 입력 데이터"
-					}
-				""")
+						{
+						  "reportType": "WRONG",
+						  "reason": "이상한 입력 데이터"
+						}
+					""")
 				.contentType(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8)));
 
 		resultActions
@@ -170,7 +169,6 @@ public class ReportControllerTest {
 			.andExpect(jsonPath("$.code").value(ErrorCode.UNREADABLE_REQUEST_PAYLOAD.getHttpStatus().value()))
 			.andExpect(jsonPath("$.message").value(ErrorCode.UNREADABLE_REQUEST_PAYLOAD.getMessage()));
 	}
-
 
 	@Test
 	@DisplayName("댓글 신고 요청 - 정상")
@@ -232,11 +230,11 @@ public class ReportControllerTest {
 		ResultActions resultActions = mvc.perform(
 			post("/api/v1/reports/comments/{id}", postCommentId)
 				.content("""
-					{
-					  "reportType": "WRONG",
-					  "reason": "이상한 입력 데이터"
-					}
-				""")
+						{
+						  "reportType": "WRONG",
+						  "reason": "이상한 입력 데이터"
+						}
+					""")
 				.contentType(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8)));
 
 		resultActions
@@ -259,13 +257,13 @@ public class ReportControllerTest {
 
 		// 유저 1,2 가 글 1,2,3,4 에 대한 댓글 총 8개 남긴다
 		List<PostReportDto> reports = new ArrayList<>();
-		for(int i=1; i<3; i++) {
+		for (int i = 1; i < 3; i++) {
 			for (long j = 1; j < 5; j++) {
-				reports.add(reportService.createPostReport(request, "test"+i+"@example.com", j));
+				reports.add(reportService.createPostReport(request, "test" + i + "@example.com", j));
 			}
 		}
 
-		long lastId = reports.get(reports.size()-1).id() + 1;
+		long lastId = reports.get(reports.size() - 1).id() + 1;
 		int size = 10;
 
 		ResultActions resultActions = mvc.perform(
@@ -404,7 +402,6 @@ public class ReportControllerTest {
 			.andExpect(jsonPath("$.message").value(ErrorCode.ACCESS_DENIED.getMessage()));
 	}
 
-
 	@Test
 	@DisplayName("댓글 신고 목록 조회 - 정상 (10개 이하)")
 	void 정상_댓글_신고_목록_조회_10개_이하() throws Exception {
@@ -417,13 +414,13 @@ public class ReportControllerTest {
 
 		// 유저 1,2 가 글 1,2,3,4 에 대한 댓글 총 8개 남긴다
 		List<PostCommentReportDto> reports = new ArrayList<>();
-		for(int i=1; i<3; i++) {
+		for (int i = 1; i < 3; i++) {
 			for (long j = 1; j < 5; j++) {
-				reports.add(reportService.createPostCommentReport(request, "test"+i+"@example.com", j));
+				reports.add(reportService.createPostCommentReport(request, "test" + i + "@example.com", j));
 			}
 		}
 
-		long lastId = reports.get(reports.size()-1).id() + 1;
+		long lastId = reports.get(reports.size() - 1).id() + 1;
 		int size = 10;
 
 		ResultActions resultActions = mvc.perform(
@@ -449,13 +446,13 @@ public class ReportControllerTest {
 
 		// 유저 1,2,3 이 글 1,2,3,4 에 대한 댓글 총 12개 남긴다
 		List<PostCommentReportDto> reports = new ArrayList<>();
-		for(int i=1; i<4; i++) {
+		for (int i = 1; i < 4; i++) {
 			for (long j = 1; j < 5; j++) {
-				reports.add(reportService.createPostCommentReport(request, "test"+i+"@example.com", j));
+				reports.add(reportService.createPostCommentReport(request, "test" + i + "@example.com", j));
 			}
 		}
 
-		long lastId = reports.get(reports.size()-1).id() + 1;
+		long lastId = reports.get(reports.size() - 1).id() + 1;
 		int size = 10;
 
 		ResultActions resultActions = mvc.perform(
@@ -671,7 +668,8 @@ public class ReportControllerTest {
 		ReportCreateRequestDto request = new ReportCreateRequestDto(reportType, reason);
 		long postCommentId = 1L;
 
-		PostCommentReportDto postCommentReportDto = reportService.createPostCommentReport(request, "test1@example.com", postCommentId);
+		PostCommentReportDto postCommentReportDto = reportService.createPostCommentReport(request, "test1@example.com",
+			postCommentId);
 		String duration = "7일";
 
 		ResultActions resultActions = mvc.perform(
@@ -714,11 +712,13 @@ public class ReportControllerTest {
 		ReportCreateRequestDto request = new ReportCreateRequestDto(reportType, reason);
 		long postId = 1L;
 
-		PostCommentReportDto postcommentReportDto = reportService.createPostCommentReport(request, "test1@example.com", postId);
+		PostCommentReportDto postcommentReportDto = reportService.createPostCommentReport(request, "test1@example.com",
+			postId);
 		String invalidDuration = "비정상";
 
 		ResultActions resultActions = mvc.perform(
-			post("/api/v1/reports/{reportId}/comment/ban?duration={duration}", postcommentReportDto.id(), invalidDuration));
+			post("/api/v1/reports/{reportId}/comment/ban?duration={duration}", postcommentReportDto.id(),
+				invalidDuration));
 
 		resultActions
 			.andExpect(handler().handlerType(ReportController.class))
@@ -760,7 +760,6 @@ public class ReportControllerTest {
 			.andExpect(jsonPath("$.code").value(ErrorCode.ACCESS_DENIED.getHttpStatus().value()))
 			.andExpect(jsonPath("$.message").value(ErrorCode.ACCESS_DENIED.getMessage()));
 	}
-
 
 	@Test
 	@DisplayName("포스트 신고 기각 - 정상")
@@ -847,7 +846,8 @@ public class ReportControllerTest {
 		ReportCreateRequestDto request = new ReportCreateRequestDto(reportType, reason);
 		long postCommentId = 1L;
 
-		PostCommentReportDto postCommentReportDto = reportService.createPostCommentReport(request, "test1@example.com", postCommentId);
+		PostCommentReportDto postCommentReportDto = reportService.createPostCommentReport(request, "test1@example.com",
+			postCommentId);
 
 		ResultActions resultActions = mvc.perform(
 			post("/api/v1/reports/{reportId}/comment/reject", postCommentReportDto.id()));

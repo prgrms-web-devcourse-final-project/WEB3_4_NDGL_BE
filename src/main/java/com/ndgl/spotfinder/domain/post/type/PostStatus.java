@@ -1,4 +1,4 @@
-package com.ndgl.spotfinder.domain.post.entity;
+package com.ndgl.spotfinder.domain.post.type;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

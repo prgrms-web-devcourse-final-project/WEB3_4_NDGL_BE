@@ -11,9 +11,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.ndgl.spotfinder.domain.comment.repository.PostCommentRepository;
 import com.ndgl.spotfinder.domain.like.entity.Like;
-import com.ndgl.spotfinder.domain.like.entity.Like.TargetType;
 import com.ndgl.spotfinder.domain.like.entity.Likeable;
 import com.ndgl.spotfinder.domain.like.repository.LikeRepository;
+import com.ndgl.spotfinder.domain.like.type.TargetType;
 import com.ndgl.spotfinder.domain.post.repository.PostRepository;
 import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.domain.user.service.UserService;
@@ -85,7 +85,7 @@ public class LikeService {
 	 * 좋아요 상태를 한번에 조회
 	 */
 	@Transactional(readOnly = true)
-	public Map<Long, Boolean> getAllLikeStatus(long userId, List<Long> targetIds, Like.TargetType targetType) {
+	public Map<Long, Boolean> getAllLikeStatus(long userId, List<Long> targetIds, TargetType targetType) {
 		if (targetIds.isEmpty()) {
 			return Collections.emptyMap();
 		}

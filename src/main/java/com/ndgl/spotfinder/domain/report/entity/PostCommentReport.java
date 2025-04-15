@@ -1,6 +1,8 @@
 package com.ndgl.spotfinder.domain.report.entity;
 
 import com.ndgl.spotfinder.domain.comment.entity.PostComment;
+import com.ndgl.spotfinder.domain.report.type.ReportStatus;
+import com.ndgl.spotfinder.domain.report.type.ReportType;
 import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.global.base.BaseTime;
 

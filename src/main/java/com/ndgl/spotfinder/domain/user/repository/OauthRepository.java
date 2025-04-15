@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.ndgl.spotfinder.domain.user.entity.Oauth;
-import com.ndgl.spotfinder.domain.user.entity.Provider;
+import com.ndgl.spotfinder.domain.user.type.Provider;
 
 public interface OauthRepository extends JpaRepository<Oauth, Long> {
 	Optional<Oauth> findByIdentifyAndProvider(String identify, Provider provider);
@@ -17,8 +17,8 @@ public interface OauthRepository extends JpaRepository<Oauth, Long> {
 	@Modifying
 	@Query(
 		"UPDATE Oauth o "
-			+ "SET o.identify = CONCAT('resigned_', o.id) "
-			+ "WHERE o.user.id = :userId"
+		+ "SET o.identify = CONCAT('resigned_', o.id) "
+		+ "WHERE o.user.id = :userId"
 	)
 	int resignOauth(@Param("userId") Long userId);
 }

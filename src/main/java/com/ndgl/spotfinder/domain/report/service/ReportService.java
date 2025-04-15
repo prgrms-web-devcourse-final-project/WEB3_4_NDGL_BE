@@ -9,8 +9,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.ndgl.spotfinder.domain.comment.entity.PostComment;
-import com.ndgl.spotfinder.domain.comment.entity.PostCommentStatus;
 import com.ndgl.spotfinder.domain.comment.service.PostCommentService;
+import com.ndgl.spotfinder.domain.comment.type.PostCommentStatus;
 import com.ndgl.spotfinder.domain.post.entity.Post;
 import com.ndgl.spotfinder.domain.post.service.PostService;
 import com.ndgl.spotfinder.domain.report.dto.BanDto;
@@ -20,13 +20,13 @@ import com.ndgl.spotfinder.domain.report.dto.PostReportDto;
 import com.ndgl.spotfinder.domain.report.dto.PostReportResponseDto;
 import com.ndgl.spotfinder.domain.report.dto.ReportCreateRequestDto;
 import com.ndgl.spotfinder.domain.report.entity.Ban;
-import com.ndgl.spotfinder.domain.report.entity.BanDuration;
 import com.ndgl.spotfinder.domain.report.entity.PostCommentReport;
 import com.ndgl.spotfinder.domain.report.entity.PostReport;
-import com.ndgl.spotfinder.domain.report.entity.ReportStatus;
 import com.ndgl.spotfinder.domain.report.repository.BanRepository;
 import com.ndgl.spotfinder.domain.report.repository.PostCommentReportRepository;
 import com.ndgl.spotfinder.domain.report.repository.PostReportRepository;
+import com.ndgl.spotfinder.domain.report.type.BanDuration;
+import com.ndgl.spotfinder.domain.report.type.ReportStatus;
 import com.ndgl.spotfinder.domain.user.entity.User;
 import com.ndgl.spotfinder.domain.user.service.UserService;
 import com.ndgl.spotfinder.global.common.dto.SliceResponse;
@@ -98,7 +98,7 @@ public class ReportService {
 		Pageable pageable = PageRequest.of(0, size, Sort.by(Sort.Direction.DESC, "id"));
 		Slice<PostReportResponseDto> postReportSlice = postReportRepository.findPostReports(lastId, pageable);
 
-		if(postReportSlice.isEmpty()) {
+		if (postReportSlice.isEmpty()) {
 			ErrorCode.EMPTY_POST_REPORT_SLICE.throwServiceException();
 		}
 
@@ -109,9 +109,10 @@ public class ReportService {
 	public SliceResponse<PostCommentReportResponseDto> getPostCommentReportSlice(long lastId, int size) {
 
 		Pageable pageable = PageRequest.of(0, size, Sort.by(Sort.Direction.DESC, "id"));
-		Slice<PostCommentReportResponseDto> postCommentReportSlice = postCommentReportRepository.findPostCommentReports(lastId, pageable);
+		Slice<PostCommentReportResponseDto> postCommentReportSlice = postCommentReportRepository.findPostCommentReports(
+			lastId, pageable);
 
-		if(postCommentReportSlice.isEmpty()) {
+		if (postCommentReportSlice.isEmpty()) {
 			ErrorCode.EMPTY_COMMENT_REPORT_SLICE.throwServiceException();
 		}
 
