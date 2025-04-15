@@ -173,6 +173,10 @@ public class PostSearchService {
 
 		postSearchRepository.deleteAll();
 		postSearchRepository.saveAll(documents);
+
+		// Redis 캐시 삭제 (검색 관련 데이터)
+		redisTemplate.delete("search:post:*");
+		redisTemplate.delete("searchJpa:post:*");
 	}
 
 	public List<String> getPopularKeywords() {
