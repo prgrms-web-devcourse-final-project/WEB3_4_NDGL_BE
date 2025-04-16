@@ -207,9 +207,23 @@ public class PostService {
 
 	public Set<String> extractImageUrlsFromContent(String content) {
 		Set<String> urls = new HashSet<>();
-		Matcher markdownMatcher = Pattern.compile("!\\[\\]\\((https?://[^\\)]+)\\)").matcher(content);
+		// 마크다운 이미지 패턴 처리
+		Matcher markdownMatcher = Pattern.compile("!\\[([^\\]]*)\\]\\((https?://[^\\)]+)\\)").matcher(content);
 		while (markdownMatcher.find()) {
-			urls.add(markdownMatcher.group(1));
+			urls.add(markdownMatcher.group(2));
+		}
+
+		// HTML 이미지 패턴 처리
+		Matcher htmlMatcher = Pattern.compile("<img[^>]+src=[\"']([^\"']+)[\"'][^>]*>").matcher(content);
+		while (htmlMatcher.find()) {
+			urls.add(htmlMatcher.group(1));
+		}
+
+		// S3 버킷 URL이 직접 텍스트로 포함된 경우 처리
+		Matcher rawUrlMatcher = Pattern.compile("(https?://[^\\s\"'<>()]+\\.(?:jpg|jpeg|png|gif|webp|svg))",
+			Pattern.CASE_INSENSITIVE).matcher(content);
+		while (rawUrlMatcher.find()) {
+			urls.add(rawUrlMatcher.group(1));
 		}
 		return urls;
 	}
