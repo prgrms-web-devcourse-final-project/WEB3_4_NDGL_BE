@@ -209,6 +209,11 @@ public class PostService {
 		while (markdownMatcher.find()) {
 			urls.add(markdownMatcher.group(1));
 		}
+
+		Matcher htmlMatcher = Pattern.compile("<img[^>]+src=[\"']([^\"']+)[\"'][^>]*>").matcher(content);
+		while (htmlMatcher.find()) {
+			urls.add(htmlMatcher.group(1));
+		}
 		return urls;
 	}
 
