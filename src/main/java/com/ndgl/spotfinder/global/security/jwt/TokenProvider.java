@@ -188,9 +188,17 @@ public class TokenProvider {
 			createRefreshToken(email, authorities);
 		}
 
-		String newAccessToken = createAccessToken(email, authorities);
-		tokenCookieUtil.refreshAccessTokenCookie(response, newAccessToken);
+		String newAccessToken = reissueAccessTokenOnly(accessToken, response);
 
+		return newAccessToken;
+	}
+
+	public String reissueAccessTokenOnly(String oldAccessToken, HttpServletResponse response) {
+		String authorities = extractAuthoritiesEvenIfExpired(oldAccessToken);
+		String email = getEmailFromTokenEvenIfExpired(oldAccessToken);
+		String newAccessToken = createAccessToken(email, authorities);
+
+		tokenCookieUtil.refreshAccessTokenCookie(response, newAccessToken);
 		return newAccessToken;
 	}
 

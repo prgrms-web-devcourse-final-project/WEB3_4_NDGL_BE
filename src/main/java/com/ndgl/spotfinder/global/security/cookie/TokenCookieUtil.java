@@ -34,24 +34,26 @@ public class TokenCookieUtil {
 		}
 
 		//  cookie에 accessToken 설정
-		String accessCookie = String.format(
-			"accessToken=%s; Max-Age=%d; Path=/;%s HttpOnly%s; SameSite=%s",
-			accessToken,
-			maxAge,
-			domainInCookie,
-			secureFlag,
-			sameSite
-		);
+		String accessCookie = new StringBuilder()
+			.append("accessToken=").append(accessToken)
+			.append("; Max-Age=").append(maxAge)
+			.append("; Path=/")
+			.append(domainInCookie) // 이건 이미 "; Domain=..." 형식이므로 ; 생략
+			.append("; HttpOnly")
+			.append(secureFlag)
+			.append("; SameSite=").append(sameSite)
+			.toString();
 
 		//  cookie에 refreshToken 설정 
-		String refreshCookie = String.format(
-			"refreshToken=%s; Max-Age=%d; Path=/;%s HttpOnly%s; SameSite=%s",
-			refreshToken,
-			maxAge,
-			domainInCookie,
-			secureFlag,
-			sameSite
-		);
+		String refreshCookie = new StringBuilder()
+			.append("refreshToken=").append(refreshToken)
+			.append("; Max-Age=").append(maxAge)
+			.append("; Path=/")
+			.append(domainInCookie) // 이건 이미 "; Domain=..." 형식이므로 ; 생략
+			.append("; HttpOnly")
+			.append(secureFlag)
+			.append("; SameSite=").append(sameSite)
+			.toString();
 
 		response.addHeader("Set-Cookie", accessCookie);
 		response.addHeader("Set-Cookie", refreshCookie);
@@ -68,20 +70,26 @@ public class TokenCookieUtil {
 		}
 
 		//  cookie에 accessToken 삭제
-		String accessCookie = String.format(
-			"accessToken=; Max-Age=0; Path=/;%s HttpOnly%s; SameSite=%s",
-			domainInCookie,
-			secureFlag,
-			sameSite
-		);
+		String accessCookie = new StringBuilder()
+			.append("accessToken=")
+			.append("; Max-Age=").append(0)
+			.append("; Path=/")
+			.append(domainInCookie) // 이건 이미 "; Domain=..." 형식이므로 ; 생략
+			.append("; HttpOnly")
+			.append(secureFlag)
+			.append("; SameSite=").append(sameSite)
+			.toString();
 
 		//  cookie에 refreshToken 삭제
-		String refreshToken = String.format(
-			"refreshToken=; Max-Age=0; Path=/;%s HttpOnly%s; SameSite=%s",
-			domainInCookie,
-			secureFlag,
-			sameSite
-		);
+		String refreshToken = new StringBuilder()
+			.append("refreshToken=")
+			.append("; Max-Age=").append(0)
+			.append("; Path=/")
+			.append(domainInCookie) // 이건 이미 "; Domain=..." 형식이므로 ; 생략
+			.append("; HttpOnly")
+			.append(secureFlag)
+			.append("; SameSite=").append(sameSite)
+			.toString();
 
 		response.addHeader("Set-Cookie", accessCookie);
 		response.addHeader("Set-Cookie", refreshToken);
@@ -97,13 +105,14 @@ public class TokenCookieUtil {
 		}
 
 		//  cookie에 accessToken 설정
-		String accessCookie = String.format(
-			"accessToken=%s; Path=/;%s HttpOnly%s; SameSite=%s",
-			accessToken,
-			domainInCookie,
-			secureFlag,
-			sameSite
-		);
+		String accessCookie = new StringBuilder()
+			.append("accessToken=").append(accessToken)
+			.append("; Path=/")
+			.append(domainInCookie) // 이건 이미 "; Domain=..." 형식이므로 ; 생략
+			.append("; HttpOnly")
+			.append(secureFlag)
+			.append("; SameSite=").append(sameSite)
+			.toString();
 
 		response.addHeader("Set-Cookie", accessCookie);
 	}

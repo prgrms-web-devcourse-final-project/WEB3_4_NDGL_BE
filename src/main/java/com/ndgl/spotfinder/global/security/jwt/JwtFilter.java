@@ -9,6 +9,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.ndgl.spotfinder.global.app.AppConfig;
+import com.ndgl.spotfinder.global.security.cookie.TokenCookieUtil;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -25,6 +26,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
 	private final AppConfig appConfig;
 	private final TokenProvider tokenProvider;
+	private final TokenCookieUtil tokenCookieUtil;
 
 	@Override
 	protected void doFilterInternal(
@@ -46,27 +48,21 @@ public class JwtFilter extends OncePerRequestFilter {
 		}
 
 		if (StringUtils.hasText(tokenValue) && tokenProvider.validateToken(tokenValue)) {
-			log.info("🔐 유효한 accessToken 수신 → 갱신 시도 시작");
+			Authentication auth = tokenProvider.getAuthentication(tokenValue);
+			SecurityContextHolder.getContext().setAuthentication(auth);
 
-			//  refreshToken 취득
+			tokenProvider.reissueAccessTokenOnly(tokenValue, response);
+
+		} else {
 			String refreshToken = resolveRefreshTokenFromCookie(request);
-			log.info("🍪 refreshToken 추출 결과: {}", refreshToken != null ? "[존재함]" : "[없음]");
 
 			if (StringUtils.hasText(refreshToken)) {
-				log.info("🔁 refreshAccessToken 실행");
 				String newToken = tokenProvider.refreshAccessToken(refreshToken, tokenValue, response);
-				log.info("✅ accessToken 갱신 완료 → newToken: {}", newToken);
 
 				if (tokenProvider.validateToken(newToken)) {
-					log.info("🔑 갱신된 accessToken 유효성 확인 완료 → 인증 객체 생성 시도");
 					Authentication auth = tokenProvider.getAuthentication(newToken);
 					SecurityContextHolder.getContext().setAuthentication(auth);
-					log.info("🙆 SecurityContextHolder에 인증 설정 완료 → email: {}", auth.getName());
-				} else {
-					log.info("❌ 갱신된 accessToken 유효성 실패 → 인증 설정되지 않음");
 				}
-			} else {
-				log.info("⚠️ refreshToken이 존재하지 않아 accessToken 갱신 불가");
 			}
 		}
 
