@@ -22,9 +22,8 @@ public class TokenCookieUtil {
 	@Value("${jwt.cookie.expiration-time}")
 	private Long validationTime;
 
-	public void setTokenCookies(HttpServletResponse response, String accessToken,String refreshToken) {
+	public void setTokenCookies(HttpServletResponse response, String accessToken, String refreshToken) {
 		int maxAge = validationTime.intValue() / 1000;
-
 
 		String secureFlag = secure ? "; Secure" : "";
 
@@ -86,5 +85,26 @@ public class TokenCookieUtil {
 
 		response.addHeader("Set-Cookie", accessCookie);
 		response.addHeader("Set-Cookie", refreshToken);
+	}
+
+	public void refreshAccessTokenCookie(HttpServletResponse response, String accessToken) {
+		String secureFlag = secure ? "; Secure" : "";
+
+		String domainInCookie = "";
+
+		if (domain != null && !domain.isEmpty()) {
+			domainInCookie = String.format(" Domain=%s;", domain);
+		}
+
+		//  cookie에 accessToken 설정
+		String accessCookie = String.format(
+			"accessToken=%s; Path=/;%s HttpOnly%s; SameSite=%s",
+			accessToken,
+			domainInCookie,
+			secureFlag,
+			sameSite
+		);
+
+		response.addHeader("Set-Cookie", accessCookie);
 	}
 }
