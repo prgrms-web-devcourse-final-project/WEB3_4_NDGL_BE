@@ -30,7 +30,7 @@ public class TokenCookieUtil {
 		String domainInCookie = "";
 
 		if (domain != null && !domain.isEmpty()) {
-			domainInCookie = String.format(" Domain=%s;", domain);
+			domainInCookie = String.format("; Domain=%s;", domain);
 		}
 
 		//  cookie에 accessToken 설정
@@ -39,7 +39,7 @@ public class TokenCookieUtil {
 			.append("; Max-Age=").append(maxAge)
 			.append("; Path=/")
 			.append(domainInCookie) // 이건 이미 "; Domain=..." 형식이므로 ; 생략
-			.append("; HttpOnly")
+			.append(" HttpOnly")
 			.append(secureFlag)
 			.append("; SameSite=").append(sameSite)
 			.toString();
@@ -50,7 +50,7 @@ public class TokenCookieUtil {
 			.append("; Max-Age=").append(maxAge)
 			.append("; Path=/")
 			.append(domainInCookie) // 이건 이미 "; Domain=..." 형식이므로 ; 생략
-			.append("; HttpOnly")
+			.append(" HttpOnly")
 			.append(secureFlag)
 			.append("; SameSite=").append(sameSite)
 			.toString();
@@ -66,7 +66,7 @@ public class TokenCookieUtil {
 		String domainInCookie = "";
 
 		if (domain != null && !domain.isEmpty()) {
-			domainInCookie = String.format(" Domain=%s;", domain);
+			domainInCookie = String.format("; Domain=%s;", domain);
 		}
 
 		//  cookie에 accessToken 삭제
@@ -75,7 +75,7 @@ public class TokenCookieUtil {
 			.append("; Max-Age=").append(0)
 			.append("; Path=/")
 			.append(domainInCookie) // 이건 이미 "; Domain=..." 형식이므로 ; 생략
-			.append("; HttpOnly")
+			.append(" HttpOnly")
 			.append(secureFlag)
 			.append("; SameSite=").append(sameSite)
 			.toString();
@@ -86,7 +86,7 @@ public class TokenCookieUtil {
 			.append("; Max-Age=").append(0)
 			.append("; Path=/")
 			.append(domainInCookie) // 이건 이미 "; Domain=..." 형식이므로 ; 생략
-			.append("; HttpOnly")
+			.append(" HttpOnly")
 			.append(secureFlag)
 			.append("; SameSite=").append(sameSite)
 			.toString();
@@ -101,7 +101,7 @@ public class TokenCookieUtil {
 		String domainInCookie = "";
 
 		if (domain != null && !domain.isEmpty()) {
-			domainInCookie = String.format(" Domain=%s;", domain);
+			domainInCookie = String.format("; Domain=%s;", domain);
 		}
 
 		//  cookie에 accessToken 설정
@@ -109,7 +109,7 @@ public class TokenCookieUtil {
 			.append("accessToken=").append(accessToken)
 			.append("; Path=/")
 			.append(domainInCookie) // 이건 이미 "; Domain=..." 형식이므로 ; 생략
-			.append("; HttpOnly")
+			.append(" HttpOnly")
 			.append(secureFlag)
 			.append("; SameSite=").append(sameSite)
 			.toString();
