@@ -35,7 +35,6 @@ public class TokenCookieUtil {
 
 		//  cookie에 accessToken 설정
 		String accessCookie = buildCookie("accessToken", accessToken, maxAge, domainInCookie, secureFlag, sameSite);
-		log.info("accessCookie : {}", accessCookie);
 
 		String refreshCookie = buildCookie("refreshToken", refreshToken, maxAge, domainInCookie, secureFlag, sameSite);
 
