@@ -26,8 +26,6 @@ public class AuthController implements AuthApiSpecification {
 	//  토큰 체크 후 진행 될 예정.
 	@GetMapping("/status")
 	public RsData<CheckAuthStatusResponseDto> checkAuthStatus(
-		String accessToken,
-		String refreshToken,
 		HttpServletResponse response
 	) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
