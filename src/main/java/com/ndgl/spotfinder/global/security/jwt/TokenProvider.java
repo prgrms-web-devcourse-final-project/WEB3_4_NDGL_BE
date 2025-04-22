@@ -185,7 +185,8 @@ public class TokenProvider {
 
 		//  refreshToken 만료 확인
 		if (!isValid) {
-			createRefreshToken(email, authorities);
+			String newRefreshToken = createRefreshToken(email, authorities);
+			tokenCookieUtil.refreshRefreshTokenCookie(response, newRefreshToken);
 		}
 
 		String newAccessToken = reissueAccessTokenOnly(accessToken, response);

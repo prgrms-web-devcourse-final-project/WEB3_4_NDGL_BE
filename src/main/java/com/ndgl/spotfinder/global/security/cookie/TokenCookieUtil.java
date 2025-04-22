@@ -35,6 +35,7 @@ public class TokenCookieUtil {
 
 		//  cookie에 accessToken 설정
 		String accessCookie = buildCookie("accessToken", accessToken, maxAge, domainInCookie, secureFlag, sameSite);
+		log.info("accessCookie : {}", accessCookie);
 
 		String refreshCookie = buildCookie("refreshToken", refreshToken, maxAge, domainInCookie, secureFlag, sameSite);
 
@@ -73,13 +74,27 @@ public class TokenCookieUtil {
 		response.addHeader("Set-Cookie", accessCookie);
 	}
 
+	public void refreshRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
+		String secureFlag = secure ? "; Secure" : "";
+
+		String domainInCookie = "";
+
+		if (domain != null && !domain.isEmpty()) {
+			domainInCookie = String.format("; Domain=%s;", domain);
+		}
+
+		String refreshCookie = buildCookie("refreshToken", refreshToken, -1, domainInCookie, secureFlag, sameSite);
+
+		response.addHeader("Set-Cookie", refreshCookie);
+	}
+
 	//  쿠키 생성 시 accessToken && refreshToken 생성 및 제거시 이용
 	private String buildCookie(String cookieName, String cookieValue, int maxAge, String domain,
 		String secure, String sameSite) {
 		StringBuilder sb = new StringBuilder();
 
 		if (maxAge >= 0) {
-			//  갱신시에는 쿠키의 maxAge가 갱신이 되어서는 안되기 때문에 설정 
+			//  갱신시에는 쿠키의 maxAge가 갱신이 되어서는 안되기 때문에 설정
 			sb.append("; Max-Age=").append(maxAge);
 		}
 
