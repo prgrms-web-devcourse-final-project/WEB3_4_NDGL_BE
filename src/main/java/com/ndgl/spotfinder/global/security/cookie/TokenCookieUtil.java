@@ -102,7 +102,7 @@ public class TokenCookieUtil {
 			.append(sb)
 			.append("; Path=/")
 			.append(domain)
-			.append(" HttpOnly")
+			.append("; HttpOnly")
 			.append(secure)
 			.append("; SameSite=").append(sameSite)
 			.toString();
