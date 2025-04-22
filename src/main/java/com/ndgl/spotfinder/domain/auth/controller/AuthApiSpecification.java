@@ -1,7 +1,5 @@
 package com.ndgl.spotfinder.domain.auth.controller;
 
-import org.springframework.web.bind.annotation.CookieValue;
-
 import com.ndgl.spotfinder.domain.auth.dto.CheckAuthStatusResponseDto;
 import com.ndgl.spotfinder.global.rsdata.RsData;
 
@@ -20,20 +18,6 @@ public interface AuthApiSpecification {
 		security = {@SecurityRequirement(name = "JWT")}
 	)
 	RsData<CheckAuthStatusResponseDto> checkAuthStatus(
-		@CookieValue(value = "accessToken", required = false) String accessToken,
-		@CookieValue(value = "refreshToken", required = false) String refreshToken,
 		@Parameter(hidden = true) HttpServletResponse response
 	);
-
-	@Operation(
-		summary = "JWT 토큰 갱신, ",
-		description = "입력 받은 accessToken 갱신",
-		security = {@SecurityRequirement(name = "JWT")}
-	)
-	RsData<String> refreshAccessToken(
-		@Parameter(hidden = true) HttpServletResponse response,
-		@CookieValue(value = "accessToken", required = false) String accessToken,
-		@CookieValue(value = "refreshToken", required = false) String refreshToken
-	);
-
 }

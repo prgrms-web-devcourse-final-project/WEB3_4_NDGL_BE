@@ -173,7 +173,7 @@ public class TokenProvider {
 			.getSubject();
 	}
 
-	public void refreshAccessToken(
+	public String refreshAccessToken(
 		String refreshToken,
 		String accessToken,
 		HttpServletResponse response
@@ -181,17 +181,26 @@ public class TokenProvider {
 		String authorities = extractAuthoritiesEvenIfExpired(accessToken);
 		String email = getEmailFromTokenEvenIfExpired(accessToken);
 
-		log.info(email);
-
 		boolean isValid = validateToken(refreshToken);
 
 		//  refreshToken 만료 확인
 		if (!isValid) {
-			refreshToken = createRefreshToken(email, authorities);
+			String newRefreshToken = createRefreshToken(email, authorities);
+			tokenCookieUtil.refreshRefreshTokenCookie(response, newRefreshToken);
 		}
 
-		accessToken = createAccessToken(email, authorities);
-		tokenCookieUtil.setTokenCookies(response, accessToken, refreshToken);
+		String newAccessToken = reissueAccessTokenOnly(accessToken, response);
+
+		return newAccessToken;
+	}
+
+	public String reissueAccessTokenOnly(String oldAccessToken, HttpServletResponse response) {
+		String authorities = extractAuthoritiesEvenIfExpired(oldAccessToken);
+		String email = getEmailFromTokenEvenIfExpired(oldAccessToken);
+		String newAccessToken = createAccessToken(email, authorities);
+
+		tokenCookieUtil.refreshAccessTokenCookie(response, newAccessToken);
+		return newAccessToken;
 	}
 
 	public SecretKey getKey() {

@@ -36,7 +36,7 @@ public class AdminController implements AdminApiSpecification {
 	@PostMapping("/resign")
 	public RsData<Void> resignAdmin(Principal principal, HttpServletResponse response) {
 		adminService.resign(principal.getName());
-		tokenCookieUtil.cleanTokenCookies(response, "accessToken");
+		tokenCookieUtil.cleanTokenCookies(response);
 		return RsData.success(HttpStatus.OK);
 	}
 

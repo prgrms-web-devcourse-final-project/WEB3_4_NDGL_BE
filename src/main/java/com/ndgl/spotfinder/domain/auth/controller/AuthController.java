@@ -1,49 +1,40 @@
 package com.ndgl.spotfinder.domain.auth.controller;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ndgl.spotfinder.domain.auth.dto.CheckAuthStatusResponseDto;
-import com.ndgl.spotfinder.domain.auth.service.AuthService;
 import com.ndgl.spotfinder.global.rsdata.RsData;
 
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
+@AllArgsConstructor
 @RequestMapping("/api/v1/auth")
 public class AuthController implements AuthApiSpecification {
 
-	private final AuthService authService;
-
-	public AuthController(AuthService authService) {
-		this.authService = authService;
-	}
-
+	//  용도 변경
+	//  기존에는 accessToken 상테 체크만 진행하지만, 현재는 로그인 되었는지 여부 확인. 이는 jwt필터에서
+	//  토큰 체크 후 진행 될 예정.
 	@GetMapping("/status")
 	public RsData<CheckAuthStatusResponseDto> checkAuthStatus(
-		@CookieValue(value = "accessToken", required = false) String accessToken,
-		@CookieValue(value = "refreshToken", required = false) String refreshToken,
 		HttpServletResponse response
 	) {
-		CheckAuthStatusResponseDto responseDto = authService.statusCheck(accessToken, refreshToken, response);
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+		boolean isLoggedIn = authentication != null && authentication.isAuthenticated()
+			&& !(authentication instanceof AnonymousAuthenticationToken);
+
+		CheckAuthStatusResponseDto responseDto = new CheckAuthStatusResponseDto(isLoggedIn);
 
 		return RsData.success(HttpStatus.OK, responseDto);
-	}
-
-	@PostMapping("/token/refresh")
-	public RsData<String> refreshAccessToken(
-		HttpServletResponse response,
-		@CookieValue(value = "accessToken", required = false) String accessToken,
-		@CookieValue(value = "refreshToken", required = false) String refreshToken
-	) {
-		authService.refreshAccessToken(accessToken, refreshToken, response);
-
-		return RsData.success(HttpStatus.OK);
 	}
 }

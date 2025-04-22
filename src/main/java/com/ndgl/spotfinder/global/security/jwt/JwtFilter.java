@@ -9,6 +9,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.ndgl.spotfinder.global.app.AppConfig;
+import com.ndgl.spotfinder.global.security.cookie.TokenCookieUtil;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -16,13 +17,16 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
 
 	private final AppConfig appConfig;
 	private final TokenProvider tokenProvider;
+	private final TokenCookieUtil tokenCookieUtil;
 
 	@Override
 	protected void doFilterInternal(
@@ -46,6 +50,18 @@ public class JwtFilter extends OncePerRequestFilter {
 		if (StringUtils.hasText(tokenValue) && tokenProvider.validateToken(tokenValue)) {
 			Authentication auth = tokenProvider.getAuthentication(tokenValue);
 			SecurityContextHolder.getContext().setAuthentication(auth);
+
+		} else {
+			String refreshToken = resolveRefreshTokenFromCookie(request);
+
+			if (StringUtils.hasText(refreshToken)) {
+				String newToken = tokenProvider.refreshAccessToken(refreshToken, tokenValue, response);
+
+				if (tokenProvider.validateToken(newToken)) {
+					Authentication auth = tokenProvider.getAuthentication(newToken);
+					SecurityContextHolder.getContext().setAuthentication(auth);
+				}
+			}
 		}
 
 		filterChain.doFilter(request, response);
@@ -65,6 +81,20 @@ public class JwtFilter extends OncePerRequestFilter {
 
 		for (Cookie cookie : request.getCookies()) {
 			if ("accessToken".equals(cookie.getName())) {
+				String value = cookie.getValue();
+				return value.trim();
+			}
+		}
+
+		return null;
+	}
+
+	private String resolveRefreshTokenFromCookie(HttpServletRequest request) {
+		if (request.getCookies() == null)
+			return null;
+
+		for (Cookie cookie : request.getCookies()) {
+			if ("refreshToken".equals(cookie.getName())) {
 				String value = cookie.getValue();
 				return value.trim();
 			}
