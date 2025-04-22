@@ -120,7 +120,7 @@ public class UserService {
 
 	public void logout(String userId, HttpServletResponse response, String accessToken) {
 		refreshTokenService.deleteRefreshToken(userId);
-		tokenCookieUtil.cleanTokenCookies(response, accessToken);
+		tokenCookieUtil.cleanTokenCookies(response);
 	}
 
 	public UserInfoResponseDto getUserInfo(User user) {
@@ -152,7 +152,7 @@ public class UserService {
 
 		try {
 			if (resignedUserCnt > 0 && resignedOauthCnt > 0) {
-				tokenCookieUtil.cleanTokenCookies(response, accessToken);
+				tokenCookieUtil.cleanTokenCookies(response);
 				refreshTokenService.deleteRefreshToken(user.getEmail());
 			}
 		} catch (Exception e) {

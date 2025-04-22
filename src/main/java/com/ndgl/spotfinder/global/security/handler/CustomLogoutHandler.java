@@ -19,10 +19,10 @@ public class CustomLogoutHandler implements LogoutHandler {
 	@Override
 	public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
 
-		if(authentication != null) {
+		if (authentication != null) {
 			request.setAttribute("username", authentication.getName());
 		}
 
-		tokenCookieUtil.cleanTokenCookies(response, "accessToken");
+		tokenCookieUtil.cleanTokenCookies(response);
 	}
 }
